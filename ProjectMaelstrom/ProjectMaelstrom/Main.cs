@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Drawing;
 using ProjectMaelstrom.Models;
 using ProjectMaelstrom.Modules.ImageRecognition;
@@ -160,6 +161,8 @@ public partial class Main : Form
 
         _snapshotBridge = new SnapshotBridge();
         _snapshotBridge.Start(TimeSpan.FromSeconds(5));
+
+        trainerListView.MouseDoubleClick += TrainerListView_MouseDoubleClick;
     }
 
     private void Main_FormClosing(object? sender, FormClosingEventArgs e)
@@ -224,7 +227,8 @@ public partial class Main : Form
     private void SyncTimer_Tick(object? sender, EventArgs e)
     {
         var syncState = GameSyncService.Evaluate(StateManager.Instance.SelectedResolution);
-        syncStatusValueLabel.Text = syncState.Message;
+        var launcherState = WizardLauncher.DetectState(out var launcherDesc);
+        syncStatusValueLabel.Text = $"{syncState.Message} | Launcher: {launcherDesc}";
         switch (syncState.Health)
         {
             case GameSyncHealth.InSync:
@@ -974,6 +978,32 @@ public partial class Main : Form
         if (selected == null)
         {
             return;
+        }
+    }
+
+    private void TrainerListView_MouseDoubleClick(object? sender, MouseEventArgs e)
+    {
+        if (trainerListView.SelectedItems.Count == 0) return;
+        if (trainerListView.SelectedItems[0].Tag is not ScriptDefinition selected) return;
+
+        var url = selected.PackageInfo?.SourceUrl;
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            MessageBox.Show("No source URL recorded for this script. Open it via Manage Scripts to see more details.", "Source", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to open source: {ex.Message}", "Source Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

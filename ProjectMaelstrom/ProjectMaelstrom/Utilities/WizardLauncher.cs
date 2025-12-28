@@ -1,24 +1,47 @@
+using System.Diagnostics;
+using System.IO;
 using Microsoft.Win32;
 
 namespace ProjectMaelstrom.Utilities;
 
 internal static class WizardLauncher
 {
+    public enum LauncherState
+    {
+        NotRunning,
+        LauncherRunning,
+        GameRunning
+    }
+
     private static readonly string[] CandidatePaths =
     {
+        @"C:\ProgramData\KingsIsle Entertainment\Wizard101\Wizard101.exe",
         @"C:\ProgramData\KingsIsle Entertainment\Wizard101\PlayWizard101.exe",
         @"C:\Program Files (x86)\KingsIsle Entertainment\Wizard101\PlayWizard101.exe",
+        @"C:\Program Files (x86)\KingsIsle Entertainment\Wizard101\Wizard101.exe",
         @"C:\Program Files\KingsIsle Entertainment\Wizard101\PlayWizard101.exe",
-        @"C:\KingsIsle Entertainment\Wizard101\PlayWizard101.exe"
+        @"C:\Program Files\KingsIsle Entertainment\Wizard101\Wizard101.exe",
+        @"C:\KingsIsle Entertainment\Wizard101\PlayWizard101.exe",
+        @"C:\KingsIsle Entertainment\Wizard101\Wizard101.exe"
     };
+
+    private static string CachePath => Path.Combine(StorageUtils.GetCacheDirectory(), "wizard_path.txt");
 
     public static string? FindClient()
     {
         try
         {
+            // Prefer cached path if still valid
+            var cached = ReadCachedPath();
+            if (!string.IsNullOrWhiteSpace(cached) && File.Exists(cached))
+            {
+                return cached;
+            }
+
             var regPath = FindFromRegistry();
             if (!string.IsNullOrEmpty(regPath))
             {
+                WriteCachedPath(regPath);
                 return regPath;
             }
 
@@ -26,6 +49,7 @@ internal static class WizardLauncher
             {
                 if (File.Exists(path))
                 {
+                    WriteCachedPath(path);
                     return path;
                 }
             }
@@ -66,10 +90,18 @@ internal static class WizardLauncher
                 return null;
             }
 
-            string candidate = Path.Combine(installDir, "PlayWizard101.exe");
-            if (File.Exists(candidate))
+            string[] candidates =
             {
-                return candidate;
+                Path.Combine(installDir, "Wizard101.exe"),
+                Path.Combine(installDir, "PlayWizard101.exe")
+            };
+
+            foreach (var candidate in candidates)
+            {
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
             }
         }
         catch (Exception ex)
@@ -95,6 +127,7 @@ internal static class WizardLauncher
             if (dialog.ShowDialog() == DialogResult.OK && File.Exists(dialog.FileName))
             {
                 client = dialog.FileName;
+                WriteCachedPath(client);
             }
             else
             {
@@ -119,5 +152,90 @@ internal static class WizardLauncher
             Logger.LogError("[WizardLauncher] Launch failed", ex);
             return false;
         }
+    }
+
+    private static string? ReadCachedPath()
+    {
+        try
+        {
+            if (File.Exists(CachePath))
+            {
+                var path = File.ReadAllText(CachePath).Trim();
+                return string.IsNullOrWhiteSpace(path) ? null : path;
+            }
+        }
+        catch
+        {
+            // ignore cache read errors
+        }
+        return null;
+    }
+
+    private static void WriteCachedPath(string path)
+    {
+        try
+        {
+            File.WriteAllText(CachePath, path);
+        }
+        catch
+        {
+            // ignore cache write errors
+        }
+    }
+
+    public static LauncherState DetectState(out string description)
+    {
+        try
+        {
+            var game = Process.GetProcessesByName("Wizard101").FirstOrDefault();
+            if (game != null)
+            {
+                var title = SafeTitle(game);
+                description = string.IsNullOrWhiteSpace(title) ? "Game running" : $"Game running ({title})";
+                return LauncherState.GameRunning;
+            }
+
+            var launcher = Process.GetProcessesByName("PlayWizard101").FirstOrDefault();
+            if (launcher != null)
+            {
+                var title = SafeTitle(launcher);
+                description = DescribeLauncherTitle(title);
+                return LauncherState.LauncherRunning;
+            }
+        }
+        catch
+        {
+            // ignore detection failures
+        }
+
+        description = "Not running";
+        return LauncherState.NotRunning;
+    }
+
+    private static string SafeTitle(Process p)
+    {
+        try
+        {
+            return p.MainWindowTitle ?? string.Empty;
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private static string DescribeLauncherTitle(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title)) return "Launcher/patcher running";
+        var lower = title.ToLowerInvariant();
+        if (lower.Contains("play"))
+        {
+            return $"Launcher ready (Play)";
+        }
+        if (lower.Contains("patch") || lower.Contains("update"))
+        {
+            return $"Patching/updating";
+        }
+        return $"Launcher/patcher ({title})";
     }
 }

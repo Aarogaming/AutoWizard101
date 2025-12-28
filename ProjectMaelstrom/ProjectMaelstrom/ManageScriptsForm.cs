@@ -76,6 +76,63 @@ public partial class ManageScriptsForm : Form
         UpdateScriptStatus();
     }
 
+    private async void updateScriptButton_Click(object sender, EventArgs e)
+    {
+        if (scriptListBox.SelectedItem is not ScriptDefinition selected)
+        {
+            MessageBox.Show("Select a script first.", "No Script Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        Cursor = Cursors.WaitCursor;
+        try
+        {
+            var updated = await _service.UpdateScriptAsync(selected);
+            LoadScriptLibrary();
+            if (updated != null)
+            {
+                scriptListBox.SelectedItem = _service.Scripts.FirstOrDefault(s => s.Manifest.Name == updated.Manifest.Name);
+                MessageBox.Show($"Updated {updated.Manifest.Name}", "Update", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Update completed, but updated manifest not found.", "Update", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Update failed: {ex.Message}", "Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        finally
+        {
+            Cursor = Cursors.Default;
+        }
+    }
+
+    private void removeScriptButton_Click(object sender, EventArgs e)
+    {
+        if (scriptListBox.SelectedItem is not ScriptDefinition selected)
+        {
+            MessageBox.Show("Select a script first.", "No Script Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        var confirm = MessageBox.Show($"Remove {selected.Manifest.Name} from the library?", "Remove Script",
+            MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        if (confirm != DialogResult.Yes) return;
+
+        try
+        {
+            _service.UninstallScript(selected);
+            LoadScriptLibrary();
+            UpdateScriptStatus();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to remove: {ex.Message}", "Remove Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
     private async void importFromGithubButton_Click(object sender, EventArgs e)
     {
         string input = Interaction.InputBox(
@@ -213,6 +270,35 @@ public partial class ManageScriptsForm : Form
         }
     }
 
+    private void viewSourceButton_Click(object sender, EventArgs e)
+    {
+        if (scriptListBox.SelectedItem is not ScriptDefinition selected)
+        {
+            MessageBox.Show("Select a script first.", "No Script Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        var url = selected.PackageInfo?.SourceUrl;
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            MessageBox.Show("No source URL recorded for this script.", "Source", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to open source: {ex.Message}", "Source Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
     private void scriptListBox_SelectedIndexChanged(object? sender, EventArgs e)
     {
         UpdateScriptStatus();
@@ -221,13 +307,22 @@ public partial class ManageScriptsForm : Form
     private void UpdateScriptStatus()
     {
         var running = _service.CurrentSession;
-        if (running == null)
-        {
-            scriptStatusLabel.Text = "Status: Idle";
-            return;
-        }
+        scriptStatusLabel.Text = running == null
+            ? "Status: Idle"
+            : $"Running: {running.Script.Manifest.Name}";
 
-        scriptStatusLabel.Text = $"Running: {running.Script.Manifest.Name}";
+        if (scriptListBox.SelectedItem is ScriptDefinition selected)
+        {
+            var src = selected.PackageInfo?.SourceUrl;
+            sourceLabel.Text = string.IsNullOrWhiteSpace(src) ? "Source: -" : $"Source: {src}";
+            var author = selected.Manifest.Author;
+            authorLabel.Text = string.IsNullOrWhiteSpace(author) ? "Author: -" : $"Author: {author}";
+        }
+        else
+        {
+            sourceLabel.Text = "Source: -";
+            authorLabel.Text = "Author: -";
+        }
     }
 
     private static string GetScriptLogPath(string scriptName)

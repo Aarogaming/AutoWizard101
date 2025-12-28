@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text.Json;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text;
 using Installer.Models;
@@ -12,12 +13,22 @@ public partial class InstallerForm : Form
 {
     private const string DefaultFeedUrl = "https://raw.githubusercontent.com/aarog/AutoWizard101/main/update_manifest.json";
     private readonly string? _feedUrlFromArgs;
-    private string _installPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjectMaelstrom");
+    private string _defaultInstallPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjectMaelstrom");
     private string _logPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjectMaelstrom", "logs", "installer.log");
     private string _desktop => Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
     private string _startMenu => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Project Maelstrom");
     private string _latestVersion = "Unknown";
+    private string? _latestChangelog = null;
     private string _installedVersion = "Unknown";
+    private bool _devMode;
+    private static readonly HttpClient _httpClient = new();
+
+    private string ResolveInstallPath()
+    {
+        return string.IsNullOrWhiteSpace(installPathText.Text)
+            ? _defaultInstallPath
+            : installPathText.Text.Trim();
+    }
 
     public InstallerForm(string? feedUrl)
     {
@@ -35,12 +46,20 @@ public partial class InstallerForm : Form
         {
             feedText.Text = DefaultFeedUrl;
         }
+        installPathText.Text = _defaultInstallPath;
+        logPathLabel.Text = $"Log: {_logPath}";
         DetectInstalled();
+        _ = DetectDevModeAsync();
+        _ = PopulateScriptsFromEmbeddedAsync();
+        if (autoCheckUpdatesCheck.Checked)
+        {
+            checkButton_Click(this, EventArgs.Empty);
+        }
     }
 
     private void DetectInstalled()
     {
-        var exe = Path.Combine(_installPath, "ProjectMaelstrom.exe");
+        var exe = Path.Combine(ResolveInstallPath(), "ProjectMaelstrom.exe");
         if (File.Exists(exe))
         {
             var info = FileVersionInfo.GetVersionInfo(exe);
@@ -52,6 +71,76 @@ public partial class InstallerForm : Form
             installedVersionLabel.Text = "Installed: Not found";
             _installedVersion = "Not found";
         }
+    }
+
+    private async Task DetectDevModeAsync()
+    {
+        try
+        {
+            var cfg = Path.Combine(ResolveInstallPath(), "dev.config");
+            if (!File.Exists(cfg))
+            {
+                cfg = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjectMaelstrom", "dev.config");
+            }
+
+            string? token = null;
+            if (File.Exists(cfg))
+            {
+                var lines = File.ReadAllLines(cfg);
+                foreach (var line in lines)
+                {
+                    if (line.IndexOf("DEV_MODE=true", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        _devMode = true;
+                        devButton.Visible = true;
+                        LogStep("Dev mode enabled via config.");
+                        return;
+                    }
+                    if (line.TrimStart().StartsWith("GITHUB_TOKEN=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        token = line.Split('=', 2)[1].Trim();
+                    }
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                try
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user");
+                    req.Headers.UserAgent.ParseAdd("ProjectMaelstromInstaller");
+                    req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                    var resp = await _httpClient.SendAsync(req);
+                    if (resp.IsSuccessStatusCode)
+                    {
+                        var json = await resp.Content.ReadAsStringAsync();
+                        using var doc = JsonDocument.Parse(json);
+                        if (doc.RootElement.TryGetProperty("login", out var loginEl))
+                        {
+                            var login = loginEl.GetString();
+                            if (!string.IsNullOrWhiteSpace(login) &&
+                                login.Equals("aarog", StringComparison.OrdinalIgnoreCase))
+                            {
+                                _devMode = true;
+                                devButton.Visible = true;
+                                LogStep("Dev mode enabled via GitHub token.");
+                                return;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignore token failures
+                }
+            }
+        }
+        catch
+        {
+            // ignore
+        }
+        _devMode = false;
+        devButton.Visible = false;
     }
 
     private async void checkButton_Click(object sender, EventArgs e)
@@ -124,20 +213,70 @@ public partial class InstallerForm : Form
                 return;
             }
 
-            if (Directory.Exists(_installPath))
+            var installPath = ResolveInstallPath();
+
+            if (cleanInstallCheck.Checked && Directory.Exists(installPath))
             {
-                Directory.Delete(_installPath, recursive: true);
+                Directory.Delete(installPath, recursive: true);
             }
-            Directory.CreateDirectory(_installPath);
+            Directory.CreateDirectory(installPath);
+
             LogStep("Extracting package...");
-            ZipFile.ExtractToDirectory(payload, _installPath);
-            CreateShortcut(Path.Combine(_desktop, "Project Maelstrom.lnk"));
-            Directory.CreateDirectory(_startMenu);
-            CreateShortcut(Path.Combine(_startMenu, "Project Maelstrom.lnk"));
-            CreateUninstallScript();
+            await ExtractPayloadAsync(payload, installPath);
+
+            if (smartPlayInitCheck.Checked)
+            {
+                try
+                {
+                    var scriptsRoot = Path.Combine(installPath, "Scripts");
+                    var libraryPath = Path.Combine(scriptsRoot, "Library");
+                    var cachePath = Path.Combine(scriptsRoot, ".cache");
+                    Directory.CreateDirectory(scriptsRoot);
+                    Directory.CreateDirectory(libraryPath);
+                    Directory.CreateDirectory(cachePath);
+                    Directory.CreateDirectory(Path.Combine(installPath, "logs"));
+                }
+                catch
+                {
+                    // best effort
+                }
+            }
+
+            if (desktopShortcutCheck.Checked)
+            {
+                CreateShortcut(Path.Combine(_desktop, "Project Maelstrom.lnk"), installPath);
+            }
+            if (startMenuShortcutCheck.Checked)
+            {
+                Directory.CreateDirectory(_startMenu);
+                CreateShortcut(Path.Combine(_startMenu, "Project Maelstrom.lnk"), installPath);
+            }
+            if (uninstallShortcutCheck.Checked)
+            {
+                CreateUninstallScript(installPath, createShortcut: true);
+            }
+            else
+            {
+                CreateUninstallScript(installPath, createShortcut: false);
+            }
+
             statusLabel.Text = "Status: Install complete.";
             LogStep("Install complete.");
             DetectInstalled();
+
+            if (launchAfterInstallCheck.Checked)
+            {
+                var exePath = Path.Combine(installPath, "ProjectMaelstrom.exe");
+                if (File.Exists(exePath))
+                {
+                    try { Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true }); } catch { /* ignore */ }
+                }
+            }
+
+            if (openReleaseNotesCheck.Checked && !string.IsNullOrWhiteSpace(_latestChangelog))
+            {
+                MessageBox.Show(_latestChangelog, "Release Notes", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
         catch (Exception ex)
         {
@@ -218,7 +357,8 @@ public partial class InstallerForm : Form
             if (File.Exists(desktopShortcut)) File.Delete(desktopShortcut);
             if (File.Exists(startShortcut)) File.Delete(startShortcut);
             if (File.Exists(startUninstall)) File.Delete(startUninstall);
-            if (Directory.Exists(_installPath)) Directory.Delete(_installPath, recursive: true);
+            var installPath = ResolveInstallPath();
+            if (Directory.Exists(installPath)) Directory.Delete(installPath, recursive: true);
             statusLabel.Text = "Status: Uninstalled.";
             installedVersionLabel.Text = "Installed: Not found";
         }
@@ -261,6 +401,7 @@ public partial class InstallerForm : Form
             var data = await client.GetByteArrayAsync(manifest.PackageUrl);
             await File.WriteAllBytesAsync(tempZip, data);
             _latestVersion = manifest.Version ?? "Unknown";
+            _latestChangelog = manifest.Changelog;
             latestVersionLabel.Text = $"Latest: {_latestVersion}";
             LogStep($"Downloaded latest package {_latestVersion}");
             return tempZip;
@@ -268,6 +409,22 @@ public partial class InstallerForm : Form
         catch (Exception ex)
         {
             LogError($"Download latest failed: {ex}");
+            return null;
+        }
+    }
+
+    private async Task<UpdateManifest?> FetchLatestManifestAsync(string feedUrl)
+    {
+        try
+        {
+            using var client = new HttpClient();
+            var json = await client.GetStringAsync(feedUrl);
+            var manifest = JsonSerializer.Deserialize<UpdateManifest>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            return manifest;
+        }
+        catch (Exception ex)
+        {
+            LogError($"Fetch manifest failed: {ex}");
             return null;
         }
     }
@@ -287,14 +444,76 @@ public partial class InstallerForm : Form
         return tempZip;
     }
 
-    private void CreateShortcut(string shortcutPath)
+    private async Task ExtractPayloadAsync(string payloadPath, string installPath)
+    {
+        var selected = scriptsList.CheckedItems.Cast<object>()
+            .Select(o => o?.ToString())
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Select(s => s!.Trim())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var limitScripts = selected.Count > 0;
+
+        using var archive = ZipFile.OpenRead(payloadPath);
+        var sep = Path.DirectorySeparatorChar.ToString();
+        var scriptPrefix = $"Scripts{sep}Library{sep}";
+
+        foreach (var entry in archive.Entries)
+        {
+            var normalized = entry.FullName.Replace('/', Path.DirectorySeparatorChar);
+            if (string.IsNullOrWhiteSpace(normalized))
+            {
+                continue;
+            }
+
+            var isDirectory = normalized.EndsWith(Path.DirectorySeparatorChar);
+            var isScript = normalized.StartsWith(scriptPrefix, StringComparison.OrdinalIgnoreCase);
+            string? scriptName = null;
+            if (isScript)
+            {
+                var remainder = normalized.Substring(scriptPrefix.Length);
+                var slashIndex = remainder.IndexOf(Path.DirectorySeparatorChar);
+                if (slashIndex > 0)
+                {
+                    scriptName = remainder[..slashIndex];
+                }
+                else if (!string.IsNullOrWhiteSpace(remainder))
+                {
+                    scriptName = remainder;
+                }
+            }
+
+            if (isScript && limitScripts && (scriptName == null || !selected.Contains(scriptName)))
+            {
+                continue;
+            }
+
+            var destinationPath = Path.GetFullPath(Path.Combine(installPath, normalized));
+            if (!destinationPath.StartsWith(Path.GetFullPath(installPath), StringComparison.OrdinalIgnoreCase))
+            {
+                continue; // safety
+            }
+
+            if (isDirectory || string.IsNullOrEmpty(entry.Name))
+            {
+                Directory.CreateDirectory(destinationPath);
+                continue;
+            }
+
+            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+            using var entryStream = entry.Open();
+            using var fileStream = File.Create(destinationPath);
+            await entryStream.CopyToAsync(fileStream);
+        }
+    }
+
+    private void CreateShortcut(string shortcutPath, string installPath)
     {
         try
         {
-            var exePath = Path.Combine(_installPath, "ProjectMaelstrom.exe");
+            var exePath = Path.Combine(installPath, "ProjectMaelstrom.exe");
             IShellLinkW shellLink = (IShellLinkW)new ShellLink();
             shellLink.SetPath(exePath);
-            shellLink.SetWorkingDirectory(_installPath);
+            shellLink.SetWorkingDirectory(installPath);
             shellLink.SetIconLocation(exePath, 0);
             IPersistFile persistFile = (IPersistFile)shellLink;
             persistFile.Save(shortcutPath, false);
@@ -302,11 +521,11 @@ public partial class InstallerForm : Form
         catch { /* best effort */ }
     }
 
-    private void CreateUninstallScript()
+    private void CreateUninstallScript(string installPath, bool createShortcut)
     {
         try
         {
-            var scriptPath = Path.Combine(_installPath, "uninstall_maelstrom.ps1");
+            var scriptPath = Path.Combine(installPath, "uninstall_maelstrom.ps1");
             var desktopShortcut = Path.Combine(_desktop, "Project Maelstrom.lnk");
             var startShortcut = Path.Combine(_startMenu, "Project Maelstrom.lnk");
             var startUninstall = Path.Combine(_startMenu, "Uninstall Project Maelstrom.lnk");
@@ -315,13 +534,17 @@ $ErrorActionPreference = 'SilentlyContinue'
 Remove-Item -Path '{desktopShortcut}' -ErrorAction SilentlyContinue
 Remove-Item -Path '{startShortcut}' -ErrorAction SilentlyContinue
 Remove-Item -Path '{startUninstall}' -ErrorAction SilentlyContinue
-if (Test-Path '{_installPath}') {{
-    Remove-Item -Recurse -Force '{_installPath}'
+if (Test-Path '{installPath}') {{
+    Remove-Item -Recurse -Force '{installPath}'
 }}
 Write-Host 'Project Maelstrom removed.'
 ";
             File.WriteAllText(scriptPath, script);
-            CreateScriptShortcut(Path.Combine(_startMenu, "Uninstall Project Maelstrom.lnk"), scriptPath, "Uninstall Project Maelstrom");
+            if (createShortcut)
+            {
+                Directory.CreateDirectory(_startMenu);
+                CreateScriptShortcut(Path.Combine(_startMenu, "Uninstall Project Maelstrom.lnk"), scriptPath, "Uninstall Project Maelstrom");
+            }
         }
         catch { /* ignore */ }
     }
@@ -378,6 +601,18 @@ Write-Host 'Project Maelstrom removed.'
         }
 
         return string.Equals(_installedVersion, _latestVersion, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void devButton_Click(object sender, EventArgs e)
+    {
+        if (!_devMode)
+        {
+            MessageBox.Show("Dev mode not enabled.", "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var msg = $"Dev Console\nInstalled: {_installedVersion}\nLatest: {_latestVersion}\nFeed: {feedText.Text}";
+        MessageBox.Show(msg, "Dev Console", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -437,6 +672,167 @@ Write-Host 'Project Maelstrom removed.'
         catch
         {
             // best effort logging
+        }
+    }
+
+    private async Task PopulateScriptsFromEmbeddedAsync()
+    {
+        try
+        {
+            var asm = Assembly.GetExecutingAssembly();
+            var resourceName = asm.GetManifestResourceNames().FirstOrDefault(n => n.EndsWith("ProjectMaelstrom-win-x64.zip", StringComparison.OrdinalIgnoreCase));
+            if (resourceName == null) return;
+
+            using var resStream = asm.GetManifestResourceStream(resourceName);
+            if (resStream == null) return;
+            using var archive = new ZipArchive(resStream, ZipArchiveMode.Read, leaveOpen: false);
+            var sep = '/';
+            var prefix = "Scripts/Library/";
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var entry in archive.Entries)
+            {
+                if (!entry.FullName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) continue;
+                var remainder = entry.FullName.Substring(prefix.Length);
+                var slash = remainder.IndexOf(sep);
+                if (slash > 0)
+                {
+                    var name = remainder.Substring(0, slash);
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        names.Add(name.Trim());
+                    }
+                }
+            }
+
+            var sorted = names.OrderBy(n => n).ToList();
+            scriptsList.Items.Clear();
+            foreach (var n in sorted)
+            {
+                scriptsList.Items.Add(n, true);
+            }
+
+            LogStep(sorted.Count == 0 ? "No scripts detected in package." : $"Scripts detected: {sorted.Count}");
+        }
+        catch (Exception ex)
+        {
+            LogError($"Populate scripts failed: {ex}");
+        }
+    }
+
+    private void browseInstallButton_Click(object sender, EventArgs e)
+    {
+        using var dlg = new FolderBrowserDialog();
+        dlg.SelectedPath = string.IsNullOrWhiteSpace(installPathText.Text) ? _defaultInstallPath : installPathText.Text;
+        if (dlg.ShowDialog() == DialogResult.OK)
+        {
+            installPathText.Text = dlg.SelectedPath;
+        }
+    }
+
+    private void openLogButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var dir = Path.GetDirectoryName(_logPath);
+            if (!string.IsNullOrWhiteSpace(dir))
+            {
+                Directory.CreateDirectory(dir);
+                Process.Start(new ProcessStartInfo("explorer.exe", dir) { UseShellExecute = true });
+            }
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    private void openInstallFolderButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var path = ResolveInstallPath();
+            Directory.CreateDirectory(path);
+            Process.Start(new ProcessStartInfo("explorer.exe", path) { UseShellExecute = true });
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    private void openLibraryButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var library = Path.Combine(ResolveInstallPath(), "Scripts", "Library");
+            Directory.CreateDirectory(library);
+            Process.Start(new ProcessStartInfo("explorer.exe", library) { UseShellExecute = true });
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    private async void launchAppButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var installPath = ResolveInstallPath();
+            var exe = Path.Combine(installPath, "ProjectMaelstrom.exe");
+            if (!File.Exists(exe))
+            {
+                MessageBox.Show("Project Maelstrom is not installed at the selected path.", "Launch", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // Optional version check before launch
+            if (autoCheckUpdatesCheck.Checked && !string.IsNullOrWhiteSpace(feedText.Text))
+            {
+                var manifest = await FetchLatestManifestAsync(feedText.Text);
+                if (manifest?.Version != null)
+                {
+                    _latestVersion = manifest.Version;
+                    latestVersionLabel.Text = $"Latest: {_latestVersion}";
+                }
+
+                DetectInstalled(); // refresh installed version info
+
+                if (!string.IsNullOrWhiteSpace(_latestVersion) &&
+                    Version.TryParse(_installedVersion, out var installed) &&
+                    Version.TryParse(_latestVersion, out var latest) &&
+                    latest > installed)
+                {
+                    var choice = MessageBox.Show(
+                        $"An update is available (Installed: {_installedVersion}, Latest: {_latestVersion}).\n\nUpdate now?",
+                        "Update Recommended",
+                        MessageBoxButtons.YesNoCancel,
+                        MessageBoxIcon.Question);
+
+                    if (choice == DialogResult.Yes)
+                    {
+                        await InstallOrUpdateAsync(force: false);
+                        DetectInstalled();
+                        exe = Path.Combine(ResolveInstallPath(), "ProjectMaelstrom.exe");
+                        if (!File.Exists(exe))
+                        {
+                            MessageBox.Show("Launch aborted: executable not found after update.", "Launch", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+                    }
+                    else if (choice == DialogResult.Cancel)
+                    {
+                        return; // user cancelled
+                    }
+                    // No => launch anyway
+                }
+            }
+
+            Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to launch: {ex.Message}", "Launch Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

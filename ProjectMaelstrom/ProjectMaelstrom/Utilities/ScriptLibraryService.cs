@@ -15,6 +15,7 @@ internal class ScriptLibraryService
     private readonly Dictionary<string, GameStateSnapshot> _latestSnapshots = new(StringComparer.OrdinalIgnoreCase);
     private List<ScriptDefinition> _scripts = new();
     private static readonly HttpClient _httpClient = new();
+    private const string PackageMetaFileName = ".package.json";
     public bool DryRun { get; set; }
 
     private ScriptLibraryService()
@@ -75,23 +76,8 @@ internal class ScriptLibraryService
 
             string targetFolderName = BuildTargetFolderName(sourceUrl, branchOrTag);
             string destPath = Path.Combine(libraryRoot, targetFolderName);
-            Directory.CreateDirectory(destPath);
-
-            ZipFile.ExtractToDirectory(tempZip, destPath, overwriteFiles: true);
-
-            // If the extracted zip has a single top-level folder, flatten it.
-            var subDirs = Directory.GetDirectories(destPath);
-            if (!File.Exists(Path.Combine(destPath, "manifest.json")) && subDirs.Length == 1)
-            {
-                var inner = subDirs[0];
-                foreach (var file in Directory.GetFiles(inner, "*", SearchOption.AllDirectories))
-                {
-                    var relative = Path.GetRelativePath(inner, file);
-                    var target = Path.Combine(destPath, relative);
-                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                    File.Copy(file, target, overwrite: true);
-                }
-            }
+            await ExtractZipToDestinationAsync(tempZip, destPath, flattenSingleFolder: true);
+            WritePackageMetadata(destPath, sourceUrl, branchOrTag);
 
             ReloadLibrary();
             return _scripts.FirstOrDefault(s => s.RootPath.Equals(destPath, StringComparison.OrdinalIgnoreCase))
@@ -106,6 +92,78 @@ internal class ScriptLibraryService
         {
             try { if (File.Exists(tempZip)) File.Delete(tempZip); } catch { /* ignore cleanup errors */ }
         }
+    }
+
+    public async Task<ScriptDefinition?> UpdateScriptAsync(ScriptDefinition script)
+    {
+        var meta = script.PackageInfo ?? TryReadPackageMetadata(script.RootPath);
+        if (meta == null || string.IsNullOrWhiteSpace(meta.SourceUrl))
+        {
+            throw new InvalidOperationException("Script does not have source metadata to update.");
+        }
+
+        string downloadUrl = ResolveGitHubDownloadUrl(meta.SourceUrl!, meta.BranchOrTag);
+        string tempZip = Path.Combine(Path.GetTempPath(), $"w101_script_update_{Guid.NewGuid():N}.zip");
+        string tempExtract = Path.Combine(Path.GetTempPath(), $"w101_script_update_{Guid.NewGuid():N}");
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(downloadUrl);
+            response.EnsureSuccessStatusCode();
+            await using (var fs = File.Create(tempZip))
+            {
+                await response.Content.CopyToAsync(fs);
+            }
+
+            await ExtractZipToDestinationAsync(tempZip, tempExtract, flattenSingleFolder: true);
+
+            lock (_lock)
+            {
+                if (CurrentSession?.Script.Manifest.Name == script.Manifest.Name)
+                {
+                    try { StopCurrentScript(); } catch { /* ignore */ }
+                }
+
+                if (Directory.Exists(script.RootPath))
+                {
+                    Directory.Delete(script.RootPath, recursive: true);
+                }
+                Directory.CreateDirectory(Path.GetDirectoryName(script.RootPath)!);
+                Directory.Move(tempExtract, script.RootPath);
+            }
+
+            WritePackageMetadata(script.RootPath, meta.SourceUrl!, meta.BranchOrTag);
+            ReloadLibrary();
+            return _scripts.FirstOrDefault(s => s.RootPath.Equals(script.RootPath, StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"[ScriptLibrary] Update failed for {script.Manifest.Name}", ex);
+            throw;
+        }
+        finally
+        {
+            try { if (File.Exists(tempZip)) File.Delete(tempZip); } catch { }
+            try { if (Directory.Exists(tempExtract)) Directory.Delete(tempExtract, recursive: true); } catch { }
+        }
+    }
+
+    public void UninstallScript(ScriptDefinition script)
+    {
+        lock (_lock)
+        {
+            if (CurrentSession?.Script.Manifest.Name == script.Manifest.Name)
+            {
+                try { StopCurrentScript(); } catch { /* best effort */ }
+            }
+
+            if (Directory.Exists(script.RootPath))
+            {
+                Directory.Delete(script.RootPath, recursive: true);
+            }
+        }
+
+        ReloadLibrary();
     }
 
     private static string BuildTargetFolderName(string sourceUrl, string? branchOrTag)
@@ -215,8 +273,9 @@ internal class ScriptLibraryService
                     continue;
                 }
 
+                var packageMeta = TryReadPackageMetadata(scriptDir);
                 var errors = ValidateManifest(scriptDir, manifest);
-                var definition = new ScriptDefinition(manifestPath, manifest, scriptDir, errors.ToArray());
+                var definition = new ScriptDefinition(manifestPath, manifest, scriptDir, packageMeta, errors.ToArray());
                 discovered.Add(definition);
 
                 if (errors.Count > 0)
@@ -256,7 +315,14 @@ internal class ScriptLibraryService
             var process = LaunchProcess(entryFullPath, script.Manifest.Arguments ?? string.Empty, script.RootPath);
             var session = new ScriptRunSession(script, process, DateTime.UtcNow);
             CurrentSession = session;
-            Logger.LogScriptEvent(script.Manifest.Name, "Started");
+            if (script.PackageInfo?.SourceUrl is string src && !string.IsNullOrWhiteSpace(src))
+            {
+                Logger.LogScriptEvent(script.Manifest.Name, $"Started (source: {src})");
+            }
+            else
+            {
+                Logger.LogScriptEvent(script.Manifest.Name, "Started");
+            }
 
             process.EnableRaisingEvents = true;
             process.Exited += (sender, args) =>
@@ -385,5 +451,68 @@ internal class ScriptLibraryService
         }
 
         return errors;
+    }
+
+    private ScriptPackageMetadata? TryReadPackageMetadata(string scriptDir)
+    {
+        try
+        {
+            var path = Path.Combine(scriptDir, PackageMetaFileName);
+            if (!File.Exists(path)) return null;
+            var json = File.ReadAllText(path);
+            return JsonSerializer.Deserialize<ScriptPackageMetadata>(json, _jsonOptions);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private void WritePackageMetadata(string scriptDir, string sourceUrl, string? branchOrTag)
+    {
+        try
+        {
+            var meta = new ScriptPackageMetadata
+            {
+                SourceUrl = sourceUrl,
+                BranchOrTag = branchOrTag,
+                InstalledAtUtc = DateTime.UtcNow
+            };
+            var path = Path.Combine(scriptDir, PackageMetaFileName);
+            File.WriteAllText(path, JsonSerializer.Serialize(meta, _jsonOptions));
+        }
+        catch
+        {
+            // best effort
+        }
+    }
+
+    private static async Task ExtractZipToDestinationAsync(string zipPath, string destination, bool flattenSingleFolder)
+    {
+        if (Directory.Exists(destination))
+        {
+            Directory.Delete(destination, recursive: true);
+        }
+        Directory.CreateDirectory(destination);
+
+        ZipFile.ExtractToDirectory(zipPath, destination, overwriteFiles: true);
+
+        if (flattenSingleFolder)
+        {
+            var subDirs = Directory.GetDirectories(destination);
+            if (!File.Exists(Path.Combine(destination, "manifest.json")) && subDirs.Length == 1)
+            {
+                var inner = subDirs[0];
+                foreach (var file in Directory.GetFiles(inner, "*", SearchOption.AllDirectories))
+                {
+                    var relative = Path.GetRelativePath(inner, file);
+                    var target = Path.Combine(destination, relative);
+                    Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                    File.Copy(file, target, overwrite: true);
+                }
+
+                Directory.Delete(subDirs[0], recursive: true);
+            }
+        }
     }
 }

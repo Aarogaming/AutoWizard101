@@ -48,8 +48,10 @@ dotnet run --project ProjectMaelstrom
   {
     "name": "Sample Echo",
     "description": "Tiny sample script that logs a message.",
+    "author": "OriginalAuthorHandle",
     "entryPoint": "run.bat",
     "arguments": "",
+    "sourceUrl": "https://github.com/user/repo",
     "requiredResolution": "1280x720",
     "requiredTemplates": []
   }
@@ -92,6 +94,8 @@ dotnet run --project ProjectMaelstrom
 - Add an explicit exception to allow reading Wizard101 game files/screenshots locally for theme derivation (no modification of game files).
 - Add an explicit exception to read/review wizard101.com pages for visual reference when deriving themes (no automation against the site).
 - Add a “Launch Wizard101” button in the trainer that starts PlayWizard101 from a detected install path.
+- Launch Wizard101 directly from the default install paths (e.g., `C:\ProgramData\KingsIsle Entertainment\Wizard101\Wizard101.exe`) and only prompt for a directory if nothing is found.
+- Detect Wizard101 launcher states (login, patcher/updater, and “Play” button) and surface state in the trainer (SmartPlay + Sync) so we know when the game is ready.
 - Review in-progress chat tasks to ensure all started items are completed or tracked (input bridge, trainer UI dashboard, external script refactors).
 
 ## Safety & Fair Play
