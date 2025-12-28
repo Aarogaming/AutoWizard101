@@ -46,5 +46,101 @@ namespace ProjectMaelstrom.Properties {
                 this["OCR_SPACE_APIKEY"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Wizard101")]
+        public string THEME_MODE {
+            get {
+                return ((string)(this["THEME_MODE"]));
+            }
+            set {
+                this["THEME_MODE"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double SPEED_MULTIPLIER {
+            get {
+                return ((double)(this["SPEED_MULTIPLIER"]));
+            }
+            set {
+                this["SPEED_MULTIPLIER"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ENABLE_SCREEN_CAPTURE {
+            get {
+                return ((bool)(this["ENABLE_SCREEN_CAPTURE"]));
+            }
+            set {
+                this["ENABLE_SCREEN_CAPTURE"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ENABLE_AUDIO_RECOGNIZER {
+            get {
+                return ((bool)(this["ENABLE_AUDIO_RECOGNIZER"]));
+            }
+            set {
+                this["ENABLE_AUDIO_RECOGNIZER"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ENABLE_SELF_TUNING {
+            get {
+                return ((bool)(this["ENABLE_SELF_TUNING"]));
+            }
+            set {
+                this["ENABLE_SELF_TUNING"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.12")]
+        public double AUDIO_TRANSIENT_DELTA {
+            get {
+                return ((double)(this["AUDIO_TRANSIENT_DELTA"]));
+            }
+            set {
+                this["AUDIO_TRANSIENT_DELTA"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string UPDATE_FEED_URL {
+            get {
+                return ((string)(this["UPDATE_FEED_URL"]));
+            }
+            set {
+                this["UPDATE_FEED_URL"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AUTO_CHECK_UPDATES {
+            get {
+                return ((bool)(this["AUTO_CHECK_UPDATES"]));
+            }
+            set {
+                this["AUTO_CHECK_UPDATES"] = value;
+            }
+        }
     }
 }

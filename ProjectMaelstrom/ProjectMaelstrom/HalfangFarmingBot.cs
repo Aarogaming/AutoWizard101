@@ -1,7 +1,8 @@
-﻿using ProjectMaelstrom.Modules.ImageRecognition;
+using ProjectMaelstrom.Modules.ImageRecognition;
 using ProjectMaelstrom.Utilities;
 using System.Runtime.InteropServices;
-using System.Timers;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace ProjectMaelstrom;
 
@@ -13,9 +14,7 @@ public partial class HalfangFarmingBot : Form
     [DllImport("user32.dll")]
     private static extern IntPtr GetMessageExtraInfo();
 
-    private System.Timers.Timer _runTimer;
-
-    private bool _botRun = false;
+    private readonly System.Windows.Forms.Timer _runTimer;
 
     private readonly PlayerController _playerController = new PlayerController();
     private readonly CombatUtils _combatUtils = new CombatUtils();
@@ -31,12 +30,28 @@ public partial class HalfangFarmingBot : Form
     public HalfangFarmingBot()
     {
         InitializeComponent();
-        CheckForIllegalCrossThreadCalls = false;
+        TopLevel = false;
+        FormBorderStyle = FormBorderStyle.None;
+        ShowInTaskbar = false;
+        TopMost = false;
+        Dock = DockStyle.Fill;
+        StartPosition = FormStartPosition.Manual;
+        _runTimer = new System.Windows.Forms.Timer
+        {
+            Interval = StateManager.BotTimerIntervalMs
+        };
+        _runTimer.Tick += DungeonLoop;
+        this.FormClosing += HalfangFarmingBot_FormClosing;
+
+        // Apply system theme
+        ThemeManager.ApplyTheme(this);
+
+        SetPendingStates("Waiting to start");
     }
 
     private void HalfangFarmingBot_Load(object sender, EventArgs e) { }
 
-    private void DungeonLoop(object? sender, ElapsedEventArgs e)
+    private void DungeonLoop(object? sender, EventArgs e)
     {
         if (_isRunning)
         {
@@ -44,6 +59,13 @@ public partial class HalfangFarmingBot : Form
         }
 
         _isRunning = true;
+
+        if (!GeneralUtils.Instance.IsGameVisible())
+        {
+            SetPendingStates("Wizard101 not detected");
+            _isRunning = false;
+            return;
+        }
 
         if (_combatUtils.IsOutsideDungeon() && !_joiningDungeon && !_inDungeon)
         {
@@ -55,12 +77,20 @@ public partial class HalfangFarmingBot : Form
             UpdateBotState("Battle not started joining");
             _playerController.MoveForward();
 
-            while (!_battleStarted)
+            var waitStart = DateTime.UtcNow;
+            while (!_battleStarted && DateTime.UtcNow - waitStart < TimeSpan.FromSeconds(15))
             {
                 if (_combatUtils.IsInBattle())
                 {
                     _battleStarted = true;
+                    break;
                 }
+                Thread.Sleep(100);
+            }
+
+            if (!_battleStarted)
+            {
+                UpdateBotState("Battle start timeout");
             }
         }
         else if (_battleStarted && !_battleWon)
@@ -96,10 +126,12 @@ public partial class HalfangFarmingBot : Form
         GeneralUtils.Instance.ResetCursorPosition();
         _playerController.Interact();
 
+        DateTime start = DateTime.UtcNow;
         Point? loadingIcon = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Halfang/loading.png");
 
-        while (loadingIcon == null)
+        while (loadingIcon == null && DateTime.UtcNow - start < TimeSpan.FromSeconds(15))
         {
+            Thread.Sleep(250);
             loadingIcon = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Halfang/loading.png");
         }
 
@@ -107,6 +139,11 @@ public partial class HalfangFarmingBot : Form
         {
             UpdateJoiningDungeonState(false);
             UpdateInDungeonState(true);
+        }
+        else
+        {
+            UpdateBotState("Failed to join dungeon (timeout)");
+            UpdateJoiningDungeonState(false);
         }
     }
 
@@ -137,7 +174,7 @@ public partial class HalfangFarmingBot : Form
     private void HandleBattleWon()
     {
         bool teleported = GeneralUtils.Instance.Teleport();
-        
+
         if (teleported)
         {
             GeneralUtils.Instance.ResetCursorPosition();
@@ -150,9 +187,6 @@ public partial class HalfangFarmingBot : Form
     {
         if (!_botStarted)
         {
-            _runTimer = new System.Timers.Timer(TimeSpan.FromMilliseconds(200));
-            _runTimer.Elapsed += DungeonLoop;
-            _runTimer.AutoReset = true;
             _runTimer.Start();
             _botStarted = true;
             button1.Text = "Stop Bot";
@@ -162,39 +196,66 @@ public partial class HalfangFarmingBot : Form
             _runTimer?.Stop();
             _botStarted = false;
             button1.Text = "Start Bot";
+            SetPendingStates("Bot stopped");
         }
     }
 
     private void UpdateBattleState(bool state)
     {
         _battleStarted = state;
-        inBattleText.Text = state ? "True" : "False";
-        inBattleText.ForeColor = state ? Color.DarkGreen : Color.Red;
+        inBattleText.Text = state ? "Yes" : "No";
+        inBattleText.ForeColor = state ? Color.Green : Color.Red;
     }
 
     private void UpdateBattleWonState(bool state)
     {
         _battleWon = state;
-        battleWonText.Text = state ? "True" : "False";
-        battleWonText.ForeColor = state ? Color.DarkGreen : Color.Red;
+        battleWonText.Text = state ? "Yes" : "No";
+        battleWonText.ForeColor = state ? Color.Green : Color.Red;
     }
 
     private void UpdateJoiningDungeonState(bool state)
     {
         _joiningDungeon = state;
-        joiningDungeonText.Text = state ? "True" : "False";
-        joiningDungeonText.ForeColor = state ? Color.DarkGreen : Color.Red;
+        joiningDungeonText.Text = state ? "Yes" : "No";
+        joiningDungeonText.ForeColor = state ? Color.Green : Color.Red;
     }
 
     private void UpdateInDungeonState(bool state)
     {
         _inDungeon = state;
-        inDungeonText.Text = state ? "True" : "False";
-        inDungeonText.ForeColor = state ? Color.DarkGreen : Color.Red;
+        inDungeonText.Text = state ? "Yes" : "No";
+        inDungeonText.ForeColor = state ? Color.Green : Color.Red;
     }
 
     private void UpdateBotState(string state)
     {
         botState.Text = state;
+    }
+
+    private void HalfangFarmingBot_FormClosing(object? sender, FormClosingEventArgs e)
+    {
+        _runTimer?.Stop();
+        _runTimer?.Dispose();
+    }
+
+    private void SetPendingStates(string? message = null)
+    {
+        const string pendingText = "Pending";
+        Color pendingColor = Color.DarkOrange;
+
+        inBattleText.Text = pendingText;
+        inBattleText.ForeColor = pendingColor;
+        battleWonText.Text = pendingText;
+        battleWonText.ForeColor = pendingColor;
+        joiningDungeonText.Text = pendingText;
+        joiningDungeonText.ForeColor = pendingColor;
+        inDungeonText.Text = pendingText;
+        inDungeonText.ForeColor = pendingColor;
+
+        if (!string.IsNullOrWhiteSpace(message))
+        {
+            UpdateBotState(message);
+        }
     }
 }

@@ -1,0 +1,8 @@
+{
+  "name": "Raid Utility - AZ",
+  "description": "AZ raid utility tool (from raid-utility-tools). Runs az-tool/main.py.",
+  "entryPoint": "run.bat",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": []
+}

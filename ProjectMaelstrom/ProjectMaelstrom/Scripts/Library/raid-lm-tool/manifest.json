@@ -1,0 +1,8 @@
+{
+  "name": "Raid Utility - LM",
+  "description": "LM raid utility tool (from raid-utility-tools). Runs lm-tool/main.py.",
+  "entryPoint": "run.bat",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": []
+}

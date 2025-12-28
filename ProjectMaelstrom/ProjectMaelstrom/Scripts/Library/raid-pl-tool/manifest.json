@@ -1,0 +1,8 @@
+{
+  "name": "Raid Utility - PL",
+  "description": "PL raid utility tool (from raid-utility-tools). Runs pl-tool/main.py.",
+  "entryPoint": "run.bat",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": []
+}

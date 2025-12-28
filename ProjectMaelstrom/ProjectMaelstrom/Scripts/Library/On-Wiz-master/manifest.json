@@ -1,0 +1,8 @@
+{
+  "name": "On-Wiz",
+  "description": "On-Wiz tools (external). Opens folder.",
+  "entryPoint": "run.bat",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": []
+}

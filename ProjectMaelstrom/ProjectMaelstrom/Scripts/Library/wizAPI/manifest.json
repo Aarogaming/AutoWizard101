@@ -1,0 +1,8 @@
+{
+  "name": "wizAPI",
+  "description": "Python API to interact with Wizard101 (wizAPI-master). Opens repo folder/README.",
+  "entryPoint": "run.bat",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": []
+}

@@ -18,29 +18,31 @@ internal class CombatUtils : Util
 
     public bool UseCard(string cardName)
     {
-        bool matchFound = false;
-
         string[] images = Directory.GetFiles($"{StorageUtils.GetAppPath()}/Combat/Cards/{cardName}/");
+        var start = DateTime.UtcNow;
+        var timeout = TimeSpan.FromSeconds(10);
 
-        for (int i = 0; i < images.Length; i++)
+        foreach (var image in images)
         {
-            if (!matchFound)
-            {
-                Point? card = ImageFinder.RetrieveTargetImagePositionInScreenshot(images[i]);
+            Point? card = ImageFinder.RetrieveTargetImagePositionInScreenshot(image);
 
-                if (card.HasValue)
-                {
-                    _playerController.Click(card.Value);
-                    matchFound = true;
-                }
-                else
-                {
-                    matchFound = false;
-                }
+            if (card.HasValue)
+            {
+                _playerController.Click(card.Value);
+                return true;
             }
+
+            if (DateTime.UtcNow - start > timeout)
+            {
+                Logger.Log($"[UseCard] Timeout searching for card '{cardName}'.");
+                return false;
+            }
+
+            Thread.Sleep(150);
         }
 
-        return matchFound;
+        Logger.Log($"[UseCard] No images found for card '{cardName}'.");
+        return false;
     }
 
     public bool IsMyTurn()

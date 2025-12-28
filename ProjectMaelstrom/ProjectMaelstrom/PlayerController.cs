@@ -1,5 +1,6 @@
 ﻿using WindowsInput;
 using WindowsInput.Native;
+using ProjectMaelstrom.Utilities;
 
 namespace ProjectMaelstrom;
 
@@ -9,36 +10,167 @@ internal class PlayerController
 
     public void MoveForward()
     {
-        _inputSimulator.Keyboard.KeyDown(VirtualKeyCode.UP);
+        try
+        {
+            _inputSimulator.Keyboard.KeyDown(VirtualKeyCode.UP);
+            Logger.LogBotAction("PlayerController", "MoveForward executed");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("MoveForward failed", ex);
+        }
     }
 
     public void MoveBackward()
     {
-        _inputSimulator.Keyboard.KeyDown(VirtualKeyCode.BACK);
+        try
+        {
+            _inputSimulator.Keyboard.KeyDown(VirtualKeyCode.BACK);
+            Logger.LogBotAction("PlayerController", "MoveBackward executed");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("MoveBackward failed", ex);
+        }
     }
 
     public void MoveLeft()
     {
-        _inputSimulator.Keyboard.KeyDown(VirtualKeyCode.LEFT);
+        try
+        {
+            _inputSimulator.Keyboard.KeyDown(VirtualKeyCode.LEFT);
+            Logger.LogBotAction("PlayerController", "MoveLeft executed");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("MoveLeft failed", ex);
+        }
     }
 
     public void MoveRight()
     {
-        _inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RIGHT);
+        try
+        {
+            _inputSimulator.Keyboard.KeyDown(VirtualKeyCode.RIGHT);
+            Logger.LogBotAction("PlayerController", "MoveRight executed");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("MoveRight failed", ex);
+        }
     }
 
     public void Interact()
     {
-        _inputSimulator.Keyboard.KeyPress(VirtualKeyCode.VK_X);
+        try
+        {
+            _inputSimulator.Keyboard.KeyPress(VirtualKeyCode.VK_X);
+            Logger.LogBotAction("PlayerController", "Interact executed");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("Interact failed", ex);
+        }
     }
 
     public void PressNumber9()
     {
-        _inputSimulator.Keyboard.KeyPress(VirtualKeyCode.NUMPAD9);
+        try
+        {
+            _inputSimulator.Keyboard.KeyPress(VirtualKeyCode.NUMPAD9);
+            Logger.LogBotAction("PlayerController", "PressNumber9 executed");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("PressNumber9 failed", ex);
+        }
     }
 
     public void Click(Point clickPoint)
     {
-        WinAPI.click(clickPoint);
+        try
+        {
+            WinAPI.click(clickPoint);
+            Logger.LogBotAction("PlayerController", $"Click executed at ({clickPoint.X}, {clickPoint.Y})");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"Click failed at ({clickPoint.X}, {clickPoint.Y})", ex);
+        }
+    }
+
+    public void KeyPress(string keyName)
+    {
+        if (string.IsNullOrWhiteSpace(keyName))
+        {
+            return;
+        }
+
+        try
+        {
+            if (Enum.TryParse<VirtualKeyCode>(keyName, true, out var code))
+            {
+                _inputSimulator.Keyboard.KeyPress(code);
+                Logger.LogBotAction("PlayerController", $"KeyPress executed: {keyName}");
+            }
+            else
+            {
+                Logger.LogError($"KeyPress failed: unknown key '{keyName}'");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"KeyPress failed: {keyName}", ex);
+        }
+    }
+
+    public void KeyDown(string keyName)
+    {
+        if (string.IsNullOrWhiteSpace(keyName))
+        {
+            return;
+        }
+
+        try
+        {
+            if (Enum.TryParse<VirtualKeyCode>(keyName, true, out var code))
+            {
+                _inputSimulator.Keyboard.KeyDown(code);
+                Logger.LogBotAction("PlayerController", $"KeyDown executed: {keyName}");
+            }
+            else
+            {
+                Logger.LogError($"KeyDown failed: unknown key '{keyName}'");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"KeyDown failed: {keyName}", ex);
+        }
+    }
+
+    public void KeyUp(string keyName)
+    {
+        if (string.IsNullOrWhiteSpace(keyName))
+        {
+            return;
+        }
+
+        try
+        {
+            if (Enum.TryParse<VirtualKeyCode>(keyName, true, out var code))
+            {
+                _inputSimulator.Keyboard.KeyUp(code);
+                Logger.LogBotAction("PlayerController", $"KeyUp executed: {keyName}");
+            }
+            else
+            {
+                Logger.LogError($"KeyUp failed: unknown key '{keyName}'");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError($"KeyUp failed: {keyName}", ex);
+        }
     }
 }

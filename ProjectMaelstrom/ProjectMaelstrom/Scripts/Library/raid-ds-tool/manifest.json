@@ -1,0 +1,8 @@
+{
+  "name": "Raid Utility - DS",
+  "description": "DS raid utility tool (from raid-utility-tools). Runs ds-tool/main.py.",
+  "entryPoint": "run.bat",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": []
+}

@@ -1,4 +1,5 @@
-﻿using ProjectMaelstrom.Modules.ImageRecognition;
+using ProjectMaelstrom.Modules.ImageRecognition;
+using System.Threading;
 
 namespace ProjectMaelstrom.Utilities;
 
@@ -25,9 +26,13 @@ internal class GeneralUtils : Util
     {
         Point? marker = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Combat/Utils/marklocation.png");
 
-        while (marker == null )
+        int attempts = 0;
+        const int maxAttempts = 20;
+        while (marker == null && attempts < maxAttempts)
         {
+            Thread.Sleep(150);
             marker = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Combat/Utils/marklocation.png");
+            attempts++;
         }
 
         if (marker.HasValue)
@@ -40,45 +45,60 @@ internal class GeneralUtils : Util
     {
         Point? teleport = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Combat/Utils/teleportto.png");
 
+        int attempts = 0;
+        const int maxAttempts = 20;
+        while (teleport == null && attempts < maxAttempts)
+        {
+            Thread.Sleep(150);
+            teleport = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Combat/Utils/teleportto.png");
+            attempts++;
+        }
+
         if (teleport.HasValue)
         {
             _playerController.Click(teleport.Value);
             return true;
         }
 
+        Logger.Log("[Teleport] Teleport image not found after retries.");
         return false;
     }
 
     public void OpenGameWindow()
     {
-        Point? gameWindowIcon = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/General/window_taskbar_icon.png");
-
-        if (gameWindowIcon.HasValue)
-        {
-            _playerController.Click(gameWindowIcon.Value);
-        }
+        ClickIfFound($"{StorageUtils.GetAppPath()}/General/window_taskbar_icon.png", "[OpenGameWindow]");
     }
 
     public void OpenStatsWindow()
     {
-        Point? spellbookIcon = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/General/spellbook.png");
-
-        if (spellbookIcon.HasValue)
-        {
-            _playerController.Click(spellbookIcon.Value);
-        }
+        ClickIfFound($"{StorageUtils.GetAppPath()}/General/spellbook.png", "[OpenStatsWindow]");
     }
 
     public bool IsGameVisible()
     {
-        Point? windowVisible = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/General/window_header.png");
-
-        if (windowVisible.HasValue)
+        try
         {
-            return true;
-        }
+            string appPath = StorageUtils.GetAppPath();
+            if (string.IsNullOrEmpty(appPath))
+            {
+                return false;
+            }
 
-        return false;
+            string targetImagePath = $"{appPath}/General/window_header.png";
+            if (string.IsNullOrEmpty(targetImagePath) || !File.Exists(targetImagePath))
+            {
+                return false;
+            }
+
+            Point? windowVisible = ImageFinder.RetrieveTargetImagePositionInScreenshot(targetImagePath);
+
+            return windowVisible.HasValue;
+        }
+        catch
+        {
+            // If image search fails (for example window not found), treat game as not visible
+            return false;
+        }
     }
 
     public bool IsStatsPageVisible()
@@ -104,9 +124,13 @@ internal class GeneralUtils : Util
     {
         Point? blankSpot = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/General/blank.png");
 
-        while (blankSpot == null)
+        int attempts = 0;
+        const int maxAttempts = 20;
+        while (blankSpot == null && attempts < maxAttempts)
         {
+            Thread.Sleep(150);
             blankSpot = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/General/blank.png");
+            attempts++;
         }
 
         if (blankSpot.HasValue)
@@ -116,5 +140,27 @@ internal class GeneralUtils : Util
         }
 
         _playerController.Click(new Point(50, 20));
+    }
+
+    private void ClickIfFound(string imagePath, string context, int maxAttempts = 20, int delayMs = 150)
+    {
+        Point? target = ImageFinder.RetrieveTargetImagePositionInScreenshot(imagePath);
+        int attempts = 0;
+
+        while (target == null && attempts < maxAttempts)
+        {
+            Thread.Sleep(delayMs);
+            target = ImageFinder.RetrieveTargetImagePositionInScreenshot(imagePath);
+            attempts++;
+        }
+
+        if (target.HasValue)
+        {
+            _playerController.Click(target.Value);
+        }
+        else
+        {
+            Logger.Log($"{context} target not found after {attempts} attempts ({imagePath})");
+        }
     }
 }

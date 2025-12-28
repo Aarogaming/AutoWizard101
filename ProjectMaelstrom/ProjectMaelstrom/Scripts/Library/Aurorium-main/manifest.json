@@ -1,0 +1,8 @@
+{
+  "name": "Aurorium",
+  "description": "Aurorium utilities (external). Opens folder.",
+  "entryPoint": "run.bat",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": []
+}

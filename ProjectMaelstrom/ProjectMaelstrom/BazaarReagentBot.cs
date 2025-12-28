@@ -1,7 +1,9 @@
-﻿using ProjectMaelstrom.Modules.ImageRecognition;
+using ProjectMaelstrom.Modules.ImageRecognition;
 using ProjectMaelstrom.Utilities;
 using System.Data;
+using System.Threading;
 using System.Timers;
+using System.Windows.Forms;
 
 namespace ProjectMaelstrom;
 
@@ -18,7 +20,20 @@ public partial class BazaarReagentBot : Form
     public BazaarReagentBot()
     {
         InitializeComponent();
+        TopLevel = false;
+        FormBorderStyle = FormBorderStyle.None;
+        ShowInTaskbar = false;
+        TopMost = false;
+        Dock = DockStyle.Fill;
+        StartPosition = FormStartPosition.Manual;
         LoadPngFiles();
+        _runTimer = new System.Timers.Timer(TimeSpan.FromMilliseconds(StateManager.BotTimerIntervalMs));
+        _runTimer.Elapsed += BazaarLoop;
+        _runTimer.AutoReset = true;
+        this.FormClosing += BazaarReagentBot_FormClosing;
+
+        // Apply system theme
+        ThemeManager.ApplyTheme(this);
     }
 
     private void LoadPngFiles()
@@ -33,7 +48,7 @@ public partial class BazaarReagentBot : Form
 
             listBox1.SelectionMode = SelectionMode.MultiSimple;
             listBox1.Items.Clear();
-            listBox1.Items.AddRange(fileNames.ToArray());
+            listBox1.Items.AddRange(fileNames.Where(f => f != null).Cast<object>().ToArray());
         }
         else
         {
@@ -45,9 +60,6 @@ public partial class BazaarReagentBot : Form
     {
         if (!_botStarted)
         {
-            _runTimer = new System.Timers.Timer(TimeSpan.FromMilliseconds(200));
-            _runTimer.Elapsed +=BazaarLoop;
-            _runTimer.AutoReset = true;
             _runTimer.Start();
             _botStarted = true;
             btn.Text = "Stop Bot";
@@ -103,29 +115,19 @@ public partial class BazaarReagentBot : Form
         }
         else
         {
-            label1.Text = "Not ofund";
+            label1.Text = "Not found";
         }
     }
 
     private void BuyReagent()
     {
-        Point? buyMoreBtn = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/buyMoreBtn.png");
-
-        while (buyMoreBtn == null)
-        {
-            buyMoreBtn = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/buyMoreBtn.png");
-        }
+        Point? buyMoreBtn = WaitForImage($"{StorageUtils.GetAppPath()}/Bazaar/buyMoreBtn.png", TimeSpan.FromSeconds(10));
 
         if (buyMoreBtn.HasValue)
         {
             WinAPI.click(buyMoreBtn.Value);
 
-            Point? buyCount = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/buyCount.png");
-
-            while (buyCount == null)
-            {
-                buyCount = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/buyCount.png");
-            }
+            Point? buyCount = WaitForImage($"{StorageUtils.GetAppPath()}/Bazaar/buyCount.png", TimeSpan.FromSeconds(10));
 
             if (buyCount.HasValue)
             {
@@ -137,24 +139,14 @@ public partial class BazaarReagentBot : Form
                 _playerController.PressNumber9();
             }
 
-            Point? buyBtn = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/buyBtn.png");
-
-            while (buyBtn == null)
-            {
-                buyBtn = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/buyBtn.png");
-            }
+            Point? buyBtn = WaitForImage($"{StorageUtils.GetAppPath()}/Bazaar/buyBtn.png", TimeSpan.FromSeconds(10));
 
             if (buyBtn.HasValue)
             {
                 WinAPI.click(buyBtn.Value);
             }
 
-            Point? okBtn = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/okBtn.png");
-
-            while (okBtn == null)
-            {
-                okBtn = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/okBtn.png");
-            }
+            Point? okBtn = WaitForImage($"{StorageUtils.GetAppPath()}/Bazaar/okBtn.png", TimeSpan.FromSeconds(10));
 
             if (okBtn.HasValue)
             {
@@ -165,16 +157,31 @@ public partial class BazaarReagentBot : Form
 
     private void RefreshShop()
     {
-        Point? refreshBtn = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/refreshBtn.png");
-
-        while (refreshBtn == null)
-        {
-            refreshBtn = ImageFinder.RetrieveTargetImagePositionInScreenshot($"{StorageUtils.GetAppPath()}/Bazaar/refreshBtn.png");
-        }
+        Point? refreshBtn = WaitForImage($"{StorageUtils.GetAppPath()}/Bazaar/refreshBtn.png", TimeSpan.FromSeconds(10));
 
         if (refreshBtn.HasValue)
         {
             WinAPI.click(refreshBtn.Value);
         }
+    }
+
+    private Point? WaitForImage(string imagePath, TimeSpan timeout, int pollDelayMs = 200)
+    {
+        DateTime start = DateTime.UtcNow;
+        Point? location = ImageFinder.RetrieveTargetImagePositionInScreenshot(imagePath);
+
+        while (location == null && DateTime.UtcNow - start < timeout)
+        {
+            Thread.Sleep(pollDelayMs);
+            location = ImageFinder.RetrieveTargetImagePositionInScreenshot(imagePath);
+        }
+
+        return location;
+    }
+
+    private void BazaarReagentBot_FormClosing(object? sender, FormClosingEventArgs e)
+    {
+        _runTimer?.Stop();
+        _runTimer?.Dispose();
     }
 }

@@ -7,6 +7,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>NU1701</NoWarn>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <ApplicationIcon>Resources\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +17,7 @@
     <PackageReference Include="Emgu.CV.Bitmap" Version="4.9.0.5494" />
     <PackageReference Include="Emgu.CV.runtime.windows" Version="4.9.0.5494" />
     <PackageReference Include="InputSimulator" Version="1.0.4" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
@@ -25,6 +29,20 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Scripts\**" />
+    <Page Remove="Scripts\**" />
+    <EmbeddedResource Remove="publish\**" />
+    <Page Remove="publish\**" />
+    <Compile Remove="publish\**" />
+    <Content Remove="publish\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resources\AppIcon.ico" />
+    <Compile Remove="Scripts\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -182,7 +200,13 @@
     <None Update="Resources\1280x720\Halfang\bristlecrown.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\1280x720\rois.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\1280x720\Halfang\dungeonExit.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="wizard_palette.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\1280x720\Halfang\loading.png">
@@ -215,6 +239,10 @@
     <None Update="Resources\2256x1504\Halfang\bristlecrown.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="Scripts\Wizard101_DanceBot\dist\petdance\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -237,6 +265,16 @@
 
   <ItemGroup>
     <Folder Include="Resources\1280x720\Bazaar\Reagents\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Scripts\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tessdata\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
