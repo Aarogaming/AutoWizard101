@@ -56,14 +56,14 @@ namespace ProjectMaelstrom
             scriptListBox.ItemHeight = 20;
             scriptListBox.Location = new Point(12, 12);
             scriptListBox.Name = "scriptListBox";
-            scriptListBox.Size = new Size(440, 520);
+            scriptListBox.Size = new Size(520, 660);
             scriptListBox.HorizontalScrollbar = true;
             scriptListBox.TabIndex = 0;
             // 
             // runScriptButton
             // 
             runScriptButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            runScriptButton.Location = new Point(452, 12);
+            runScriptButton.Location = new Point(540, 12);
             runScriptButton.Name = "runScriptButton";
             runScriptButton.Size = new Size(140, 32);
             runScriptButton.TabIndex = 1;
@@ -74,7 +74,7 @@ namespace ProjectMaelstrom
             // stopScriptButton
             // 
             stopScriptButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            stopScriptButton.Location = new Point(604, 12);
+            stopScriptButton.Location = new Point(692, 12);
             stopScriptButton.Name = "stopScriptButton";
             stopScriptButton.Size = new Size(140, 32);
             stopScriptButton.TabIndex = 2;
@@ -85,7 +85,7 @@ namespace ProjectMaelstrom
             // refreshScriptsButton
             // 
             refreshScriptsButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            refreshScriptsButton.Location = new Point(756, 12);
+            refreshScriptsButton.Location = new Point(844, 12);
             refreshScriptsButton.Name = "refreshScriptsButton";
             refreshScriptsButton.Size = new Size(170, 32);
             refreshScriptsButton.TabIndex = 3;
@@ -96,7 +96,7 @@ namespace ProjectMaelstrom
             // importFromGithubButton
             // 
             importFromGithubButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            importFromGithubButton.Location = new Point(452, 52);
+            importFromGithubButton.Location = new Point(540, 52);
             importFromGithubButton.Name = "importFromGithubButton";
             importFromGithubButton.Size = new Size(474, 28);
             importFromGithubButton.TabIndex = 4;
@@ -107,7 +107,7 @@ namespace ProjectMaelstrom
             // updateScriptButton
             // 
             updateScriptButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            updateScriptButton.Location = new Point(452, 86);
+            updateScriptButton.Location = new Point(540, 86);
             updateScriptButton.Name = "updateScriptButton";
             updateScriptButton.Size = new Size(140, 28);
             updateScriptButton.TabIndex = 5;
@@ -118,7 +118,7 @@ namespace ProjectMaelstrom
             // removeScriptButton
             // 
             removeScriptButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            removeScriptButton.Location = new Point(604, 86);
+            removeScriptButton.Location = new Point(692, 86);
             removeScriptButton.Name = "removeScriptButton";
             removeScriptButton.Size = new Size(140, 28);
             removeScriptButton.TabIndex = 6;
@@ -130,7 +130,7 @@ namespace ProjectMaelstrom
             // 
             scriptStatusLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             scriptStatusLabel.AutoSize = true;
-            scriptStatusLabel.Location = new Point(452, 120);
+            scriptStatusLabel.Location = new Point(540, 120);
             scriptStatusLabel.Name = "scriptStatusLabel";
             scriptStatusLabel.Size = new Size(88, 20);
             scriptStatusLabel.TabIndex = 4;
@@ -140,7 +140,7 @@ namespace ProjectMaelstrom
             // 
             sourceLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             sourceLabel.AutoSize = true;
-            sourceLabel.Location = new Point(452, 144);
+            sourceLabel.Location = new Point(540, 144);
             sourceLabel.Name = "sourceLabel";
             sourceLabel.Size = new Size(69, 20);
             sourceLabel.TabIndex = 7;
@@ -149,7 +149,7 @@ namespace ProjectMaelstrom
             // loadLogButton
             // 
             loadLogButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            loadLogButton.Location = new Point(452, 168);
+            loadLogButton.Location = new Point(540, 168);
             loadLogButton.Name = "loadLogButton";
             loadLogButton.Size = new Size(474, 30);
             loadLogButton.TabIndex = 8;
@@ -161,7 +161,7 @@ namespace ProjectMaelstrom
             // 
             logPreviewLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             logPreviewLabel.AutoSize = true;
-            logPreviewLabel.Location = new Point(452, 204);
+            logPreviewLabel.Location = new Point(540, 204);
             logPreviewLabel.Name = "logPreviewLabel";
             logPreviewLabel.Size = new Size(84, 20);
             logPreviewLabel.TabIndex = 6;
@@ -170,19 +170,19 @@ namespace ProjectMaelstrom
             // logPreviewTextBox
             // 
             logPreviewTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            logPreviewTextBox.Location = new Point(452, 228);
+            logPreviewTextBox.Location = new Point(540, 228);
             logPreviewTextBox.Multiline = true;
             logPreviewTextBox.Name = "logPreviewTextBox";
             logPreviewTextBox.ReadOnly = true;
             logPreviewTextBox.ScrollBars = ScrollBars.Vertical;
-            logPreviewTextBox.Size = new Size(474, 236);
+            logPreviewTextBox.Size = new Size(500, 300);
             logPreviewTextBox.TabIndex = 9;
             // 
             // dryRunCheckBox
             // 
             dryRunCheckBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             dryRunCheckBox.AutoSize = true;
-            dryRunCheckBox.Location = new Point(452, 472);
+            dryRunCheckBox.Location = new Point(540, 540);
             dryRunCheckBox.Name = "dryRunCheckBox";
             dryRunCheckBox.Size = new Size(77, 24);
             dryRunCheckBox.TabIndex = 10;
@@ -193,9 +193,9 @@ namespace ProjectMaelstrom
             // openScriptFolderButton
             // 
             openScriptFolderButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            openScriptFolderButton.Location = new Point(452, 502);
+            openScriptFolderButton.Location = new Point(540, 572);
             openScriptFolderButton.Name = "openScriptFolderButton";
-            openScriptFolderButton.Size = new Size(474, 30);
+            openScriptFolderButton.Size = new Size(500, 30);
             openScriptFolderButton.TabIndex = 12;
             openScriptFolderButton.Text = "Open Script Folder";
             openScriptFolderButton.UseVisualStyleBackColor = true;
@@ -204,9 +204,9 @@ namespace ProjectMaelstrom
             // openLibraryRootButton
             // 
             openLibraryRootButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            openLibraryRootButton.Location = new Point(452, 536);
+            openLibraryRootButton.Location = new Point(540, 606);
             openLibraryRootButton.Name = "openLibraryRootButton";
-            openLibraryRootButton.Size = new Size(474, 30);
+            openLibraryRootButton.Size = new Size(500, 30);
             openLibraryRootButton.TabIndex = 11;
             openLibraryRootButton.Text = "Open Script Library";
             openLibraryRootButton.UseVisualStyleBackColor = true;
@@ -215,9 +215,9 @@ namespace ProjectMaelstrom
             // openFullLogButton
             // 
             openFullLogButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            openFullLogButton.Location = new Point(452, 610);
+            openFullLogButton.Location = new Point(540, 680);
             openFullLogButton.Name = "openFullLogButton";
-            openFullLogButton.Size = new Size(474, 30);
+            openFullLogButton.Size = new Size(500, 30);
             openFullLogButton.TabIndex = 13;
             openFullLogButton.Text = "Open Full Log";
             openFullLogButton.UseVisualStyleBackColor = true;
@@ -226,9 +226,9 @@ namespace ProjectMaelstrom
             // viewSourceButton
             // 
             viewSourceButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            viewSourceButton.Location = new Point(452, 574);
+            viewSourceButton.Location = new Point(540, 642);
             viewSourceButton.Name = "viewSourceButton";
-            viewSourceButton.Size = new Size(474, 30);
+            viewSourceButton.Size = new Size(500, 30);
             viewSourceButton.TabIndex = 14;
             viewSourceButton.Text = "View Source (GitHub)";
             viewSourceButton.UseVisualStyleBackColor = true;
@@ -238,7 +238,7 @@ namespace ProjectMaelstrom
             // 
             authorLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             authorLabel.AutoSize = true;
-            authorLabel.Location = new Point(452, 168);
+            authorLabel.Location = new Point(540, 168);
             authorLabel.Name = "authorLabel";
             authorLabel.Size = new Size(68, 20);
             authorLabel.TabIndex = 15;
@@ -248,7 +248,7 @@ namespace ProjectMaelstrom
             // 
             filterNoteLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             filterNoteLabel.AutoSize = true;
-            filterNoteLabel.Location = new Point(452, 200);
+            filterNoteLabel.Location = new Point(540, 200);
             filterNoteLabel.Name = "filterNoteLabel";
             filterNoteLabel.Size = new Size(0, 20);
             filterNoteLabel.TabIndex = 17;
@@ -259,7 +259,7 @@ namespace ProjectMaelstrom
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(960, 660);
+            ClientSize = new Size(1100, 720);
             Controls.Add(filterNoteLabel);
             Controls.Add(sourceLabel);
             Controls.Add(authorLabel);

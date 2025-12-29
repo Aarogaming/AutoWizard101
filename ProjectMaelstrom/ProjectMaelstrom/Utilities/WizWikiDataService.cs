@@ -78,45 +78,6 @@ internal sealed class WizWikiDataService
                 DevTelemetry.Log("WizWikiData", $"Loaded {_mobs.Count} mobs from {Path.GetFileName(path)}");
             }
 
-            // Optional resource data alongside mobs
-            var resPath = Path.Combine(Path.GetDirectoryName(path) ?? scriptsRoot, "wizwiki_resources.json");
-            if (File.Exists(resPath))
-            {
-                var resJson = File.ReadAllText(resPath);
-                var resData = JsonSerializer.Deserialize<List<ResourceSpawn>>(resJson, _jsonOptions);
-                if (resData != null && resData.Count > 0)
-                {
-                    _resourceSpawns.AddRange(resData);
-                    DevTelemetry.Log("WizWikiData", $"Loaded {_resourceSpawns.Count} resource spawns from {Path.GetFileName(resPath)}");
-                }
-            }
-
-            // Optional NPCs
-            var npcPath = Path.Combine(Path.GetDirectoryName(path) ?? scriptsRoot, "wizwiki_npcs.json");
-            if (File.Exists(npcPath))
-            {
-                var npcJson = File.ReadAllText(npcPath);
-                var npcData = JsonSerializer.Deserialize<List<WikiNpc>>(npcJson, _jsonOptions);
-                if (npcData != null && npcData.Count > 0)
-                {
-                    _npcs.AddRange(npcData);
-                    DevTelemetry.Log("WizWikiData", $"Loaded {_npcs.Count} NPCs from {Path.GetFileName(npcPath)}");
-                }
-            }
-
-            // Optional quests
-            var questPath = Path.Combine(Path.GetDirectoryName(path) ?? scriptsRoot, "wizwiki_quests.json");
-            if (File.Exists(questPath))
-            {
-                var qJson = File.ReadAllText(questPath);
-                var qData = JsonSerializer.Deserialize<List<WikiQuest>>(qJson, _jsonOptions);
-                if (qData != null && qData.Count > 0)
-                {
-                    _quests.AddRange(qData);
-                    DevTelemetry.Log("WizWikiData", $"Loaded {_quests.Count} quests from {Path.GetFileName(questPath)}");
-                }
-            }
-
             // Optional crafting recipes
             var recipePath = Path.Combine(Path.GetDirectoryName(path) ?? scriptsRoot, "wizwiki_crafting.json");
             if (File.Exists(recipePath))
@@ -179,32 +140,6 @@ internal sealed class WizWikiDataService
                 {
                     _quests.AddRange(qData);
                     DevTelemetry.Log("WizWikiData", $"Loaded {_quests.Count} quests from {Path.GetFileName(questPath)}");
-                }
-            }
-
-            // Optional crafting recipes
-            var recipePath = Path.Combine(Path.GetDirectoryName(path) ?? scriptsRoot, "wizwiki_crafting.json");
-            if (File.Exists(recipePath))
-            {
-                var rJson = File.ReadAllText(recipePath);
-                var rData = JsonSerializer.Deserialize<List<WikiRecipe>>(rJson, _jsonOptions);
-                if (rData != null && rData.Count > 0)
-                {
-                    _recipes.AddRange(rData);
-                    DevTelemetry.Log("WizWikiData", $"Loaded {_recipes.Count} recipes from {Path.GetFileName(recipePath)}");
-                }
-            }
-
-            // Optional zones/waypoints for maps/neighbor graph
-            var zonePath = Path.Combine(Path.GetDirectoryName(path) ?? scriptsRoot, "wizwiki_zones.json");
-            if (File.Exists(zonePath))
-            {
-                var zJson = File.ReadAllText(zonePath);
-                var zData = JsonSerializer.Deserialize<List<WikiZone>>(zJson, _jsonOptions);
-                if (zData != null && zData.Count > 0)
-                {
-                    _zones.AddRange(zData);
-                    DevTelemetry.Log("WizWikiData", $"Loaded {_zones.Count} zones from {Path.GetFileName(zonePath)}");
                 }
             }
 

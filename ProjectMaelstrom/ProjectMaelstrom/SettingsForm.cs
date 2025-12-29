@@ -92,7 +92,7 @@ public partial class SettingsForm : Form
         var buttons = new[]
         {
             saveSettingsBtn, checkUpdatesButton, downloadUpdateButton, applyUpdateButton,
-            launchManagerButton, refreshWikiButton, runDiagnosticsButton, captureUiSnapshotButton, viewDevSuggestionsButton
+            launchManagerButton, openMapViewerButton, refreshWikiButton, runDiagnosticsButton, captureUiSnapshotButton, viewDevSuggestionsButton
         };
         foreach (var btn in buttons)
         {
@@ -260,12 +260,12 @@ public partial class SettingsForm : Form
 
             var exe = candidates.FirstOrDefault(File.Exists);
             if (exe == null)
-            {
-                updaterStatusLabel.Text = "Status: Project Manager not found. Reinstall or download installer.";
-                MessageBox.Show("Project Manager (Installer) not found near the app. Please reinstall or download the installer package.", "Not Found",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+        {
+            updaterStatusLabel.Text = "Status: Project Manager not found. Reinstall or download installer.";
+            MessageBox.Show("Project Manager (Installer) not found near the app. Please reinstall or download the installer package.", "Not Found",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
 
             Process.Start(new ProcessStartInfo
             {
@@ -279,6 +279,23 @@ public partial class SettingsForm : Form
         {
             updaterStatusLabel.Text = "Status: Failed to launch Project Manager.";
             MessageBox.Show($"Failed to launch Project Manager: {ex.Message}", "Launch Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void openMapViewerButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            using var viewer = new MapViewerForm
+            {
+                StartPosition = FormStartPosition.CenterParent,
+                TopMost = true
+            };
+            viewer.ShowDialog(this);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to open map viewer: {ex.Message}", "Map Viewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

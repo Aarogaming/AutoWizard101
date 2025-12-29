@@ -86,6 +86,8 @@ namespace ProjectMaelstrom
             dashboardWarningsTextBox = new TextBox();
             dashboardWarningsLabel = new Label();
             dashboardStatsLabel = new Label();
+            mapViewerButton = new Button();
+            zoneStatusLabel = new Label();
             snapshotButton = new Button();
             healthLabel = new Label();
             manaLabel = new Label();
@@ -100,6 +102,11 @@ namespace ProjectMaelstrom
             searchTextBox = new TextBox();
             statusFilterLabel = new Label();
             statusFilterCombo = new ComboBox();
+            statusRibbonLabel = new Label();
+            quickPresetPanel = new FlowLayoutPanel();
+            presetPotionButton = new Button();
+            presetPetButton = new Button();
+            presetBazaarButton = new Button();
             panel1.SuspendLayout();
             navPanel.SuspendLayout();
             smartPlayGroup.SuspendLayout();
@@ -114,6 +121,7 @@ namespace ProjectMaelstrom
             // 
             panel1.Controls.Add(modeLabel);
             panel1.Controls.Add(filterChipLabel);
+            panel1.Controls.Add(statusRibbonLabel);
             panel1.Controls.Add(syncStatusValueLabel);
             panel1.Controls.Add(syncStatusLabel);
             panel1.Controls.Add(smartPlayHeaderLabel);
@@ -121,7 +129,7 @@ namespace ProjectMaelstrom
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1100, 50);
+            panel1.Size = new Size(1250, 50);
             panel1.TabIndex = 0;
             // 
             // syncStatusValueLabel
@@ -164,6 +172,67 @@ namespace ProjectMaelstrom
             filterChipLabel.Size = new Size(0, 28);
             filterChipLabel.TabIndex = 7;
             filterChipLabel.Visible = false;
+            // 
+            // statusRibbonLabel
+            // 
+            statusRibbonLabel.AutoSize = true;
+            statusRibbonLabel.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            statusRibbonLabel.ForeColor = Color.Gold;
+            statusRibbonLabel.Location = new Point(12, 36);
+            statusRibbonLabel.Name = "statusRibbonLabel";
+            statusRibbonLabel.Size = new Size(0, 15);
+            statusRibbonLabel.TabIndex = 8;
+            // 
+            // quickPresetPanel
+            // 
+            quickPresetPanel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            quickPresetPanel.AutoSize = true;
+            quickPresetPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            quickPresetPanel.Controls.Add(presetPotionButton);
+            quickPresetPanel.Controls.Add(presetPetButton);
+            quickPresetPanel.Controls.Add(presetBazaarButton);
+            quickPresetPanel.FlowDirection = FlowDirection.LeftToRight;
+            quickPresetPanel.Location = new Point(980, 62);
+            quickPresetPanel.Name = "quickPresetPanel";
+            quickPresetPanel.Padding = new Padding(4, 0, 4, 0);
+            quickPresetPanel.Size = new Size(258, 32);
+            quickPresetPanel.TabIndex = 24;
+            // 
+            // presetPotionButton
+            // 
+            presetPotionButton.AutoSize = true;
+            presetPotionButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            presetPotionButton.Margin = new Padding(4, 0, 4, 0);
+            presetPotionButton.Name = "presetPotionButton";
+            presetPotionButton.Size = new Size(80, 32);
+            presetPotionButton.TabIndex = 0;
+            presetPotionButton.Text = "Potion Run";
+            presetPotionButton.UseVisualStyleBackColor = true;
+            presetPotionButton.Click += presetPotionButton_Click;
+            // 
+            // presetPetButton
+            // 
+            presetPetButton.AutoSize = true;
+            presetPetButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            presetPetButton.Margin = new Padding(4, 0, 4, 0);
+            presetPetButton.Name = "presetPetButton";
+            presetPetButton.Size = new Size(77, 32);
+            presetPetButton.TabIndex = 1;
+            presetPetButton.Text = "Pet Games";
+            presetPetButton.UseVisualStyleBackColor = true;
+            presetPetButton.Click += presetPetButton_Click;
+            // 
+            // presetBazaarButton
+            // 
+            presetBazaarButton.AutoSize = true;
+            presetBazaarButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            presetBazaarButton.Margin = new Padding(4, 0, 4, 0);
+            presetBazaarButton.Name = "presetBazaarButton";
+            presetBazaarButton.Size = new Size(87, 32);
+            presetBazaarButton.TabIndex = 2;
+            presetBazaarButton.Text = "Bazaar Trip";
+            presetBazaarButton.UseVisualStyleBackColor = true;
+            presetBazaarButton.Click += presetBazaarButton_Click;
             // 
             // searchLabel
             // 
@@ -229,7 +298,7 @@ namespace ProjectMaelstrom
             navPanel.Location = new Point(12, 70);
             navPanel.Name = "navPanel";
             navPanel.Padding = new Padding(4, 8, 4, 8);
-            navPanel.Size = new Size(380, 900);
+            navPanel.Size = new Size(380, 800);
             navPanel.TabIndex = 14;
             // 
             // navScriptsLabel
@@ -437,7 +506,7 @@ namespace ProjectMaelstrom
             navTravelLabel.Name = "navTravelLabel";
             navTravelLabel.Size = new Size(143, 20);
             navTravelLabel.TabIndex = 25;
-            navTravelLabel.Text = "Travel && SmartPlay";
+            navTravelLabel.Text = "Quick Tasks && Travel";
             // 
             // smartPlayGroup
             // 
@@ -450,7 +519,7 @@ namespace ProjectMaelstrom
             smartPlayGroup.Size = new Size(340, 198);
             smartPlayGroup.TabIndex = 14;
             smartPlayGroup.TabStop = false;
-            smartPlayGroup.Text = "Smart Travel";
+            smartPlayGroup.Text = "Quick Tasks";
             // 
             // potionRefillButton
             // 
@@ -507,7 +576,7 @@ namespace ProjectMaelstrom
             trainerListView.Location = new Point(404, 110);
             trainerListView.MultiSelect = false;
             trainerListView.Name = "trainerListView";
-            trainerListView.Size = new Size(676, 348);
+            trainerListView.Size = new Size(820, 380);
             trainerListView.TabIndex = 15;
             trainerListView.UseCompatibleStateImageBehavior = false;
             trainerListView.View = View.Details;
@@ -518,7 +587,7 @@ namespace ProjectMaelstrom
             childHostPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             childHostPanel.Location = new Point(404, 110);
             childHostPanel.Name = "childHostPanel";
-            childHostPanel.Size = new Size(676, 348);
+            childHostPanel.Size = new Size(820, 380);
             childHostPanel.TabIndex = 16;
             childHostPanel.Visible = false;
             // 
@@ -603,7 +672,9 @@ namespace ProjectMaelstrom
             // dashboardGroupBox
             // 
             dashboardGroupBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dashboardGroupBox.Controls.Add(zoneStatusLabel);
             dashboardGroupBox.Controls.Add(guardStatusLabel);
+            dashboardGroupBox.Controls.Add(mapViewerButton);
             dashboardGroupBox.Controls.Add(runHistoryListBox);
             dashboardGroupBox.Controls.Add(runHistoryLabel);
             dashboardGroupBox.Controls.Add(dashboardStatusLabel);
@@ -617,37 +688,39 @@ namespace ProjectMaelstrom
             dashboardGroupBox.Controls.Add(dashboardWarningsTextBox);
             dashboardGroupBox.Controls.Add(dashboardWarningsLabel);
             dashboardGroupBox.Controls.Add(dashboardStatsLabel);
-            dashboardGroupBox.Location = new Point(304, 464);
+            dashboardGroupBox.Location = new Point(404, 520);
             dashboardGroupBox.Name = "dashboardGroupBox";
-            dashboardGroupBox.Size = new Size(796, 234);
+            dashboardGroupBox.Size = new Size(820, 250);
             dashboardGroupBox.TabIndex = 13;
             dashboardGroupBox.TabStop = false;
             dashboardGroupBox.Text = "Dashboard";
             // 
             // guardStatusLabel
             // 
+            guardStatusLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             guardStatusLabel.AutoSize = true;
-            guardStatusLabel.Location = new Point(10, 92);
+            guardStatusLabel.ForeColor = Color.Goldenrod;
+            guardStatusLabel.Location = new Point(520, 30);
             guardStatusLabel.Name = "guardStatusLabel";
-            guardStatusLabel.Size = new Size(94, 20);
+            guardStatusLabel.Size = new Size(132, 20);
             guardStatusLabel.TabIndex = 19;
-            guardStatusLabel.Text = "Guards: OK";
+            guardStatusLabel.Text = "Guards: All normal";
             // 
             // runHistoryListBox
             // 
             runHistoryListBox.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             runHistoryListBox.FormattingEnabled = true;
             runHistoryListBox.ItemHeight = 20;
-            runHistoryListBox.Location = new Point(440, 30);
+            runHistoryListBox.Location = new Point(480, 30);
             runHistoryListBox.Name = "runHistoryListBox";
-            runHistoryListBox.Size = new Size(286, 84);
+            runHistoryListBox.Size = new Size(300, 84);
             runHistoryListBox.TabIndex = 4;
             // 
             // runHistoryLabel
             // 
             runHistoryLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             runHistoryLabel.AutoSize = true;
-            runHistoryLabel.Location = new Point(440, 10);
+            runHistoryLabel.Location = new Point(480, 10);
             runHistoryLabel.Name = "runHistoryLabel";
             runHistoryLabel.Size = new Size(82, 20);
             runHistoryLabel.TabIndex = 5;
@@ -661,6 +734,15 @@ namespace ProjectMaelstrom
             dashboardStatusLabel.Size = new Size(136, 20);
             dashboardStatusLabel.TabIndex = 3;
             dashboardStatusLabel.Text = "Status: Idle | Sync: -";
+            // 
+            // zoneStatusLabel
+            // 
+            zoneStatusLabel.AutoSize = true;
+            zoneStatusLabel.Location = new Point(200, 30);
+            zoneStatusLabel.Name = "zoneStatusLabel";
+            zoneStatusLabel.Size = new Size(94, 20);
+            zoneStatusLabel.TabIndex = 21;
+            zoneStatusLabel.Text = "Zone: (n/a)";
             // 
             // launcherStatusLabel
             // 
@@ -709,9 +791,9 @@ namespace ProjectMaelstrom
             // refreshKnowledgeButton
             // 
             refreshKnowledgeButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            refreshKnowledgeButton.Location = new Point(660, 82);
+            refreshKnowledgeButton.Location = new Point(640, 82);
             refreshKnowledgeButton.Name = "refreshKnowledgeButton";
-            refreshKnowledgeButton.Size = new Size(140, 28);
+            refreshKnowledgeButton.Size = new Size(160, 28);
             refreshKnowledgeButton.TabIndex = 10;
             refreshKnowledgeButton.Text = "Refresh Knowledge";
             refreshKnowledgeButton.UseVisualStyleBackColor = true;
@@ -732,8 +814,19 @@ namespace ProjectMaelstrom
             dashboardWarningsTextBox.Name = "dashboardWarningsTextBox";
             dashboardWarningsTextBox.ReadOnly = true;
             dashboardWarningsTextBox.ScrollBars = ScrollBars.Vertical;
-            dashboardWarningsTextBox.Size = new Size(716, 68);
+            dashboardWarningsTextBox.Size = new Size(780, 68);
             dashboardWarningsTextBox.TabIndex = 2;
+            // 
+            // mapViewerButton
+            // 
+            mapViewerButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            mapViewerButton.Location = new Point(480, 122);
+            mapViewerButton.Name = "mapViewerButton";
+            mapViewerButton.Size = new Size(320, 28);
+            mapViewerButton.TabIndex = 21;
+            mapViewerButton.Text = "Open Map Viewer";
+            mapViewerButton.UseVisualStyleBackColor = true;
+            mapViewerButton.Click += mapViewerButton_Click;
             // 
             // dashboardWarningsLabel
             // 
@@ -848,7 +941,8 @@ namespace ProjectMaelstrom
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1100, 820);
+            ClientSize = new Size(1250, 900);
+            Controls.Add(quickPresetPanel);
             Controls.Add(filterNoteMainLabel);
             Controls.Add(searchTextBox);
             Controls.Add(searchLabel);
@@ -919,8 +1013,10 @@ namespace ProjectMaelstrom
         private TextBox dashboardWarningsTextBox;
         private Label dashboardWarningsLabel;
         private Label dashboardStatsLabel;
+        private Label zoneStatusLabel;
+        private Button mapViewerButton;
         private Label smartPlayStatusLabel;
-        private Label guardStatusLabel;
+        private Label guardStatusLabel = null!;
         private Label learnProfileStatusLabel;
         private Label knowledgeStatusLabel;
         private Label knowledgeDetailsLabel;
@@ -928,6 +1024,11 @@ namespace ProjectMaelstrom
         private Label knowledgeTimestampLabel;
         private Label modeLabel;
         private Label filterChipLabel;
+        private Label statusRibbonLabel;
+        private FlowLayoutPanel quickPresetPanel;
+        private Button presetPotionButton;
+        private Button presetPetButton;
+        private Button presetBazaarButton;
         private Label navScriptsLabel;
         private Label navTravelLabel;
         private Label searchLabel;

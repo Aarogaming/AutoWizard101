@@ -48,6 +48,7 @@ namespace ProjectMaelstrom
             applyUpdateButton = new Button();
             updaterStatusLabel = new Label();
             launchManagerButton = new Button();
+            openMapViewerButton = new Button();
             runDiagnosticsButton = new Button();
             viewDevSuggestionsButton = new Button();
             goldMinLabel = new Label();
@@ -337,22 +338,32 @@ namespace ProjectMaelstrom
             launchManagerButton.UseVisualStyleBackColor = true;
             launchManagerButton.Click += launchManagerButton_Click;
             // 
+            // openMapViewerButton
+            // 
+            openMapViewerButton.Location = new Point(14, 941);
+            openMapViewerButton.Name = "openMapViewerButton";
+            openMapViewerButton.Size = new Size(478, 34);
+            openMapViewerButton.TabIndex = 24;
+            openMapViewerButton.Text = "Open Map Viewer";
+            openMapViewerButton.UseVisualStyleBackColor = true;
+            openMapViewerButton.Click += openMapViewerButton_Click;
+            // 
             // refreshWikiButton
             // 
-            refreshWikiButton.Location = new Point(14, 941);
+            refreshWikiButton.Location = new Point(14, 981);
             refreshWikiButton.Name = "refreshWikiButton";
             refreshWikiButton.Size = new Size(478, 34);
-            refreshWikiButton.TabIndex = 24;
+            refreshWikiButton.TabIndex = 25;
             refreshWikiButton.Text = "Refresh Wiki Cache";
             refreshWikiButton.UseVisualStyleBackColor = true;
             refreshWikiButton.Click += refreshWikiButton_Click;
             // 
             // runDiagnosticsButton
             // 
-            runDiagnosticsButton.Location = new Point(14, 981);
+            runDiagnosticsButton.Location = new Point(14, 1021);
             runDiagnosticsButton.Name = "runDiagnosticsButton";
             runDiagnosticsButton.Size = new Size(478, 34);
-            runDiagnosticsButton.TabIndex = 25;
+            runDiagnosticsButton.TabIndex = 26;
             runDiagnosticsButton.Text = "Run Diagnostics (Dev)";
             runDiagnosticsButton.UseVisualStyleBackColor = true;
             runDiagnosticsButton.Visible = false;
@@ -360,10 +371,10 @@ namespace ProjectMaelstrom
             // 
             // viewDevSuggestionsButton
             // 
-            viewDevSuggestionsButton.Location = new Point(14, 1021);
+            viewDevSuggestionsButton.Location = new Point(14, 1061);
             viewDevSuggestionsButton.Name = "viewDevSuggestionsButton";
             viewDevSuggestionsButton.Size = new Size(478, 34);
-            viewDevSuggestionsButton.TabIndex = 26;
+            viewDevSuggestionsButton.TabIndex = 27;
             viewDevSuggestionsButton.Text = "View Dev Suggestions";
             viewDevSuggestionsButton.UseVisualStyleBackColor = true;
             viewDevSuggestionsButton.Visible = false;
@@ -373,12 +384,13 @@ namespace ProjectMaelstrom
             // 
             AutoScaleDimensions = new SizeF(12F, 30F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(540, 1080);
+            ClientSize = new Size(540, 1125);
             Controls.Add(goldCapNumeric);
             Controls.Add(goldCapLabel);
             Controls.Add(goldMinNumeric);
             Controls.Add(goldMinLabel);
             Controls.Add(autoPauseToggle);
+            Controls.Add(openMapViewerButton);
             Controls.Add(refreshWikiButton);
             Controls.Add(viewDevSuggestionsButton);
             Controls.Add(runDiagnosticsButton);
@@ -443,7 +455,8 @@ namespace ProjectMaelstrom
         private Button applyUpdateButton;
         private Label updaterStatusLabel;
         private Button launchManagerButton;
-        private Button refreshWikiButton;
+        private Button openMapViewerButton;
+        private Button refreshWikiButton = null!;
         private Button runDiagnosticsButton;
         private Button viewDevSuggestionsButton;
         private Label goldMinLabel;

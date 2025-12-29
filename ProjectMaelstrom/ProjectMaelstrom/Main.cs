@@ -222,7 +222,9 @@ public partial class Main : Form
         SetLearnProfileCombo(targetProfile);
         UpdateLearnProfileStatus(targetProfile.ToString());
         UpdateKnowledgeInfo();
+        UpdateZoneStatus();
         UpdateModeLabel();
+        UpdateStatusRibbon();
 
         LoadScriptLibrary();
         PopulateTrainerList();
@@ -813,6 +815,7 @@ public partial class Main : Form
         UIStyles.ApplyCardStyle(panel1, palette.Back, palette.Border);
         UIStyles.ApplyCardStyle(navPanel, palette.Surface, palette.Border);
         UIStyles.ApplyCardStyle(speedPanel, palette.Surface, palette.Border);
+        UIStyles.ApplyCardStyle(quickPresetPanel, palette.Surface, palette.Border);
 
         // Apply consistent button styling to nav buttons
         var navButtons = new[]
@@ -829,6 +832,15 @@ public partial class Main : Form
         {
             UIStyles.ApplyButtonStyle(btn, palette.ControlBack, palette.ControlFore, palette.Border);
         }
+
+        foreach (var btn in new[] { presetPotionButton, presetPetButton, presetBazaarButton })
+        {
+            UIStyles.ApplyButtonStyle(btn, palette.ControlBack, palette.ControlFore, palette.Border);
+        }
+
+        uiToolTip.SetToolTip(presetPotionButton, "Run potion refill minigames run");
+        uiToolTip.SetToolTip(presetPetButton, "Head to pet games (Pet Pavilion)");
+        uiToolTip.SetToolTip(presetBazaarButton, "Travel to the Bazaar");
     }
 
     private void AddRunHistory(string entry)
@@ -1326,6 +1338,7 @@ public partial class Main : Form
         smartPlayHeaderLabel.Text = $"SmartPlay: {state} | Queue: {q}";
         smartPlayStatusLabel.Text = $"SmartPlay: {state} | Queue: {q}";
         UpdateGuardStatusLabel();
+        UpdateStatusRibbon();
     }
 
     private void UpdateLearnProfileStatus(string profile)
@@ -1358,15 +1371,41 @@ public partial class Main : Form
             guardStatusLabel.Text = $"Guards: {string.Join(", ", pieces)}";
             guardStatusLabel.ForeColor = Color.Gold;
         }
+
+        UpdateStatusRibbon();
+    }
+
+    private void UpdateZoneStatus(string? zoneName = null)
+    {
+        if (zoneStatusLabel == null) return;
+
+        if (!string.IsNullOrWhiteSpace(zoneName))
+        {
+            zoneStatusLabel.Text = $"Zone: {zoneName}";
+            return;
+        }
+
+        if (_wikiData?.HasData == true && _wikiData.ZoneCount > 0)
+        {
+            zoneStatusLabel.Text = $"Zones loaded: {_wikiData.ZoneCount}";
+        }
+        else
+        {
+            zoneStatusLabel.Text = "Zone: (n/a)";
+        }
+
+        UpdateStatusRibbon();
     }
 
     private void UpdateKnowledgeInfo()
     {
         string info;
+        string? suggestedZone = null;
         if (_wikiData.HasData)
         {
             var topZones = _wikiData.GetZones().Take(3).ToArray();
             var zoneSnippet = topZones.Length > 0 ? $" | Top zones: {string.Join(", ", topZones)}" : string.Empty;
+            suggestedZone = topZones.FirstOrDefault();
             info = $"WizWiki data loaded ({_wikiData.MobCount} mobs){zoneSnippet}";
             var topMobs = _wikiData.GetTopMobs(5).ToArray();
             var detailsParts = new List<string>();
@@ -1379,7 +1418,7 @@ public partial class Main : Form
                 detailsParts.Add($"Top mobs: {string.Join(", ", topMobs)}");
             }
             knowledgeDetailsLabel.Text = detailsParts.Count > 0 ? string.Join(" | ", detailsParts) : string.Empty;
-            _knowledgeLastRefreshed ??= DateTime.Now;
+            _knowledgeLastRefreshed = DateTime.Now;
             knowledgeTimestampLabel.Text = $"Refreshed: {_knowledgeLastRefreshed:HH:mm:ss on MMM dd}";
             if (!string.IsNullOrWhiteSpace(knowledgeDetailsLabel.Text))
             {
@@ -1398,6 +1437,7 @@ public partial class Main : Form
             uiToolTip.SetToolTip(refreshKnowledgeButton, "Reload WizWiki cache (top zones/mobs)");
         }
         knowledgeStatusLabel.Text = $"Knowledge: {info}";
+        UpdateZoneStatus(suggestedZone);
 
         if (!dashboardWarningsTextBox.Text.Contains(info, StringComparison.OrdinalIgnoreCase))
         {
@@ -1410,6 +1450,15 @@ public partial class Main : Form
         snapshotWarningsTextBox.Text = $"Knowledge refreshed at {_knowledgeLastRefreshed:HH:mm:ss on MMM dd}";
     }
 
+    private void UpdateStatusRibbon()
+    {
+        if (statusRibbonLabel == null) return;
+        var sync = syncStatusValueLabel?.Text ?? "Sync: -";
+        var zone = zoneStatusLabel?.Text ?? "Zone: (n/a)";
+        var guards = guardStatusLabel?.Text ?? "Guards: OK";
+        statusRibbonLabel.Text = $"{sync} | {zone} | {guards}";
+    }
+
     private void refreshKnowledgeButton_Click(object sender, EventArgs e)
     {
         WizWikiDataService.Instance.Refresh();
@@ -1417,6 +1466,38 @@ public partial class Main : Form
         UpdateKnowledgeInfo();
         AddRunHistory("Knowledge refreshed");
         ShowKnowledgeToast("Knowledge refreshed");
+    }
+
+    private void presetPotionButton_Click(object sender, EventArgs e)
+    {
+        potionRefillButton_Click(sender, e);
+    }
+
+    private void presetPetButton_Click(object sender, EventArgs e)
+    {
+        goPetPavilionButton_Click(sender, e);
+    }
+
+    private void presetBazaarButton_Click(object sender, EventArgs e)
+    {
+        goBazaarButton_Click(sender, e);
+    }
+
+    private void mapViewerButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            using var viewer = new MapViewerForm
+            {
+                StartPosition = FormStartPosition.CenterParent,
+                TopMost = true
+            };
+            viewer.ShowDialog(this);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to open map viewer: {ex.Message}", "Map Viewer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private void speedNumeric_ValueChanged(object? sender, EventArgs e)
