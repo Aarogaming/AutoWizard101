@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "cadekenyon",
+  "sourceUrl": "https://github.com/cadekenyon/afk-wizard",
+  "status": "external"
 }

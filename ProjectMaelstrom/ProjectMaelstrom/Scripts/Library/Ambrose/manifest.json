@@ -1,0 +1,11 @@
+{
+  "name": "Ambrose",
+  "description": "Wizard101 trivia helper",
+  "author": "zeyu2001",
+  "sourceUrl": "https://github.com/zeyu2001/Ambrose",
+  "entryPoint": "README.md",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": [],
+  "status": "reference"
+}

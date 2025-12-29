@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "R-unic",
+  "sourceUrl": "https://github.com/R-unic/WizWikiAPI",
+  "status": "reference"
 }

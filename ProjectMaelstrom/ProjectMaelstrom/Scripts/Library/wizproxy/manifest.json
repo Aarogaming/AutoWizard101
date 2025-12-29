@@ -1,0 +1,11 @@
+{
+  "name": "Wizproxy",
+  "description": "Imported from GitHub",
+  "author": "vbe0201",
+  "sourceUrl": "https://github.com/vbe0201/wizproxy",
+  "entryPoint": "README.md",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": [],
+  "status": "reference"
+}

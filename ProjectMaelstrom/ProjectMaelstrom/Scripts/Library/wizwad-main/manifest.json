@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "wizspoil",
+  "sourceUrl": "https://github.com/wizspoil/wizwad",
+  "status": "reference"
 }

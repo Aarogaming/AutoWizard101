@@ -87,16 +87,24 @@ dotnet run --project ProjectMaelstrom
 - Run: `dotnet run --project ProjectMaelstrom`
 - Tests: `dotnet run --project ProjectMaelstrom` and click “Run Tests” in the UI (light utility tests).
 
-## TODO
-- Capture Wizard101 UI colors/fonts/assets from the installed client and derive an in-app theme that mirrors the game (palette, backgrounds, button styles).
-- Add a theme switcher in-app to apply the Wizard101-inspired theme across all forms.
-- Automate extraction of reference screenshots from the local Wizard101 install (when available) to keep theme assets in sync.
-- Add an explicit exception to allow reading Wizard101 game files/screenshots locally for theme derivation (no modification of game files).
-- Add an explicit exception to read/review wizard101.com pages for visual reference when deriving themes (no automation against the site).
-- Add a “Launch Wizard101” button in the trainer that starts PlayWizard101 from a detected install path.
-- Launch Wizard101 directly from the default install paths (e.g., `C:\ProgramData\KingsIsle Entertainment\Wizard101\Wizard101.exe`) and only prompt for a directory if nothing is found.
-- Detect Wizard101 launcher states (login, patcher/updater, and “Play” button) and surface state in the trainer (SmartPlay + Sync) so we know when the game is ready.
-- Review in-progress chat tasks to ensure all started items are completed or tracked (input bridge, trainer UI dashboard, external script refactors).
+## TODO (single list)
+- UI/UX: fix button text clipping/spacing across all forms; give nav buttons more width; surface script author/source in the main list; wire "Run Macro" entry in nav to the Macro Runner; explore an optional Steam/Nvidia-style in-game overlay for status/hotkeys.
+- SmartPlay/Learn Mode: expose learn-mode profile (mixed/seek/avoid) and monster seek/avoid toggles; add health/mana/resource guards and auto-pause when Wizard101 loses focus; show SmartPlay queue length/status; keep capture/record behind dev when appropriate; spike "task learning" that watches player inputs and derives repeatable tasks/macros safely; leverage WizWiki data (cached/offline) to map mobs/zones for seek/avoid routing without live scraping.
+- Pathing & resources: teach SmartPlay to learn spawn locations for reagents and wooden chests; pull/map data from Wiz101 Wiki (offline/cache) to build and verify travel routes for resource runs; integrate into pathing macros.
+- Theme & assets: capture Wizard101 UI colors/fonts/assets from the local install; Wizard101-inspired theme switcher; automated reference screenshots; allow read-only access to game files/screenshots and wizard101.com for visual reference.
+- Launcher integration: "Launch Wizard101" uses default paths (e.g., `C:\ProgramData\KingsIsle Entertainment\Wizard101\Wizard101.exe`) before prompting; detect launcher states (login/patch/play) and surface them in sync indicators; refine detection with launcher UI cues.
+- Script library: embed the full library in packaged releases; default feed fallback in Project Manager and prompt for manual URL only when auto-fetch fails and an update is available; package bots/utilities as installable entries; finish attribution for remaining scripts (afk-wizard, gardening-bot, wiz-packet-map, wizAPI, Wizard101-Farming, Wizard101-Utilities, wizwad, nested GrubNinja).
+- Project Manager/Installer: tidy status layout; version check before launching the main app; portable ZIP option; dev-only controls guarded by dev key; error logging on update/install failures; merge Script Loader/Project Manager views so add-ons are consistent.
+- Diagnostics: onboard logging/health for SmartPlay and installer; design manager to capture UI screenshots for QA; avoid sensitive data in logs; keep password logging disabled.
+- Major UI/UX overhaul: modernize the main trainer and installer with a cohesive theme (Wizard101-inspired + system-friendly), reorganize controls into clearer sections/menus (e.g., settings vs. scripting vs. travel), and share theme assets between app and installer for a unified look.
+- Audit bots: review all bundled Wizard101 bots/utilities to see which we can outperform or which are obsolete; identify candidates to replace with native implementations and note attribution.
+- Script cataloging: analyze, prioritize, and categorize all player-visible scripts (native vs external vs reference/deprecated) to surface only high-value options to players and streamline updates.
+- Resource runners: design and implement resource-aware runs (energy/mana/potion checks) that auto-queue refills and avoid starting tasks when resources are too low.
+- Simplify structure: avoid repetitive directories and simplify systems/projects where it benefits player experience and reduces clutter.
+- Knowledge surfacing: aggregate player guides, monster behavior, and game mechanics (via cached sources like WizWiki or local notes) so SmartPlay can surface relevant info/context to the player in-app.
+- Internal bridge: unify non-UI execution (script runner, SmartPlay, resource guards) behind a single integration layer so core functions can run seamlessly without extra UI wiring.
+- Wiki data fetch helper: use `tools/wiki_fetch_template.ps1` to download target wiki pages to `Scripts/Library/WizWikiAPI-main/wiki_fetch_raw`; then convert to JSON (`wizwiki_*`) for the app to load (resources/NPCs/quests/zones/crafting). No live scraping at runtime.
+- World assets: raw Wizard101 world pages/images saved under `ProjectMaelstrom/Scripts/Library/WizWikiAPI-main/worlds_raw/` (from desktop W101 folder). Convert these to `wizwiki_zones.json` + map images and use Settings → Refresh Wiki Cache to load.
 
 ## Safety & Fair Play
 - Use responsibly. Respect game terms of service and other players.
@@ -115,3 +123,6 @@ ProjectMaelstrom/
     Scripts/                  # Bundled scripts and Library for custom scripts
     tessdata/                 # Tesseract data
 ```
+
+
+

@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "ashah360",
+  "sourceUrl": "https://github.com/ashah360/GrubNinja",
+  "status": "external"
 }

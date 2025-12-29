@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "taSilver",
+  "sourceUrl": "https://github.com/taSilver/Wizard101-Utilities",
+  "status": "reference"
 }

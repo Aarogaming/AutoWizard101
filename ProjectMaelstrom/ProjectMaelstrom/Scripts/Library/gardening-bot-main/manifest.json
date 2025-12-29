@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "Adarsh-S-Nair",
+  "sourceUrl": "https://github.com/Adarsh-S-Nair/gardening-bot",
+  "status": "external"
 }

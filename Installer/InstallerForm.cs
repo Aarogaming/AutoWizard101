@@ -22,6 +22,8 @@ public partial class InstallerForm : Form
     private string _installedVersion = "Unknown";
     private bool _devMode;
     private static readonly HttpClient _httpClient = new();
+    private string? _manualPayloadPath;
+    private bool _feedControlsVisible;
 
     private string ResolveInstallPath()
     {
@@ -34,18 +36,24 @@ public partial class InstallerForm : Form
     {
         _feedUrlFromArgs = feedUrl;
         InitializeComponent();
+        ApplyPalette();
     }
 
     private void InstallerForm_Load(object sender, EventArgs e)
     {
         if (!string.IsNullOrWhiteSpace(_feedUrlFromArgs))
-        {
-            feedText.Text = _feedUrlFromArgs;
-        }
-        else
-        {
-            feedText.Text = DefaultFeedUrl;
-        }
+            {
+                feedText.Text = _feedUrlFromArgs;
+                SetFeedControlsVisible(true);
+            }
+            else
+            {
+                // Use default feed silently unless the user opts to change it.
+                feedText.Text = DefaultFeedUrl;
+                autoCheckUpdatesCheck.Checked = true;
+                SetFeedControlsVisible(autoCheckUpdatesCheck.Checked);
+            }
+        // Leave feed empty unless explicitly provided
         installPathText.Text = _defaultInstallPath;
         logPathLabel.Text = $"Log: {_logPath}";
         DetectInstalled();
@@ -54,6 +62,108 @@ public partial class InstallerForm : Form
         if (autoCheckUpdatesCheck.Checked)
         {
             checkButton_Click(this, EventArgs.Empty);
+        }
+    }
+
+    private sealed record Palette(
+        Color Back,
+        Color Surface,
+        Color ControlBack,
+        Color ControlFore,
+        Color Border,
+        Color Accent,
+        Color Fore,
+        Color TextMuted);
+
+    private void ApplyPalette()
+    {
+        // Mirror the main app's Wizard101-inspired palette.
+        var palette = new Palette(
+            Back: Color.FromArgb(18, 24, 46),
+            Surface: Color.FromArgb(22, 30, 56),
+            ControlBack: Color.FromArgb(30, 42, 72),
+            ControlFore: Color.FromArgb(243, 236, 219),
+            Border: Color.FromArgb(96, 68, 22),
+            Accent: Color.FromArgb(227, 177, 39),
+            Fore: Color.FromArgb(243, 236, 219),
+            TextMuted: Color.FromArgb(198, 190, 169));
+
+        BackColor = palette.Surface;
+        ForeColor = palette.Fore;
+
+        void StyleButton(Button btn)
+        {
+            btn.BackColor = palette.ControlBack;
+            btn.ForeColor = palette.ControlFore;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderColor = palette.Border;
+            btn.FlatAppearance.BorderSize = 1;
+        }
+
+        var buttons = new[]
+        {
+            checkButton, installButton, uninstallButton, createPortableButton, updateButton, browseInstallButton,
+            devButton, openLogButton, openInstallFolderButton, openLibraryButton, launchAppButton, manualSourceButton
+        };
+        foreach (var b in buttons)
+        {
+            StyleButton(b);
+        }
+
+        var textInputs = new[] { feedText, installPathText };
+        foreach (var tb in textInputs)
+        {
+            tb.BackColor = palette.ControlBack;
+            tb.ForeColor = palette.ControlFore;
+        }
+
+        scriptsList.BackColor = palette.ControlBack;
+        scriptsList.ForeColor = palette.ControlFore;
+        activityList.BackColor = palette.ControlBack;
+        activityList.ForeColor = palette.ControlFore;
+
+        var labels = new[]
+        {
+            titleLabel, feedLabel, installPathLabel, statusLabel, installedVersionLabel, latestVersionLabel,
+            stepLabel, scriptsLabel, logPathLabel
+        };
+        foreach (var lbl in labels)
+        {
+            lbl.ForeColor = palette.Fore;
+        }
+
+        var checks = new[]
+        {
+            desktopShortcutCheck, startMenuShortcutCheck, uninstallShortcutCheck, autoCheckUpdatesCheck,
+            cleanInstallCheck, launchAfterInstallCheck, openReleaseNotesCheck, smartPlayInitCheck
+        };
+        foreach (var chk in checks)
+        {
+            chk.ForeColor = palette.Fore;
+            chk.BackColor = palette.Surface;
+        }
+    }
+
+    private void SetFeedControlsVisible(bool visible)
+    {
+        if (_feedControlsVisible == visible) return;
+        _feedControlsVisible = visible;
+        feedLabel.Visible = visible;
+        feedText.Visible = visible;
+        checkButton.Visible = visible;
+    }
+
+    private void autoCheckUpdatesCheck_CheckedChanged(object sender, EventArgs e)
+    {
+        if (!autoCheckUpdatesCheck.Checked)
+        {
+            // If user disables auto-check, hide feed controls to reduce clutter.
+            SetFeedControlsVisible(false);
+        }
+        else
+        {
+            // If they re-enable, show so they can override the feed.
+            SetFeedControlsVisible(true);
         }
     }
 
@@ -150,6 +260,7 @@ public partial class InstallerForm : Form
         {
             statusLabel.Text = "Status: No feed provided.";
             LogError("No feed provided for update check.");
+            manualSourceButton.Visible = true;
             return;
         }
 
@@ -163,14 +274,27 @@ public partial class InstallerForm : Form
             var manifest = JsonSerializer.Deserialize<UpdateManifest>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             _latestVersion = manifest?.Version ?? "Unknown";
             latestVersionLabel.Text = $"Latest: {_latestVersion}";
-            statusLabel.Text = "Status: Check complete.";
-            LogStep($"Latest version: {_latestVersion}");
+            DetectInstalled(); // refresh installed version info for comparison
+
+            if (Version.TryParse(_installedVersion, out var installed) &&
+                Version.TryParse(_latestVersion, out var latest) &&
+                latest > installed)
+            {
+                statusLabel.Text = $"Status: Update available (Installed: {_installedVersion}, Latest: {_latestVersion})";
+            }
+            else
+            {
+                statusLabel.Text = $"Status: Up to date (Installed: {_installedVersion}, Latest: {_latestVersion})";
+            }
+
+            LogStep($"Latest version: {_latestVersion} | Installed: {_installedVersion}");
         }
         catch (Exception ex)
         {
             statusLabel.Text = $"Status: Check failed ({ex.Message})";
             LogStep($"Check failed: {ex.Message}");
             LogError($"Check failed: {ex}");
+            manualSourceButton.Visible = true;
         }
         finally
         {
@@ -197,7 +321,7 @@ public partial class InstallerForm : Form
         LogStep(force ? "Starting fresh install..." : "Starting update...");
         try
         {
-            var payload = await TryDownloadLatest(feedText.Text) ?? ExtractEmbeddedPayload();
+            var payload = _manualPayloadPath ?? (await TryDownloadLatest(feedText.Text) ?? ExtractEmbeddedPayload());
             if (payload == null)
             {
                 statusLabel.Text = "Status: No payload available.";
@@ -328,8 +452,20 @@ public partial class InstallerForm : Form
                 writer.WriteLine("portable");
             }
 
-            statusLabel.Text = "Status: Portable package created.";
-            LogStep("Portable package created.");
+            statusLabel.Text = $"Status: Portable package created: {sfd.FileName}";
+            LogStep($"Portable package created at {sfd.FileName}");
+            var openFolder = MessageBox.Show("Portable package created. Open folder now?", "Portable Created", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (openFolder == DialogResult.Yes)
+            {
+                try
+                {
+                    Process.Start("explorer.exe", $"/select,\"{sfd.FileName}\"");
+                }
+                catch
+                {
+                    // non-fatal
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -409,6 +545,8 @@ public partial class InstallerForm : Form
         catch (Exception ex)
         {
             LogError($"Download latest failed: {ex}");
+            manualSourceButton.Visible = true;
+            SetFeedControlsVisible(true);
             return null;
         }
     }
@@ -425,6 +563,8 @@ public partial class InstallerForm : Form
         catch (Exception ex)
         {
             LogError($"Fetch manifest failed: {ex}");
+            manualSourceButton.Visible = true;
+            SetFeedControlsVisible(true);
             return null;
         }
     }
@@ -446,6 +586,11 @@ public partial class InstallerForm : Form
 
     private async Task ExtractPayloadAsync(string payloadPath, string installPath)
     {
+        if (string.IsNullOrWhiteSpace(payloadPath) || !File.Exists(payloadPath))
+        {
+            throw new FileNotFoundException("Payload not found", payloadPath);
+        }
+
         var selected = scriptsList.CheckedItems.Cast<object>()
             .Select(o => o?.ToString())
             .Where(s => !string.IsNullOrWhiteSpace(s))
@@ -774,7 +919,50 @@ Write-Host 'Project Maelstrom removed.'
         }
     }
 
+    private void manualSourceButton_Click(object sender, EventArgs e)
+    {
+        var choice = MessageBox.Show(
+            "Pick a local package (zip) or enter a feed URL?\nYes = pick local zip, No = enter feed URL",
+            "Manual source",
+            MessageBoxButtons.YesNoCancel,
+            MessageBoxIcon.Question);
+
+        if (choice == DialogResult.Cancel) return;
+
+        if (choice == DialogResult.Yes)
+        {
+            using var ofd = new OpenFileDialog
+            {
+                Filter = "Zip Files|*.zip",
+                Title = "Select package zip"
+            };
+            if (ofd.ShowDialog() == DialogResult.OK && File.Exists(ofd.FileName))
+            {
+                _manualPayloadPath = ofd.FileName;
+                latestVersionLabel.Text = "Latest: manual zip";
+                statusLabel.Text = "Status: Manual package selected.";
+                LogStep($"Manual package selected: {ofd.FileName}");
+            }
+        }
+        else
+        {
+            string input = Microsoft.VisualBasic.Interaction.InputBox("Enter update feed URL:", "Manual Feed", feedText.Text);
+            if (!string.IsNullOrWhiteSpace(input))
+            {
+                feedText.Text = input.Trim();
+                _manualPayloadPath = null;
+                statusLabel.Text = "Status: Manual feed set.";
+                LogStep("Manual feed set.");
+            }
+        }
+    }
+
     private async void launchAppButton_Click(object sender, EventArgs e)
+    {
+        await GuardedLaunchAsync();
+    }
+
+    private async Task GuardedLaunchAsync()
     {
         try
         {

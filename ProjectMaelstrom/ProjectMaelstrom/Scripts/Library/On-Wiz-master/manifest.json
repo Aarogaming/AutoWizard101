@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "latelylk",
+  "sourceUrl": "https://github.com/latelylk/On-Wiz",
+  "status": "external"
 }

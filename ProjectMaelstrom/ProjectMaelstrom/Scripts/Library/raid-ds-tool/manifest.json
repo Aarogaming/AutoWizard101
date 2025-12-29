@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "lxghtend",
+  "sourceUrl": "https://github.com/lxghtend/raid-utility-tools",
+  "status": "external"
 }

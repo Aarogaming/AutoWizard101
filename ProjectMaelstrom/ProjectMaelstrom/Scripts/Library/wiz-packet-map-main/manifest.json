@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "xgladius",
+  "sourceUrl": "https://github.com/xgladius/wiz-packet-map",
+  "status": "reference"
 }

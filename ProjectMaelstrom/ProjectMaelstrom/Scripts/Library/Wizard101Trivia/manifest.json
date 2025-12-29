@@ -1,0 +1,11 @@
+{
+  "name": "Wizard101Trivia",
+  "description": "Imported from GitHub",
+  "author": "GabeMillikan",
+  "sourceUrl": "https://github.com/GabeMillikan/Wizard101Trivia",
+  "entryPoint": "README.md",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": [],
+  "status": "reference"
+}

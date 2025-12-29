@@ -22,7 +22,7 @@ public static class ThemeManager
         Unknown
     }
 
-    private sealed class ThemePalette
+    public sealed class ThemePalette
     {
         public Color Back { get; init; }
         public Color Fore { get; init; }
@@ -110,7 +110,7 @@ public static class ThemeManager
         return IsDarkMode ? Color.White : SystemColors.ControlText;
     }
 
-    private static ThemePalette GetActivePalette()
+    public static ThemePalette GetActivePalette()
     {
         if (CurrentMode == ThemeMode.Wizard101)
         {

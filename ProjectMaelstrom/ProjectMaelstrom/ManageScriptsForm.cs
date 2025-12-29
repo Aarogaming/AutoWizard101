@@ -8,27 +8,61 @@ namespace ProjectMaelstrom;
 public partial class ManageScriptsForm : Form
 {
     private readonly ScriptLibraryService _service = ScriptLibraryService.Instance;
+    private readonly BridgeCoordinator? _bridge;
 
-    public ManageScriptsForm()
+    internal ManageScriptsForm(BridgeCoordinator? bridge = null)
     {
+        _bridge = bridge;
         InitializeComponent();
     }
 
     private void ManageScriptsForm_Load(object sender, EventArgs e)
     {
         ThemeManager.ApplyTheme(this);
+        ApplyPalette();
         scriptListBox.SelectedIndexChanged += scriptListBox_SelectedIndexChanged;
         LoadScriptLibrary();
         UpdateScriptStatus();
     }
 
+    private void ApplyPalette()
+    {
+        var palette = ThemeManager.GetActivePalette();
+        UIStyles.ApplyCardStyle(this, palette.Surface, palette.Border);
+        var buttons = new[]
+        {
+            runScriptButton, stopScriptButton, refreshScriptsButton, importFromGithubButton,
+            updateScriptButton, removeScriptButton, loadLogButton, openScriptFolderButton,
+            openLibraryRootButton, openFullLogButton, viewSourceButton
+        };
+        foreach (var btn in buttons)
+        {
+            UIStyles.ApplyButtonStyle(btn, palette.ControlBack, palette.ControlFore, palette.Border);
+        }
+        scriptListBox.BackColor = palette.ControlBack;
+        scriptListBox.ForeColor = palette.ControlFore;
+        logPreviewTextBox.BackColor = palette.ControlBack;
+        logPreviewTextBox.ForeColor = palette.ControlFore;
+    }
+
     private void LoadScriptLibrary()
     {
         _service.ReloadLibrary();
-        var scripts = _service.Scripts.ToList();
+        var scripts = _service.Scripts
+            .Where(s => !ShouldHideInPlayerMode(s))
+            .ToList();
         scriptListBox.DisplayMember = nameof(ScriptDefinition.DisplayName);
         scriptListBox.ValueMember = nameof(ScriptDefinition.Manifest);
         scriptListBox.DataSource = scripts;
+        filterNoteLabel.Visible = Properties.Settings.Default.PLAYER_PREVIEW_MODE;
+        if (filterNoteLabel.Visible)
+        {
+            filterNoteLabel.Text = $"Player mode: showing {scripts.Count} items (reference/deprecated hidden)";
+        }
+        else
+        {
+            filterNoteLabel.Text = string.Empty;
+        }
     }
 
     private void runScriptButton_Click(object sender, EventArgs e)
@@ -46,10 +80,29 @@ public partial class ManageScriptsForm : Form
             return;
         }
 
+        if (!PassesPreflight(selected))
+        {
+            return;
+        }
+
         try
         {
-            _service.StartScript(selected);
+            if (_bridge != null)
+            {
+                if (!_bridge.TryStartScript(selected))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                _service.StartScript(selected);
+            }
             UpdateScriptStatus();
+        }
+        catch (InvalidOperationException ex)
+        {
+            MessageBox.Show(ex.Message, "Blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
         catch (Exception ex)
         {
@@ -57,11 +110,44 @@ public partial class ManageScriptsForm : Form
         }
     }
 
+    private bool PassesPreflight(ScriptDefinition script)
+    {
+        var check = _service.PreflightCheck;
+        if (check == null)
+        {
+            return true;
+        }
+
+        var result = check(script);
+        if (result.Allowed)
+        {
+            return true;
+        }
+
+        var reason = string.IsNullOrWhiteSpace(result.Reason) ? "Start blocked by preflight." : result.Reason;
+        var allowQueue = result.AutoQueued || reason.Contains("potion", StringComparison.OrdinalIgnoreCase);
+        using var dlg = new PreflightDialog(reason, allowQueue);
+        dlg.ShowDialog(this);
+        if (allowQueue && dlg.QueueSelected)
+        {
+            _bridge?.EnqueuePotionRefill();
+        }
+        _bridge?.NotifyWarning(reason);
+        return false;
+    }
+
     private void stopScriptButton_Click(object sender, EventArgs e)
     {
         try
         {
-            _service.StopCurrentScript();
+            if (_bridge != null)
+            {
+                _bridge.StopCurrentScript();
+            }
+            else
+            {
+                _service.StopCurrentScript();
+            }
             UpdateScriptStatus();
         }
         catch (Exception ex)
@@ -181,6 +267,62 @@ public partial class ManageScriptsForm : Form
     {
         _service.DryRun = dryRunCheckBox.Checked;
         Logger.Log($"[ScriptLibrary] DryRun set to {dryRunCheckBox.Checked}");
+    }
+
+    private static bool ShouldHideInPlayerMode(ScriptDefinition script)
+    {
+        if (!Properties.Settings.Default.PLAYER_PREVIEW_MODE)
+        {
+            return false;
+        }
+
+        var kind = GetScriptKind(script);
+        return IsHiddenInPlayerPreview(kind);
+    }
+
+    private static string GetScriptKind(ScriptDefinition script)
+    {
+        if (!string.IsNullOrWhiteSpace(script.Manifest.Status))
+        {
+            return script.Manifest.Status;
+        }
+
+        if (IsReferenceName(script.Manifest.Name))
+        {
+            return "reference";
+        }
+
+        if (!string.IsNullOrWhiteSpace(script.Manifest.SourceUrl))
+        {
+            return "external";
+        }
+
+        return "native";
+    }
+
+    private static bool IsReferenceName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        var n = name.ToLowerInvariant();
+        return n.Contains("wizwalker") ||
+               n.Contains("wizsdk") ||
+               n.Contains("wizproxy") ||
+               n.Contains("wizwiki") ||
+               n.Contains("wizwad") ||
+               n.Contains("wiz-packet") ||
+               n.Contains("wad-reader") ||
+               n.Contains("proto") ||
+               n.Contains("sample") ||
+               n.Contains("utilities") ||
+               n.Contains("trivia") ||
+               n.Contains("gallery");
+    }
+
+    private static bool IsHiddenInPlayerPreview(string kind)
+    {
+        if (string.IsNullOrWhiteSpace(kind)) return false;
+        var k = kind.ToLowerInvariant();
+        return k.Contains("deprecated") || k.Contains("reference");
     }
 
     private void loadLogButton_Click(object sender, EventArgs e)

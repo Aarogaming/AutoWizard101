@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "Joshsora",
+  "sourceUrl": "https://github.com/Joshsora/libki",
+  "status": "reference"
 }

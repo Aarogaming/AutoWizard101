@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "ThatmewH",
+  "sourceUrl": "https://github.com/ThatmewH/Wizard101Bot-Selenium-Captcha",
+  "status": "external"
 }

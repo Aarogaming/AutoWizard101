@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "Revive101",
+  "sourceUrl": "https://github.com/Revive101/Aurorium",
+  "status": "external"
 }

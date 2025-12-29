@@ -17,6 +17,7 @@ internal sealed class SmartPlayManager : IDisposable
     private readonly PlayerController _controller;
     private InputBridge? _inputBridge;
     private GameStateSnapshot? _latestSnapshot;
+    private readonly WizWikiDataService _wiki = WizWikiDataService.Instance;
     private System.Threading.Timer? _timer;
     private bool _disposing;
     private SmartTask? _activeTask;
@@ -24,6 +25,7 @@ internal sealed class SmartPlayManager : IDisposable
     private readonly string _tuningPath;
     private SmartTelemetry _telemetry = new();
     private DateTime _taskStartUtc;
+    private DateTime _lastHeartbeat = DateTime.UtcNow;
     private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly List<GameAudioCue> _recentAudioCues = new();
     private readonly TimeSpan _audioHorizon = TimeSpan.FromSeconds(20);
@@ -52,6 +54,14 @@ internal sealed class SmartPlayManager : IDisposable
     {
         _timer?.Dispose();
         _timer = null;
+    }
+
+    public int QueueLength
+    {
+        get
+        {
+            return _taskQueue.Count + (_activeTask != null ? 1 : 0);
+        }
     }
 
     public void UpdateSnapshot(GameStateSnapshot snapshot)
@@ -147,9 +157,22 @@ internal sealed class SmartPlayManager : IDisposable
         _taskQueue.Enqueue(SmartTask.DesignCapture());
     }
 
+    internal void EnqueueExternalTask(SmartTask task)
+    {
+        if (task == null) return;
+        _taskQueue.Enqueue(task);
+    }
+
     public void SetDesignCaptureHandler(Func<string> captureHandler)
     {
         _designCaptureHandler = captureHandler;
+    }
+
+    private void MaybeEnqueueZoneHints()
+    {
+        // Placeholder: zone detection is not yet in snapshots.
+        // Once snapshot includes zone/coords, use _wiki.FindZone(zoneName) to enqueue contextual routes.
+        return;
     }
 
     public void AddAudioCue(GameAudioCue cue)
@@ -176,6 +199,12 @@ internal sealed class SmartPlayManager : IDisposable
         {
             _activeTask = next;
             _taskStartUtc = DateTime.UtcNow;
+            MaybeEnqueueZoneHints();
+        }
+
+        if (DevMode.IsEnabled)
+        {
+            EmitHeartbeat();
         }
 
         if (_activeTask == null) return;
@@ -250,6 +279,21 @@ internal sealed class SmartPlayManager : IDisposable
 
         Logger.LogBotAction("SmartPlay", $"Completed smart script: {task.Script!.Manifest.Name}");
         _activeTask = null;
+    }
+
+    private void EmitHeartbeat()
+    {
+        // Emit a lightweight periodic snapshot so we can debug queue state in dev mode.
+        var now = DateTime.UtcNow;
+        if ((now - _lastHeartbeat).TotalSeconds < 5) return;
+        _lastHeartbeat = now;
+
+        var active = _activeTask?.Name ?? "none";
+        var queueDepth = _taskQueue.Count;
+        var audioCue = GetLatestAudioCue()?.Type ?? "none";
+        var bridgeIdle = _inputBridge?.IsIdle ?? false;
+        Logger.Log($"[DevMode][SmartPlay] heartbeat active={active} queue={queueDepth} audioCue={audioCue} bridgeIdle={bridgeIdle}");
+        DevTelemetry.Log("SmartPlay", $"heartbeat active={active} queue={queueDepth} audioCue={audioCue} bridgeIdle={bridgeIdle}");
     }
 
     private void HandleDesignCapture(SmartTask task)
@@ -433,7 +477,7 @@ internal sealed class SmartPlayManager : IDisposable
         _recentAudioCues.RemoveAll(c => c.CapturedUtc < cutoff);
     }
 
-    private sealed class SmartTask
+    internal sealed class SmartTask
     {
         private readonly Queue<InputCommand> _commands;
         public string Name { get; }

@@ -36,6 +36,7 @@ internal class ScriptLibraryService
     }
 
     public ScriptRunSession? CurrentSession { get; private set; }
+    public Func<ScriptDefinition, PreflightResult>? PreflightCheck { get; set; }
 
     public void SetLatestSnapshot(string key, GameStateSnapshot snapshot)
     {
@@ -297,6 +298,16 @@ internal class ScriptLibraryService
                 throw new InvalidOperationException("A script is already running. Stop it before starting another.");
             }
 
+            if (PreflightCheck != null)
+            {
+                var result = PreflightCheck.Invoke(script);
+                if (!result.Allowed)
+                {
+                    var msg = string.IsNullOrWhiteSpace(result.Reason) ? "Preflight check failed." : result.Reason;
+                    throw new InvalidOperationException(msg);
+                }
+            }
+
             string entryFullPath = Path.Combine(script.RootPath, script.Manifest.EntryPoint);
             if (!File.Exists(entryFullPath))
             {
@@ -306,6 +317,7 @@ internal class ScriptLibraryService
             if (DryRun)
             {
                 Logger.LogScriptEvent(script.Manifest.Name, "Dry run enabled - not launching process");
+                DevTelemetry.Log("Scripts", $"Dry run start for {script.Manifest.Name} (source={script.PackageInfo?.SourceUrl ?? "unknown"})");
                 var fakeProcess = Process.GetCurrentProcess();
                 var drySession = new ScriptRunSession(script, fakeProcess, DateTime.UtcNow);
                 CurrentSession = drySession;
@@ -315,7 +327,8 @@ internal class ScriptLibraryService
             var process = LaunchProcess(entryFullPath, script.Manifest.Arguments ?? string.Empty, script.RootPath);
             var session = new ScriptRunSession(script, process, DateTime.UtcNow);
             CurrentSession = session;
-            if (script.PackageInfo?.SourceUrl is string src && !string.IsNullOrWhiteSpace(src))
+            var src = script.PackageInfo?.SourceUrl;
+            if (!string.IsNullOrWhiteSpace(src))
             {
                 Logger.LogScriptEvent(script.Manifest.Name, $"Started (source: {src})");
             }
@@ -323,6 +336,7 @@ internal class ScriptLibraryService
             {
                 Logger.LogScriptEvent(script.Manifest.Name, "Started");
             }
+            DevTelemetry.Log("Scripts", $"Started {script.Manifest.Name} (source={src ?? "unknown"})");
 
             process.EnableRaisingEvents = true;
             process.Exited += (sender, args) =>
@@ -357,10 +371,12 @@ internal class ScriptLibraryService
                 }
 
                 Logger.LogScriptEvent(session.Script.Manifest.Name, "Stopped");
+                DevTelemetry.Log("Scripts", $"Stopped {session.Script.Manifest.Name}");
             }
             catch (Exception ex)
             {
                 Logger.LogError($"[ScriptLibrary] Failed to stop {session.Script.Manifest.Name}", ex);
+                DevTelemetry.Log("Scripts", $"Stop failed for {session.Script.Manifest.Name}: {ex.Message}");
             }
             finally
             {

@@ -15,10 +15,11 @@ internal static class WizardLauncher
 
     private static readonly string[] CandidatePaths =
     {
+        // Prefer the main game executable; fall back to launcher only if needed.
         @"C:\ProgramData\KingsIsle Entertainment\Wizard101\Wizard101.exe",
         @"C:\ProgramData\KingsIsle Entertainment\Wizard101\PlayWizard101.exe",
-        @"C:\Program Files (x86)\KingsIsle Entertainment\Wizard101\PlayWizard101.exe",
         @"C:\Program Files (x86)\KingsIsle Entertainment\Wizard101\Wizard101.exe",
+        @"C:\Program Files (x86)\KingsIsle Entertainment\Wizard101\PlayWizard101.exe",
         @"C:\Program Files\KingsIsle Entertainment\Wizard101\PlayWizard101.exe",
         @"C:\Program Files\KingsIsle Entertainment\Wizard101\Wizard101.exe",
         @"C:\KingsIsle Entertainment\Wizard101\PlayWizard101.exe",
@@ -120,8 +121,8 @@ internal static class WizardLauncher
         {
             var dialog = new OpenFileDialog
             {
-                Title = "Locate PlayWizard101.exe",
-                Filter = "PlayWizard101|PlayWizard101.exe|Exe Files|*.exe",
+                Title = "Locate Wizard101.exe",
+                Filter = "Wizard101|Wizard101.exe|Exe Files|*.exe",
                 Multiselect = false
             };
             if (dialog.ShowDialog() == DialogResult.OK && File.Exists(dialog.FileName))
@@ -228,6 +229,10 @@ internal static class WizardLauncher
     {
         if (string.IsNullOrWhiteSpace(title)) return "Launcher/patcher running";
         var lower = title.ToLowerInvariant();
+        if (lower.Contains("login") || lower.Contains("log in"))
+        {
+            return "Launcher ready (Login)";
+        }
         if (lower.Contains("play"))
         {
             return $"Launcher ready (Play)";
@@ -235,6 +240,10 @@ internal static class WizardLauncher
         if (lower.Contains("patch") || lower.Contains("update"))
         {
             return $"Patching/updating";
+        }
+        if (lower.Contains("wizard101"))
+        {
+            return "Launcher running";
         }
         return $"Launcher/patcher ({title})";
     }

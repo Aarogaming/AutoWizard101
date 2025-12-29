@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "1280x720",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "Maelstrom Team",
+  "sourceUrl": "internal",
+  "status": "native"
 }

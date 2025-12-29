@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "Dj-Liquid",
+  "sourceUrl": "https://github.com/Dj-Liquid/Wizard101-Farming",
+  "status": "external"
 }

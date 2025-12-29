@@ -57,6 +57,11 @@ namespace Installer
             scriptsList = new CheckedListBox();
             openLogButton = new Button();
             logPathLabel = new Label();
+            openInstallFolderButton = new Button();
+            openLibraryButton = new Button();
+            launchAppButton = new Button();
+            smartPlayInitCheck = new CheckBox();
+            manualSourceButton = new Button();
             SuspendLayout();
             // 
             // titleLabel
@@ -160,12 +165,15 @@ namespace Installer
             // autoCheckUpdatesCheck
             // 
             autoCheckUpdatesCheck.AutoSize = true;
+            autoCheckUpdatesCheck.Checked = true;
+            autoCheckUpdatesCheck.CheckState = CheckState.Checked;
             autoCheckUpdatesCheck.Location = new Point(12, 202);
             autoCheckUpdatesCheck.Name = "autoCheckUpdatesCheck";
             autoCheckUpdatesCheck.Size = new Size(194, 24);
             autoCheckUpdatesCheck.TabIndex = 19;
             autoCheckUpdatesCheck.Text = "Auto-check updates on start";
             autoCheckUpdatesCheck.UseVisualStyleBackColor = true;
+            autoCheckUpdatesCheck.CheckedChanged += autoCheckUpdatesCheck_CheckedChanged;
             // 
             // cleanInstallCheck
             // 
@@ -237,6 +245,16 @@ namespace Installer
             updateButton.Text = "Update";
             updateButton.UseVisualStyleBackColor = true;
             updateButton.Click += updateButton_Click;
+            // 
+            // launchAppButton
+            // 
+            launchAppButton.Location = new Point(480, 270);
+            launchAppButton.Name = "launchAppButton";
+            launchAppButton.Size = new Size(318, 34);
+            launchAppButton.TabIndex = 34;
+            launchAppButton.Text = "Launch Project Maelstrom";
+            launchAppButton.UseVisualStyleBackColor = true;
+            launchAppButton.Click += launchAppButton_Click;
             // 
             // statusLabel
             // 
@@ -382,11 +400,23 @@ namespace Installer
             smartPlayInitCheck.Text = "Init SmartPlay cache";
             smartPlayInitCheck.UseVisualStyleBackColor = true;
             // 
+            // manualSourceButton
+            // 
+            manualSourceButton.Location = new Point(12, 270);
+            manualSourceButton.Name = "manualSourceButton";
+            manualSourceButton.Size = new Size(188, 27);
+            manualSourceButton.TabIndex = 31;
+            manualSourceButton.Text = "Manual source/package...";
+            manualSourceButton.UseVisualStyleBackColor = true;
+            manualSourceButton.Visible = false;
+            manualSourceButton.Click += manualSourceButton_Click;
+            // 
             // InstallerForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(640, 640);
+            Controls.Add(manualSourceButton);
             Controls.Add(smartPlayInitCheck);
             Controls.Add(launchAppButton);
             Controls.Add(openLibraryButton);
@@ -413,6 +443,7 @@ namespace Installer
             Controls.Add(installedVersionLabel);
             Controls.Add(statusLabel);
             Controls.Add(updateButton);
+            Controls.Add(launchAppButton);
             Controls.Add(createPortableButton);
             Controls.Add(uninstallButton);
             Controls.Add(installButton);
@@ -441,6 +472,7 @@ namespace Installer
         private Button uninstallButton;
         private Button createPortableButton;
         private Button updateButton;
+        private Button launchAppButton;
         private Label statusLabel;
         private Label installedVersionLabel;
         private Label latestVersionLabel;
@@ -466,5 +498,6 @@ namespace Installer
         private Button openLibraryButton;
         private Button launchAppButton;
         private CheckBox smartPlayInitCheck;
+        private Button manualSourceButton;
     }
 }

@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "wizwalker",
+  "sourceUrl": "https://github.com/wizwalker/wizwalker",
+  "status": "reference"
 }

@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "GloXFX",
+  "sourceUrl": "https://github.com/GloXFX/wizAPI",
+  "status": "reference"
 }

@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "andrearcaina",
+  "sourceUrl": "https://github.com/andrearcaina/WizGallery",
+  "status": "reference"
 }

@@ -9,12 +9,13 @@ internal static class Logger
     private static readonly string LogDirectory = Path.Combine(AppContext.BaseDirectory, "logs");
     private static readonly object LockObject = new object();
     private const long ScriptLogMaxBytes = 1_000_000; // ~1 MB per script log
+    private static readonly string[] SensitiveKeys = { "password", "pass", "pwd", "secret", "token" };
 
     public static void Log(string message)
     {
         EnsureLogDirectory();
 
-        string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}";
+        string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {SanitizeSensitive(message)}";
         Console.WriteLine(logMessage);
 
         try
@@ -32,10 +33,10 @@ internal static class Logger
 
     public static void LogError(string message, Exception? ex = null)
     {
-        string errorMessage = $"ERROR: {message}";
+        string errorMessage = $"ERROR: {SanitizeSensitive(message)}";
         if (ex != null)
         {
-            errorMessage += $" - Exception: {ex.Message}";
+            errorMessage += $" - Exception: {SanitizeSensitive(ex.Message)}";
         }
         Log(errorMessage);
     }
@@ -55,7 +56,7 @@ internal static class Logger
         EnsureLogDirectory();
         string sanitized = SanitizeName(scriptName);
         string scriptLogPath = Path.Combine(LogDirectory, $"{sanitized}.log");
-        string logLine = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | level={level} | script={scriptName} | {message}";
+        string logLine = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | level={level} | script={scriptName} | {SanitizeSensitive(message)}";
 
         try
         {
@@ -117,5 +118,34 @@ internal static class Logger
         }
 
         return string.IsNullOrWhiteSpace(name) ? "script" : name;
+    }
+
+    private static string SanitizeSensitive(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return value;
+        string result = value;
+        foreach (var key in SensitiveKeys)
+        {
+            int idx = result.IndexOf(key, StringComparison.OrdinalIgnoreCase);
+            if (idx >= 0)
+            {
+                // simple redaction of anything that looks like key=<value>
+                // attempt to find separator
+                var sepIdx = result.IndexOfAny(new[] { ':', '=', ' ' }, idx + key.Length);
+                if (sepIdx > idx && sepIdx < result.Length - 1)
+                {
+                    int end = result.IndexOfAny(new[] { ' ', ';', ',' }, sepIdx + 1);
+                    if (end < 0) end = result.Length;
+                    var toReplace = result.Substring(idx, end - idx);
+                    result = result.Replace(toReplace, $"{key}=<redacted>", StringComparison.OrdinalIgnoreCase);
+                }
+                else
+                {
+                    // generic redact
+                    result = result.Replace(key, "<redacted>", StringComparison.OrdinalIgnoreCase);
+                }
+            }
+        }
+        return result;
     }
 }

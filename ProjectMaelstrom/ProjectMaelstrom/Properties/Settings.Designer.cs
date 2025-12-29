@@ -142,5 +142,80 @@ namespace ProjectMaelstrom.Properties {
                 this["AUTO_CHECK_UPDATES"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AUTO_PAUSE_ON_FOCUS_LOSS {
+            get {
+                return ((bool)(this["AUTO_PAUSE_ON_FOCUS_LOSS"]));
+            }
+            set {
+                this["AUTO_PAUSE_ON_FOCUS_LOSS"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Mixed")]
+        public string LEARN_MODE_PROFILE {
+            get {
+                return ((string)(this["LEARN_MODE_PROFILE"]));
+            }
+            set {
+                this["LEARN_MODE_PROFILE"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10000")]
+        public int BAZAAR_GOLD_MIN {
+            get {
+                return ((int)(this["BAZAAR_GOLD_MIN"]));
+            }
+            set {
+                this["BAZAAR_GOLD_MIN"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("380000")]
+        public int BAZAAR_GOLD_CAP {
+            get {
+                return ((int)(this["BAZAAR_GOLD_CAP"]));
+            }
+            set {
+                this["BAZAAR_GOLD_CAP"] = value;
+            }
+        }
+
+        public bool ENABLE_DEV_TELEMETRY {
+            get {
+                return ((bool)(this["ENABLE_DEV_TELEMETRY"]));
+            }
+            set {
+                this["ENABLE_DEV_TELEMETRY"] = value;
+            }
+        }
+        
+        public bool ENABLE_DEV_UI_SNAPSHOTS {
+            get {
+                return ((bool)(this["ENABLE_DEV_UI_SNAPSHOTS"]));
+            }
+            set {
+                this["ENABLE_DEV_UI_SNAPSHOTS"] = value;
+            }
+        }
+
+        public bool PLAYER_PREVIEW_MODE {
+            get {
+                return ((bool)(this["PLAYER_PREVIEW_MODE"]));
+            }
+            set {
+                this["PLAYER_PREVIEW_MODE"] = value;
+            }
+        }
     }
 }

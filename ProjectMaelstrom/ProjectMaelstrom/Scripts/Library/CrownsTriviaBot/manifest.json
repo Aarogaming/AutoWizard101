@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "hikarihacks",
+  "sourceUrl": "https://github.com/hikarihacks/FreekiGames-Trivia-Bot",
+  "status": "external"
 }

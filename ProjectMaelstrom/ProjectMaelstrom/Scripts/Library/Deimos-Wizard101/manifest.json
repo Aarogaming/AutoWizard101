@@ -1,0 +1,11 @@
+{
+  "name": "Deimos Wizard101",
+  "description": "Imported from GitHub",
+  "author": "Deimos-Wizard101",
+  "sourceUrl": "https://github.com/Deimos-Wizard101/Deimos-Wizard101",
+  "entryPoint": "README.md",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": [],
+  "status": "reference"
+}

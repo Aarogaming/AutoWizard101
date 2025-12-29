@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using System.Drawing;
+using System.Reflection;
 using ProjectMaelstrom.Models;
 using ProjectMaelstrom.Modules.ImageRecognition;
 using ProjectMaelstrom.Tests;
-using ProjectMaelstrom.Utilities;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using ProjectMaelstrom.Utilities;
 
 namespace ProjectMaelstrom;
 
@@ -30,9 +31,29 @@ public partial class Main : Form
     private readonly Size _fullSize = new Size(1000, 760);
     private readonly Size _miniSize = new Size(900, 700);
     private readonly string[] _energyKeywords = new[] { "garden", "pet", "dance" };
+    private readonly string[] _bazaarKeywords = new[] { "bazaar", "auction", "reagent", "market", "sell", "vendor" };
+    private const int HealthMinThreshold = 50;
     private const int EnergyMinThreshold = 1;
+    private const int PotionMinThreshold = 1;
+    private int GoldMinThreshold => Properties.Settings.Default.BAZAAR_GOLD_MIN;
+    private int GoldCapThreshold => Properties.Settings.Default.BAZAAR_GOLD_CAP; // close to cap; leave headroom
+    private DateTime? _knowledgeLastRefreshed;
     private bool _potionRunQueued;
+    private bool _healthGuardTriggered;
+    private bool _goldGuardTriggered;
     private bool _autoCaptureTriggered;
+    private System.Windows.Forms.Timer? _devUiTimer;
+    private LearnModeService? _learnModeService;
+    private bool _smartPaused;
+    private readonly WizWikiDataService _wikiData = WizWikiDataService.Instance;
+    private BridgeCoordinator? _bridge;
+    private string _lastBanner = string.Empty;
+    private string _scriptSearchTerm = string.Empty;
+    private string _statusFilter = "All";
+    private int _lastSortColumn = -1;
+    private bool _lastSortAsc = true;
+    private bool _pauseForResource;
+    private bool _energyGuardTriggered;
 
     public Main()
     {
@@ -55,7 +76,48 @@ public partial class Main : Form
         _syncTimer.Tick += SyncTimer_Tick;
         this.FormClosing += Main_FormClosing;
         _smartPlayManager = new SmartPlayManager(_playerController);
+        _learnModeService = new LearnModeService(_smartPlayManager);
+        _bridge = new BridgeCoordinator(_scriptLibraryService, _smartPlayManager);
+        _bridge.SetPreflight(PreflightResourceGuard);
+        _bridge.OnStatus += msg => AddRunHistory(msg);
+        _bridge.OnRunHistory += msg => AddRunHistory(msg);
+        _bridge.OnWarning += msg =>
+        {
+            ShowBanner(msg);
+        };
         this.Resize += Main_Resize;
+
+        if (DevMode.IsEnabled && Properties.Settings.Default.ENABLE_DEV_UI_SNAPSHOTS)
+        {
+            _devUiTimer = new System.Windows.Forms.Timer
+            {
+                Interval = 180000 // 3 minutes
+            };
+            _devUiTimer.Tick += (s, e) => UiSnapshotService.TryCapture(this, "auto");
+            _devUiTimer.Start();
+        }
+
+        ApplyPlayerPreview(Properties.Settings.Default.PLAYER_PREVIEW_MODE);
+    }
+
+    private void ApplyPlayerPreview(bool enabled)
+    {
+        // Hide dev-facing controls in player preview
+        var devControls = new Control[]
+        {
+            captureScreenButton,
+            designManagerButton,
+            openDesignFolderButton,
+            recordMacroButton,
+            runMacroButton
+        };
+
+        foreach (var ctrl in devControls)
+        {
+            ctrl.Visible = !enabled;
+        }
+
+        UpdateModeLabel();
     }
 
     private void EnableDoubleBuffer(Control control)
@@ -86,6 +148,7 @@ public partial class Main : Form
         _syncTimer.Start();
 
         _smartPlayManager?.Start();
+        _scriptLibraryService.PreflightCheck = PreflightResourceGuard;
         _inputBridge = new InputBridge(_playerController);
         _inputBridge.Start(TimeSpan.FromSeconds(1));
         _smartPlayManager?.AttachInputBridge(_inputBridge);
@@ -151,6 +214,15 @@ public partial class Main : Form
         ThemeManager.ApplyTheme(this);
         ApplyCardStyles();
         ApplyMiniMode(_miniMode);
+        ApplyPlayerPreview(Properties.Settings.Default.PLAYER_PREVIEW_MODE);
+        var storedProfile = Properties.Settings.Default.LEARN_MODE_PROFILE;
+        var initialProfile = string.IsNullOrWhiteSpace(storedProfile) ? "Mixed" : storedProfile;
+        var targetProfile = Enum.TryParse<LearnModeProfile>(initialProfile, true, out var parsed) ? parsed : LearnModeProfile.Mixed;
+        _learnModeService?.SetProfile(targetProfile);
+        SetLearnProfileCombo(targetProfile);
+        UpdateLearnProfileStatus(targetProfile.ToString());
+        UpdateKnowledgeInfo();
+        UpdateModeLabel();
 
         LoadScriptLibrary();
         PopulateTrainerList();
@@ -163,6 +235,15 @@ public partial class Main : Form
         _snapshotBridge.Start(TimeSpan.FromSeconds(5));
 
         trainerListView.MouseDoubleClick += TrainerListView_MouseDoubleClick;
+        trainerListView.ColumnClick += trainerListView_ColumnClick;
+
+        if (statusFilterCombo.SelectedIndex < 0)
+        {
+            statusFilterCombo.SelectedIndex = 0;
+            _statusFilter = "All";
+        }
+
+        _ = CheckUpdatesIfEnabledAsync();
     }
 
     private void Main_FormClosing(object? sender, FormClosingEventArgs e)
@@ -198,6 +279,7 @@ public partial class Main : Form
         _audioRecognizer?.Dispose();
         _designCaptureTimer?.Dispose();
         _smartPlayManager?.Dispose();
+        _learnModeService?.Dispose();
     }
 
     private void ApplyPortableOverridesIfNeeded()
@@ -229,6 +311,13 @@ public partial class Main : Form
         var syncState = GameSyncService.Evaluate(StateManager.Instance.SelectedResolution);
         var launcherState = WizardLauncher.DetectState(out var launcherDesc);
         syncStatusValueLabel.Text = $"{syncState.Message} | Launcher: {launcherDesc}";
+        launcherStatusLabel.Text = $"Launcher: {launcherDesc}";
+        launcherStatusLabel.ForeColor = launcherState switch
+        {
+            WizardLauncher.LauncherState.GameRunning => Color.LightGreen,
+            WizardLauncher.LauncherState.LauncherRunning => Color.Gold,
+            _ => Color.Silver
+        };
         switch (syncState.Health)
         {
             case GameSyncHealth.InSync:
@@ -243,6 +332,24 @@ public partial class Main : Form
             default:
                 syncStatusValueLabel.ForeColor = Color.DarkRed;
                 break;
+        }
+
+        var shouldPauseForFocus = Properties.Settings.Default.AUTO_PAUSE_ON_FOCUS_LOSS &&
+                          (syncState.Health == GameSyncHealth.FocusLost || syncState.Health == GameSyncHealth.WindowMissing);
+        var shouldPause = shouldPauseForFocus || _pauseForResource;
+
+        if (shouldPause && !_smartPaused)
+        {
+            _smartPaused = true;
+            _smartPlayManager?.Stop();
+            var reason = shouldPauseForFocus ? "focus" : "resource";
+            UpdateSmartPlayHeader($"Paused ({reason})");
+        }
+        else if (!shouldPause && _smartPaused)
+        {
+            _smartPaused = false;
+            _smartPlayManager?.Start();
+            UpdateSmartPlayHeader(_smartPlayManager?.DescribeState() ?? "Idle");
         }
 
         if (Properties.Settings.Default.ENABLE_SCREEN_CAPTURE)
@@ -265,6 +372,10 @@ public partial class Main : Form
         _ = RefreshSnapshotAsync(updateDashboardOnly: true);
         TryEnforceResourceGuards();
         UpdateSmartPlayHeader(_smartPlayManager?.DescribeState() ?? "Idle");
+        if (!string.IsNullOrEmpty(_lastBanner))
+        {
+            ShowBanner(_lastBanner);
+        }
     }
 
     private void editSettingsBtn_Click(object sender, EventArgs e)
@@ -387,7 +498,7 @@ public partial class Main : Form
 
     private void manageScriptsButton_Click(object sender, EventArgs e)
     {
-        using var dlg = new ManageScriptsForm
+        using var dlg = new ManageScriptsForm(_bridge)
         {
             StartPosition = FormStartPosition.CenterParent,
             TopMost = true
@@ -396,6 +507,20 @@ public partial class Main : Form
         // After closing, refresh trainer list/status to reflect any changes
         PopulateTrainerList();
         UpdateScriptStatus();
+    }
+
+    private void searchTextBox_TextChanged(object sender, EventArgs e)
+    {
+        _scriptSearchTerm = searchTextBox.Text ?? string.Empty;
+        PopulateTrainerList();
+        UpdateFilterNote();
+    }
+
+    private void statusFilterCombo_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        _statusFilter = statusFilterCombo.SelectedItem?.ToString() ?? "All";
+        PopulateTrainerList();
+        UpdateFilterNote();
     }
 
     private string? SelectScreenshotFromDisk(out bool isTempFile)
@@ -555,6 +680,21 @@ public partial class Main : Form
         return string.IsNullOrWhiteSpace(name) ? "script" : name;
     }
 
+    private static string GetLastRunDisplay(string scriptName)
+    {
+        try
+        {
+            var path = GetScriptLogPath(scriptName);
+            if (!File.Exists(path)) return "-";
+            var ts = File.GetLastWriteTime(path);
+            return ts.ToString("MM-dd HH:mm");
+        }
+        catch
+        {
+            return "-";
+        }
+    }
+
     private void openScriptFolderButton_Click(object sender, EventArgs e)
     {
         MessageBox.Show("Use 'Manage Scripts' to open script folders.", "Manage Scripts", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -668,14 +808,27 @@ public partial class Main : Form
 
     private void ApplyCardStyles()
     {
-        var palette = ThemeManager.GetModeAsString() == "Wizard101"
-            ? new { Back = Color.FromArgb(22, 30, 56), Surface = Color.FromArgb(22, 30, 56), Border = Color.FromArgb(96, 68, 22) }
-            : new { Back = SystemColors.ControlLight, Surface = SystemColors.ControlLight, Border = SystemColors.ControlDark };
-
-        UIStyles.ApplyCardStyle(dashboardGroupBox, palette.Back, palette.Border);
+        var palette = ThemeManager.GetActivePalette();
+        UIStyles.ApplyCardStyle(dashboardGroupBox, palette.Surface, palette.Border);
         UIStyles.ApplyCardStyle(panel1, palette.Back, palette.Border);
         UIStyles.ApplyCardStyle(navPanel, palette.Surface, palette.Border);
         UIStyles.ApplyCardStyle(speedPanel, palette.Surface, palette.Border);
+
+        // Apply consistent button styling to nav buttons
+        var navButtons = new[]
+        {
+            manageScriptsButton, startConfigurationBtn, loadHalfangBotBtn, loadBazaarReagentBot, launchWizardButton,
+            miniModeButton, captureScreenButton, designManagerButton, openDesignFolderButton, recordMacroButton,
+            runMacroButton, learnModeButton, openLearnLogsButton, panicStopButton
+        };
+        foreach (var btn in navButtons)
+        {
+            UIStyles.ApplyButtonStyle(btn, palette.ControlBack, palette.ControlFore, palette.Border);
+        }
+        foreach (var btn in new[] { goBazaarButton, goMiniGamesButton, goPetPavilionButton, potionRefillButton })
+        {
+            UIStyles.ApplyButtonStyle(btn, palette.ControlBack, palette.ControlFore, palette.Border);
+        }
     }
 
     private void AddRunHistory(string entry)
@@ -719,15 +872,83 @@ public partial class Main : Form
             AddRunHistory($"Stopped {current.Script.Manifest.Name} due to zero energy at {DateTime.Now:T}");
             UpdateScriptStatus();
             PopulateTrainerList();
-            MessageBox.Show("Energy depleted. Stopped energy-based task.", "Resource guard", MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            var msg = "Energy depleted. Stopped energy-based task.";
+            if (!_energyGuardTriggered)
+            {
+                MessageBox.Show(msg, "Resource guard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            _pauseForResource = true;
+            _energyGuardTriggered = true;
+            ShowBanner(msg);
+        }
+        else if (IsEnergyConsumer(current.Script) && GetEnergy(snapshot) > EnergyMinThreshold)
+        {
+            _energyGuardTriggered = false;
         }
 
-        if (!_potionRunQueued && snapshot.Potions?.Value is int potions && potions <= 0)
+        if (!_healthGuardTriggered && snapshot.Health?.Current is int hp && hp <= HealthMinThreshold)
+        {
+            _healthGuardTriggered = true;
+            _scriptLibraryService.StopCurrentScript();
+            AddRunHistory($"Stopped {_scriptLibraryService.CurrentSession?.Script.Manifest.Name ?? "task"} due to low health at {DateTime.Now:T}");
+            UpdateScriptStatus();
+            PopulateTrainerList();
+            var msg = $"Health too low (<= {HealthMinThreshold}). Stopped current task.";
+            MessageBox.Show(msg, "Resource guard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            ShowBanner(msg);
+            _pauseForResource = true;
+        }
+        else if (snapshot.Health?.Current is int hpOk && hpOk > HealthMinThreshold)
+        {
+            _healthGuardTriggered = false;
+        }
+
+        if (IsBazaarScript(current.Script) && snapshot.Gold?.Value is int gold)
+        {
+            if (gold <= GoldMinThreshold || gold >= GoldCapThreshold)
+            {
+                _scriptLibraryService.StopCurrentScript();
+                AddRunHistory($"Stopped {current.Script.Manifest.Name} due to gold threshold at {DateTime.Now:T} (gold={gold})");
+                UpdateScriptStatus();
+                PopulateTrainerList();
+                var msg = gold <= GoldMinThreshold
+                    ? $"Gold too low (<= {GoldMinThreshold}). Bazaar tasks paused."
+                    : $"Gold near cap ({gold}). Bazaar/sell tasks paused to avoid loss.";
+                MessageBox.Show(msg, "Resource guard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ShowBanner(msg);
+                _pauseForResource = true;
+                _goldGuardTriggered = true;
+            }
+            else
+            {
+                _goldGuardTriggered = false;
+            }
+        }
+
+        if (!_potionRunQueued && snapshot.Potions?.Value is int potions && potions <= PotionMinThreshold)
         {
             _smartPlayManager?.EnqueuePotionRefillRun();
             _potionRunQueued = true;
             AddRunHistory($"Queued potion refill run at {DateTime.Now:T}");
+            ShowBanner("Potions low; queued potion refill run.");
+        }
+        else if (snapshot.Potions?.Value is int potionsOk && potionsOk > PotionMinThreshold)
+        {
+            _potionRunQueued = false;
+        }
+
+        if (_pauseForResource && !_healthGuardTriggered && !_energyGuardTriggered && !_potionRunQueued && !_goldGuardTriggered)
+        {
+            _pauseForResource = false;
+            if (!_smartPaused)
+            {
+                _smartPlayManager?.Start();
+                UpdateSmartPlayHeader(_smartPlayManager?.DescribeState() ?? "Idle");
+            }
+        }
+        else
+        {
+            UpdateGuardStatusLabel();
         }
     }
 
@@ -743,16 +964,124 @@ public partial class Main : Form
         if (IsEnergyConsumer(script) && GetEnergy(snapshot) <= EnergyMinThreshold)
         {
             reason = "Not enough energy to start this task.";
+            ShowBanner(reason);
+            return true;
+        }
+
+        if (IsBazaarScript(script) && snapshot.Gold?.Value is int gold)
+        {
+            if (gold <= GoldMinThreshold)
+            {
+                reason = $"Gold too low for bazaar tasks (<= {GoldMinThreshold}).";
+                ShowBanner(reason);
+                return true;
+            }
+            if (gold >= GoldCapThreshold)
+            {
+                reason = $"Gold near cap ({gold}); pause bazaar/sell tasks to avoid loss.";
+                ShowBanner(reason);
+                return true;
+            }
+        }
+
+        if (snapshot.Potions?.Value is int potions && potions <= PotionMinThreshold)
+        {
+            reason = "Not enough potions to start; auto-refill queued.";
+            if (!_potionRunQueued)
+            {
+                _smartPlayManager?.EnqueuePotionRefillRun();
+                _potionRunQueued = true;
+                AddRunHistory($"Queued potion refill run before starting {script.Manifest.Name} at {DateTime.Now:T}");
+            }
+            ShowBanner(reason);
+            return true;
+        }
+
+        if (snapshot.Health?.Current is int hp && hp <= HealthMinThreshold)
+        {
+            reason = $"Health too low (<= {HealthMinThreshold}). Heal before starting.";
+            ShowBanner(reason);
             return true;
         }
 
         return false;
     }
 
+    private void ShowBanner(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message)) return;
+        _lastBanner = message;
+        dashboardWarningsTextBox.Text = message;
+        snapshotWarningsTextBox.Text = message;
+        ShowToast(message);
+    }
+
+    private void ShowToast(string message)
+    {
+        try
+        {
+            uiToolTip.Show(message, panel1, 2000);
+        }
+        catch
+        {
+            // non-fatal
+        }
+    }
+
     private bool IsEnergyConsumer(ScriptDefinition script)
     {
         var name = (script.Manifest.Name ?? script.DisplayName ?? string.Empty).ToLowerInvariant();
         return _energyKeywords.Any(k => name.Contains(k));
+    }
+
+    private bool IsBazaarScript(ScriptDefinition script)
+    {
+        var name = (script.Manifest.Name ?? script.DisplayName ?? string.Empty).ToLowerInvariant();
+        return _bazaarKeywords.Any(k => name.Contains(k));
+    }
+
+    private PreflightResult PreflightResourceGuard(ScriptDefinition script)
+    {
+        var snapshot = _latestSnapshot;
+        if (snapshot == null)
+        {
+            return PreflightResult.Allow();
+        }
+
+        if (IsEnergyConsumer(script) && GetEnergy(snapshot) <= EnergyMinThreshold)
+        {
+            return PreflightResult.Block("Not enough energy to start this task.");
+        }
+
+        if (IsBazaarScript(script) && snapshot.Gold?.Value is int gold)
+        {
+            if (gold <= GoldMinThreshold)
+            {
+                return PreflightResult.Block($"Gold too low for bazaar tasks (<= {GoldMinThreshold}).");
+            }
+            if (gold >= GoldCapThreshold)
+            {
+                return PreflightResult.Block($"Gold near cap ({gold}); pause bazaar/sell tasks to avoid loss.");
+            }
+        }
+
+        if (snapshot.Health?.Current is int hp && hp <= HealthMinThreshold)
+        {
+            return PreflightResult.Block($"Health too low (<= {HealthMinThreshold}). Heal before starting.");
+        }
+
+        if (snapshot.Potions?.Value is int potions && potions <= PotionMinThreshold)
+        {
+            if (!_potionRunQueued)
+            {
+                _smartPlayManager?.EnqueuePotionRefillRun();
+                _potionRunQueued = true;
+                AddRunHistory($"Queued potion refill run before starting {script.Manifest.Name} at {DateTime.Now:T}");
+            }
+            return PreflightResult.Block("Potions low; refill queued. Retry after refill.", autoQueued: true);
+        }
+
+        return PreflightResult.Allow();
     }
 
     private static int GetEnergy(GameStateSnapshot snapshot)
@@ -762,26 +1091,54 @@ public partial class Main : Form
 
     private void goBazaarButton_Click(object sender, EventArgs e)
     {
-        _smartPlayManager?.EnqueueNavigationToBazaar();
-        AddRunHistory($"Queued travel: Bazaar at {DateTime.Now:T}");
+        if (_bridge != null)
+        {
+            _bridge.EnqueueNavigationToBazaar();
+        }
+        else
+        {
+            _smartPlayManager?.EnqueueNavigationToBazaar();
+            AddRunHistory($"Queued travel: Bazaar at {DateTime.Now:T}");
+        }
     }
 
     private void goMiniGamesButton_Click(object sender, EventArgs e)
     {
-        _smartPlayManager?.EnqueueNavigationToMiniGames();
-        AddRunHistory($"Queued travel: Mini Games at {DateTime.Now:T}");
+        if (_bridge != null)
+        {
+            _bridge.EnqueueNavigationToMiniGames();
+        }
+        else
+        {
+            _smartPlayManager?.EnqueueNavigationToMiniGames();
+            AddRunHistory($"Queued travel: Mini Games at {DateTime.Now:T}");
+        }
     }
 
     private void goPetPavilionButton_Click(object sender, EventArgs e)
     {
-        _smartPlayManager?.EnqueueNavigationToPetPavilion();
-        AddRunHistory($"Queued travel: Pet Pavilion at {DateTime.Now:T}");
+        if (_bridge != null)
+        {
+            _bridge.EnqueueNavigationToPetPavilion();
+        }
+        else
+        {
+            _smartPlayManager?.EnqueueNavigationToPetPavilion();
+            AddRunHistory($"Queued travel: Pet Pavilion at {DateTime.Now:T}");
+        }
     }
 
     private void potionRefillButton_Click(object sender, EventArgs e)
     {
-        _smartPlayManager?.EnqueuePotionRefillRun();
-        AddRunHistory($"Queued potion refill run at {DateTime.Now:T}");
+        if (_bridge != null)
+        {
+            _bridge.EnqueuePotionRefill();
+        }
+        else
+        {
+            _smartPlayManager?.EnqueuePotionRefillRun();
+            AddRunHistory($"Queued potion refill run at {DateTime.Now:T}");
+        }
     }
 
     private void captureScreenButton_Click(object sender, EventArgs e)
@@ -836,6 +1193,31 @@ public partial class Main : Form
         }
     }
 
+    private void recordMacroButton_Click(object sender, EventArgs e)
+    {
+        using var dlg = new MacroRecorderForm
+        {
+            StartPosition = FormStartPosition.CenterParent,
+            TopMost = true
+        };
+        dlg.ShowDialog(this);
+    }
+
+    private void runMacroButton_Click(object sender, EventArgs e)
+    {
+        void RunMacro(string path)
+        {
+            MacroPlayer.Play(path, _inputBridge, () => _latestSnapshot, StateManager.Instance.SelectedResolution);
+        }
+
+        using var dlg = new MacroRunnerForm(RunMacro)
+        {
+            StartPosition = FormStartPosition.CenterParent,
+            TopMost = true
+        };
+        dlg.ShowDialog(this);
+    }
+
     private void resetTuningButton_Click(object sender, EventArgs e)
     {
         try
@@ -849,6 +1231,28 @@ public partial class Main : Form
         {
             MessageBox.Show($"Failed to reset tuning: {ex.Message}", "Reset Tuning", MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
+        }
+    }
+
+    private void openLearnLogsButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var dir = Path.Combine(AppContext.BaseDirectory, "logs", "learn_mode");
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = dir,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to open learn logs: {ex.Message}", "Learn Logs", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -870,14 +1274,149 @@ public partial class Main : Form
         return path;
     }
 
+    private void learnModeButton_Click(object sender, EventArgs e)
+    {
+        if (_learnModeService == null) return;
+        if (_learnModeService.IsRunning)
+        {
+            _learnModeService.Stop();
+            learnModeButton.Text = "Learn Mode";
+            learnProfileStatusLabel.Text = "Learn Mode: Stopped";
+        }
+        else
+        {
+            _learnModeService.Start();
+            learnModeButton.Text = "Stop Learn Mode";
+            learnProfileStatusLabel.Text = "Learn Mode: Running";
+        }
+    }
+
+    private void learnProfileCombo_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (_learnModeService == null) return;
+        var selected = learnProfileCombo.SelectedItem?.ToString();
+        if (string.IsNullOrWhiteSpace(selected)) return;
+        if (Enum.TryParse<LearnModeProfile>(selected, true, out var profile))
+        {
+            _learnModeService.SetProfile(profile);
+            AddRunHistory($"Learn profile set to {profile}");
+            UpdateLearnProfileStatus(profile.ToString());
+            Properties.Settings.Default.LEARN_MODE_PROFILE = profile.ToString();
+            Properties.Settings.Default.Save();
+        }
+    }
+
+    private void SetLearnProfileCombo(LearnModeProfile profile)
+    {
+        var name = profile.ToString();
+        for (int i = 0; i < learnProfileCombo.Items.Count; i++)
+        {
+            if (string.Equals(learnProfileCombo.Items[i]?.ToString(), name, StringComparison.OrdinalIgnoreCase))
+            {
+                learnProfileCombo.SelectedIndex = i;
+                return;
+            }
+        }
+        learnProfileCombo.SelectedIndex = 0;
+    }
+
     private void UpdateSmartPlayHeader(string state)
     {
-        smartPlayHeaderLabel.Text = $"SmartPlay: {state}";
+        var q = _smartPlayManager?.QueueLength ?? 0;
+        smartPlayHeaderLabel.Text = $"SmartPlay: {state} | Queue: {q}";
+        smartPlayStatusLabel.Text = $"SmartPlay: {state} | Queue: {q}";
+        UpdateGuardStatusLabel();
+    }
+
+    private void UpdateLearnProfileStatus(string profile)
+    {
+        learnProfileStatusLabel.Text = $"Learn Profile: {profile}";
     }
 
     private void UpdateAudioHeader(string state)
     {
         audioHeaderLabel.Text = $"Audio: {state}";
+    }
+
+    private void UpdateGuardStatusLabel()
+    {
+        if (guardStatusLabel == null) return;
+        var pieces = new List<string>();
+        if (_pauseForResource) pieces.Add("paused");
+        if (_healthGuardTriggered) pieces.Add("health");
+        if (_energyGuardTriggered) pieces.Add("energy");
+        if (_goldGuardTriggered) pieces.Add("gold");
+        if (_potionRunQueued) pieces.Add("potions");
+
+        if (pieces.Count == 0)
+        {
+            guardStatusLabel.Text = "Guards: OK";
+            guardStatusLabel.ForeColor = Color.LightGreen;
+        }
+        else
+        {
+            guardStatusLabel.Text = $"Guards: {string.Join(", ", pieces)}";
+            guardStatusLabel.ForeColor = Color.Gold;
+        }
+    }
+
+    private void UpdateKnowledgeInfo()
+    {
+        string info;
+        if (_wikiData.HasData)
+        {
+            var topZones = _wikiData.GetZones().Take(3).ToArray();
+            var zoneSnippet = topZones.Length > 0 ? $" | Top zones: {string.Join(", ", topZones)}" : string.Empty;
+            info = $"WizWiki data loaded ({_wikiData.MobCount} mobs){zoneSnippet}";
+            var topMobs = _wikiData.GetTopMobs(5).ToArray();
+            var detailsParts = new List<string>();
+            if (topZones.Length > 0)
+            {
+                detailsParts.Add($"Top zones: {string.Join(", ", topZones)}");
+            }
+            if (topMobs.Length > 0)
+            {
+                detailsParts.Add($"Top mobs: {string.Join(", ", topMobs)}");
+            }
+            knowledgeDetailsLabel.Text = detailsParts.Count > 0 ? string.Join(" | ", detailsParts) : string.Empty;
+            _knowledgeLastRefreshed ??= DateTime.Now;
+            knowledgeTimestampLabel.Text = $"Refreshed: {_knowledgeLastRefreshed:HH:mm:ss on MMM dd}";
+            if (!string.IsNullOrWhiteSpace(knowledgeDetailsLabel.Text))
+            {
+                uiToolTip.SetToolTip(knowledgeDetailsLabel, knowledgeDetailsLabel.Text);
+            }
+            uiToolTip.SetToolTip(knowledgeTimestampLabel, knowledgeTimestampLabel.Text);
+            uiToolTip.SetToolTip(refreshKnowledgeButton, "Reload WizWiki cache (top zones/mobs)");
+        }
+        else
+        {
+            info = "WizWiki data not found (optional cache for seek/avoid).";
+            knowledgeDetailsLabel.Text = string.Empty;
+            knowledgeTimestampLabel.Text = string.Empty;
+            uiToolTip.SetToolTip(knowledgeDetailsLabel, string.Empty);
+            uiToolTip.SetToolTip(knowledgeTimestampLabel, string.Empty);
+            uiToolTip.SetToolTip(refreshKnowledgeButton, "Reload WizWiki cache (top zones/mobs)");
+        }
+        knowledgeStatusLabel.Text = $"Knowledge: {info}";
+
+        if (!dashboardWarningsTextBox.Text.Contains(info, StringComparison.OrdinalIgnoreCase))
+        {
+            var prefix = string.IsNullOrWhiteSpace(dashboardWarningsTextBox.Text)
+                ? info
+                : info + Environment.NewLine + dashboardWarningsTextBox.Text;
+            dashboardWarningsTextBox.Text = prefix;
+        }
+
+        snapshotWarningsTextBox.Text = $"Knowledge refreshed at {_knowledgeLastRefreshed:HH:mm:ss on MMM dd}";
+    }
+
+    private void refreshKnowledgeButton_Click(object sender, EventArgs e)
+    {
+        WizWikiDataService.Instance.Refresh();
+        _knowledgeLastRefreshed = DateTime.Now;
+        UpdateKnowledgeInfo();
+        AddRunHistory("Knowledge refreshed");
+        ShowKnowledgeToast("Knowledge refreshed");
     }
 
     private void speedNumeric_ValueChanged(object? sender, EventArgs e)
@@ -918,9 +1457,35 @@ public partial class Main : Form
         trainerListView.Items.Clear();
         var scripts = _scriptLibraryService.Scripts.ToList();
 
+        if (!string.IsNullOrWhiteSpace(_scriptSearchTerm))
+        {
+            var term = _scriptSearchTerm.Trim();
+            scripts = scripts.Where(s =>
+                (!string.IsNullOrWhiteSpace(s.Manifest.Name) && s.Manifest.Name.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(s.DisplayName) && s.DisplayName.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrWhiteSpace(s.Manifest.Author) && s.Manifest.Author.Contains(term, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+        }
+
         for (int i = 0; i < scripts.Count; i++)
         {
             var script = scripts[i];
+            var kind = GetScriptKind(script);
+            var badge = string.IsNullOrWhiteSpace(kind) ? "native" : kind.ToLowerInvariant();
+
+            if (Properties.Settings.Default.PLAYER_PREVIEW_MODE && IsHiddenInPlayerPreview(kind))
+            {
+                continue;
+            }
+
+            var kindLabel = badge switch
+            {
+                "external" => "External",
+                "reference" => "Reference",
+                "deprecated" => "Deprecated",
+                _ => "Native"
+            };
+
             string status;
             if (_scriptLibraryService.CurrentSession?.Script == script)
             {
@@ -935,6 +1500,12 @@ public partial class Main : Form
                 status = "Ready";
             }
 
+            if (!string.Equals(_statusFilter, "All", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(status, _statusFilter, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             string issues = script.ValidationErrors.Any()
                 ? string.Join("; ", script.ValidationErrors.Take(3)) + (script.ValidationErrors.Length > 3 ? " ..." : string.Empty)
                 : "-";
@@ -943,8 +1514,15 @@ public partial class Main : Form
             {
                 Tag = script
             };
+            item.SubItems.Add(kindLabel);
             item.SubItems.Add(status);
             item.SubItems.Add(issues);
+            item.SubItems.Add(GetLastRunDisplay(script.Manifest.Name ?? script.DisplayName ?? "script"));
+            var author = script.Manifest.Author ?? "-";
+            item.SubItems.Add(author);
+            item.SubItems.Add(script.PackageInfo?.SourceUrl ?? script.Manifest.SourceUrl ?? "-");
+            item.UseItemStyleForSubItems = false;
+            ApplyTypeStyling(item, badge);
             if (i % 2 == 1)
             {
                 item.BackColor = Color.FromArgb(26, 34, 58);
@@ -960,6 +1538,8 @@ public partial class Main : Form
             childHostPanel.Visible = false;
             trainerListView.Visible = true;
         }
+
+        UpdateFilterNote();
     }
 
     private void trainerListView_SelectedIndexChanged(object sender, EventArgs e)
@@ -979,6 +1559,22 @@ public partial class Main : Form
         {
             return;
         }
+    }
+
+    private void trainerListView_ColumnClick(object? sender, ColumnClickEventArgs e)
+    {
+        if (e.Column == _lastSortColumn)
+        {
+            _lastSortAsc = !_lastSortAsc;
+        }
+        else
+        {
+            _lastSortColumn = e.Column;
+            _lastSortAsc = true;
+        }
+
+        trainerListView.ListViewItemSorter = new ListViewItemComparer(e.Column, _lastSortAsc);
+        trainerListView.Sort();
     }
 
     private void TrainerListView_MouseDoubleClick(object? sender, MouseEventArgs e)
@@ -1004,6 +1600,165 @@ public partial class Main : Form
         catch (Exception ex)
         {
             MessageBox.Show($"Failed to open source: {ex.Message}", "Source Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private async Task CheckUpdatesIfEnabledAsync()
+    {
+        try
+        {
+            if (!Properties.Settings.Default.AUTO_CHECK_UPDATES)
+            {
+                return;
+            }
+
+            var feed = Properties.Settings.Default.UPDATE_FEED_URL;
+            if (string.IsNullOrWhiteSpace(feed))
+            {
+                return;
+            }
+
+            var manifest = await UpdaterService.Instance.CheckForUpdateAsync(feed);
+            if (manifest?.Version == null)
+            {
+                return;
+            }
+
+            if (!Version.TryParse(Application.ProductVersion, out var current) ||
+                !Version.TryParse(manifest.Version, out var latest))
+            {
+                return;
+            }
+
+            if (latest > current)
+            {
+                var msg = $"A new version is available.\nInstalled: {current}\nLatest: {latest}\n\nOpen Project Manager/Installer to update, or go to Settings > Updates.";
+                MessageBox.Show(msg, "Update Available", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+        catch
+        {
+            // silent failure; no blocking of startup
+        }
+    }
+
+    private static string GetScriptKind(ScriptDefinition script)
+    {
+        if (!string.IsNullOrWhiteSpace(script.Manifest.Status))
+        {
+            return script.Manifest.Status;
+        }
+
+        if (IsReferenceName(script.Manifest.Name))
+        {
+            return "reference";
+        }
+
+        if (script.PackageInfo?.SourceUrl != null || !string.IsNullOrWhiteSpace(script.Manifest.SourceUrl))
+        {
+            return "external";
+        }
+
+        return "native";
+    }
+
+    private static bool IsReferenceName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        var n = name.ToLowerInvariant();
+        return n.Contains("wizwalker") ||
+               n.Contains("wizsdk") ||
+               n.Contains("wizproxy") ||
+               n.Contains("wizwiki") ||
+               n.Contains("wizwad") ||
+               n.Contains("wiz-packet") ||
+               n.Contains("wad-reader") ||
+               n.Contains("proto") ||
+               n.Contains("sample");
+    }
+
+    private static bool IsHiddenInPlayerPreview(string kind)
+    {
+        if (string.IsNullOrWhiteSpace(kind)) return false;
+        var k = kind.ToLowerInvariant();
+        return k.Contains("deprecated") || k.Contains("reference");
+    }
+
+    private void UpdateModeLabel()
+    {
+        var mode = Properties.Settings.Default.PLAYER_PREVIEW_MODE ? "Player" : (DevMode.IsEnabled ? "Dev" : "Standard");
+        modeLabel.Text = $"Mode: {mode}";
+    }
+
+    private void UpdateFilterNote()
+    {
+        var chips = new List<string>();
+
+        if (Properties.Settings.Default.PLAYER_PREVIEW_MODE)
+        {
+            chips.Add("Player mode");
+        }
+
+        if (!string.Equals(_statusFilter, "All", StringComparison.OrdinalIgnoreCase))
+        {
+            chips.Add($"Status: {_statusFilter}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(_scriptSearchTerm))
+        {
+            chips.Add($"Search: \"{_scriptSearchTerm.Trim()}\"");
+        }
+
+        if (chips.Count > 0)
+        {
+            var details = string.Join(" · ", chips);
+            filterNoteMainLabel.Text = $"{details} — showing {trainerListView.Items.Count} item(s)";
+            filterNoteMainLabel.Visible = true;
+            filterChipLabel.Text = details;
+            filterChipLabel.Visible = true;
+        }
+        else
+        {
+            filterNoteMainLabel.Text = string.Empty;
+            filterNoteMainLabel.Visible = false;
+            filterChipLabel.Text = string.Empty;
+            filterChipLabel.Visible = false;
+        }
+    }
+
+    private void ApplyTypeStyling(ListViewItem item, string badge)
+    {
+        // Badge is already lowercase; apply subtle type color to the Type column.
+        var (back, fore) = GetTypeColors(badge);
+
+        if (item.SubItems.Count > 1)
+        {
+            item.SubItems[1].BackColor = back;
+            item.SubItems[1].ForeColor = fore;
+            item.SubItems[1].Font = new Font(item.Font, FontStyle.Bold);
+        }
+    }
+
+    private static (Color back, Color fore) GetTypeColors(string badge)
+    {
+        return badge switch
+        {
+            "external" => (Color.FromArgb(24, 92, 96), Color.FromArgb(180, 255, 255)),
+            "reference" => (Color.FromArgb(54, 54, 54), Color.Silver),
+            "deprecated" => (Color.FromArgb(104, 52, 52), Color.MistyRose),
+            _ => (Color.FromArgb(62, 74, 110), Color.Gold)
+        };
+    }
+
+    private void ShowKnowledgeToast(string message)
+    {
+        try
+        {
+            uiToolTip.Show(message, refreshKnowledgeButton, 2000);
+        }
+        catch
+        {
+            // ToolTip failures are non-fatal; ignore.
         }
     }
 

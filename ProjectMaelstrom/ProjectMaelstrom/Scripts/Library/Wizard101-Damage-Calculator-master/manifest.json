@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "Deimos-Wizard101",
+  "sourceUrl": "https://github.com/Deimos-Wizard101/Wizard101-Damage-Calculator",
+  "status": "reference"
 }

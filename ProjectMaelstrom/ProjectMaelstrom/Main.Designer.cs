@@ -33,6 +33,10 @@ namespace ProjectMaelstrom
             syncStatusLabel = new Label();
             smartPlayHeaderLabel = new Label();
             audioHeaderLabel = new Label();
+            modeLabel = new Label();
+            filterChipLabel = new Label();
+            navScriptsLabel = new Label();
+            navTravelLabel = new Label();
             navPanel = new Panel();
             manageScriptsButton = new Button();
             startConfigurationBtn = new Button();
@@ -43,6 +47,12 @@ namespace ProjectMaelstrom
             captureScreenButton = new Button();
             designManagerButton = new Button();
             openDesignFolderButton = new Button();
+            recordMacroButton = new Button();
+            runMacroButton = new Button();
+            learnModeButton = new Button();
+            learnProfileLabel = new Label();
+            learnProfileCombo = new ComboBox();
+            openLearnLogsButton = new Button();
             panicStopButton = new Button();
             smartPlayGroup = new GroupBox();
             potionRefillButton = new Button();
@@ -51,8 +61,13 @@ namespace ProjectMaelstrom
             goBazaarButton = new Button();
             trainerListView = new ListView();
             trainerTaskColumn = new ColumnHeader();
+            trainerKindColumn = new ColumnHeader();
             trainerStatusColumn = new ColumnHeader();
             trainerIssuesColumn = new ColumnHeader();
+            trainerLastRunColumn = new ColumnHeader();
+            trainerAuthorColumn = new ColumnHeader();
+            trainerSourceColumn = new ColumnHeader();
+            launcherStatusLabel = new Label();
             childHostPanel = new Panel();
             speedPanel = new Panel();
             speedNumeric = new NumericUpDown();
@@ -63,6 +78,11 @@ namespace ProjectMaelstrom
             runHistoryLabel = new Label();
             dashboardStatusLabel = new Label();
             smartPlayStatusLabel = new Label();
+            learnProfileStatusLabel = new Label();
+            knowledgeStatusLabel = new Label();
+            knowledgeDetailsLabel = new Label();
+            refreshKnowledgeButton = new Button();
+            knowledgeTimestampLabel = new Label();
             dashboardWarningsTextBox = new TextBox();
             dashboardWarningsLabel = new Label();
             dashboardStatsLabel = new Label();
@@ -74,16 +94,26 @@ namespace ProjectMaelstrom
             potionsLabel = new Label();
             snapshotWarningsTextBox = new TextBox();
             snapshotWarningsLabel = new Label();
+            filterNoteMainLabel = new Label();
+            filterNoteMainLabel = new Label();
+            searchLabel = new Label();
+            searchTextBox = new TextBox();
+            statusFilterLabel = new Label();
+            statusFilterCombo = new ComboBox();
             panel1.SuspendLayout();
             navPanel.SuspendLayout();
             smartPlayGroup.SuspendLayout();
             speedPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)speedNumeric).BeginInit();
             dashboardGroupBox.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            uiToolTip = new ToolTip(components);
             SuspendLayout();
             // 
             // panel1
             // 
+            panel1.Controls.Add(modeLabel);
+            panel1.Controls.Add(filterChipLabel);
             panel1.Controls.Add(syncStatusValueLabel);
             panel1.Controls.Add(syncStatusLabel);
             panel1.Controls.Add(smartPlayHeaderLabel);
@@ -112,10 +142,73 @@ namespace ProjectMaelstrom
             syncStatusLabel.TabIndex = 4;
             syncStatusLabel.Text = "Sync:";
             // 
+            // modeLabel
+            // 
+            modeLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            modeLabel.AutoSize = true;
+            modeLabel.Location = new Point(950, 20);
+            modeLabel.Name = "modeLabel";
+            modeLabel.Size = new Size(76, 20);
+            modeLabel.TabIndex = 6;
+            modeLabel.Text = "Mode: -";
+            // 
+            // filterChipLabel
+            // 
+            filterChipLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            filterChipLabel.AutoSize = true;
+            filterChipLabel.BackColor = Color.FromArgb(50, 74, 110);
+            filterChipLabel.ForeColor = Color.Gold;
+            filterChipLabel.Location = new Point(850, 20);
+            filterChipLabel.Name = "filterChipLabel";
+            filterChipLabel.Padding = new Padding(8, 4, 8, 4);
+            filterChipLabel.Size = new Size(0, 28);
+            filterChipLabel.TabIndex = 7;
+            filterChipLabel.Visible = false;
+            // 
+            // searchLabel
+            // 
+            searchLabel.AutoSize = true;
+            searchLabel.Location = new Point(404, 70);
+            searchLabel.Name = "searchLabel";
+            searchLabel.Size = new Size(52, 20);
+            searchLabel.TabIndex = 20;
+            searchLabel.Text = "Search";
+            // 
+            // searchTextBox
+            // 
+            searchTextBox.Location = new Point(462, 66);
+            searchTextBox.Name = "searchTextBox";
+            searchTextBox.PlaceholderText = "name, author...";
+            searchTextBox.Size = new Size(260, 27);
+            searchTextBox.TabIndex = 21;
+            searchTextBox.TextChanged += searchTextBox_TextChanged;
+            // 
+            // statusFilterLabel
+            // 
+            statusFilterLabel.AutoSize = true;
+            statusFilterLabel.Location = new Point(740, 70);
+            statusFilterLabel.Name = "statusFilterLabel";
+            statusFilterLabel.Size = new Size(44, 20);
+            statusFilterLabel.TabIndex = 22;
+            statusFilterLabel.Text = "Filter";
+            // 
+            // statusFilterCombo
+            // 
+            statusFilterCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+            statusFilterCombo.FormattingEnabled = true;
+            statusFilterCombo.Items.AddRange(new object[] { "All", "Ready", "Needs setup", "Running" });
+            statusFilterCombo.Location = new Point(790, 66);
+            statusFilterCombo.Name = "statusFilterCombo";
+            statusFilterCombo.Size = new Size(140, 28);
+            statusFilterCombo.TabIndex = 23;
+            statusFilterCombo.SelectedIndexChanged += statusFilterCombo_SelectedIndexChanged;
+            // 
             // navPanel
             // 
             navPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             navPanel.AutoScroll = true;
+            navPanel.Controls.Add(navTravelLabel);
+            navPanel.Controls.Add(navScriptsLabel);
             navPanel.Controls.Add(manageScriptsButton);
             navPanel.Controls.Add(startConfigurationBtn);
             navPanel.Controls.Add(loadHalfangBotBtn);
@@ -125,19 +218,34 @@ namespace ProjectMaelstrom
             navPanel.Controls.Add(captureScreenButton);
             navPanel.Controls.Add(designManagerButton);
             navPanel.Controls.Add(openDesignFolderButton);
+            navPanel.Controls.Add(recordMacroButton);
+            navPanel.Controls.Add(runMacroButton);
+            navPanel.Controls.Add(learnModeButton);
+            navPanel.Controls.Add(learnProfileLabel);
+            navPanel.Controls.Add(learnProfileCombo);
+            navPanel.Controls.Add(openLearnLogsButton);
             navPanel.Controls.Add(panicStopButton);
             navPanel.Controls.Add(smartPlayGroup);
             navPanel.Location = new Point(12, 70);
             navPanel.Name = "navPanel";
             navPanel.Padding = new Padding(4, 8, 4, 8);
-            navPanel.Size = new Size(280, 640);
+            navPanel.Size = new Size(380, 900);
             navPanel.TabIndex = 14;
+            // 
+            // navScriptsLabel
+            // 
+            navScriptsLabel.AutoSize = true;
+            navScriptsLabel.Location = new Point(16, 12);
+            navScriptsLabel.Name = "navScriptsLabel";
+            navScriptsLabel.Size = new Size(108, 20);
+            navScriptsLabel.TabIndex = 24;
+            navScriptsLabel.Text = "Script Manager";
             // 
             // manageScriptsButton
             // 
-            manageScriptsButton.Location = new Point(16, 12);
+            manageScriptsButton.Location = new Point(16, 36);
             manageScriptsButton.Name = "manageScriptsButton";
-            manageScriptsButton.Size = new Size(248, 34);
+            manageScriptsButton.Size = new Size(340, 42);
             manageScriptsButton.TextAlign = ContentAlignment.MiddleCenter;
             manageScriptsButton.AutoEllipsis = true;
             manageScriptsButton.TabIndex = 0;
@@ -147,9 +255,9 @@ namespace ProjectMaelstrom
             // 
             // startConfigurationBtn
             // 
-            startConfigurationBtn.Location = new Point(16, 60);
+            startConfigurationBtn.Location = new Point(16, 84);
             startConfigurationBtn.Name = "startConfigurationBtn";
-            startConfigurationBtn.Size = new Size(248, 40);
+            startConfigurationBtn.Size = new Size(340, 42);
             startConfigurationBtn.TextAlign = ContentAlignment.MiddleCenter;
             startConfigurationBtn.AutoEllipsis = true;
             startConfigurationBtn.TabIndex = 1;
@@ -159,9 +267,9 @@ namespace ProjectMaelstrom
             // 
             // loadHalfangBotBtn
             // 
-            loadHalfangBotBtn.Location = new Point(16, 110);
+            loadHalfangBotBtn.Location = new Point(16, 132);
             loadHalfangBotBtn.Name = "loadHalfangBotBtn";
-            loadHalfangBotBtn.Size = new Size(248, 40);
+            loadHalfangBotBtn.Size = new Size(340, 42);
             loadHalfangBotBtn.TextAlign = ContentAlignment.MiddleCenter;
             loadHalfangBotBtn.AutoEllipsis = true;
             loadHalfangBotBtn.TabIndex = 3;
@@ -171,9 +279,9 @@ namespace ProjectMaelstrom
             // 
             // loadBazaarReagentBot
             // 
-            loadBazaarReagentBot.Location = new Point(16, 160);
+            loadBazaarReagentBot.Location = new Point(16, 180);
             loadBazaarReagentBot.Name = "loadBazaarReagentBot";
-            loadBazaarReagentBot.Size = new Size(248, 40);
+            loadBazaarReagentBot.Size = new Size(340, 42);
             loadBazaarReagentBot.TextAlign = ContentAlignment.MiddleCenter;
             loadBazaarReagentBot.AutoEllipsis = true;
             loadBazaarReagentBot.TabIndex = 4;
@@ -183,9 +291,9 @@ namespace ProjectMaelstrom
             // 
             // launchWizardButton
             // 
-            launchWizardButton.Location = new Point(16, 210);
+            launchWizardButton.Location = new Point(16, 228);
             launchWizardButton.Name = "launchWizardButton";
-            launchWizardButton.Size = new Size(248, 34);
+            launchWizardButton.Size = new Size(340, 42);
             launchWizardButton.TextAlign = ContentAlignment.MiddleCenter;
             launchWizardButton.AutoEllipsis = true;
             launchWizardButton.TabIndex = 11;
@@ -195,9 +303,9 @@ namespace ProjectMaelstrom
             // 
             // miniModeButton
             // 
-            miniModeButton.Location = new Point(16, 250);
+            miniModeButton.Location = new Point(16, 276);
             miniModeButton.Name = "miniModeButton";
-            miniModeButton.Size = new Size(248, 34);
+            miniModeButton.Size = new Size(340, 42);
             miniModeButton.TextAlign = ContentAlignment.MiddleCenter;
             miniModeButton.AutoEllipsis = true;
             miniModeButton.TabIndex = 13;
@@ -207,9 +315,9 @@ namespace ProjectMaelstrom
             // 
             // captureScreenButton
             // 
-            captureScreenButton.Location = new Point(16, 294);
+            captureScreenButton.Location = new Point(16, 324);
             captureScreenButton.Name = "captureScreenButton";
-            captureScreenButton.Size = new Size(248, 34);
+            captureScreenButton.Size = new Size(340, 42);
             captureScreenButton.TabIndex = 14;
             captureScreenButton.Text = "Capture Screen";
             captureScreenButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -220,9 +328,9 @@ namespace ProjectMaelstrom
             // 
             // designManagerButton
             // 
-            designManagerButton.Location = new Point(16, 334);
+            designManagerButton.Location = new Point(16, 372);
             designManagerButton.Name = "designManagerButton";
-            designManagerButton.Size = new Size(248, 34);
+            designManagerButton.Size = new Size(340, 42);
             designManagerButton.TabIndex = 16;
             designManagerButton.Text = "Design Manager";
             designManagerButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -232,9 +340,9 @@ namespace ProjectMaelstrom
             // 
             // openDesignFolderButton
             // 
-            openDesignFolderButton.Location = new Point(16, 374);
+            openDesignFolderButton.Location = new Point(16, 420);
             openDesignFolderButton.Name = "openDesignFolderButton";
-            openDesignFolderButton.Size = new Size(248, 34);
+            openDesignFolderButton.Size = new Size(340, 42);
             openDesignFolderButton.TabIndex = 17;
             openDesignFolderButton.Text = "Open Design Folder";
             openDesignFolderButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -242,17 +350,94 @@ namespace ProjectMaelstrom
             openDesignFolderButton.UseVisualStyleBackColor = true;
             openDesignFolderButton.Click += openDesignFolderButton_Click;
             // 
+            // recordMacroButton
+            // 
+            recordMacroButton.Location = new Point(16, 468);
+            recordMacroButton.Name = "recordMacroButton";
+            recordMacroButton.Size = new Size(340, 42);
+            recordMacroButton.TabIndex = 18;
+            recordMacroButton.Text = "Record Macro";
+            recordMacroButton.TextAlign = ContentAlignment.MiddleCenter;
+            recordMacroButton.AutoEllipsis = true;
+            recordMacroButton.UseVisualStyleBackColor = true;
+            recordMacroButton.Click += recordMacroButton_Click;
+            // 
+            // runMacroButton
+            // 
+            runMacroButton.Location = new Point(16, 516);
+            runMacroButton.Name = "runMacroButton";
+            runMacroButton.Size = new Size(340, 42);
+            runMacroButton.TabIndex = 19;
+            runMacroButton.Text = "Run Macro";
+            runMacroButton.TextAlign = ContentAlignment.MiddleCenter;
+            runMacroButton.AutoEllipsis = true;
+            runMacroButton.UseVisualStyleBackColor = true;
+            runMacroButton.Click += runMacroButton_Click;
+            // 
+            // learnModeButton
+            // 
+            learnModeButton.Location = new Point(16, 564);
+            learnModeButton.Name = "learnModeButton";
+            learnModeButton.Size = new Size(340, 42);
+            learnModeButton.TabIndex = 20;
+            learnModeButton.Text = "Learn Mode";
+            learnModeButton.TextAlign = ContentAlignment.MiddleCenter;
+            learnModeButton.AutoEllipsis = true;
+            learnModeButton.UseVisualStyleBackColor = true;
+            learnModeButton.Click += learnModeButton_Click;
+            // 
+            // learnProfileLabel
+            // 
+            learnProfileLabel.AutoSize = true;
+            learnProfileLabel.Location = new Point(16, 612);
+            learnProfileLabel.Name = "learnProfileLabel";
+            learnProfileLabel.Size = new Size(127, 20);
+            learnProfileLabel.TabIndex = 22;
+            learnProfileLabel.Text = "Learn Mode Profile";
+            // 
+            // learnProfileCombo
+            // 
+            learnProfileCombo.DropDownStyle = ComboBoxStyle.DropDownList;
+            learnProfileCombo.FormattingEnabled = true;
+            learnProfileCombo.Items.AddRange(new object[] { "Mixed", "Seek", "Avoid" });
+            learnProfileCombo.Location = new Point(16, 636);
+            learnProfileCombo.Name = "learnProfileCombo";
+            learnProfileCombo.Size = new Size(340, 32);
+            learnProfileCombo.TabIndex = 23;
+            learnProfileCombo.SelectedIndexChanged += learnProfileCombo_SelectedIndexChanged;
+            // 
+            // openLearnLogsButton
+            // 
+            openLearnLogsButton.Location = new Point(16, 672);
+            openLearnLogsButton.Name = "openLearnLogsButton";
+            openLearnLogsButton.Size = new Size(340, 34);
+            openLearnLogsButton.TabIndex = 24;
+            openLearnLogsButton.Text = "Open Learn Logs";
+            openLearnLogsButton.TextAlign = ContentAlignment.MiddleCenter;
+            openLearnLogsButton.AutoEllipsis = true;
+            openLearnLogsButton.UseVisualStyleBackColor = true;
+            openLearnLogsButton.Click += openLearnLogsButton_Click;
+            // 
             // panicStopButton
             // 
-            panicStopButton.Location = new Point(16, 414);
+            panicStopButton.Location = new Point(16, 712);
             panicStopButton.Name = "panicStopButton";
-            panicStopButton.Size = new Size(248, 34);
-            panicStopButton.TabIndex = 15;
+            panicStopButton.Size = new Size(340, 42);
+            panicStopButton.TabIndex = 21;
             panicStopButton.Text = "Panic Stop";
             panicStopButton.TextAlign = ContentAlignment.MiddleCenter;
             panicStopButton.AutoEllipsis = true;
             panicStopButton.UseVisualStyleBackColor = true;
             panicStopButton.Click += panicStopButton_Click;
+            // 
+            // navTravelLabel
+            // 
+            navTravelLabel.AutoSize = true;
+            navTravelLabel.Location = new Point(16, 760);
+            navTravelLabel.Name = "navTravelLabel";
+            navTravelLabel.Size = new Size(143, 20);
+            navTravelLabel.TabIndex = 25;
+            navTravelLabel.Text = "Travel && SmartPlay";
             // 
             // smartPlayGroup
             // 
@@ -260,18 +445,18 @@ namespace ProjectMaelstrom
             smartPlayGroup.Controls.Add(goPetPavilionButton);
             smartPlayGroup.Controls.Add(goMiniGamesButton);
             smartPlayGroup.Controls.Add(goBazaarButton);
-            smartPlayGroup.Location = new Point(16, 454);
+            smartPlayGroup.Location = new Point(16, 784);
             smartPlayGroup.Name = "smartPlayGroup";
-            smartPlayGroup.Size = new Size(248, 172);
+            smartPlayGroup.Size = new Size(340, 198);
             smartPlayGroup.TabIndex = 14;
             smartPlayGroup.TabStop = false;
             smartPlayGroup.Text = "Smart Travel";
             // 
             // potionRefillButton
             // 
-            potionRefillButton.Location = new Point(12, 114);
+            potionRefillButton.Location = new Point(12, 132);
             potionRefillButton.Name = "potionRefillButton";
-            potionRefillButton.Size = new Size(224, 30);
+            potionRefillButton.Size = new Size(300, 34);
             potionRefillButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             potionRefillButton.TabIndex = 3;
             potionRefillButton.Text = "Start Potion Refill Run";
@@ -280,9 +465,9 @@ namespace ProjectMaelstrom
             // 
             // goPetPavilionButton
             // 
-            goPetPavilionButton.Location = new Point(12, 82);
+            goPetPavilionButton.Location = new Point(12, 92);
             goPetPavilionButton.Name = "goPetPavilionButton";
-            goPetPavilionButton.Size = new Size(224, 30);
+            goPetPavilionButton.Size = new Size(300, 34);
             goPetPavilionButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             goPetPavilionButton.TabIndex = 2;
             goPetPavilionButton.Text = "Go to Pet Mini Games";
@@ -291,9 +476,9 @@ namespace ProjectMaelstrom
             // 
             // goMiniGamesButton
             // 
-            goMiniGamesButton.Location = new Point(12, 50);
+            goMiniGamesButton.Location = new Point(12, 52);
             goMiniGamesButton.Name = "goMiniGamesButton";
-            goMiniGamesButton.Size = new Size(224, 30);
+            goMiniGamesButton.Size = new Size(300, 34);
             goMiniGamesButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             goMiniGamesButton.TabIndex = 1;
             goMiniGamesButton.Text = "Potion Refill (Mini Games)";
@@ -302,9 +487,9 @@ namespace ProjectMaelstrom
             // 
             // goBazaarButton
             // 
-            goBazaarButton.Location = new Point(12, 18);
+            goBazaarButton.Location = new Point(12, 12);
             goBazaarButton.Name = "goBazaarButton";
-            goBazaarButton.Size = new Size(224, 30);
+            goBazaarButton.Size = new Size(300, 34);
             goBazaarButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             goBazaarButton.TabIndex = 0;
             goBazaarButton.Text = "Go to Bazaar";
@@ -314,15 +499,15 @@ namespace ProjectMaelstrom
             // trainerListView
             // 
             trainerListView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            trainerListView.Columns.AddRange(new ColumnHeader[] { trainerTaskColumn, trainerStatusColumn, trainerIssuesColumn });
+            trainerListView.Columns.AddRange(new ColumnHeader[] { trainerTaskColumn, trainerKindColumn, trainerStatusColumn, trainerIssuesColumn, trainerLastRunColumn, trainerAuthorColumn, trainerSourceColumn });
             trainerListView.FullRowSelect = true;
             trainerListView.GridLines = true;
-            trainerListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
+            trainerListView.HeaderStyle = ColumnHeaderStyle.Clickable;
             trainerListView.HideSelection = false;
-            trainerListView.Location = new Point(304, 110);
+            trainerListView.Location = new Point(404, 110);
             trainerListView.MultiSelect = false;
             trainerListView.Name = "trainerListView";
-            trainerListView.Size = new Size(796, 348);
+            trainerListView.Size = new Size(676, 348);
             trainerListView.TabIndex = 15;
             trainerListView.UseCompatibleStateImageBehavior = false;
             trainerListView.View = View.Details;
@@ -331,9 +516,9 @@ namespace ProjectMaelstrom
             // childHostPanel
             // 
             childHostPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            childHostPanel.Location = new Point(304, 110);
+            childHostPanel.Location = new Point(404, 110);
             childHostPanel.Name = "childHostPanel";
-            childHostPanel.Size = new Size(796, 348);
+            childHostPanel.Size = new Size(676, 348);
             childHostPanel.TabIndex = 16;
             childHostPanel.Visible = false;
             // 
@@ -343,9 +528,9 @@ namespace ProjectMaelstrom
             speedPanel.Controls.Add(speedNumeric);
             speedPanel.Controls.Add(resetTuningButton);
             speedPanel.Controls.Add(speedLabel);
-            speedPanel.Location = new Point(304, 60);
+            speedPanel.Location = new Point(404, 60);
             speedPanel.Name = "speedPanel";
-            speedPanel.Size = new Size(796, 40);
+            speedPanel.Size = new Size(676, 40);
             speedPanel.TabIndex = 18;
             // 
             // speedNumeric
@@ -363,7 +548,7 @@ namespace ProjectMaelstrom
             // resetTuningButton
             // 
             resetTuningButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            resetTuningButton.Location = new Point(680, 6);
+            resetTuningButton.Location = new Point(556, 6);
             resetTuningButton.Name = "resetTuningButton";
             resetTuningButton.Size = new Size(110, 29);
             resetTuningButton.TabIndex = 2;
@@ -383,25 +568,52 @@ namespace ProjectMaelstrom
             // trainerTaskColumn
             // 
             trainerTaskColumn.Text = "Task";
-            trainerTaskColumn.Width = 300;
+            trainerTaskColumn.Width = 160;
+            // 
+            // trainerKindColumn
+            // 
+            trainerKindColumn.Text = "Type";
+            trainerKindColumn.Width = 80;
             // 
             // trainerStatusColumn
             // 
             trainerStatusColumn.Text = "Status";
-            trainerStatusColumn.Width = 192;
+            trainerStatusColumn.Width = 110;
             // 
             // trainerIssuesColumn
             // 
             trainerIssuesColumn.Text = "Issues";
-            trainerIssuesColumn.Width = 192;
+            trainerIssuesColumn.Width = 100;
+            // 
+            // trainerLastRunColumn
+            // 
+            trainerLastRunColumn.Text = "Last Run";
+            trainerLastRunColumn.Width = 90;
+            // 
+            // trainerAuthorColumn
+            // 
+            trainerAuthorColumn.Text = "Author";
+            trainerAuthorColumn.Width = 80;
+            // 
+            // trainerSourceColumn
+            // 
+            trainerSourceColumn.Text = "Source";
+            trainerSourceColumn.Width = 100;
             // 
             // dashboardGroupBox
             // 
             dashboardGroupBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dashboardGroupBox.Controls.Add(guardStatusLabel);
             dashboardGroupBox.Controls.Add(runHistoryListBox);
             dashboardGroupBox.Controls.Add(runHistoryLabel);
             dashboardGroupBox.Controls.Add(dashboardStatusLabel);
+            dashboardGroupBox.Controls.Add(launcherStatusLabel);
             dashboardGroupBox.Controls.Add(smartPlayStatusLabel);
+            dashboardGroupBox.Controls.Add(learnProfileStatusLabel);
+            dashboardGroupBox.Controls.Add(knowledgeStatusLabel);
+            dashboardGroupBox.Controls.Add(knowledgeDetailsLabel);
+            dashboardGroupBox.Controls.Add(refreshKnowledgeButton);
+            dashboardGroupBox.Controls.Add(knowledgeTimestampLabel);
             dashboardGroupBox.Controls.Add(dashboardWarningsTextBox);
             dashboardGroupBox.Controls.Add(dashboardWarningsLabel);
             dashboardGroupBox.Controls.Add(dashboardStatsLabel);
@@ -411,6 +623,15 @@ namespace ProjectMaelstrom
             dashboardGroupBox.TabIndex = 13;
             dashboardGroupBox.TabStop = false;
             dashboardGroupBox.Text = "Dashboard";
+            // 
+            // guardStatusLabel
+            // 
+            guardStatusLabel.AutoSize = true;
+            guardStatusLabel.Location = new Point(10, 92);
+            guardStatusLabel.Name = "guardStatusLabel";
+            guardStatusLabel.Size = new Size(94, 20);
+            guardStatusLabel.TabIndex = 19;
+            guardStatusLabel.Text = "Guards: OK";
             // 
             // runHistoryListBox
             // 
@@ -441,29 +662,83 @@ namespace ProjectMaelstrom
             dashboardStatusLabel.TabIndex = 3;
             dashboardStatusLabel.Text = "Status: Idle | Sync: -";
             // 
+            // launcherStatusLabel
+            // 
+            launcherStatusLabel.AutoSize = true;
+            launcherStatusLabel.Location = new Point(10, 50);
+            launcherStatusLabel.Name = "launcherStatusLabel";
+            launcherStatusLabel.Size = new Size(138, 20);
+            launcherStatusLabel.TabIndex = 20;
+            launcherStatusLabel.Text = "Launcher: Not run";
+            // 
             // smartPlayStatusLabel
             // 
             smartPlayStatusLabel.AutoSize = true;
-            smartPlayStatusLabel.Location = new Point(10, 52);
+            smartPlayStatusLabel.Location = new Point(10, 72);
             smartPlayStatusLabel.Name = "smartPlayStatusLabel";
             smartPlayStatusLabel.Size = new Size(108, 20);
             smartPlayStatusLabel.TabIndex = 6;
             smartPlayStatusLabel.Text = "SmartPlay: Idle";
             // 
+            // learnProfileStatusLabel
+            // 
+            learnProfileStatusLabel.AutoSize = true;
+            learnProfileStatusLabel.Location = new Point(10, 92);
+            learnProfileStatusLabel.Name = "learnProfileStatusLabel";
+            learnProfileStatusLabel.Size = new Size(128, 20);
+            learnProfileStatusLabel.TabIndex = 7;
+            learnProfileStatusLabel.Text = "Learn Profile: -";
+            // 
+            // knowledgeStatusLabel
+            // 
+            knowledgeStatusLabel.AutoSize = true;
+            knowledgeStatusLabel.Location = new Point(10, 112);
+            knowledgeStatusLabel.Name = "knowledgeStatusLabel";
+            knowledgeStatusLabel.Size = new Size(126, 20);
+            knowledgeStatusLabel.TabIndex = 8;
+            knowledgeStatusLabel.Text = "Knowledge: none";
+            // 
+            // knowledgeDetailsLabel
+            // 
+            knowledgeDetailsLabel.AutoSize = true;
+            knowledgeDetailsLabel.Location = new Point(10, 132);
+            knowledgeDetailsLabel.Name = "knowledgeDetailsLabel";
+            knowledgeDetailsLabel.Size = new Size(0, 20);
+            knowledgeDetailsLabel.TabIndex = 9;
+            // 
+            // refreshKnowledgeButton
+            // 
+            refreshKnowledgeButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            refreshKnowledgeButton.Location = new Point(660, 82);
+            refreshKnowledgeButton.Name = "refreshKnowledgeButton";
+            refreshKnowledgeButton.Size = new Size(140, 28);
+            refreshKnowledgeButton.TabIndex = 10;
+            refreshKnowledgeButton.Text = "Refresh Knowledge";
+            refreshKnowledgeButton.UseVisualStyleBackColor = true;
+            refreshKnowledgeButton.Click += refreshKnowledgeButton_Click;
+            // 
+            // knowledgeTimestampLabel
+            // 
+            knowledgeTimestampLabel.AutoSize = true;
+            knowledgeTimestampLabel.Location = new Point(10, 132);
+            knowledgeTimestampLabel.Name = "knowledgeTimestampLabel";
+            knowledgeTimestampLabel.Size = new Size(0, 20);
+            knowledgeTimestampLabel.TabIndex = 11;
+            // 
             // dashboardWarningsTextBox
             // 
-            dashboardWarningsTextBox.Location = new Point(10, 116);
+            dashboardWarningsTextBox.Location = new Point(10, 158);
             dashboardWarningsTextBox.Multiline = true;
             dashboardWarningsTextBox.Name = "dashboardWarningsTextBox";
             dashboardWarningsTextBox.ReadOnly = true;
             dashboardWarningsTextBox.ScrollBars = ScrollBars.Vertical;
-            dashboardWarningsTextBox.Size = new Size(716, 110);
+            dashboardWarningsTextBox.Size = new Size(716, 68);
             dashboardWarningsTextBox.TabIndex = 2;
             // 
             // dashboardWarningsLabel
             // 
             dashboardWarningsLabel.AutoSize = true;
-            dashboardWarningsLabel.Location = new Point(10, 94);
+            dashboardWarningsLabel.Location = new Point(10, 136);
             dashboardWarningsLabel.Name = "dashboardWarningsLabel";
             dashboardWarningsLabel.Size = new Size(68, 20);
             dashboardWarningsLabel.TabIndex = 1;
@@ -560,11 +835,25 @@ namespace ProjectMaelstrom
             snapshotWarningsLabel.TabIndex = 10;
             snapshotWarningsLabel.Text = "Snapshot Notes";
             // 
+            // filterNoteMainLabel
+            // 
+            filterNoteMainLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            filterNoteMainLabel.AutoSize = true;
+            filterNoteMainLabel.Location = new Point(850, 70);
+            filterNoteMainLabel.Name = "filterNoteMainLabel";
+            filterNoteMainLabel.Size = new Size(0, 20);
+            filterNoteMainLabel.TabIndex = 19;
+            // 
             // Main
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1100, 820);
+            Controls.Add(filterNoteMainLabel);
+            Controls.Add(searchTextBox);
+            Controls.Add(searchLabel);
+            Controls.Add(statusFilterCombo);
+            Controls.Add(statusFilterLabel);
             Controls.Add(trainerListView);
             Controls.Add(childHostPanel);
             Controls.Add(speedPanel);
@@ -616,16 +905,36 @@ namespace ProjectMaelstrom
         private Button goBazaarButton;
         private ListView trainerListView;
         private ColumnHeader trainerTaskColumn;
+        private ColumnHeader trainerKindColumn;
         private ColumnHeader trainerStatusColumn;
         private ColumnHeader trainerIssuesColumn;
+        private ColumnHeader trainerLastRunColumn;
+        private ColumnHeader trainerAuthorColumn;
+        private ColumnHeader trainerSourceColumn;
         private GroupBox dashboardGroupBox;
         private ListBox runHistoryListBox;
         private Label runHistoryLabel;
         private Label dashboardStatusLabel;
+        private Label launcherStatusLabel;
         private TextBox dashboardWarningsTextBox;
         private Label dashboardWarningsLabel;
         private Label dashboardStatsLabel;
         private Label smartPlayStatusLabel;
+        private Label guardStatusLabel;
+        private Label learnProfileStatusLabel;
+        private Label knowledgeStatusLabel;
+        private Label knowledgeDetailsLabel;
+        private Button refreshKnowledgeButton;
+        private Label knowledgeTimestampLabel;
+        private Label modeLabel;
+        private Label filterChipLabel;
+        private Label navScriptsLabel;
+        private Label navTravelLabel;
+        private Label searchLabel;
+        private TextBox searchTextBox;
+        private Label statusFilterLabel;
+        private ComboBox statusFilterCombo;
+        private Label filterNoteMainLabel;
         private Button snapshotButton;
         private Label healthLabel;
         private Label manaLabel;
@@ -643,6 +952,15 @@ namespace ProjectMaelstrom
         private Button panicStopButton;
         private Button designManagerButton;
         private Button openDesignFolderButton;
+        private Button recordMacroButton;
+        private Button learnModeButton;
+        private Label learnProfileLabel;
+        private ComboBox learnProfileCombo;
+        private Button openLearnLogsButton;
+        private Button runMacroButton;
         private Button resetTuningButton;
+        private ToolTip uiToolTip;
     }
 }
+
+

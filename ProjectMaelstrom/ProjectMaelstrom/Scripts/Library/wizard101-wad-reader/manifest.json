@@ -1,0 +1,11 @@
+{
+  "name": "Wizard101 Wad Reader",
+  "description": "Imported from GitHub",
+  "author": "xgladius",
+  "sourceUrl": "https://github.com/xgladius/wizard101-wad-reader",
+  "entryPoint": "README.md",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": [],
+  "status": "reference"
+}

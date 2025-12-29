@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "cedws",
+  "sourceUrl": "https://github.com/cedws/w101-client-go",
+  "status": "reference"
 }

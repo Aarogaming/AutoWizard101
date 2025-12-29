@@ -1,16 +1,15 @@
-﻿namespace ProjectMaelstrom
+namespace ProjectMaelstrom
 {
     partial class SettingsForm
     {
         /// <summary>
-        /// Required designer variable.
+        ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// Clean up any resources being used.
+        ///  Clean up any resources being used.
         /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +21,6 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             label1 = new Label();
@@ -38,6 +33,11 @@
             captureToggle = new CheckBox();
             audioToggle = new CheckBox();
             tuningToggle = new CheckBox();
+            devTelemetryToggle = new CheckBox();
+            devUiSnapshotsToggle = new CheckBox();
+            captureUiSnapshotButton = new Button();
+            playerPreviewToggle = new CheckBox();
+            autoPauseToggle = new CheckBox();
             audioDeltaLabel = new Label();
             audioDeltaNumeric = new NumericUpDown();
             updatesLabel = new Label();
@@ -47,14 +47,22 @@
             downloadUpdateButton = new Button();
             applyUpdateButton = new Button();
             updaterStatusLabel = new Label();
+            launchManagerButton = new Button();
+            runDiagnosticsButton = new Button();
+            viewDevSuggestionsButton = new Button();
+            goldMinLabel = new Label();
+            goldMinNumeric = new NumericUpDown();
+            goldCapLabel = new Label();
+            goldCapNumeric = new NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)audioDeltaNumeric).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)goldMinNumeric).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)goldCapNumeric).BeginInit();
             SuspendLayout();
             // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Location = new Point(14, 11);
-            label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new Size(193, 30);
             label1.TabIndex = 0;
@@ -63,15 +71,13 @@
             // ocrSpaceApiKey
             // 
             ocrSpaceApiKey.Location = new Point(14, 44);
-            ocrSpaceApiKey.Margin = new Padding(4, 4, 4, 4);
             ocrSpaceApiKey.Name = "ocrSpaceApiKey";
             ocrSpaceApiKey.Size = new Size(359, 35);
             ocrSpaceApiKey.TabIndex = 1;
             // 
             // saveSettingsBtn
             // 
-            saveSettingsBtn.Location = new Point(13, 378);
-            saveSettingsBtn.Margin = new Padding(4, 4, 4, 4);
+            saveSettingsBtn.Location = new Point(13, 544);
             saveSettingsBtn.Name = "saveSettingsBtn";
             saveSettingsBtn.Size = new Size(360, 41);
             saveSettingsBtn.TabIndex = 4;
@@ -147,6 +153,58 @@
             tuningToggle.Text = "Enable SmartPlay Tuning";
             tuningToggle.UseVisualStyleBackColor = true;
             // 
+            // devTelemetryToggle
+            // 
+            devTelemetryToggle.AutoSize = true;
+            devTelemetryToggle.Location = new Point(14, 422);
+            devTelemetryToggle.Name = "devTelemetryToggle";
+            devTelemetryToggle.Size = new Size(329, 34);
+            devTelemetryToggle.TabIndex = 12;
+            devTelemetryToggle.Text = "Capture Dev Telemetry (logs only)";
+            devTelemetryToggle.UseVisualStyleBackColor = true;
+            // 
+            // devUiSnapshotsToggle
+            // 
+            devUiSnapshotsToggle.AutoSize = true;
+            devUiSnapshotsToggle.Location = new Point(14, 460);
+            devUiSnapshotsToggle.Name = "devUiSnapshotsToggle";
+            devUiSnapshotsToggle.Size = new Size(296, 34);
+            devUiSnapshotsToggle.TabIndex = 13;
+            devUiSnapshotsToggle.Text = "Enable Dev UI Snapshots";
+            devUiSnapshotsToggle.UseVisualStyleBackColor = true;
+            // 
+            // captureUiSnapshotButton
+            // 
+            captureUiSnapshotButton.Location = new Point(14, 500);
+            captureUiSnapshotButton.Name = "captureUiSnapshotButton";
+            captureUiSnapshotButton.Size = new Size(478, 34);
+            captureUiSnapshotButton.TabIndex = 14;
+            captureUiSnapshotButton.Text = "Capture UI Snapshot (Dev)";
+            captureUiSnapshotButton.UseVisualStyleBackColor = true;
+            captureUiSnapshotButton.Visible = false;
+            captureUiSnapshotButton.Click += captureUiSnapshotButton_Click;
+            // 
+            // playerPreviewToggle
+            // 
+            playerPreviewToggle.AutoSize = true;
+            playerPreviewToggle.Location = new Point(14, 542);
+            playerPreviewToggle.Name = "playerPreviewToggle";
+            playerPreviewToggle.Size = new Size(270, 34);
+            playerPreviewToggle.TabIndex = 15;
+            playerPreviewToggle.Text = "Player Mode (Preview UI)";
+            playerPreviewToggle.UseVisualStyleBackColor = true;
+            playerPreviewToggle.Visible = false;
+            // 
+            // autoPauseToggle
+            // 
+            autoPauseToggle.AutoSize = true;
+            autoPauseToggle.Location = new Point(14, 580);
+            autoPauseToggle.Name = "autoPauseToggle";
+            autoPauseToggle.Size = new Size(321, 34);
+            autoPauseToggle.TabIndex = 16;
+            autoPauseToggle.Text = "Auto-pause SmartPlay on focus loss";
+            autoPauseToggle.UseVisualStyleBackColor = true;
+            // 
             // audioDeltaLabel
             // 
             audioDeltaLabel.AutoSize = true;
@@ -165,61 +223,97 @@
             audioDeltaNumeric.Minimum = new decimal(new int[] { 1, 0, 0, 196608 });
             audioDeltaNumeric.Name = "audioDeltaNumeric";
             audioDeltaNumeric.Size = new Size(120, 35);
-            audioDeltaNumeric.TabIndex = 13;
+            audioDeltaNumeric.TabIndex = 15;
             audioDeltaNumeric.Value = new decimal(new int[] { 12, 0, 0, 131072 });
+            // 
+            // goldMinLabel
+            // 
+            goldMinLabel.AutoSize = true;
+            goldMinLabel.Location = new Point(14, 620);
+            goldMinLabel.Name = "goldMinLabel";
+            goldMinLabel.Size = new Size(229, 30);
+            goldMinLabel.TabIndex = 26;
+            goldMinLabel.Text = "Bazaar Gold Min (stop)";
+            // 
+            // goldMinNumeric
+            // 
+            goldMinNumeric.Increment = new decimal(new int[] { 1000, 0, 0, 0 });
+            goldMinNumeric.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            goldMinNumeric.Location = new Point(260, 616);
+            goldMinNumeric.Name = "goldMinNumeric";
+            goldMinNumeric.Size = new Size(232, 35);
+            goldMinNumeric.TabIndex = 27;
+            // 
+            // goldCapLabel
+            // 
+            goldCapLabel.AutoSize = true;
+            goldCapLabel.Location = new Point(14, 662);
+            goldCapLabel.Name = "goldCapLabel";
+            goldCapLabel.Size = new Size(228, 30);
+            goldCapLabel.TabIndex = 28;
+            goldCapLabel.Text = "Bazaar Gold Cap (pause)";
+            // 
+            // goldCapNumeric
+            // 
+            goldCapNumeric.Increment = new decimal(new int[] { 1000, 0, 0, 0 });
+            goldCapNumeric.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            goldCapNumeric.Location = new Point(260, 658);
+            goldCapNumeric.Name = "goldCapNumeric";
+            goldCapNumeric.Size = new Size(232, 35);
+            goldCapNumeric.TabIndex = 29;
             // 
             // updatesLabel
             // 
             updatesLabel.AutoSize = true;
-            updatesLabel.Location = new Point(14, 430);
+            updatesLabel.Location = new Point(14, 706);
             updatesLabel.Name = "updatesLabel";
             updatesLabel.Size = new Size(130, 30);
-            updatesLabel.TabIndex = 14;
+            updatesLabel.TabIndex = 16;
             updatesLabel.Text = "Update Feed:";
             // 
             // feedUrlText
             // 
-            feedUrlText.Location = new Point(14, 464);
+            feedUrlText.Location = new Point(14, 740);
             feedUrlText.Name = "feedUrlText";
             feedUrlText.Size = new Size(478, 35);
-            feedUrlText.TabIndex = 15;
+            feedUrlText.TabIndex = 17;
             // 
             // autoCheckUpdatesToggle
             // 
             autoCheckUpdatesToggle.AutoSize = true;
-            autoCheckUpdatesToggle.Location = new Point(14, 506);
+            autoCheckUpdatesToggle.Location = new Point(14, 782);
             autoCheckUpdatesToggle.Name = "autoCheckUpdatesToggle";
             autoCheckUpdatesToggle.Size = new Size(202, 34);
-            autoCheckUpdatesToggle.TabIndex = 16;
+            autoCheckUpdatesToggle.TabIndex = 18;
             autoCheckUpdatesToggle.Text = "Auto-check on start";
             autoCheckUpdatesToggle.UseVisualStyleBackColor = true;
             // 
             // checkUpdatesButton
             // 
-            checkUpdatesButton.Location = new Point(14, 546);
+            checkUpdatesButton.Location = new Point(14, 822);
             checkUpdatesButton.Name = "checkUpdatesButton";
             checkUpdatesButton.Size = new Size(150, 34);
-            checkUpdatesButton.TabIndex = 17;
+            checkUpdatesButton.TabIndex = 19;
             checkUpdatesButton.Text = "Check";
             checkUpdatesButton.UseVisualStyleBackColor = true;
             checkUpdatesButton.Click += checkUpdatesButton_Click;
             // 
             // downloadUpdateButton
             // 
-            downloadUpdateButton.Location = new Point(170, 546);
+            downloadUpdateButton.Location = new Point(170, 822);
             downloadUpdateButton.Name = "downloadUpdateButton";
             downloadUpdateButton.Size = new Size(150, 34);
-            downloadUpdateButton.TabIndex = 18;
+            downloadUpdateButton.TabIndex = 20;
             downloadUpdateButton.Text = "Download";
             downloadUpdateButton.UseVisualStyleBackColor = true;
             downloadUpdateButton.Click += downloadUpdateButton_Click;
             // 
             // applyUpdateButton
             // 
-            applyUpdateButton.Location = new Point(326, 546);
+            applyUpdateButton.Location = new Point(326, 822);
             applyUpdateButton.Name = "applyUpdateButton";
             applyUpdateButton.Size = new Size(150, 34);
-            applyUpdateButton.TabIndex = 19;
+            applyUpdateButton.TabIndex = 21;
             applyUpdateButton.Text = "Stage/Apply";
             applyUpdateButton.UseVisualStyleBackColor = true;
             applyUpdateButton.Click += applyUpdateButton_Click;
@@ -227,17 +321,72 @@
             // updaterStatusLabel
             // 
             updaterStatusLabel.AutoSize = true;
-            updaterStatusLabel.Location = new Point(14, 590);
+            updaterStatusLabel.Location = new Point(14, 866);
             updaterStatusLabel.Name = "updaterStatusLabel";
             updaterStatusLabel.Size = new Size(122, 30);
-            updaterStatusLabel.TabIndex = 20;
+            updaterStatusLabel.TabIndex = 22;
             updaterStatusLabel.Text = "Status: Idle";
+            // 
+            // launchManagerButton
+            // 
+            launchManagerButton.Location = new Point(14, 901);
+            launchManagerButton.Name = "launchManagerButton";
+            launchManagerButton.Size = new Size(478, 34);
+            launchManagerButton.TabIndex = 23;
+            launchManagerButton.Text = "Open Project Manager";
+            launchManagerButton.UseVisualStyleBackColor = true;
+            launchManagerButton.Click += launchManagerButton_Click;
+            // 
+            // refreshWikiButton
+            // 
+            refreshWikiButton.Location = new Point(14, 941);
+            refreshWikiButton.Name = "refreshWikiButton";
+            refreshWikiButton.Size = new Size(478, 34);
+            refreshWikiButton.TabIndex = 24;
+            refreshWikiButton.Text = "Refresh Wiki Cache";
+            refreshWikiButton.UseVisualStyleBackColor = true;
+            refreshWikiButton.Click += refreshWikiButton_Click;
+            // 
+            // runDiagnosticsButton
+            // 
+            runDiagnosticsButton.Location = new Point(14, 981);
+            runDiagnosticsButton.Name = "runDiagnosticsButton";
+            runDiagnosticsButton.Size = new Size(478, 34);
+            runDiagnosticsButton.TabIndex = 25;
+            runDiagnosticsButton.Text = "Run Diagnostics (Dev)";
+            runDiagnosticsButton.UseVisualStyleBackColor = true;
+            runDiagnosticsButton.Visible = false;
+            runDiagnosticsButton.Click += runDiagnosticsButton_Click;
+            // 
+            // viewDevSuggestionsButton
+            // 
+            viewDevSuggestionsButton.Location = new Point(14, 1021);
+            viewDevSuggestionsButton.Name = "viewDevSuggestionsButton";
+            viewDevSuggestionsButton.Size = new Size(478, 34);
+            viewDevSuggestionsButton.TabIndex = 26;
+            viewDevSuggestionsButton.Text = "View Dev Suggestions";
+            viewDevSuggestionsButton.UseVisualStyleBackColor = true;
+            viewDevSuggestionsButton.Visible = false;
+            viewDevSuggestionsButton.Click += viewDevSuggestionsButton_Click;
             // 
             // SettingsForm
             // 
             AutoScaleDimensions = new SizeF(12F, 30F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(540, 640);
+            ClientSize = new Size(540, 1080);
+            Controls.Add(goldCapNumeric);
+            Controls.Add(goldCapLabel);
+            Controls.Add(goldMinNumeric);
+            Controls.Add(goldMinLabel);
+            Controls.Add(autoPauseToggle);
+            Controls.Add(refreshWikiButton);
+            Controls.Add(viewDevSuggestionsButton);
+            Controls.Add(runDiagnosticsButton);
+            Controls.Add(launchManagerButton);
+            Controls.Add(captureUiSnapshotButton);
+            Controls.Add(devUiSnapshotsToggle);
+            Controls.Add(playerPreviewToggle);
+            Controls.Add(devTelemetryToggle);
             Controls.Add(audioDeltaNumeric);
             Controls.Add(audioDeltaLabel);
             Controls.Add(tuningToggle);
@@ -257,11 +406,12 @@
             Controls.Add(saveSettingsBtn);
             Controls.Add(ocrSpaceApiKey);
             Controls.Add(label1);
-            Margin = new Padding(4, 4, 4, 4);
             Name = "SettingsForm";
             Text = "Settings";
             Load += SettingsForm_Load;
             ((System.ComponentModel.ISupportInitialize)audioDeltaNumeric).EndInit();
+            ((System.ComponentModel.ISupportInitialize)goldMinNumeric).EndInit();
+            ((System.ComponentModel.ISupportInitialize)goldCapNumeric).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -278,6 +428,11 @@
         private CheckBox captureToggle;
         private CheckBox audioToggle;
         private CheckBox tuningToggle;
+        private CheckBox devTelemetryToggle;
+        private CheckBox devUiSnapshotsToggle;
+        private Button captureUiSnapshotButton;
+        private CheckBox playerPreviewToggle;
+        private CheckBox autoPauseToggle;
         private Label audioDeltaLabel;
         private NumericUpDown audioDeltaNumeric;
         private Label updatesLabel;
@@ -287,5 +442,13 @@
         private Button downloadUpdateButton;
         private Button applyUpdateButton;
         private Label updaterStatusLabel;
+        private Button launchManagerButton;
+        private Button refreshWikiButton;
+        private Button runDiagnosticsButton;
+        private Button viewDevSuggestionsButton;
+        private Label goldMinLabel;
+        private NumericUpDown goldMinNumeric;
+        private Label goldCapLabel;
+        private NumericUpDown goldCapNumeric;
     }
 }

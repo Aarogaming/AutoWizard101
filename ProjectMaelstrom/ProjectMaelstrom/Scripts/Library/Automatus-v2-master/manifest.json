@@ -4,5 +4,8 @@
   "entryPoint": "run.bat",
   "arguments": "",
   "requiredResolution": "",
-  "requiredTemplates": []
+  "requiredTemplates": [],
+  "author": "Drayux",
+  "sourceUrl": "https://github.com/Drayux/Automatus-v2",
+  "status": "external"
 }

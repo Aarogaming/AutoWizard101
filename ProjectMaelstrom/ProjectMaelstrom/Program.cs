@@ -21,6 +21,8 @@ internal static class Program
     [STAThread]
     static void Main(string[] args)
     {
+        DevMode.EnsureInitialized();
+
         // Check for theme test
         if (args.Length > 0 && args[0] == "--test-theme")
         {
@@ -41,6 +43,27 @@ internal static class Program
         if (!Directory.Exists("screenshots"))
         {
             Directory.CreateDirectory("screenshots");
+        }
+
+        // Hook global exception logging in dev mode for quicker diagnostics.
+        if (DevMode.IsEnabled)
+        {
+            AppDomain.CurrentDomain.UnhandledException += (_, evt) =>
+            {
+                try
+                {
+                    Logger.LogError("[DevMode] Unhandled exception", evt.ExceptionObject as Exception);
+                }
+                catch { /* ignore */ }
+            };
+            Application.ThreadException += (_, evt) =>
+            {
+                try
+                {
+                    Logger.LogError("[DevMode] UI thread exception", evt.Exception);
+                }
+                catch { /* ignore */ }
+            };
         }
 
         // Load theme preference

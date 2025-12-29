@@ -32,5 +32,26 @@
     <Setting Name="AUTO_CHECK_UPDATES" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="ENABLE_DEV_TELEMETRY" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ENABLE_DEV_UI_SNAPSHOTS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PLAYER_PREVIEW_MODE" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AUTO_PAUSE_ON_FOCUS_LOSS" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="LEARN_MODE_PROFILE" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Mixed</Value>
+    </Setting>
+    <Setting Name="BAZAAR_GOLD_MIN" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10000</Value>
+    </Setting>
+    <Setting Name="BAZAAR_GOLD_CAP" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">380000</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

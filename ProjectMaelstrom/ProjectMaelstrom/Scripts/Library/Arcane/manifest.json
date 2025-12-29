@@ -1,0 +1,11 @@
+{
+  "name": "Arcane",
+  "description": "Imported from GitHub",
+  "author": "Revive101",
+  "sourceUrl": "https://github.com/Revive101/Arcane",
+  "entryPoint": "README.md",
+  "arguments": "",
+  "requiredResolution": "",
+  "requiredTemplates": [],
+  "status": "reference"
+}
