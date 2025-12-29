@@ -47,6 +47,7 @@ public partial class Main : Form
     private bool _smartPaused;
     private readonly WizWikiDataService _wikiData = WizWikiDataService.Instance;
     private BridgeCoordinator? _bridge;
+    private OverlayHudForm? _hud;
     private string _lastBanner = string.Empty;
     private string _scriptSearchTerm = string.Empty;
     private string _statusFilter = "All";
@@ -54,6 +55,7 @@ public partial class Main : Form
     private bool _lastSortAsc = true;
     private bool _pauseForResource;
     private bool _energyGuardTriggered;
+    private bool _experimentalConfirmed;
 
     public Main()
     {
@@ -86,6 +88,7 @@ public partial class Main : Form
             ShowBanner(msg);
         };
         this.Resize += Main_Resize;
+        this.KeyDown += Main_KeyDown;
 
         if (DevMode.IsEnabled && Properties.Settings.Default.ENABLE_DEV_UI_SNAPSHOTS)
         {
@@ -97,7 +100,7 @@ public partial class Main : Form
             _devUiTimer.Start();
         }
 
-        ApplyPlayerPreview(Properties.Settings.Default.PLAYER_PREVIEW_MODE);
+        ApplyPlayerPreview(SettingsSafe.GetBool("PLAYER_PREVIEW_MODE", false));
     }
 
     private void ApplyPlayerPreview(bool enabled)
@@ -155,9 +158,9 @@ public partial class Main : Form
         _smartPlayManager?.SetDesignCaptureHandler(CaptureDesignSamples);
         UpdateSmartPlayHeader(_smartPlayManager?.DescribeState() ?? "Idle");
 
-        if (Properties.Settings.Default.ENABLE_AUDIO_RECOGNIZER)
+        if (SettingsSafe.GetBool("ENABLE_AUDIO_RECOGNIZER", false))
         {
-            _audioRecognizer = new AudioRecognizer(Properties.Settings.Default.AUDIO_TRANSIENT_DELTA);
+            _audioRecognizer = new AudioRecognizer(SettingsSafe.GetDouble("AUDIO_TRANSIENT_DELTA", 0.12));
             _audioRecognizer.CueDetected += cue =>
             {
             try
@@ -194,7 +197,7 @@ public partial class Main : Form
         // Speed header setup
         try
         {
-            double speed = Properties.Settings.Default.SPEED_MULTIPLIER;
+            double speed = SettingsSafe.GetDouble("SPEED_MULTIPLIER", 1.0);
             speed = Math.Max(0.0, Math.Min(3.0, speed));
             speedNumeric.Value = (decimal)speed;
             UpdateSpeedLabel(speed);
@@ -213,8 +216,11 @@ public partial class Main : Form
         // Apply system theme
         ThemeManager.ApplyTheme(this);
         ApplyCardStyles();
+        ApplyAutomationPolicyBanner();
         ApplyMiniMode(_miniMode);
-        ApplyPlayerPreview(Properties.Settings.Default.PLAYER_PREVIEW_MODE);
+        ApplyPlayerPreview(SettingsSafe.GetBool("PLAYER_PREVIEW_MODE", false));
+        WireProfileButtons();
+        UpdateProfileBanner();
         var storedProfile = Properties.Settings.Default.LEARN_MODE_PROFILE;
         var initialProfile = string.IsNullOrWhiteSpace(storedProfile) ? "Mixed" : storedProfile;
         var targetProfile = Enum.TryParse<LearnModeProfile>(initialProfile, true, out var parsed) ? parsed : LearnModeProfile.Mixed;
@@ -229,6 +235,7 @@ public partial class Main : Form
         LoadScriptLibrary();
         PopulateTrainerList();
         UpdateScriptStatus();
+        ApplyPolicyUiState();
 
         // Toggle capture button visibility based on settings
         captureScreenButton.Visible = Properties.Settings.Default.ENABLE_SCREEN_CAPTURE;
@@ -246,6 +253,40 @@ public partial class Main : Form
         }
 
         _ = CheckUpdatesIfEnabledAsync();
+    }
+
+    private void SetTip(Control control, string text)
+    {
+        if (control == null || uiToolTip == null) return;
+        uiToolTip.SetToolTip(control, text);
+    }
+
+    private void ApplyPolicyUiState()
+    {
+        var policy = ExecutionPolicyManager.Current;
+        var simOnly = !policy.AllowLiveAutomation;
+
+        var liveButtons = new[]
+        {
+            launchWizardButton,
+            runMacroButton,
+            recordMacroButton,
+            startConfigurationBtn,
+            loadHalfangBotBtn,
+            loadBazaarReagentBot,
+            goBazaarButton,
+            goMiniGamesButton,
+            goPetPavilionButton,
+            potionRefillButton
+        };
+        foreach (var btn in liveButtons)
+        {
+            if (btn == null) continue;
+            btn.Enabled = !simOnly;
+            SetTip(btn, simOnly ? "Disabled in Simulation Only mode" : string.Empty);
+        }
+
+        profileWarningLabel.Text = simOnly ? "Simulation only (live disabled)" : string.Empty;
     }
 
     private void Main_FormClosing(object? sender, FormClosingEventArgs e)
@@ -1453,10 +1494,29 @@ public partial class Main : Form
     private void UpdateStatusRibbon()
     {
         if (statusRibbonLabel == null) return;
+        var policy = ExecutionPolicyManager.Current;
+        if (!policy.AllowLiveAutomation)
+        {
+            // Persist the simulation-only message
+            statusRibbonLabel.Text = "Simulation only (live disabled)";
+            guardStatusLabel.Text = "Guards: Simulation only";
+            return;
+        }
+
         var sync = syncStatusValueLabel?.Text ?? "Sync: -";
         var zone = zoneStatusLabel?.Text ?? "Zone: (n/a)";
         var guards = guardStatusLabel?.Text ?? "Guards: OK";
         statusRibbonLabel.Text = $"{sync} | {zone} | {guards}";
+    }
+
+    private void ApplyAutomationPolicyBanner()
+    {
+        var policy = ExecutionPolicyManager.Current;
+        if (!policy.AllowLiveAutomation)
+        {
+            statusRibbonLabel.Text = "Simulation only (live disabled)";
+            guardStatusLabel.Text = "Guards: Simulation only";
+        }
     }
 
     private void refreshKnowledgeButton_Click(object sender, EventArgs e)
@@ -1466,6 +1526,32 @@ public partial class Main : Form
         UpdateKnowledgeInfo();
         AddRunHistory("Knowledge refreshed");
         ShowKnowledgeToast("Knowledge refreshed");
+    }
+
+    private void profilePublicButton_Click(object sender, EventArgs e)
+    {
+        ExecutionPolicyManager.SetProfile(ExecutionProfile.AcademicSimulation);
+        ExecutionPolicyManager.Reload();
+        ApplyAutomationPolicyBanner();
+        ApplyPolicyUiState();
+    }
+
+    private void profileExperimentalButton_Click(object sender, EventArgs e)
+    {
+        var confirm = MessageBox.Show(
+            "Enable Experimental Use? This remains offline simulation only.",
+            "Experimental Use",
+            MessageBoxButtons.OKCancel,
+            MessageBoxIcon.Warning);
+        if (confirm != DialogResult.OK)
+        {
+            return;
+        }
+        ExecutionPolicyManager.SetProfile(ExecutionProfile.ExperimentalSimulation);
+        ExecutionPolicyManager.Reload();
+        ApplyAutomationPolicyBanner();
+        ApplyPolicyUiState();
+        profileWarningLabel.Text = "Experimental features enabled (offline simulation only)";
     }
 
     private void presetPotionButton_Click(object sender, EventArgs e)
@@ -1564,7 +1650,7 @@ public partial class Main : Form
             var kind = GetScriptKind(script);
             var badge = string.IsNullOrWhiteSpace(kind) ? "native" : kind.ToLowerInvariant();
 
-            if (Properties.Settings.Default.PLAYER_PREVIEW_MODE && IsHiddenInPlayerPreview(kind))
+            if (SettingsSafe.GetBool("PLAYER_PREVIEW_MODE", false) && IsHiddenInPlayerPreview(kind))
             {
                 continue;
             }
@@ -1777,7 +1863,7 @@ public partial class Main : Form
 
     private void UpdateModeLabel()
     {
-        var mode = Properties.Settings.Default.PLAYER_PREVIEW_MODE ? "Player" : (DevMode.IsEnabled ? "Dev" : "Standard");
+        var mode = SettingsSafe.GetBool("PLAYER_PREVIEW_MODE", false) ? "Player" : (DevMode.IsEnabled ? "Dev" : "Standard");
         modeLabel.Text = $"Mode: {mode}";
     }
 
@@ -1785,7 +1871,7 @@ public partial class Main : Form
     {
         var chips = new List<string>();
 
-        if (Properties.Settings.Default.PLAYER_PREVIEW_MODE)
+        if (SettingsSafe.GetBool("PLAYER_PREVIEW_MODE", false))
         {
             chips.Add("Player mode");
         }
@@ -1850,6 +1936,87 @@ public partial class Main : Form
         catch
         {
             // ToolTip failures are non-fatal; ignore.
+        }
+    }
+
+    private void Main_KeyDown(object? sender, KeyEventArgs e)
+    {
+        // Reserved for future HUD/local hotkeys. Currently no-op to satisfy event wiring.
+    }
+
+    private void WireProfileButtons()
+    {
+        profilePublicButton.Click -= ProfilePublicButton_Click;
+        profileExperimentalButton.Click -= ProfileExperimentalButton_Click;
+        profilePublicButton.Click += ProfilePublicButton_Click;
+        profileExperimentalButton.Click += ProfileExperimentalButton_Click;
+    }
+
+    private void ProfilePublicButton_Click(object? sender, EventArgs e)
+    {
+        ExecutionPolicyManager.SetProfile(ExecutionProfile.AcademicSimulation);
+        ExecutionPolicyManager.Reload();
+        ApplyAutomationPolicyBanner();
+        ApplyPolicyUiState();
+        UpdateProfileBanner();
+        RefreshOpenSettingsPluginViews();
+    }
+
+    private void ProfileExperimentalButton_Click(object? sender, EventArgs e)
+    {
+        if (!_experimentalConfirmed)
+        {
+            var confirm = MessageBox.Show(
+                "Enable Experimental profile? Experimental features remain offline simulation only.",
+                "Experimental Profile",
+                MessageBoxButtons.OKCancel,
+                MessageBoxIcon.Warning);
+            if (confirm != DialogResult.OK)
+            {
+                return;
+            }
+            _experimentalConfirmed = true;
+        }
+
+        ExecutionPolicyManager.SetProfile(ExecutionProfile.ExperimentalSimulation);
+        ExecutionPolicyManager.Reload();
+        ApplyAutomationPolicyBanner();
+        ApplyPolicyUiState();
+        UpdateProfileBanner();
+        RefreshOpenSettingsPluginViews();
+    }
+
+    private void UpdateProfileBanner()
+    {
+        var policy = ExecutionPolicyManager.Current;
+        if (policy.Profile == ExecutionProfile.ExperimentalSimulation)
+        {
+            profileWarningLabel.Text = "Experimental features enabled (simulation only, live disabled)";
+            profileWarningLabel.Visible = true;
+            profileExperimentalButton.BackColor = Color.FromArgb(104, 52, 52);
+            profileExperimentalButton.ForeColor = Color.MistyRose;
+            profilePublicButton.BackColor = Color.FromArgb(34, 74, 54);
+            profilePublicButton.ForeColor = Color.LightGreen;
+        }
+        else
+        {
+            profileWarningLabel.Text = string.Empty;
+            profileWarningLabel.Visible = false;
+            profilePublicButton.BackColor = Color.FromArgb(34, 74, 54);
+            profilePublicButton.ForeColor = Color.LightGreen;
+            profileExperimentalButton.BackColor = Color.FromArgb(74, 34, 34);
+            profileExperimentalButton.ForeColor = Color.MistyRose;
+        }
+    }
+
+    private void RefreshOpenSettingsPluginViews()
+    {
+        foreach (Form form in Application.OpenForms)
+        {
+            if (form is SettingsForm settings)
+            {
+                settings.RefreshPluginListSafe();
+            }
         }
     }
 

@@ -49,12 +49,51 @@ namespace ProjectMaelstrom
             updaterStatusLabel = new Label();
             launchManagerButton = new Button();
             openMapViewerButton = new Button();
+            refreshWikiButton = new Button();
             runDiagnosticsButton = new Button();
             viewDevSuggestionsButton = new Button();
             goldMinLabel = new Label();
             goldMinNumeric = new NumericUpDown();
             goldCapLabel = new Label();
             goldCapNumeric = new NumericUpDown();
+            devOptionsLabel = new Label();
+            policyAllowLabel = new Label();
+            policyModeLabel = new Label();
+            policyPathLabel = new Label();
+            policyLoadedLabel = new Label();
+            openPolicyFolderButton = new Button();
+            policyBackendLabel = new Label();
+            policyBackendIdLabel = new Label();
+            pluginsLabel = new Label();
+            pluginListView = new ListView();
+            pluginColumn = new ColumnHeader();
+            versionColumn = new ColumnHeader();
+            capabilitiesColumn = new ColumnHeader();
+            statusColumn = new ColumnHeader();
+            reasonColumn = new ColumnHeader();
+            openPluginsFolderButton = new Button();
+            reloadPluginsButton = new Button();
+            installSamplesButton = new Button();
+            removeSamplesButton = new Button();
+            replaysLabel = new Label();
+            replayListView = new ListView();
+            replayNameColumn = new ColumnHeader();
+            replayDateColumn = new ColumnHeader();
+            openReplaysFolderButton = new Button();
+            refreshReplaysButton = new Button();
+            replayDetailsBox = new TextBox();
+            installFromGithubButton = new Button();
+            pluginInstallStatusLabel = new Label();
+            overlayWidgetsLabel = new Label();
+            overlayFlowPanel = new FlowLayoutPanel();
+            overlayEmptyLabel = new Label();
+            overlayListBox = new ListBox();
+            overlayHostPanel = new Panel();
+            overlayStatusLabel = new Label();
+            pluginButtonsFlow = new FlowLayoutPanel();
+            replayButtonsFlow = new FlowLayoutPanel();
+            overlayLayout = new FlowLayoutPanel();
+            devLayout = new TableLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)audioDeltaNumeric).BeginInit();
             ((System.ComponentModel.ISupportInitialize)goldMinNumeric).BeginInit();
             ((System.ComponentModel.ISupportInitialize)goldCapNumeric).BeginInit();
@@ -263,6 +302,421 @@ namespace ProjectMaelstrom
             goldCapNumeric.Size = new Size(232, 35);
             goldCapNumeric.TabIndex = 29;
             // 
+            // devOptionsLabel
+            // 
+            devOptionsLabel.AutoSize = true;
+            devOptionsLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
+            devOptionsLabel.Margin = new Padding(0, 0, 0, 6);
+            devOptionsLabel.Location = new Point(520, 14);
+            devOptionsLabel.Name = "devOptionsLabel";
+            devOptionsLabel.Size = new Size(164, 28);
+            devOptionsLabel.TabIndex = 30;
+            devOptionsLabel.Text = "Developer Options";
+            // 
+            // policyAllowLabel
+            // 
+            policyAllowLabel.AutoSize = true;
+            policyAllowLabel.Location = new Point(520, 52);
+            policyAllowLabel.MaximumSize = new Size(780, 0);
+            policyAllowLabel.Name = "policyAllowLabel";
+            policyAllowLabel.Size = new Size(120, 30);
+            policyAllowLabel.TabIndex = 31;
+            policyAllowLabel.Text = "Allow Live: -";
+            // 
+            // policyModeLabel
+            // 
+            policyModeLabel.AutoSize = true;
+            policyModeLabel.Location = new Point(520, 86);
+            policyModeLabel.MaximumSize = new Size(780, 0);
+            policyModeLabel.Name = "policyModeLabel";
+            policyModeLabel.Size = new Size(104, 30);
+            policyModeLabel.TabIndex = 32;
+            policyModeLabel.Text = "Mode: -";
+            // 
+            // policyPathLabel
+            // 
+            policyPathLabel.AutoSize = true;
+            policyPathLabel.Location = new Point(520, 120);
+            policyPathLabel.MaximumSize = new Size(780, 0);
+            policyPathLabel.Name = "policyPathLabel";
+            policyPathLabel.Size = new Size(74, 30);
+            policyPathLabel.TabIndex = 33;
+            policyPathLabel.Text = "Path: -";
+            // 
+            // policyLoadedLabel
+            // 
+            policyLoadedLabel.AutoSize = true;
+            policyLoadedLabel.Location = new Point(520, 154);
+            policyLoadedLabel.MaximumSize = new Size(780, 0);
+            policyLoadedLabel.Name = "policyLoadedLabel";
+            policyLoadedLabel.Size = new Size(110, 30);
+            policyLoadedLabel.TabIndex = 34;
+            policyLoadedLabel.Text = "Loaded: -";
+            // 
+            // openPolicyFolderButton
+            // 
+            openPolicyFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            openPolicyFolderButton.Location = new Point(520, 190);
+            openPolicyFolderButton.Margin = new Padding(0, 4, 0, 6);
+            openPolicyFolderButton.Name = "openPolicyFolderButton";
+            openPolicyFolderButton.Size = new Size(200, 34);
+            openPolicyFolderButton.TabIndex = 35;
+            openPolicyFolderButton.Text = "Open Policy Folder";
+            openPolicyFolderButton.UseVisualStyleBackColor = true;
+            openPolicyFolderButton.Click += openPolicyFolderButton_Click;
+            // 
+            // policyBackendLabel
+            // 
+            policyBackendLabel.AutoSize = true;
+            policyBackendLabel.Location = new Point(520, 230);
+            policyBackendLabel.MaximumSize = new Size(780, 0);
+            policyBackendLabel.Name = "policyBackendLabel";
+            policyBackendLabel.Size = new Size(140, 30);
+            policyBackendLabel.TabIndex = 36;
+            policyBackendLabel.Text = "Live backend: -";
+            // 
+            // policyBackendIdLabel
+            // 
+            policyBackendIdLabel.AutoSize = true;
+            policyBackendIdLabel.Location = new Point(520, 264);
+            policyBackendIdLabel.MaximumSize = new Size(780, 0);
+            policyBackendIdLabel.Name = "policyBackendIdLabel";
+            policyBackendIdLabel.Size = new Size(101, 30);
+            policyBackendIdLabel.TabIndex = 37;
+            policyBackendIdLabel.Text = "Backend: -";
+            // 
+            // pluginsLabel
+            // 
+            pluginsLabel.AutoSize = true;
+            pluginsLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
+            pluginsLabel.Margin = new Padding(0, 6, 0, 4);
+            pluginsLabel.Location = new Point(520, 300);
+            pluginsLabel.Name = "pluginsLabel";
+            pluginsLabel.Size = new Size(77, 28);
+            pluginsLabel.TabIndex = 38;
+            pluginsLabel.Text = "Plugins";
+            // 
+            // pluginListView
+            // 
+            pluginListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            pluginListView.Columns.AddRange(new ColumnHeader[] { pluginColumn, versionColumn, capabilitiesColumn, statusColumn, reasonColumn });
+            pluginListView.FullRowSelect = true;
+            pluginListView.GridLines = true;
+            pluginListView.Location = new Point(520, 332);
+            pluginListView.Margin = new Padding(0, 4, 0, 4);
+            pluginListView.Name = "pluginListView";
+            pluginListView.Size = new Size(780, 200);
+            pluginListView.TabIndex = 39;
+            pluginListView.UseCompatibleStateImageBehavior = false;
+            pluginListView.View = View.Details;
+            pluginListView.MultiSelect = false;
+            // 
+            // pluginColumn
+            // 
+            pluginColumn.Text = "Plugin";
+            pluginColumn.Width = 140;
+            // 
+            // versionColumn
+            // 
+            versionColumn.Text = "Version";
+            versionColumn.Width = 90;
+            // 
+            // capabilitiesColumn
+            // 
+            capabilitiesColumn.Text = "Capabilities";
+            capabilitiesColumn.Width = 160;
+            // 
+            // statusColumn
+            // 
+            statusColumn.Text = "Status";
+            statusColumn.Width = 120;
+            // 
+            // reasonColumn
+            // 
+            reasonColumn.Text = "Reason";
+            reasonColumn.Width = 180;
+            // 
+            // openPluginsFolderButton
+            // 
+            openPluginsFolderButton.Location = new Point(520, 540);
+            openPluginsFolderButton.Name = "openPluginsFolderButton";
+            openPluginsFolderButton.Size = new Size(170, 34);
+            openPluginsFolderButton.TabIndex = 40;
+            openPluginsFolderButton.Text = "Open Plugins Folder";
+            openPluginsFolderButton.UseVisualStyleBackColor = true;
+            openPluginsFolderButton.Click += openPluginsFolderButton_Click;
+            // 
+            // reloadPluginsButton
+            // 
+            reloadPluginsButton.Location = new Point(700, 540);
+            reloadPluginsButton.Name = "reloadPluginsButton";
+            reloadPluginsButton.Size = new Size(140, 34);
+            reloadPluginsButton.TabIndex = 41;
+            reloadPluginsButton.Text = "Reload Plugins";
+            reloadPluginsButton.UseVisualStyleBackColor = true;
+            reloadPluginsButton.Click += reloadPluginsButton_Click;
+            // 
+            // installSamplesButton
+            // 
+            installSamplesButton.Location = new Point(850, 540);
+            installSamplesButton.Name = "installSamplesButton";
+            installSamplesButton.Size = new Size(150, 34);
+            installSamplesButton.TabIndex = 42;
+            installSamplesButton.Text = "Install Sample Plugins";
+            installSamplesButton.UseVisualStyleBackColor = true;
+            installSamplesButton.Click += installSamplesButton_Click;
+            // 
+            // removeSamplesButton
+            // 
+            removeSamplesButton.Location = new Point(1010, 540);
+            removeSamplesButton.Name = "removeSamplesButton";
+            removeSamplesButton.Size = new Size(160, 34);
+            removeSamplesButton.TabIndex = 43;
+            removeSamplesButton.Text = "Remove Sample Plugins";
+            removeSamplesButton.UseVisualStyleBackColor = true;
+            removeSamplesButton.Click += removeSamplesButton_Click;
+            // 
+            // installFromGithubButton
+            // 
+            installFromGithubButton.Location = new Point(1240, 540);
+            installFromGithubButton.Name = "installFromGithubButton";
+            installFromGithubButton.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            installFromGithubButton.AutoSize = true;
+            installFromGithubButton.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            installFromGithubButton.Margin = new Padding(0, 0, 0, 8);
+            installFromGithubButton.Size = new Size(180, 34);
+            installFromGithubButton.TabIndex = 44;
+            installFromGithubButton.Text = "Install from GitHub Release...";
+            installFromGithubButton.UseVisualStyleBackColor = true;
+            installFromGithubButton.Click += installFromGithubButton_Click;
+            // 
+            // pluginInstallStatusLabel
+            // 
+            pluginInstallStatusLabel.AutoSize = true;
+            pluginInstallStatusLabel.Location = new Point(520, 510);
+            pluginInstallStatusLabel.MaximumSize = new Size(780, 0);
+            pluginInstallStatusLabel.Margin = new Padding(0, 0, 0, 4);
+            pluginInstallStatusLabel.Name = "pluginInstallStatusLabel";
+            pluginInstallStatusLabel.Size = new Size(0, 30);
+            pluginInstallStatusLabel.TabIndex = 45;
+            // 
+            // overlayWidgetsLabel
+            // 
+            overlayWidgetsLabel.AutoSize = true;
+            overlayWidgetsLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
+            overlayWidgetsLabel.Margin = new Padding(0, 6, 0, 4);
+            overlayWidgetsLabel.Location = new Point(520, 950);
+            overlayWidgetsLabel.Name = "overlayWidgetsLabel";
+            overlayWidgetsLabel.Size = new Size(150, 28);
+            overlayWidgetsLabel.TabIndex = 49;
+            overlayWidgetsLabel.Text = "Overlay Preview";
+            // 
+            // overlayFlowPanel
+            // 
+            overlayFlowPanel.AutoScroll = true;
+            overlayFlowPanel.Location = new Point(520, 982);
+            overlayFlowPanel.Name = "overlayFlowPanel";
+            overlayFlowPanel.Size = new Size(620, 180);
+            overlayFlowPanel.TabIndex = 50;
+            // 
+            // overlayEmptyLabel
+            // 
+            overlayEmptyLabel.AutoSize = true;
+            overlayEmptyLabel.Location = new Point(520, 1050);
+            overlayEmptyLabel.MaximumSize = new Size(780, 0);
+            overlayEmptyLabel.Name = "overlayEmptyLabel";
+            overlayEmptyLabel.Size = new Size(245, 30);
+            overlayEmptyLabel.TabIndex = 51;
+            overlayEmptyLabel.Text = "No overlay widgets installed";
+            // 
+            // overlayListBox
+            // 
+            overlayListBox.FormattingEnabled = true;
+            overlayListBox.ItemHeight = 30;
+            overlayListBox.Location = new Point(520, 982);
+            overlayListBox.Margin = new Padding(0, 0, 12, 0);
+            overlayListBox.Name = "overlayListBox";
+            overlayListBox.Size = new Size(220, 184);
+            overlayListBox.TabIndex = 52;
+            overlayListBox.SelectedIndexChanged += overlayListBox_SelectedIndexChanged;
+            // 
+            // overlayHostPanel
+            // 
+            overlayHostPanel.BorderStyle = BorderStyle.FixedSingle;
+            overlayHostPanel.Location = new Point(750, 982);
+            overlayHostPanel.Margin = new Padding(12, 0, 0, 0);
+            overlayHostPanel.Name = "overlayHostPanel";
+            overlayHostPanel.Size = new Size(390, 184);
+            overlayHostPanel.TabIndex = 53;
+            // 
+            // overlayStatusLabel
+            // 
+            overlayStatusLabel.AutoSize = true;
+            overlayStatusLabel.Location = new Point(520, 1170);
+            overlayStatusLabel.Name = "overlayStatusLabel";
+            overlayStatusLabel.Size = new Size(0, 30);
+            overlayStatusLabel.TabIndex = 54;
+            // 
+            // pluginButtonsFlow
+            // 
+            pluginButtonsFlow.AutoSize = true;
+            pluginButtonsFlow.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            pluginButtonsFlow.FlowDirection = FlowDirection.LeftToRight;
+            pluginButtonsFlow.Margin = new Padding(0, 6, 0, 6);
+            pluginButtonsFlow.WrapContents = true;
+            pluginButtonsFlow.Controls.Add(openPluginsFolderButton);
+            pluginButtonsFlow.Controls.Add(reloadPluginsButton);
+            pluginButtonsFlow.Controls.Add(installSamplesButton);
+            pluginButtonsFlow.Controls.Add(removeSamplesButton);
+            // 
+            // replayButtonsFlow
+            // 
+            replayButtonsFlow.AutoSize = true;
+            replayButtonsFlow.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            replayButtonsFlow.FlowDirection = FlowDirection.LeftToRight;
+            replayButtonsFlow.Margin = new Padding(0, 6, 0, 6);
+            replayButtonsFlow.WrapContents = true;
+            replayButtonsFlow.Controls.Add(openReplaysFolderButton);
+            replayButtonsFlow.Controls.Add(refreshReplaysButton);
+            // 
+            // overlayLayout
+            // 
+            overlayLayout.AutoSize = true;
+            overlayLayout.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            overlayLayout.FlowDirection = FlowDirection.LeftToRight;
+            overlayLayout.Margin = new Padding(0, 4, 0, 4);
+            overlayLayout.WrapContents = false;
+            overlayLayout.Controls.Add(overlayListBox);
+            overlayLayout.Controls.Add(overlayHostPanel);
+            // 
+            // devLayout
+            // 
+            devLayout.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            devLayout.AutoScroll = true;
+            devLayout.ColumnCount = 1;
+            devLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            devLayout.Controls.Add(devOptionsLabel, 0, 0);
+            devLayout.Controls.Add(policyAllowLabel, 0, 1);
+            devLayout.Controls.Add(policyModeLabel, 0, 2);
+            devLayout.Controls.Add(policyPathLabel, 0, 3);
+            devLayout.Controls.Add(policyLoadedLabel, 0, 4);
+            devLayout.Controls.Add(policyBackendLabel, 0, 5);
+            devLayout.Controls.Add(policyBackendIdLabel, 0, 6);
+            devLayout.Controls.Add(openPolicyFolderButton, 0, 7);
+            devLayout.Controls.Add(pluginsLabel, 0, 8);
+            devLayout.Controls.Add(pluginListView, 0, 9);
+            devLayout.Controls.Add(pluginInstallStatusLabel, 0, 10);
+            devLayout.Controls.Add(pluginButtonsFlow, 0, 11);
+            devLayout.Controls.Add(installFromGithubButton, 0, 12);
+            devLayout.Controls.Add(replaysLabel, 0, 13);
+            devLayout.Controls.Add(replayListView, 0, 14);
+            devLayout.Controls.Add(replayButtonsFlow, 0, 15);
+            devLayout.Controls.Add(replayDetailsBox, 0, 16);
+            devLayout.Controls.Add(overlayWidgetsLabel, 0, 17);
+            devLayout.Controls.Add(overlayLayout, 0, 18);
+            devLayout.Controls.Add(overlayEmptyLabel, 0, 19);
+            devLayout.Controls.Add(overlayStatusLabel, 0, 20);
+            devLayout.Location = new Point(520, 14);
+            devLayout.Name = "devLayout";
+            devLayout.Padding = new Padding(6);
+            devLayout.RowCount = 21;
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.RowStyles.Add(new RowStyle());
+            devLayout.Size = new Size(820, 1180);
+            devLayout.TabIndex = 55;
+            // 
+            // replaysLabel
+            // 
+            replaysLabel.AutoSize = true;
+            replaysLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
+            replaysLabel.Margin = new Padding(0, 6, 0, 4);
+            replaysLabel.Location = new Point(520, 590);
+            replaysLabel.Name = "replaysLabel";
+            replaysLabel.Size = new Size(74, 28);
+            replaysLabel.TabIndex = 44;
+            replaysLabel.Text = "Replays";
+            // 
+            // replayListView
+            // 
+            replayListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            replayListView.Columns.AddRange(new ColumnHeader[] { replayNameColumn, replayDateColumn });
+            replayListView.FullRowSelect = true;
+            replayListView.GridLines = true;
+            replayListView.Location = new Point(520, 622);
+            replayListView.Margin = new Padding(0, 4, 0, 4);
+            replayListView.Name = "replayListView";
+            replayListView.Size = new Size(780, 140);
+            replayListView.TabIndex = 45;
+            replayListView.UseCompatibleStateImageBehavior = false;
+            replayListView.View = View.Details;
+            replayListView.MultiSelect = false;
+            replayListView.SelectedIndexChanged += replayListView_SelectedIndexChanged;
+            // 
+            // replayNameColumn
+            // 
+            replayNameColumn.Text = "Replay";
+            replayNameColumn.Width = 220;
+            // 
+            // replayDateColumn
+            // 
+            replayDateColumn.Text = "Modified";
+            replayDateColumn.Width = 180;
+            // 
+            // openReplaysFolderButton
+            // 
+            openReplaysFolderButton.Location = new Point(520, 770);
+            openReplaysFolderButton.Margin = new Padding(0, 0, 6, 0);
+            openReplaysFolderButton.Name = "openReplaysFolderButton";
+            openReplaysFolderButton.Size = new Size(200, 34);
+            openReplaysFolderButton.TabIndex = 46;
+            openReplaysFolderButton.Text = "Open Replays Folder";
+            openReplaysFolderButton.UseVisualStyleBackColor = true;
+            openReplaysFolderButton.Click += openReplaysFolderButton_Click;
+            // 
+            // refreshReplaysButton
+            // 
+            refreshReplaysButton.Location = new Point(730, 770);
+            refreshReplaysButton.Margin = new Padding(0);
+            refreshReplaysButton.Name = "refreshReplaysButton";
+            refreshReplaysButton.Size = new Size(150, 34);
+            refreshReplaysButton.TabIndex = 47;
+            refreshReplaysButton.Text = "Refresh Replays";
+            refreshReplaysButton.UseVisualStyleBackColor = true;
+            refreshReplaysButton.Click += refreshReplaysButton_Click;
+            // 
+            // replayDetailsBox
+            // 
+            replayDetailsBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            replayDetailsBox.Location = new Point(520, 810);
+            replayDetailsBox.Multiline = true;
+            replayDetailsBox.Name = "replayDetailsBox";
+            replayDetailsBox.ReadOnly = true;
+            replayDetailsBox.ScrollBars = ScrollBars.Vertical;
+            replayDetailsBox.Size = new Size(780, 120);
+            replayDetailsBox.TabIndex = 48;
+            // 
             // updatesLabel
             // 
             updatesLabel.AutoSize = true;
@@ -384,7 +838,7 @@ namespace ProjectMaelstrom
             // 
             AutoScaleDimensions = new SizeF(12F, 30F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(540, 1125);
+            ClientSize = new Size(1500, 1250);
             Controls.Add(goldCapNumeric);
             Controls.Add(goldCapLabel);
             Controls.Add(goldMinNumeric);
@@ -418,6 +872,7 @@ namespace ProjectMaelstrom
             Controls.Add(saveSettingsBtn);
             Controls.Add(ocrSpaceApiKey);
             Controls.Add(label1);
+            Controls.Add(devLayout);
             Name = "SettingsForm";
             Text = "Settings";
             Load += SettingsForm_Load;
@@ -463,5 +918,43 @@ namespace ProjectMaelstrom
         private NumericUpDown goldMinNumeric;
         private Label goldCapLabel;
         private NumericUpDown goldCapNumeric;
+        private Label devOptionsLabel;
+        private Label policyAllowLabel;
+        private Label policyModeLabel;
+        private Label policyPathLabel;
+        private Label policyLoadedLabel;
+        private Button openPolicyFolderButton;
+        private Label policyBackendLabel;
+        private Label policyBackendIdLabel;
+        private Label pluginsLabel;
+        private ListView pluginListView;
+        private ColumnHeader pluginColumn;
+        private ColumnHeader versionColumn;
+        private ColumnHeader capabilitiesColumn;
+        private ColumnHeader statusColumn;
+        private ColumnHeader reasonColumn;
+        private Button openPluginsFolderButton;
+        private Button reloadPluginsButton;
+        private Button installSamplesButton;
+        private Button removeSamplesButton;
+        private Button installFromGithubButton;
+        private Label pluginInstallStatusLabel;
+        private Label replaysLabel;
+        private ListView replayListView;
+        private ColumnHeader replayNameColumn;
+        private ColumnHeader replayDateColumn;
+        private Button openReplaysFolderButton;
+        private Button refreshReplaysButton;
+        private TextBox replayDetailsBox;
+        private Label overlayWidgetsLabel;
+        private FlowLayoutPanel overlayFlowPanel;
+        private Label overlayEmptyLabel;
+        private ListBox overlayListBox;
+        private Panel overlayHostPanel;
+        private Label overlayStatusLabel;
+        private FlowLayoutPanel pluginButtonsFlow;
+        private FlowLayoutPanel replayButtonsFlow;
+        private FlowLayoutPanel overlayLayout;
+        private TableLayoutPanel devLayout;
     }
 }

@@ -23,6 +23,7 @@ public partial class ManageScriptsForm : Form
         scriptListBox.SelectedIndexChanged += scriptListBox_SelectedIndexChanged;
         LoadScriptLibrary();
         UpdateScriptStatus();
+        ApplyPolicyUiState();
     }
 
     private void ApplyPalette()
@@ -54,14 +55,28 @@ public partial class ManageScriptsForm : Form
         scriptListBox.DisplayMember = nameof(ScriptDefinition.DisplayName);
         scriptListBox.ValueMember = nameof(ScriptDefinition.Manifest);
         scriptListBox.DataSource = scripts;
-        filterNoteLabel.Visible = Properties.Settings.Default.PLAYER_PREVIEW_MODE;
-        if (filterNoteLabel.Visible)
+        var playerPreview = SettingsSafe.GetBool("PLAYER_PREVIEW_MODE", false);
+        filterNoteLabel.Visible = playerPreview;
+        filterNoteLabel.Text = playerPreview
+            ? $"Player mode: showing {scripts.Count} items (reference/deprecated hidden)"
+            : string.Empty;
+    }
+
+    private void ApplyPolicyUiState()
+    {
+        var policy = ExecutionPolicyManager.Current;
+        if (!policy.AllowLiveAutomation)
         {
-            filterNoteLabel.Text = $"Player mode: showing {scripts.Count} items (reference/deprecated hidden)";
+            runScriptButton.Enabled = false;
+            stopScriptButton.Enabled = false;
+            scriptStatusLabel.Text = "Status: Simulation only (live disabled)";
+            simulationNoteLabel.Text = "Simulation only (live disabled)";
         }
         else
         {
-            filterNoteLabel.Text = string.Empty;
+            runScriptButton.Enabled = true;
+            stopScriptButton.Enabled = true;
+            simulationNoteLabel.Text = string.Empty;
         }
     }
 
@@ -271,7 +286,8 @@ public partial class ManageScriptsForm : Form
 
     private static bool ShouldHideInPlayerMode(ScriptDefinition script)
     {
-        if (!Properties.Settings.Default.PLAYER_PREVIEW_MODE)
+        var playerPreview = SettingsSafe.GetBool("PLAYER_PREVIEW_MODE", false);
+        if (!playerPreview)
         {
             return false;
         }

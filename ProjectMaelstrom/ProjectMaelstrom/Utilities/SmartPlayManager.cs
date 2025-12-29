@@ -33,12 +33,16 @@ internal sealed class SmartPlayManager : IDisposable
     private readonly List<GameAudioCue> _recentAudioCues = new();
     private readonly TimeSpan _audioHorizon = TimeSpan.FromSeconds(20);
     private Func<string>? _designCaptureHandler;
+    private readonly ExecutionPolicySnapshot _policy;
+    private readonly IExecutor _executor;
 
     public SmartPlayManager(PlayerController controller)
     {
         _controller = controller;
         _taskPath = Path.Combine(StorageUtils.GetCacheDirectory(), "smartplay_tasks.json");
         _tuningPath = Path.Combine(StorageUtils.GetCacheDirectory(), "smartplay_tuning.json");
+        _policy = ExecutionPolicyManager.Current;
+        _executor = ExecutorFactory.FromPolicy(_policy);
         LoadTelemetry();
     }
 
@@ -198,8 +202,9 @@ internal sealed class SmartPlayManager : IDisposable
             Y = match.Center.Y
         };
 
-        _inputBridge?.Enqueue(clickCmd);
-        Logger.LogBotAction("SmartPlay", $"Template '{templateKey}' matched at {match.Center} (score {match.Score:0.00}) and click enqueued.");
+        var ctx = new ExecutionContext { Source = "SmartPlay.Template", TaskName = _activeTask?.Name, Bridge = _inputBridge };
+        _executor.Execute(new[] { clickCmd }, ctx);
+        Logger.LogBotAction("SmartPlay", $"Template '{templateKey}' matched at {match.Center} (score {match.Score:0.00}) and dispatched to executor.");
     }
 
     public void SetDesignCaptureHandler(Func<string> captureHandler)
@@ -227,10 +232,12 @@ internal sealed class SmartPlayManager : IDisposable
     private void Pump()
     {
         if (_disposing) return;
-        if (_inputBridge == null) return;
 
-        // If input bridge still draining, wait.
-        if (!_inputBridge.IsIdle) return;
+        if (_policy.AllowLiveAutomation && _inputBridge != null && !_inputBridge.IsIdle)
+        {
+            // Live path still draining; wait.
+            return;
+        }
 
         LoadExternalTasks();
 
@@ -271,7 +278,8 @@ internal sealed class SmartPlayManager : IDisposable
                 return;
             }
 
-            _inputBridge.EnqueueRange(commands);
+            var ctx = new ExecutionContext { Source = "SmartPlay.Task", TaskName = _activeTask.Name, Bridge = _inputBridge };
+            _executor.Execute(commands, ctx);
         }
     }
 

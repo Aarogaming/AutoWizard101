@@ -111,3 +111,11 @@
 2025-12-28 07:16:40 - ERROR: [SnapshotBridge] Failed to capture snapshot - Exception: Local OCR fallback failed: Failed to initialise tesseract engine.. See https://github.com/charlesw/tesseract/wiki/Error-1 for details.
 2025-12-28 07:16:45 - ERROR: [SnapshotBridge] Failed to capture snapshot - Exception: Local OCR fallback failed: Failed to initialise tesseract engine.. See https://github.com/charlesw/tesseract/wiki/Error-1 for details.
 2025-12-28 07:16:50 - ERROR: [SnapshotBridge] Failed to capture snapshot - Exception: Local OCR fallback failed: Failed to initialise tesseract engine.. See https://github.com/charlesw/tesseract/wiki/Error-1 for details.
+2025-12-29 13:45:16 - [AudioRecognizer] Started WASAPI loopback capture.
+2025-12-29 13:45:22 - [AudioRecognizer] Started WASAPI loopback capture.
+2025-12-29 13:45:27 - [AudioRecognizer] Started WASAPI loopback capture.
+2025-12-29 13:45:31 - [AudioRecognizer] Started WASAPI loopback capture.
+2025-12-29 13:50:36 - [AudioRecognizer] Started WASAPI loopback capture.
+2025-12-29 13:50:38 - [AudioRecognizer] Started WASAPI loopback capture.
+2025-12-29 13:50:39 - [AudioRecognizer] Started WASAPI loopback capture.
+2025-12-29 13:50:40 - [AudioRecognizer] Started WASAPI loopback capture.

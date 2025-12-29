@@ -37,7 +37,7 @@ namespace ProjectMaelstrom
             filterChipLabel = new Label();
             navScriptsLabel = new Label();
             navTravelLabel = new Label();
-            navPanel = new Panel();
+            navPanel = new FlowLayoutPanel();
             manageScriptsButton = new Button();
             startConfigurationBtn = new Button();
             loadHalfangBotBtn = new Button();
@@ -107,6 +107,27 @@ namespace ProjectMaelstrom
             presetPotionButton = new Button();
             presetPetButton = new Button();
             presetBazaarButton = new Button();
+            profilePublicButton = new Button();
+            profileExperimentalButton = new Button();
+            profileWarningLabel = new Label();
+            openAboutButton = new Button();
+            dashboardGroupBox = new GroupBox();
+            zoneStatusLabel = new Label();
+            guardStatusLabel = new Label();
+            mapViewerButton = new Button();
+            runHistoryListBox = new ListBox();
+            runHistoryLabel = new Label();
+            dashboardStatusLabel = new Label();
+            launcherStatusLabel = new Label();
+            smartPlayStatusLabel = new Label();
+            learnProfileStatusLabel = new Label();
+            knowledgeStatusLabel = new Label();
+            knowledgeDetailsLabel = new Label();
+            refreshKnowledgeButton = new Button();
+            knowledgeTimestampLabel = new Label();
+            dashboardWarningsTextBox = new TextBox();
+            dashboardWarningsLabel = new Label();
+            dashboardStatsLabel = new Label();
             panel1.SuspendLayout();
             navPanel.SuspendLayout();
             smartPlayGroup.SuspendLayout();
@@ -115,6 +136,8 @@ namespace ProjectMaelstrom
             dashboardGroupBox.SuspendLayout();
             components = new System.ComponentModel.Container();
             uiToolTip = new ToolTip(components);
+            statsFlowPanel = new FlowLayoutPanel();
+            bottomPanel = new Panel();
             SuspendLayout();
             // 
             // panel1
@@ -127,10 +150,13 @@ namespace ProjectMaelstrom
             panel1.Controls.Add(syncStatusLabel);
             panel1.Controls.Add(smartPlayHeaderLabel);
             panel1.Controls.Add(audioHeaderLabel);
+            panel1.Controls.Add(profilePublicButton);
+            panel1.Controls.Add(profileExperimentalButton);
+            panel1.Controls.Add(profileWarningLabel);
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1250, 50);
+            panel1.Size = new Size(1250, 70);
             panel1.TabIndex = 0;
             // 
             // syncStatusValueLabel
@@ -196,6 +222,44 @@ namespace ProjectMaelstrom
             statusRibbonLabel.Size = new Size(0, 15);
             statusRibbonLabel.TabIndex = 8;
             // 
+            // profilePublicButton
+            // 
+            profilePublicButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            profilePublicButton.AutoSize = true;
+            profilePublicButton.BackColor = Color.FromArgb(28, 94, 65);
+            profilePublicButton.ForeColor = Color.White;
+            profilePublicButton.Location = new Point(770, 10);
+            profilePublicButton.Name = "profilePublicButton";
+            profilePublicButton.Size = new Size(180, 30);
+            profilePublicButton.TabIndex = 10;
+            profilePublicButton.Text = "Public Use — Simulation Only";
+            profilePublicButton.UseVisualStyleBackColor = false;
+            profilePublicButton.Click += profilePublicButton_Click;
+            // 
+            // profileExperimentalButton
+            // 
+            profileExperimentalButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            profileExperimentalButton.AutoSize = true;
+            profileExperimentalButton.BackColor = Color.FromArgb(120, 30, 30);
+            profileExperimentalButton.ForeColor = Color.White;
+            profileExperimentalButton.Location = new Point(770, 38);
+            profileExperimentalButton.Name = "profileExperimentalButton";
+            profileExperimentalButton.Size = new Size(220, 30);
+            profileExperimentalButton.TabIndex = 11;
+            profileExperimentalButton.Text = "Experimental — Simulation Only";
+            profileExperimentalButton.UseVisualStyleBackColor = false;
+            profileExperimentalButton.Click += profileExperimentalButton_Click;
+            // 
+            // profileWarningLabel
+            // 
+            profileWarningLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            profileWarningLabel.AutoSize = true;
+            profileWarningLabel.ForeColor = Color.Gold;
+            profileWarningLabel.Location = new Point(1000, 44);
+            profileWarningLabel.Name = "profileWarningLabel";
+            profileWarningLabel.Size = new Size(0, 20);
+            profileWarningLabel.TabIndex = 12;
+            // 
             // quickPresetPanel
             // 
             quickPresetPanel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -250,7 +314,7 @@ namespace ProjectMaelstrom
             // searchLabel
             // 
             searchLabel.AutoSize = true;
-            searchLabel.Location = new Point(404, 70);
+            searchLabel.Location = new Point(424, 70);
             searchLabel.Name = "searchLabel";
             searchLabel.Size = new Size(52, 20);
             searchLabel.TabIndex = 20;
@@ -258,7 +322,7 @@ namespace ProjectMaelstrom
             // 
             // searchTextBox
             // 
-            searchTextBox.Location = new Point(462, 66);
+            searchTextBox.Location = new Point(482, 66);
             searchTextBox.Name = "searchTextBox";
             searchTextBox.PlaceholderText = "name, author...";
             searchTextBox.Size = new Size(260, 27);
@@ -268,7 +332,7 @@ namespace ProjectMaelstrom
             // statusFilterLabel
             // 
             statusFilterLabel.AutoSize = true;
-            statusFilterLabel.Location = new Point(740, 70);
+            statusFilterLabel.Location = new Point(760, 70);
             statusFilterLabel.Name = "statusFilterLabel";
             statusFilterLabel.Size = new Size(44, 20);
             statusFilterLabel.TabIndex = 22;
@@ -279,7 +343,7 @@ namespace ProjectMaelstrom
             statusFilterCombo.DropDownStyle = ComboBoxStyle.DropDownList;
             statusFilterCombo.FormattingEnabled = true;
             statusFilterCombo.Items.AddRange(new object[] { "All", "Ready", "Needs setup", "Running" });
-            statusFilterCombo.Location = new Point(790, 66);
+            statusFilterCombo.Location = new Point(810, 66);
             statusFilterCombo.Name = "statusFilterCombo";
             statusFilterCombo.Size = new Size(140, 28);
             statusFilterCombo.TabIndex = 23;
@@ -289,7 +353,14 @@ namespace ProjectMaelstrom
             // 
             navPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             navPanel.AutoScroll = true;
-            navPanel.Controls.Add(navTravelLabel);
+            navPanel.FlowDirection = FlowDirection.TopDown;
+            navPanel.WrapContents = false;
+            navPanel.Location = new Point(12, 70);
+            navPanel.MaximumSize = new Size(460, 0);
+            navPanel.Name = "navPanel";
+            navPanel.Padding = new Padding(8, 8, 8, 16);
+            navPanel.Size = new Size(420, 800);
+            navPanel.TabIndex = 14;
             navPanel.Controls.Add(navScriptsLabel);
             navPanel.Controls.Add(manageScriptsButton);
             navPanel.Controls.Add(startConfigurationBtn);
@@ -307,16 +378,13 @@ namespace ProjectMaelstrom
             navPanel.Controls.Add(learnProfileCombo);
             navPanel.Controls.Add(openLearnLogsButton);
             navPanel.Controls.Add(panicStopButton);
+            navPanel.Controls.Add(navTravelLabel);
             navPanel.Controls.Add(smartPlayGroup);
-            navPanel.Location = new Point(12, 70);
-            navPanel.Name = "navPanel";
-            navPanel.Padding = new Padding(4, 8, 4, 8);
-            navPanel.Size = new Size(380, 800);
-            navPanel.TabIndex = 14;
             // 
             // navScriptsLabel
             // 
             navScriptsLabel.AutoSize = true;
+            navScriptsLabel.ForeColor = ProjectMaelstrom.Utilities.UiColorTokens.TextMuted;
             navScriptsLabel.Location = new Point(16, 12);
             navScriptsLabel.Name = "navScriptsLabel";
             navScriptsLabel.Size = new Size(108, 20);
@@ -325,9 +393,10 @@ namespace ProjectMaelstrom
             // 
             // manageScriptsButton
             // 
+            manageScriptsButton.AutoSize = true;
             manageScriptsButton.Location = new Point(16, 36);
             manageScriptsButton.Name = "manageScriptsButton";
-            manageScriptsButton.Size = new Size(340, 42);
+            manageScriptsButton.Size = new Size(360, 42);
             manageScriptsButton.TextAlign = ContentAlignment.MiddleCenter;
             manageScriptsButton.AutoEllipsis = true;
             manageScriptsButton.TabIndex = 0;
@@ -337,9 +406,10 @@ namespace ProjectMaelstrom
             // 
             // startConfigurationBtn
             // 
+            startConfigurationBtn.AutoSize = true;
             startConfigurationBtn.Location = new Point(16, 84);
             startConfigurationBtn.Name = "startConfigurationBtn";
-            startConfigurationBtn.Size = new Size(340, 42);
+            startConfigurationBtn.Size = new Size(360, 42);
             startConfigurationBtn.TextAlign = ContentAlignment.MiddleCenter;
             startConfigurationBtn.AutoEllipsis = true;
             startConfigurationBtn.TabIndex = 1;
@@ -351,7 +421,7 @@ namespace ProjectMaelstrom
             // 
             loadHalfangBotBtn.Location = new Point(16, 132);
             loadHalfangBotBtn.Name = "loadHalfangBotBtn";
-            loadHalfangBotBtn.Size = new Size(340, 42);
+            loadHalfangBotBtn.Size = new Size(360, 42);
             loadHalfangBotBtn.TextAlign = ContentAlignment.MiddleCenter;
             loadHalfangBotBtn.AutoEllipsis = true;
             loadHalfangBotBtn.TabIndex = 3;
@@ -363,7 +433,7 @@ namespace ProjectMaelstrom
             // 
             loadBazaarReagentBot.Location = new Point(16, 180);
             loadBazaarReagentBot.Name = "loadBazaarReagentBot";
-            loadBazaarReagentBot.Size = new Size(340, 42);
+            loadBazaarReagentBot.Size = new Size(360, 42);
             loadBazaarReagentBot.TextAlign = ContentAlignment.MiddleCenter;
             loadBazaarReagentBot.AutoEllipsis = true;
             loadBazaarReagentBot.TabIndex = 4;
@@ -375,7 +445,7 @@ namespace ProjectMaelstrom
             // 
             launchWizardButton.Location = new Point(16, 228);
             launchWizardButton.Name = "launchWizardButton";
-            launchWizardButton.Size = new Size(340, 42);
+            launchWizardButton.Size = new Size(360, 42);
             launchWizardButton.TextAlign = ContentAlignment.MiddleCenter;
             launchWizardButton.AutoEllipsis = true;
             launchWizardButton.TabIndex = 11;
@@ -387,7 +457,7 @@ namespace ProjectMaelstrom
             // 
             miniModeButton.Location = new Point(16, 276);
             miniModeButton.Name = "miniModeButton";
-            miniModeButton.Size = new Size(340, 42);
+            miniModeButton.Size = new Size(360, 42);
             miniModeButton.TextAlign = ContentAlignment.MiddleCenter;
             miniModeButton.AutoEllipsis = true;
             miniModeButton.TabIndex = 13;
@@ -399,7 +469,7 @@ namespace ProjectMaelstrom
             // 
             captureScreenButton.Location = new Point(16, 324);
             captureScreenButton.Name = "captureScreenButton";
-            captureScreenButton.Size = new Size(340, 42);
+            captureScreenButton.Size = new Size(360, 42);
             captureScreenButton.TabIndex = 14;
             captureScreenButton.Text = "Capture Screen";
             captureScreenButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -412,7 +482,7 @@ namespace ProjectMaelstrom
             // 
             designManagerButton.Location = new Point(16, 372);
             designManagerButton.Name = "designManagerButton";
-            designManagerButton.Size = new Size(340, 42);
+            designManagerButton.Size = new Size(360, 42);
             designManagerButton.TabIndex = 16;
             designManagerButton.Text = "Design Manager";
             designManagerButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -424,7 +494,7 @@ namespace ProjectMaelstrom
             // 
             openDesignFolderButton.Location = new Point(16, 420);
             openDesignFolderButton.Name = "openDesignFolderButton";
-            openDesignFolderButton.Size = new Size(340, 42);
+            openDesignFolderButton.Size = new Size(360, 42);
             openDesignFolderButton.TabIndex = 17;
             openDesignFolderButton.Text = "Open Design Folder";
             openDesignFolderButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -448,7 +518,7 @@ namespace ProjectMaelstrom
             // 
             runMacroButton.Location = new Point(16, 516);
             runMacroButton.Name = "runMacroButton";
-            runMacroButton.Size = new Size(340, 42);
+            runMacroButton.Size = new Size(360, 42);
             runMacroButton.TabIndex = 19;
             runMacroButton.Text = "Run Macro";
             runMacroButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -460,7 +530,7 @@ namespace ProjectMaelstrom
             // 
             learnModeButton.Location = new Point(16, 564);
             learnModeButton.Name = "learnModeButton";
-            learnModeButton.Size = new Size(340, 42);
+            learnModeButton.Size = new Size(360, 42);
             learnModeButton.TabIndex = 20;
             learnModeButton.Text = "Learn Mode";
             learnModeButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -484,7 +554,7 @@ namespace ProjectMaelstrom
             learnProfileCombo.Items.AddRange(new object[] { "Mixed", "Seek", "Avoid" });
             learnProfileCombo.Location = new Point(16, 636);
             learnProfileCombo.Name = "learnProfileCombo";
-            learnProfileCombo.Size = new Size(340, 32);
+            learnProfileCombo.Size = new Size(360, 32);
             learnProfileCombo.TabIndex = 23;
             learnProfileCombo.SelectedIndexChanged += learnProfileCombo_SelectedIndexChanged;
             // 
@@ -492,7 +562,7 @@ namespace ProjectMaelstrom
             // 
             openLearnLogsButton.Location = new Point(16, 672);
             openLearnLogsButton.Name = "openLearnLogsButton";
-            openLearnLogsButton.Size = new Size(340, 34);
+            openLearnLogsButton.Size = new Size(360, 34);
             openLearnLogsButton.TabIndex = 24;
             openLearnLogsButton.Text = "Open Learn Logs";
             openLearnLogsButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -504,7 +574,7 @@ namespace ProjectMaelstrom
             // 
             panicStopButton.Location = new Point(16, 712);
             panicStopButton.Name = "panicStopButton";
-            panicStopButton.Size = new Size(340, 42);
+            panicStopButton.Size = new Size(360, 42);
             panicStopButton.TabIndex = 21;
             panicStopButton.Text = "Panic Stop";
             panicStopButton.TextAlign = ContentAlignment.MiddleCenter;
@@ -515,6 +585,7 @@ namespace ProjectMaelstrom
             // navTravelLabel
             // 
             navTravelLabel.AutoSize = true;
+            navTravelLabel.ForeColor = ProjectMaelstrom.Utilities.UiColorTokens.TextMuted;
             navTravelLabel.Location = new Point(16, 760);
             navTravelLabel.Name = "navTravelLabel";
             navTravelLabel.Size = new Size(143, 20);
@@ -529,7 +600,7 @@ namespace ProjectMaelstrom
             smartPlayGroup.Controls.Add(goBazaarButton);
             smartPlayGroup.Location = new Point(16, 784);
             smartPlayGroup.Name = "smartPlayGroup";
-            smartPlayGroup.Size = new Size(340, 198);
+            smartPlayGroup.Size = new Size(360, 198);
             smartPlayGroup.TabIndex = 14;
             smartPlayGroup.TabStop = false;
             smartPlayGroup.Text = "Quick Tasks";
@@ -538,7 +609,7 @@ namespace ProjectMaelstrom
             // 
             potionRefillButton.Location = new Point(12, 132);
             potionRefillButton.Name = "potionRefillButton";
-            potionRefillButton.Size = new Size(300, 34);
+            potionRefillButton.Size = new Size(320, 34);
             potionRefillButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             potionRefillButton.TabIndex = 3;
             potionRefillButton.Text = "Start Potion Refill Run";
@@ -549,7 +620,7 @@ namespace ProjectMaelstrom
             // 
             goPetPavilionButton.Location = new Point(12, 92);
             goPetPavilionButton.Name = "goPetPavilionButton";
-            goPetPavilionButton.Size = new Size(300, 34);
+            goPetPavilionButton.Size = new Size(320, 34);
             goPetPavilionButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             goPetPavilionButton.TabIndex = 2;
             goPetPavilionButton.Text = "Go to Pet Mini Games";
@@ -560,7 +631,7 @@ namespace ProjectMaelstrom
             // 
             goMiniGamesButton.Location = new Point(12, 52);
             goMiniGamesButton.Name = "goMiniGamesButton";
-            goMiniGamesButton.Size = new Size(300, 34);
+            goMiniGamesButton.Size = new Size(320, 34);
             goMiniGamesButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             goMiniGamesButton.TabIndex = 1;
             goMiniGamesButton.Text = "Potion Refill (Mini Games)";
@@ -571,7 +642,7 @@ namespace ProjectMaelstrom
             // 
             goBazaarButton.Location = new Point(12, 12);
             goBazaarButton.Name = "goBazaarButton";
-            goBazaarButton.Size = new Size(300, 34);
+            goBazaarButton.Size = new Size(320, 34);
             goBazaarButton.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
             goBazaarButton.TabIndex = 0;
             goBazaarButton.Text = "Go to Bazaar";
@@ -586,10 +657,10 @@ namespace ProjectMaelstrom
             trainerListView.GridLines = true;
             trainerListView.HeaderStyle = ColumnHeaderStyle.Clickable;
             trainerListView.HideSelection = false;
-            trainerListView.Location = new Point(404, 110);
+            trainerListView.Location = new Point(440, 130);
             trainerListView.MultiSelect = false;
             trainerListView.Name = "trainerListView";
-            trainerListView.Size = new Size(820, 380);
+            trainerListView.Size = new Size(800, 380);
             trainerListView.TabIndex = 15;
             trainerListView.UseCompatibleStateImageBehavior = false;
             trainerListView.View = View.Details;
@@ -598,9 +669,9 @@ namespace ProjectMaelstrom
             // childHostPanel
             // 
             childHostPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            childHostPanel.Location = new Point(404, 110);
+            childHostPanel.Location = new Point(424, 110);
             childHostPanel.Name = "childHostPanel";
-            childHostPanel.Size = new Size(820, 380);
+            childHostPanel.Size = new Size(800, 380);
             childHostPanel.TabIndex = 16;
             childHostPanel.Visible = false;
             // 
@@ -610,9 +681,9 @@ namespace ProjectMaelstrom
             speedPanel.Controls.Add(speedNumeric);
             speedPanel.Controls.Add(resetTuningButton);
             speedPanel.Controls.Add(speedLabel);
-            speedPanel.Location = new Point(404, 60);
+            speedPanel.Location = new Point(424, 60);
             speedPanel.Name = "speedPanel";
-            speedPanel.Size = new Size(676, 40);
+            speedPanel.Size = new Size(656, 40);
             speedPanel.TabIndex = 18;
             // 
             // speedNumeric
@@ -701,9 +772,9 @@ namespace ProjectMaelstrom
             dashboardGroupBox.Controls.Add(dashboardWarningsTextBox);
             dashboardGroupBox.Controls.Add(dashboardWarningsLabel);
             dashboardGroupBox.Controls.Add(dashboardStatsLabel);
-            dashboardGroupBox.Location = new Point(404, 520);
+            dashboardGroupBox.Location = new Point(424, 520);
             dashboardGroupBox.Name = "dashboardGroupBox";
-            dashboardGroupBox.Size = new Size(820, 250);
+            dashboardGroupBox.Size = new Size(800, 250);
             dashboardGroupBox.TabIndex = 13;
             dashboardGroupBox.TabStop = false;
             dashboardGroupBox.Text = "Dashboard";
@@ -872,9 +943,9 @@ namespace ProjectMaelstrom
             // 
             // healthLabel
             // 
-            healthLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             healthLabel.AutoSize = true;
             healthLabel.Location = new Point(160, 712);
+            healthLabel.Margin = new Padding(0, 0, 16, 0);
             healthLabel.Name = "healthLabel";
             healthLabel.Size = new Size(67, 20);
             healthLabel.TabIndex = 7;
@@ -882,9 +953,9 @@ namespace ProjectMaelstrom
             // 
             // manaLabel
             // 
-            manaLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             manaLabel.AutoSize = true;
             manaLabel.Location = new Point(260, 712);
+            manaLabel.Margin = new Padding(0, 0, 16, 0);
             manaLabel.Name = "manaLabel";
             manaLabel.Size = new Size(60, 20);
             manaLabel.TabIndex = 8;
@@ -892,9 +963,9 @@ namespace ProjectMaelstrom
             // 
             // goldLabel
             // 
-            goldLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             goldLabel.AutoSize = true;
             goldLabel.Location = new Point(360, 712);
+            goldLabel.Margin = new Padding(0, 0, 16, 0);
             goldLabel.Name = "goldLabel";
             goldLabel.Size = new Size(55, 20);
             goldLabel.TabIndex = 9;
@@ -902,9 +973,9 @@ namespace ProjectMaelstrom
             // 
             // energyLabel
             // 
-            energyLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             energyLabel.AutoSize = true;
             energyLabel.Location = new Point(460, 712);
+            energyLabel.Margin = new Padding(0, 0, 16, 0);
             energyLabel.Name = "energyLabel";
             energyLabel.Size = new Size(70, 20);
             energyLabel.TabIndex = 16;
@@ -912,34 +983,64 @@ namespace ProjectMaelstrom
             // 
             // potionsLabel
             // 
-            potionsLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             potionsLabel.AutoSize = true;
             potionsLabel.Location = new Point(580, 712);
+            potionsLabel.Margin = new Padding(0, 0, 16, 0);
             potionsLabel.Name = "potionsLabel";
             potionsLabel.Size = new Size(71, 20);
             potionsLabel.TabIndex = 17;
             potionsLabel.Text = "Potions: -";
+            statsFlowPanel.Controls.Add(healthLabel);
+            statsFlowPanel.Controls.Add(manaLabel);
+            statsFlowPanel.Controls.Add(goldLabel);
+            statsFlowPanel.Controls.Add(energyLabel);
+            statsFlowPanel.Controls.Add(potionsLabel);
             // 
             // snapshotWarningsTextBox
             // 
-            snapshotWarningsTextBox.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            snapshotWarningsTextBox.Dock = DockStyle.Top;
             snapshotWarningsTextBox.Location = new Point(304, 706);
             snapshotWarningsTextBox.Multiline = true;
             snapshotWarningsTextBox.Name = "snapshotWarningsTextBox";
             snapshotWarningsTextBox.ReadOnly = true;
             snapshotWarningsTextBox.ScrollBars = ScrollBars.Vertical;
-            snapshotWarningsTextBox.Size = new Size(796, 40);
+            snapshotWarningsTextBox.Size = new Size(796, 46);
             snapshotWarningsTextBox.TabIndex = 11;
             // 
             // snapshotWarningsLabel
             // 
-            snapshotWarningsLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             snapshotWarningsLabel.AutoSize = true;
             snapshotWarningsLabel.Location = new Point(304, 684);
             snapshotWarningsLabel.Name = "snapshotWarningsLabel";
             snapshotWarningsLabel.Size = new Size(124, 20);
             snapshotWarningsLabel.TabIndex = 10;
             snapshotWarningsLabel.Text = "Snapshot Notes";
+            snapshotWarningsLabel.Margin = new Padding(0, 0, 0, 4);
+            // 
+            // statsFlowPanel
+            // 
+            statsFlowPanel.AutoSize = true;
+            statsFlowPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            statsFlowPanel.Dock = DockStyle.Top;
+            statsFlowPanel.FlowDirection = FlowDirection.LeftToRight;
+            statsFlowPanel.Location = new Point(0, 0);
+            statsFlowPanel.Name = "statsFlowPanel";
+            statsFlowPanel.Padding = new Padding(0, 4, 0, 0);
+            statsFlowPanel.Size = new Size(0, 24);
+            statsFlowPanel.TabIndex = 27;
+            statsFlowPanel.WrapContents = false;
+            // 
+            // bottomPanel
+            // 
+            bottomPanel.Controls.Add(statsFlowPanel);
+            bottomPanel.Controls.Add(snapshotWarningsTextBox);
+            bottomPanel.Controls.Add(snapshotWarningsLabel);
+            bottomPanel.Dock = DockStyle.Bottom;
+            bottomPanel.Location = new Point(0, 780);
+            bottomPanel.Name = "bottomPanel";
+            bottomPanel.Padding = new Padding(12, 8, 12, 12);
+            bottomPanel.Size = new Size(1250, 120);
+            bottomPanel.TabIndex = 28;
             // 
             // filterNoteMainLabel
             // 
@@ -965,20 +1066,17 @@ namespace ProjectMaelstrom
             Controls.Add(childHostPanel);
             Controls.Add(speedPanel);
             Controls.Add(navPanel);
-            Controls.Add(snapshotWarningsTextBox);
-            Controls.Add(snapshotWarningsLabel);
-            Controls.Add(potionsLabel);
-            Controls.Add(energyLabel);
-            Controls.Add(goldLabel);
-            Controls.Add(manaLabel);
-            Controls.Add(healthLabel);
+            Controls.Add(bottomPanel);
             Controls.Add(snapshotButton);
             Controls.Add(dashboardGroupBox);
             Controls.Add(panel1);
             MinimumSize = new Size(1000, 760);
             Name = "Main";
             Text = "W101Trainer";
+            KeyPreview = true;
             Load += Main_Load;
+            profilePublicButton.Text = "Public Use - Simulation Only";
+            profileExperimentalButton.Text = "Experimental - Simulation Only";
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             navPanel.ResumeLayout(false);
@@ -988,6 +1086,10 @@ namespace ProjectMaelstrom
             speedPanel.PerformLayout();
             dashboardGroupBox.ResumeLayout(false);
             dashboardGroupBox.PerformLayout();
+            statsFlowPanel.ResumeLayout(false);
+            statsFlowPanel.PerformLayout();
+            bottomPanel.ResumeLayout(false);
+            bottomPanel.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -999,7 +1101,7 @@ namespace ProjectMaelstrom
         private Label syncStatusLabel;
         private Label smartPlayHeaderLabel;
         private Label audioHeaderLabel;
-        private Panel navPanel;
+        private FlowLayoutPanel navPanel;
         private Button startConfigurationBtn;
         private Button loadHalfangBotBtn;
         private Button loadBazaarReagentBot;
@@ -1043,6 +1145,9 @@ namespace ProjectMaelstrom
         private Button presetPotionButton;
         private Button presetPetButton;
         private Button presetBazaarButton;
+        private Button profilePublicButton;
+        private Button profileExperimentalButton;
+        private Label profileWarningLabel;
         private Label navScriptsLabel;
         private Label navTravelLabel;
         private Label searchLabel;
@@ -1058,6 +1163,8 @@ namespace ProjectMaelstrom
         private Label potionsLabel;
         private TextBox snapshotWarningsTextBox;
         private Label snapshotWarningsLabel;
+        private FlowLayoutPanel statsFlowPanel;
+        private Panel bottomPanel;
         private Panel speedPanel;
         private Label speedLabel;
         private NumericUpDown speedNumeric;

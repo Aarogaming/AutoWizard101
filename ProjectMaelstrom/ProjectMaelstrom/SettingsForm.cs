@@ -1,8 +1,13 @@
 using System.Linq;
 using System.Diagnostics;
+using System.IO;
 using ProjectMaelstrom.Utilities;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
+using System.Net.Http;
+using System.Text.Json;
+using System.IO.Compression;
+using ProjectMaelstrom.Utilities.Overlay;
 
 namespace ProjectMaelstrom;
 
@@ -15,36 +20,49 @@ public partial class SettingsForm : Form
 
     private void SettingsForm_Load(object sender, EventArgs e)
     {
-        ocrSpaceApiKey.Text = Properties.Settings.Default["OCR_SPACE_APIKEY"].ToString();
-        string storedTheme = Properties.Settings.Default["THEME_MODE"]?.ToString() ?? "System";
+        ocrSpaceApiKey.Text = SettingsSafe.GetString("OCR_SPACE_APIKEY", string.Empty);
+        string storedTheme = SettingsSafe.GetString("THEME_MODE", "System");
         themeModeCombo.SelectedItem = themeModeCombo.Items.Cast<string>().FirstOrDefault(i =>
             i.Equals(storedTheme, StringComparison.OrdinalIgnoreCase)) ?? "System";
-        captureToggle.Checked = Properties.Settings.Default.ENABLE_SCREEN_CAPTURE;
-        audioToggle.Checked = Properties.Settings.Default.ENABLE_AUDIO_RECOGNIZER;
-        tuningToggle.Checked = Properties.Settings.Default.ENABLE_SELF_TUNING;
-        devTelemetryToggle.Checked = Properties.Settings.Default.ENABLE_DEV_TELEMETRY;
+        captureToggle.Checked = SettingsSafe.GetBool("ENABLE_SCREEN_CAPTURE", false);
+        audioToggle.Checked = SettingsSafe.GetBool("ENABLE_AUDIO_RECOGNIZER", false);
+        tuningToggle.Checked = SettingsSafe.GetBool("ENABLE_SELF_TUNING", false);
+        devTelemetryToggle.Checked = SettingsSafe.GetBool("ENABLE_DEV_TELEMETRY", false);
         devTelemetryToggle.Visible = DevMode.IsEnabled;
         devTelemetryToggle.Enabled = DevMode.IsEnabled;
-        double delta = Properties.Settings.Default.AUDIO_TRANSIENT_DELTA;
+        double delta = SettingsSafe.GetDouble("AUDIO_TRANSIENT_DELTA", 0.12);
         if (delta < 0.05 || delta > 0.5) delta = 0.12;
         audioDeltaNumeric.Value = (decimal)delta;
-        feedUrlText.Text = Properties.Settings.Default.UPDATE_FEED_URL;
-        autoCheckUpdatesToggle.Checked = Properties.Settings.Default.AUTO_CHECK_UPDATES;
+        feedUrlText.Text = SettingsSafe.GetString("UPDATE_FEED_URL", string.Empty);
+        autoCheckUpdatesToggle.Checked = SettingsSafe.GetBool("AUTO_CHECK_UPDATES", false);
         updaterStatusLabel.Text = "Status: Idle";
         runDiagnosticsButton.Visible = DevMode.IsEnabled;
         viewDevSuggestionsButton.Visible = DevMode.IsEnabled;
         refreshWikiButton.Visible = true;
         refreshWikiButton.Enabled = true;
-        devUiSnapshotsToggle.Checked = Properties.Settings.Default.ENABLE_DEV_UI_SNAPSHOTS;
+        devUiSnapshotsToggle.Checked = SettingsSafe.GetBool("ENABLE_DEV_UI_SNAPSHOTS", false);
         devUiSnapshotsToggle.Visible = DevMode.IsEnabled;
         devUiSnapshotsToggle.Enabled = DevMode.IsEnabled;
         captureUiSnapshotButton.Visible = DevMode.IsEnabled;
-        playerPreviewToggle.Checked = Properties.Settings.Default.PLAYER_PREVIEW_MODE;
+        playerPreviewToggle.Checked = SettingsSafe.GetBool("PLAYER_PREVIEW_MODE", false);
         playerPreviewToggle.Visible = DevMode.IsEnabled;
         playerPreviewToggle.Enabled = DevMode.IsEnabled;
         autoPauseToggle.Checked = Properties.Settings.Default.AUTO_PAUSE_ON_FOCUS_LOSS;
-        goldMinNumeric.Value = Properties.Settings.Default.BAZAAR_GOLD_MIN;
-        goldCapNumeric.Value = Properties.Settings.Default.BAZAAR_GOLD_CAP;
+        goldMinNumeric.Value = SettingsSafe.GetInt("BAZAAR_GOLD_MIN", (int)goldMinNumeric.Minimum);
+        goldCapNumeric.Value = SettingsSafe.GetInt("BAZAAR_GOLD_CAP", (int)goldCapNumeric.Minimum);
+        // Policy view (read-only)
+        var policy = ExecutionPolicyManager.Current;
+        policyAllowLabel.Text = $"Allow Live: {policy.AllowLiveAutomation}";
+        policyModeLabel.Text = $"Mode: {policy.Mode}";
+        policyPathLabel.Text = $"Path: {ExecutionPolicyManager.PolicyPath}";
+        policyLoadedLabel.Text = $"Loaded: {ExecutionPolicyManager.LoadedUtc:yyyy-MM-dd HH:mm:ss}Z";
+        var backend = LiveBackendProvider.Current;
+        var backendName = backend is NullLiveBackend ? "None installed" : backend.Name;
+        policyBackendLabel.Text = $"Live backend: {backendName}";
+        policyBackendIdLabel.Text = $"Backend ID: {backend.Id}";
+        PopulatePlugins();
+        PopulateReplays();
+        PopulateOverlayWidgets();
 
         // Apply system theme
         ThemeManager.ApplyTheme(this);
@@ -92,12 +110,15 @@ public partial class SettingsForm : Form
         var buttons = new[]
         {
             saveSettingsBtn, checkUpdatesButton, downloadUpdateButton, applyUpdateButton,
-            launchManagerButton, openMapViewerButton, refreshWikiButton, runDiagnosticsButton, captureUiSnapshotButton, viewDevSuggestionsButton
+            launchManagerButton, openMapViewerButton, refreshWikiButton, runDiagnosticsButton, captureUiSnapshotButton, viewDevSuggestionsButton,
+            openPluginsFolderButton, reloadPluginsButton, installSamplesButton, removeSamplesButton, installFromGithubButton,
+            openReplaysFolderButton, refreshReplaysButton
         };
         foreach (var btn in buttons)
         {
             UIStyles.ApplyButtonStyle(btn, palette.ControlBack, palette.ControlFore, palette.Border);
         }
+        UIStyles.ApplyButtonStyle(openPolicyFolderButton, palette.ControlBack, palette.ControlFore, palette.Border);
 
         var textBoxes = new[] { ocrSpaceApiKey, feedUrlText };
         foreach (var tb in textBoxes)
@@ -116,8 +137,212 @@ public partial class SettingsForm : Form
         goldMinNumeric.ForeColor = palette.ControlFore;
         goldCapNumeric.BackColor = palette.ControlBack;
         goldCapNumeric.ForeColor = palette.ControlFore;
+        pluginInstallStatusLabel.ForeColor = palette.Fore;
+        replayDetailsBox.BackColor = palette.Surface;
+        replayDetailsBox.ForeColor = palette.Fore;
+        overlayStatusLabel.ForeColor = palette.Fore;
+        overlayHostPanel.BackColor = palette.Surface;
+        overlayListBox.BackColor = palette.ControlBack;
+        overlayListBox.ForeColor = palette.ControlFore;
     }
 
+    private void openPolicyFolderButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var path = ExecutionPolicyManager.PolicyPath;
+            var folder = Path.GetDirectoryName(path);
+            if (folder != null && Directory.Exists(folder))
+            {
+                Process.Start("explorer.exe", folder);
+            }
+            else
+            {
+                MessageBox.Show("Policy folder not found.", "Policy", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Unable to open policy folder: {ex.Message}", "Policy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private async void installFromGithubButton_Click(object sender, EventArgs e)
+    {
+        using var dialog = new Form
+        {
+            Text = "Install from GitHub Release",
+            StartPosition = FormStartPosition.CenterParent,
+            Size = new Size(640, 220),
+            MinimumSize = new Size(640, 220),
+            FormBorderStyle = FormBorderStyle.FixedDialog,
+            MaximizeBox = false,
+            MinimizeBox = false,
+            Padding = new Padding(12)
+        };
+
+        var label = new Label
+        {
+            Text = "GitHub Release Asset ZIP URL:",
+            AutoSize = true,
+            Location = new Point(12, 12),
+            MaximumSize = new Size(600, 0),
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        var text = new TextBox
+        {
+            Location = new Point(12, 40),
+            Width = dialog.ClientSize.Width - 24,
+            Text = "https://github.com/owner/repo/releases/download/v1.0/asset.zip",
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
+            MinimumSize = new Size(480, 27)
+        };
+
+        var buttonY = dialog.ClientSize.Height - 60;
+        var installBtn = new Button
+        {
+            Text = "Install",
+            DialogResult = DialogResult.OK,
+            Location = new Point(dialog.ClientSize.Width - 200, buttonY),
+            Width = 90,
+            Anchor = AnchorStyles.Bottom | AnchorStyles.Right
+        };
+        var cancelBtn = new Button
+        {
+            Text = "Cancel",
+            DialogResult = DialogResult.Cancel,
+            Location = new Point(dialog.ClientSize.Width - 100, buttonY),
+            Width = 90,
+            Anchor = AnchorStyles.Bottom | AnchorStyles.Right
+        };
+        dialog.Controls.Add(label);
+        dialog.Controls.Add(text);
+        dialog.Controls.Add(installBtn);
+        dialog.Controls.Add(cancelBtn);
+        dialog.AcceptButton = installBtn;
+        dialog.CancelButton = cancelBtn;
+
+        if (dialog.ShowDialog(this) != DialogResult.OK) return;
+
+        var url = text.Text?.Trim() ?? string.Empty;
+        if (!IsValidGithubReleaseUrl(url))
+        {
+            pluginInstallStatusLabel.Text = "Invalid GitHub release URL.";
+            return;
+        }
+
+        installFromGithubButton.Enabled = false;
+        pluginInstallStatusLabel.Text = "Downloading...";
+        try
+        {
+            var tempZip = Path.Combine(Path.GetTempPath(), $"maelstrom_plugin_{Guid.NewGuid():N}.zip");
+            using (var client = new HttpClient())
+            using (var resp = await client.GetAsync(url))
+            {
+                if (!resp.IsSuccessStatusCode)
+                {
+                    pluginInstallStatusLabel.Text = $"Download failed: {resp.StatusCode}";
+                    installFromGithubButton.Enabled = true;
+                    return;
+                }
+
+                await using (var fs = File.Create(tempZip))
+                {
+                    await resp.Content.CopyToAsync(fs);
+                }
+            }
+
+            var staging = Path.Combine(Path.GetTempPath(), $"maelstrom_plugin_stage_{Guid.NewGuid():N}");
+            Directory.CreateDirectory(staging);
+            ZipFile.ExtractToDirectory(tempZip, staging);
+
+            var manifestPath = Directory.GetFiles(staging, "plugin.manifest.json", SearchOption.AllDirectories).FirstOrDefault();
+            if (manifestPath == null)
+            {
+                pluginInstallStatusLabel.Text = "Manifest not found in ZIP.";
+                SafeCleanup(tempZip, staging);
+                installFromGithubButton.Enabled = true;
+                return;
+            }
+
+            var manifest = JsonDocument.Parse(File.ReadAllText(manifestPath));
+            if (!manifest.RootElement.TryGetProperty("pluginId", out var idProp) || string.IsNullOrWhiteSpace(idProp.GetString()))
+            {
+                pluginInstallStatusLabel.Text = "Manifest missing pluginId.";
+                SafeCleanup(tempZip, staging);
+                installFromGithubButton.Enabled = true;
+                return;
+            }
+
+            var pluginId = idProp.GetString()!;
+            var destRoot = PluginLoader.PluginRoot;
+            var dest = Path.Combine(destRoot, pluginId);
+
+            if (Directory.Exists(dest))
+            {
+                var prompt = MessageBox.Show($"Plugin '{pluginId}' already exists. Replace?", "Replace Plugin", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (prompt != DialogResult.Yes)
+                {
+                    SafeCleanup(tempZip, staging);
+                    installFromGithubButton.Enabled = true;
+                    pluginInstallStatusLabel.Text = "Install canceled.";
+                    return;
+                }
+                Directory.Delete(dest, true);
+            }
+
+            Directory.CreateDirectory(destRoot);
+            // Normalize manifest to root
+            File.Copy(manifestPath, Path.Combine(staging, "plugin.manifest.json"), true);
+            // Move staging to destination
+            CopyDirectory(staging, dest);
+
+            PluginLoader.Reload();
+            PopulatePlugins();
+            pluginInstallStatusLabel.Text = $"Installed {pluginId}.";
+            SafeCleanup(tempZip, staging);
+        }
+        catch (Exception ex)
+        {
+            pluginInstallStatusLabel.Text = $"Install failed: {ex.Message}";
+        }
+        finally
+        {
+            installFromGithubButton.Enabled = true;
+        }
+    }
+
+    private bool IsValidGithubReleaseUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        if (!url.StartsWith("https://github.com/", StringComparison.OrdinalIgnoreCase)) return false;
+        if (!url.Contains("/releases/download/")) return false;
+        if (!url.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) return false;
+        return true;
+    }
+
+    private void SafeCleanup(string tempZip, string staging)
+    {
+        try { if (File.Exists(tempZip)) File.Delete(tempZip); } catch { }
+        try { if (Directory.Exists(staging)) Directory.Delete(staging, true); } catch { }
+    }
+
+    private void CopyDirectory(string sourceDir, string destDir)
+    {
+        foreach (var dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
+        {
+            var target = dirPath.Replace(sourceDir, destDir);
+            Directory.CreateDirectory(target);
+        }
+
+        foreach (var filePath in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+        {
+            var target = filePath.Replace(sourceDir, destDir);
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(filePath, target, true);
+        }
+    }
     private async Task TryAutoCheckQuietAsync()
     {
         if (!Properties.Settings.Default.AUTO_CHECK_UPDATES)
@@ -164,6 +389,231 @@ public partial class SettingsForm : Form
             updaterStatusLabel.Text = "Status: Auto-check failed; enter feed manually.";
             feedUrlText.Focus();
         }
+    }
+
+    private void PopulatePlugins()
+    {
+        try
+        {
+            pluginListView.Items.Clear();
+            foreach (var p in PluginLoader.Current)
+            {
+                var caps = p.Capabilities != null && p.Capabilities.Any()
+                    ? string.Join(", ", p.Capabilities)
+                    : "None";
+                var status = p.Status.ToString();
+                var reason = string.IsNullOrWhiteSpace(p.Reason) ? status : p.Reason;
+                var item = new ListViewItem(new[]
+                {
+                    string.IsNullOrWhiteSpace(p.Name) ? p.PluginId : p.Name,
+                    p.Version,
+                    caps,
+                    status,
+                    reason
+                });
+                item.UseItemStyleForSubItems = true;
+                if (p.Status == PluginStatus.Allowed)
+                {
+                    item.ForeColor = Color.LightGreen;
+                }
+                else if (p.Status == PluginStatus.Blocked)
+                {
+                    item.ForeColor = Color.Goldenrod;
+                }
+                else
+                {
+                    item.ForeColor = Color.IndianRed;
+                }
+                if (item.SubItems.Count > 4)
+                {
+                    item.SubItems[4].ForeColor = Color.Silver;
+                }
+                pluginListView.Items.Add(item);
+            }
+            if (pluginListView.Items.Count == 0)
+            {
+                pluginListView.Items.Add(new ListViewItem(new[] { "No plugins installed", "-", "-", "-", "-" }));
+            }
+        }
+        catch (Exception ex)
+        {
+            pluginListView.Items.Clear();
+            pluginListView.Items.Add(new ListViewItem(new[] { "Error", "-", "-", "-", ex.Message }));
+        }
+    }
+
+    private void openPluginsFolderButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var folder = PluginLoader.PluginRoot;
+            Directory.CreateDirectory(folder);
+            Process.Start("explorer.exe", folder);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Unable to open plugins folder: {ex.Message}", "Plugins", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void reloadPluginsButton_Click(object sender, EventArgs e)
+    {
+        PluginLoader.Reload();
+        PopulatePlugins();
+        PopulateOverlayWidgets();
+    }
+
+    private void PopulateReplays()
+    {
+        try
+        {
+            replayListView.Items.Clear();
+            foreach (var path in ReplayLogger.ListReplays())
+            {
+                var name = Path.GetFileName(path);
+                var date = File.GetLastWriteTime(path).ToString("yyyy-MM-dd HH:mm");
+                var item = new ListViewItem(new[] { name, date }) { Tag = path };
+                replayListView.Items.Add(item);
+            }
+            if (replayListView.Items.Count == 0)
+            {
+                replayListView.Items.Add(new ListViewItem(new[] { "No replays found", "-" }));
+            }
+        }
+        catch (Exception ex)
+        {
+            replayListView.Items.Clear();
+            replayListView.Items.Add(new ListViewItem(new[] { "Error", ex.Message }));
+        }
+    }
+
+    private void replayListView_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        try
+        {
+            if (replayListView.SelectedItems.Count == 0 || replayListView.SelectedItems[0].Tag is not string path)
+            {
+                replayDetailsBox.Text = string.Empty;
+                return;
+            }
+
+            var lines = ReplayLogger.ReadTail(path, 40);
+            replayDetailsBox.Text = string.Join(Environment.NewLine, lines);
+        }
+        catch (Exception ex)
+        {
+            replayDetailsBox.Text = $"Error reading replay: {ex.Message}";
+        }
+    }
+
+    private void openReplaysFolderButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var folder = ReplayLogger.ReplayRoot;
+            Directory.CreateDirectory(folder);
+            Process.Start("explorer.exe", folder);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Unable to open replays folder: {ex.Message}", "Replays", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void refreshReplaysButton_Click(object sender, EventArgs e)
+    {
+        PopulateReplays();
+    }
+
+    private void installSamplesButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var samplesRoot = PluginSamples.SamplesRoot;
+                Directory.CreateDirectory(samplesRoot);
+
+            WriteSampleManifest(
+                Path.Combine(samplesRoot, PluginSamples.SampleOverlayId, "plugin.manifest.json"),
+                PluginSamples.SampleOverlayId,
+                "Sample Overlay",
+                new[] { PluginCapability.OverlayWidgets.ToString() },
+                "Public");
+
+            WriteSampleManifest(
+                Path.Combine(samplesRoot, PluginSamples.SampleLiveIntegrationId, "plugin.manifest.json"),
+                PluginSamples.SampleLiveIntegrationId,
+                "Sample Live Integration",
+                new[] { PluginCapability.LiveIntegration.ToString() },
+                "Experimental");
+
+            WriteSampleManifest(
+                Path.Combine(samplesRoot, PluginSamples.SampleOverlayWidgetsId, "plugin.manifest.json"),
+                PluginSamples.SampleOverlayWidgetsId,
+                "Sample Overlay Widgets",
+                new[] { PluginCapability.OverlayWidgets.ToString() },
+                "Public");
+
+            PluginLoader.Reload();
+            PopulatePlugins();
+            PopulateOverlayWidgets();
+            MessageBox.Show("Sample plugins installed (manifest-only). Reloaded plugin list.", "Plugins", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to install sample plugins: {ex.Message}", "Plugins", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void removeSamplesButton_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var samplesRoot = PluginSamples.SamplesRoot;
+            var sampleDirs = new[]
+            {
+                Path.Combine(samplesRoot, PluginSamples.SampleOverlayId),
+                Path.Combine(samplesRoot, PluginSamples.SampleLiveIntegrationId),
+                Path.Combine(samplesRoot, PluginSamples.SampleOverlayWidgetsId)
+            };
+            foreach (var dir in sampleDirs)
+            {
+                if (Directory.Exists(dir))
+                {
+                    Directory.Delete(dir, true);
+                }
+            }
+            PluginLoader.Reload();
+            PopulatePlugins();
+            PopulateOverlayWidgets();
+            MessageBox.Show("Sample plugins removed.", "Plugins", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to remove sample plugins: {ex.Message}", "Plugins", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void WriteSampleManifest(string manifestPath, string id, string name, IEnumerable<string> capabilities, string requiredProfile)
+    {
+        var targetDir = Path.GetDirectoryName(manifestPath)!;
+        Directory.CreateDirectory(targetDir);
+        if (File.Exists(manifestPath))
+        {
+            return; // do not overwrite existing
+        }
+
+        var manifest = new
+        {
+            pluginId = id,
+            name = name,
+            version = "1.0.0",
+            targetAppVersion = "any",
+            requiredProfile = requiredProfile,
+            declaredCapabilities = capabilities.ToArray()
+        };
+
+        var json = System.Text.Json.JsonSerializer.Serialize(manifest, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(manifestPath, json);
     }
 
     private async void checkUpdatesButton_Click(object sender, EventArgs e)
@@ -391,6 +841,101 @@ public partial class SettingsForm : Form
         {
             updaterStatusLabel.Text = "Status: Wiki refresh failed.";
             MessageBox.Show($"Failed to refresh wiki cache: {ex.Message}", "Wiki Refresh", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    public void RefreshPluginListSafe()
+    {
+        try
+        {
+            PluginLoader.Reload();
+            PopulatePlugins();
+            PopulateOverlayWidgets();
+        }
+        catch
+        {
+            // best effort; ignore
+        }
+    }
+
+    private void PopulateOverlayWidgets()
+    {
+        try
+        {
+            overlayHostPanel.Controls.Clear();
+            overlayListBox.Items.Clear();
+            var widgets = OverlayWidgetRegistry.Current;
+            if (widgets.Count == 0)
+            {
+                overlayHostPanel.Visible = false;
+                overlayListBox.Visible = false;
+                overlayEmptyLabel.Visible = true;
+                overlayStatusLabel.Text = "No overlay widgets installed.";
+                return;
+            }
+
+            overlayEmptyLabel.Visible = false;
+            overlayHostPanel.Visible = true;
+            overlayListBox.Visible = true;
+
+            foreach (var widget in widgets)
+            {
+                overlayListBox.Items.Add(widget.Title);
+            }
+
+            if (overlayListBox.Items.Count > 0)
+            {
+                overlayListBox.SelectedIndex = 0;
+            }
+
+            OverlaySnapshotHub.SnapshotUpdated -= OverlaySnapshotHub_SnapshotUpdated;
+            OverlaySnapshotHub.SnapshotUpdated += OverlaySnapshotHub_SnapshotUpdated;
+            OverlaySnapshotHub.SetExecutorStatus(OverlaySnapshotHub.Current.LastExecutorStatus);
+        }
+        catch (Exception ex)
+        {
+            overlayHostPanel.Controls.Clear();
+            overlayHostPanel.Visible = false;
+            overlayListBox.Visible = false;
+            overlayEmptyLabel.Visible = true;
+            overlayEmptyLabel.Text = $"Unable to load overlay widgets: {ex.Message}";
+        }
+    }
+
+    private void OverlaySnapshotHub_SnapshotUpdated(OverlayStateSnapshot snapshot)
+    {
+        try
+        {
+            if (overlayListBox.SelectedIndex < 0) return;
+            var widgets = OverlayWidgetRegistry.Current;
+            if (overlayListBox.SelectedIndex >= widgets.Count) return;
+            var widget = widgets[overlayListBox.SelectedIndex];
+            var ctrl = overlayHostPanel.Controls.OfType<Control>().FirstOrDefault();
+            widget.Update(snapshot);
+            overlayStatusLabel.Text = $"Profile: {snapshot.Profile} | Mode: {snapshot.Mode} | Live: {snapshot.AllowLiveAutomation}";
+        }
+        catch
+        {
+            // ignore
+        }
+    }
+
+    private void overlayListBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        try
+        {
+            overlayHostPanel.Controls.Clear();
+            var widgets = OverlayWidgetRegistry.Current;
+            if (overlayListBox.SelectedIndex < 0 || overlayListBox.SelectedIndex >= widgets.Count) return;
+            var widget = widgets[overlayListBox.SelectedIndex];
+            var ctrl = widget.CreateControl();
+            overlayHostPanel.Controls.Add(ctrl);
+            widget.Update(OverlaySnapshotHub.Current);
+            overlayStatusLabel.Text = $"Profile: {OverlaySnapshotHub.Current.Profile} | Mode: {OverlaySnapshotHub.Current.Mode} | Live: {OverlaySnapshotHub.Current.AllowLiveAutomation}";
+        }
+        catch
+        {
+            // ignore
         }
     }
 }

@@ -4,7 +4,7 @@ using ProjectMaelstrom.Models;
 namespace ProjectMaelstrom.Utilities;
 
 /// <summary>
-/// Simple macro playback: loads InputCommand JSON and enqueues into InputBridge with basic guards.
+/// Simple macro playback: loads InputCommand JSON and dispatches through executor with basic guards.
 /// </summary>
 internal static class MacroPlayer
 {
@@ -12,12 +12,6 @@ internal static class MacroPlayer
 
     public static bool Play(string macroPath, InputBridge? bridge, Func<GameStateSnapshot?> snapshotProvider, string? expectedResolution = null)
     {
-        if (bridge == null)
-        {
-            MessageBox.Show("Input bridge not ready.", "Macro Runner", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            return false;
-        }
-
         if (!File.Exists(macroPath))
         {
             MessageBox.Show("Macro file not found.", "Macro Runner", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -54,8 +48,17 @@ internal static class MacroPlayer
                 return false;
             }
 
-            bridge.EnqueueRange(commands);
-            DevTelemetry.Log("Macros", $"Queued macro {Path.GetFileName(macroPath)} with {commands.Count} commands");
+            var policy = ExecutionPolicyManager.Current;
+            var executor = ExecutorFactory.FromPolicy(policy);
+            if (bridge == null && policy.AllowLiveAutomation)
+            {
+                MessageBox.Show("Live automation allowed but input bridge not ready.", "Macro Runner", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            var ctx = new ExecutionContext { Source = "Macro", TaskName = Path.GetFileNameWithoutExtension(macroPath), Bridge = bridge };
+            executor.Execute(commands, ctx);
+            DevTelemetry.Log("Macros", $"Queued macro {Path.GetFileName(macroPath)} with {commands.Count} commands (mode={policy.Mode})");
             return true;
         }
         catch (Exception ex)

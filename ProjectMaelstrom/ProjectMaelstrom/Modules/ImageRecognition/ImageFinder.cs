@@ -2,6 +2,7 @@
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 using ProjectMaelstrom.Utilities;
+using ProjectMaelstrom.Utilities.Capture;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -188,15 +189,11 @@ internal class ImageFinder
 
         int width = rect.Right - rect.Left;
         int height = rect.Bottom - rect.Top;
+        var region = new Rectangle(rect.Left, rect.Top, width, height);
 
-        using (var bitmapScreenshot = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+        using (var bitmapScreenshot = CaptureProvider.Default.CaptureRegion(region))
         {
-            using (var graphicsScreenshot = Graphics.FromImage(bitmapScreenshot))
-            {
-                graphicsScreenshot.CopyFromScreen(new Point(rect.Left, rect.Top), Point.Empty, new Size(width, height), CopyPixelOperation.SourceCopy);
-
-                bitmapScreenshot.Save(screenshotFilePath, ImageFormat.Png);
-            }
+            bitmapScreenshot.Save(screenshotFilePath, ImageFormat.Png);
         }
 
         return screenshotFilePath;

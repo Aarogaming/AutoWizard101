@@ -1,6 +1,7 @@
 using System.Drawing.Imaging;
 using System.Text.Json;
 using ProjectMaelstrom.Models;
+using ProjectMaelstrom.Utilities.Capture;
 
 namespace ProjectMaelstrom.Utilities;
 
@@ -55,11 +56,7 @@ internal sealed class DesignManager
     private static void CaptureForm(Form form, string path)
     {
         var bounds = form.Bounds;
-        using Bitmap bitmap = new(bounds.Width, bounds.Height);
-        using (Graphics g = Graphics.FromImage(bitmap))
-        {
-            g.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
-        }
+        using var bitmap = Capture.CaptureProvider.Default.CaptureRegion(bounds);
         bitmap.Save(path, ImageFormat.Png);
     }
 

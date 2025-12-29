@@ -1,5 +1,6 @@
 using System.Drawing.Imaging;
 using System.Text.Json;
+using ProjectMaelstrom.Utilities.Capture;
 
 namespace ProjectMaelstrom.Utilities;
 
@@ -20,9 +21,8 @@ internal static class UiSnapshotService
             var baseName = Path.Combine(dir, $"ui_{reason}_{stamp}");
 
             // Capture bitmap
-            using (var bmp = new Bitmap(form.Width, form.Height))
+            using (var bmp = CaptureProvider.Default.CaptureForm(form))
             {
-                form.DrawToBitmap(bmp, new Rectangle(0, 0, form.Width, form.Height));
                 bmp.Save(baseName + ".png", ImageFormat.Png);
             }
 

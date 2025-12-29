@@ -76,6 +76,7 @@ internal sealed class InputBridge : IDisposable
     private void ProcessCommandsSafe()
     {
         if (_disposing) return;
+        var policy = ExecutionPolicyManager.Current;
         List<InputCommand>? commands = null;
         try
         {
@@ -108,6 +109,12 @@ internal sealed class InputBridge : IDisposable
 
         if (commands == null || commands.Count == 0)
         {
+            return;
+        }
+
+        if (!policy.AllowLiveAutomation)
+        {
+            Logger.LogBotAction("InputBridge", $"Blocked {commands.Count} commands by policy (live disabled).");
             return;
         }
 

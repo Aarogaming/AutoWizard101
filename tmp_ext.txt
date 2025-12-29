@@ -1,0 +1,11 @@
+﻿using System.Windows.Forms;
+
+public static class ControlExtensions
+{
+    public static void ToolTipText(this Control control, string text, bool show)
+    {
+        if (control == null) return;
+        var tt = new ToolTip();
+        tt.SetToolTip(control, show ? text : string.Empty);
+    }
+}
