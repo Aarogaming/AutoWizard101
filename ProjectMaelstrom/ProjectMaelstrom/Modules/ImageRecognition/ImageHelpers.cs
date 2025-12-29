@@ -1,19 +1,36 @@
 using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
+using System.Drawing;
 using Tesseract;
 
 namespace ProjectMaelstrom.Modules.ImageRecognition;
 
 internal static class ImageHelpers
 {
-    public static async Task<string> ExtractTextFromImage(string imagePath)
+    public class OcrPreprocessOptions
     {
-        ImageHelpers.ConvertImageToGrayscale(imagePath);
+        public bool ConvertToGray { get; set; } = true;
+        public bool Invert { get; set; } = false;
+        public bool ApplyThreshold { get; set; } = true;
+        public double Threshold { get; set; } = 128;
+        public double MaxValue { get; set; } = 255;
+        public bool ApplyBlur { get; set; } = true;
+        public Size? ResizeTo { get; set; }
+        public string? CharacterWhitelist { get; set; }
+        public PageSegMode PageSegMode { get; set; } = PageSegMode.Auto;
+    }
+
+    public static async Task<string> ExtractTextFromImage(string imagePath, OcrPreprocessOptions? options = null)
+    {
+        var opts = options ?? new OcrPreprocessOptions();
+        string preprocessedPath = PreprocessForOcr(imagePath, opts);
         string apiKey = Properties.Settings.Default["OCR_SPACE_APIKEY"]?.ToString() ?? string.Empty;
         if (string.IsNullOrEmpty(apiKey))
         {
-            return ExtractTextWithLocalOcr(imagePath);
+            return ExtractTextWithLocalOcr(preprocessedPath, opts);
         }
         string apiUrl = "https://api.ocr.space/parse/image";
 
@@ -22,11 +39,11 @@ internal static class ImageHelpers
 
         using var formData = new MultipartFormDataContent();
 
-        using FileStream fileStream = File.OpenRead(imagePath);
+        using FileStream fileStream = File.OpenRead(preprocessedPath);
         using var streamContent = new StreamContent(fileStream);
         using var fileContent = new ByteArrayContent(await streamContent.ReadAsByteArrayAsync());
 
-        string fileExtension = Path.GetExtension(imagePath).ToLower();
+        string fileExtension = Path.GetExtension(preprocessedPath).ToLower();
         string contentType = fileExtension switch
         {
             ".jpg" or ".jpeg" => "image/jpeg",
@@ -56,7 +73,7 @@ internal static class ImageHelpers
         }
     }
 
-    private static string ExtractTextWithLocalOcr(string imagePath)
+    private static string ExtractTextWithLocalOcr(string imagePath, OcrPreprocessOptions opts)
     {
         string baseDir = AppDomain.CurrentDomain.BaseDirectory;
         string? tessdataPath = FindTessdataPath(baseDir);
@@ -68,9 +85,12 @@ internal static class ImageHelpers
 
         try
         {
-            using var engine = new TesseractEngine(tessdataPath, "eng", EngineMode.Default);
+            var config = string.IsNullOrWhiteSpace(opts.CharacterWhitelist)
+                ? string.Empty
+                : $"tessedit_char_whitelist={opts.CharacterWhitelist}";
+            using var engine = new TesseractEngine(tessdataPath, "eng", EngineMode.Default, config);
             using var img = Pix.LoadFromFile(imagePath);
-            using var page = engine.Process(img);
+            using var page = engine.Process(img, opts.PageSegMode);
             return page.GetText();
         }
         catch (Exception ex)
@@ -102,5 +122,41 @@ internal static class ImageHelpers
         using var grayImg = new Mat();
         CvInvoke.CvtColor(img, grayImg, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
         grayImg.Clone().Save(imagePath);
+    }
+
+    public static string PreprocessForOcr(string imagePath, OcrPreprocessOptions options)
+    {
+        var opts = options ?? new OcrPreprocessOptions();
+        using var src = new Mat(imagePath);
+        Mat working = src.Clone();
+
+        if (opts.ConvertToGray)
+        {
+            CvInvoke.CvtColor(working, working, ColorConversion.Bgr2Gray);
+        }
+
+        if (opts.ResizeTo.HasValue && opts.ResizeTo.Value.Width > 0 && opts.ResizeTo.Value.Height > 0)
+        {
+            CvInvoke.Resize(working, working, opts.ResizeTo.Value, 0, 0, Inter.Cubic);
+        }
+
+        if (opts.ApplyBlur)
+        {
+            CvInvoke.GaussianBlur(working, working, new Size(3, 3), 0);
+        }
+
+        if (opts.ApplyThreshold)
+        {
+            CvInvoke.Threshold(working, working, opts.Threshold, opts.MaxValue, ThresholdType.Binary);
+        }
+
+        if (opts.Invert)
+        {
+            CvInvoke.BitwiseNot(working, working);
+        }
+
+        string tempPath = Path.Combine(Path.GetTempPath(), $"ocr_{Guid.NewGuid():N}.png");
+        working.Save(tempPath);
+        return tempPath;
     }
 }

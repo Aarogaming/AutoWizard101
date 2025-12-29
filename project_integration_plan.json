@@ -1,0 +1,162 @@
+{
+  "project": "Wizard101 Smart Trainer integration plan",
+  "timestamp": "2025-12-29T03:24:26.405447Z",
+  "legal_ethics": {
+    "status": "educational/experimental only",
+    "rules": [
+      "Public data or user-consented recordings only",
+      "No live client/server interaction, no memory/net inspection",
+      "Attribution required for third-party scripts/data"
+    ]
+  },
+  "summary": {
+    "counts_by_recommendation": {
+      "use_directly": 24,
+      "fork_and_extend": 9,
+      "study_and_extract_patterns": 9,
+      "low_priority": 12
+    },
+    "top_candidates": [
+      "https://github.com/opencv/opencv",
+      "https://github.com/tesseract-ocr/tesseract",
+      "https://github.com/pallets/flask",
+      "https://github.com/obsproject/obs-studio",
+      "https://github.com/ultralytics/yolov5",
+      "https://github.com/ultralytics/ultralytics",
+      "https://github.com/streamlit/streamlit"
+    ]
+  },
+  "data_sources_preview": [
+    {
+      "source_name": "Wizard101 Wiki (Fandom)",
+      "url": "https://wizard101.fandom.com/",
+      "reachable": true,
+      "scrape_allowed": "yes",
+      "best_extraction_method": "HTML_scrape",
+      "data_types_available": [
+        "quest_text",
+        "objectives",
+        "npc_locations",
+        "map_images",
+        "item_tables",
+        "spell_tables",
+        "walkthrough_steps",
+        "screenshots"
+      ],
+      "sample_metadata": "Example quest page: https://wizard101.fandom.com/wiki/Quest:Find_Lost_Scrolls",
+      "license_copyright_notes": "User-contributed; follow Fandom TOS; attribute.",
+      "estimated_collection_feasibility": "high",
+      "suggested_next_steps": [
+        "Respect robots; rate limit 1 req/sec; extract infoboxes and quest sections with provenance"
+      ],
+      "notes": ""
+    },
+    {
+      "source_name": "Wizard101 Official",
+      "url": "https://www.wizard101.com/",
+      "reachable": false,
+      "scrape_allowed": "unknown",
+      "best_extraction_method": "HTML_scrape",
+      "data_types_available": [
+        "patch_notes",
+        "walkthrough_steps",
+        "screenshots"
+      ],
+      "sample_metadata": "Example patch notes: https://www.wizard101.com/game/updates",
+      "license_copyright_notes": "Official content; copyrighted; use summaries/metadata with attribution.",
+      "estimated_collection_feasibility": "medium",
+      "suggested_next_steps": [
+        "Collect patch note titles/dates; do not copy full text"
+      ],
+      "notes": ""
+    },
+    {
+      "source_name": "KingsIsle",
+      "url": "https://www.kingsisle.com/",
+      "reachable": true,
+      "scrape_allowed": "yes",
+      "best_extraction_method": "HTML_scrape",
+      "data_types_available": [
+        "patch_notes",
+        "walkthrough_steps",
+        "screenshots"
+      ],
+      "sample_metadata": "Example patch notes: https://www.wizard101.com/game/updates",
+      "license_copyright_notes": "Official content; copyrighted; use summaries/metadata with attribution.",
+      "estimated_collection_feasibility": "medium",
+      "suggested_next_steps": [
+        "Collect patch note titles/dates; do not copy full text"
+      ],
+      "notes": ""
+    },
+    {
+      "source_name": "Wizard101 Central",
+      "url": "https://www.wizard101central.com/",
+      "reachable": false,
+      "scrape_allowed": "yes",
+      "best_extraction_method": "manual_copy",
+      "data_types_available": [
+        "walkthrough_steps",
+        "map_images",
+        "item_tables",
+        "spell_tables",
+        "community_comments"
+      ],
+      "sample_metadata": "Example guide: https://www.wizard101central.com/wiki/Quest:Main_Story_Quests",
+      "license_copyright_notes": "Fan site; check site terms; manual excerpts with attribution.",
+      "estimated_collection_feasibility": "medium",
+      "suggested_next_steps": [
+        "Manual curation of key quest guides with links"
+      ],
+      "notes": ""
+    },
+    {
+      "source_name": "Reddit r/Wizard101",
+      "url": "https://www.reddit.com/r/Wizard101/",
+      "reachable": true,
+      "scrape_allowed": "yes",
+      "best_extraction_method": "HTML_scrape",
+      "data_types_available": [
+        "community_comments",
+        "walkthrough_steps",
+        "screenshots"
+      ],
+      "sample_metadata": "Example thread: https://www.reddit.com/r/Wizard101/",
+      "license_copyright_notes": "User content; Reddit terms; quote minimally with links.",
+      "estimated_collection_feasibility": "medium",
+      "suggested_next_steps": [
+        "Collect post titles/links via RSS/JSON; avoid full comments storage"
+      ],
+      "notes": ""
+    }
+  ],
+  "milestones_90d": [
+    {
+      "phase": "0-30d",
+      "goals": [
+        "Lock legal/ethics guardrails in code (dev mode logging).",
+        "Grow template/OCR library for HUD stats; measure accuracy baseline.",
+        "Add script catalog with credits + provenance display.",
+        "Prototype diagnostics dashboard."
+      ]
+    },
+    {
+      "phase": "31-60d",
+      "goals": [
+        "Integrate behavior trees/FSM for SmartPlay task orchestration.",
+        "Graph/path routing for common hubs using public maps.",
+        "Add portable + installer build matrix and smoke tests.",
+        "Seed dataset workflow with consented captures."
+      ]
+    },
+    {
+      "phase": "61-90d",
+      "goals": [
+        "Optional YOLOv5 detector prototype.",
+        "Optional offline RL experiments (no live game).",
+        "UI polish + accessibility + About/Credits expansion.",
+        "Publish contributor guide and auto-credit pipeline."
+      ]
+    }
+  ]
+}

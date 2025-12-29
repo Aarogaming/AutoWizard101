@@ -1,8 +1,10 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Linq;
+using System.Drawing;
 using ProjectMaelstrom.Models;
 using ProjectMaelstrom.Modules;
+using ProjectMaelstrom.Modules.ImageRecognition;
 using ProjectMaelstrom.Properties;
 
 namespace ProjectMaelstrom.Utilities;
@@ -22,6 +24,7 @@ internal sealed class SmartPlayManager : IDisposable
     private bool _disposing;
     private SmartTask? _activeTask;
     private readonly string _taskPath;
+    private readonly TemplateLibrary _templateLibrary = TemplateLibrary.Instance;
     private readonly string _tuningPath;
     private SmartTelemetry _telemetry = new();
     private DateTime _taskStartUtc;
@@ -161,6 +164,42 @@ internal sealed class SmartPlayManager : IDisposable
     {
         if (task == null) return;
         _taskQueue.Enqueue(task);
+    }
+
+    /// <summary>
+    /// Attempts to find a template in a given screenshot and enqueue a click at its center.
+    /// </summary>
+    public void EnqueueTemplateClick(string sourceImagePath, string templateKey, double threshold = 0.85, System.Drawing.Rectangle? region = null)
+    {
+        if (string.IsNullOrWhiteSpace(sourceImagePath) || string.IsNullOrWhiteSpace(templateKey))
+        {
+            Logger.LogError("[SmartPlay] Template click skipped: missing source or template key.");
+            return;
+        }
+
+        var templatePath = _templateLibrary.FindTemplatePath(templateKey);
+        if (templatePath == null)
+        {
+            Logger.LogError($"[SmartPlay] Template click skipped: template '{templateKey}' not found.");
+            return;
+        }
+
+        var match = TemplateMatcher.FindBestMatch(sourceImagePath, templatePath, threshold, region);
+        if (!match.Found)
+        {
+            Logger.LogBotAction("SmartPlay", $"Template '{templateKey}' not found (score {match.Score:0.00}).");
+            return;
+        }
+
+        var clickCmd = new InputCommand
+        {
+            Type = "click",
+            X = match.Center.X,
+            Y = match.Center.Y
+        };
+
+        _inputBridge?.Enqueue(clickCmd);
+        Logger.LogBotAction("SmartPlay", $"Template '{templateKey}' matched at {match.Center} (score {match.Score:0.00}) and click enqueued.");
     }
 
     public void SetDesignCaptureHandler(Func<string> captureHandler)

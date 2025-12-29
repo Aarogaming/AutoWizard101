@@ -121,6 +121,7 @@ namespace ProjectMaelstrom
             // 
             panel1.Controls.Add(modeLabel);
             panel1.Controls.Add(filterChipLabel);
+            panel1.Controls.Add(openAboutButton);
             panel1.Controls.Add(statusRibbonLabel);
             panel1.Controls.Add(syncStatusValueLabel);
             panel1.Controls.Add(syncStatusLabel);
@@ -172,6 +173,18 @@ namespace ProjectMaelstrom
             filterChipLabel.Size = new Size(0, 28);
             filterChipLabel.TabIndex = 7;
             filterChipLabel.Visible = false;
+            // 
+            // openAboutButton
+            // 
+            openAboutButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            openAboutButton.AutoSize = true;
+            openAboutButton.Location = new Point(1100, 12);
+            openAboutButton.Name = "openAboutButton";
+            openAboutButton.Size = new Size(52, 30);
+            openAboutButton.TabIndex = 9;
+            openAboutButton.Text = "About";
+            openAboutButton.UseVisualStyleBackColor = true;
+            openAboutButton.Click += openAboutButton_Click;
             // 
             // statusRibbonLabel
             // 
@@ -1025,6 +1038,7 @@ namespace ProjectMaelstrom
         private Label modeLabel;
         private Label filterChipLabel;
         private Label statusRibbonLabel;
+        private Button openAboutButton = null!;
         private FlowLayoutPanel quickPresetPanel;
         private Button presetPotionButton;
         private Button presetPetButton;

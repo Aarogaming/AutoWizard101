@@ -11,6 +11,15 @@ internal static class WinAPI
     public static extern short GetAsyncKeyState(int vKey);
 
     [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count);
+
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern int GetWindowTextLength(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
 
     public const uint MOUSEEVENTF_LEFTDOWN = 0x02;

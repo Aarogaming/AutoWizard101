@@ -822,7 +822,7 @@ public partial class Main : Form
         {
             manageScriptsButton, startConfigurationBtn, loadHalfangBotBtn, loadBazaarReagentBot, launchWizardButton,
             miniModeButton, captureScreenButton, designManagerButton, openDesignFolderButton, recordMacroButton,
-            runMacroButton, learnModeButton, openLearnLogsButton, panicStopButton
+            runMacroButton, learnModeButton, openLearnLogsButton, panicStopButton, openAboutButton
         };
         foreach (var btn in navButtons)
         {
@@ -1481,6 +1481,16 @@ public partial class Main : Form
     private void presetBazaarButton_Click(object sender, EventArgs e)
     {
         goBazaarButton_Click(sender, e);
+    }
+
+    private void openAboutButton_Click(object sender, EventArgs e)
+    {
+        using var about = new AboutForm
+        {
+            StartPosition = FormStartPosition.CenterParent,
+            TopMost = true
+        };
+        about.ShowDialog(this);
     }
 
     private void mapViewerButton_Click(object sender, EventArgs e)

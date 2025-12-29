@@ -16,6 +16,8 @@ internal sealed class InputBridge : IDisposable
     private bool _disposing;
     private readonly Queue<InputCommand> _queue = new();
     private readonly object _lock = new();
+    private readonly int _minDelayMs = 35; // small throttle to avoid spamming inputs
+    private DateTime _lastDispatchUtc = DateTime.MinValue;
     public bool IsIdle
     {
         get
@@ -133,10 +135,19 @@ internal sealed class InputBridge : IDisposable
 
             if (cmd == null) continue;
 
+            // simple rate limiter between dispatched commands
+            var now = DateTime.UtcNow;
+            var sinceLast = (now - _lastDispatchUtc).TotalMilliseconds;
+            if (sinceLast < _minDelayMs)
+            {
+                Thread.Sleep(_minDelayMs - (int)sinceLast);
+            }
+
             if (Dispatch(cmd) && cmd.DelayMs > 0)
             {
                 Thread.Sleep(cmd.DelayMs);
             }
+            _lastDispatchUtc = DateTime.UtcNow;
         }
     }
 
@@ -150,15 +161,35 @@ internal sealed class InputBridge : IDisposable
         switch (command.Type.Trim().ToLowerInvariant())
         {
             case "click":
+                if (!_controller.EnsureGameForeground())
+                {
+                    Logger.LogBotAction("InputBridge", "Skipped click: Wizard101 not focused");
+                    return false;
+                }
                 _controller.Click(new Point(command.X, command.Y));
                 return true;
             case "key_press":
+                if (!_controller.EnsureGameForeground())
+                {
+                    Logger.LogBotAction("InputBridge", "Skipped key_press: Wizard101 not focused");
+                    return false;
+                }
                 _controller.KeyPress(command.Key ?? string.Empty);
                 return true;
             case "key_down":
+                if (!_controller.EnsureGameForeground())
+                {
+                    Logger.LogBotAction("InputBridge", "Skipped key_down: Wizard101 not focused");
+                    return false;
+                }
                 _controller.KeyDown(command.Key ?? string.Empty);
                 return true;
             case "key_up":
+                if (!_controller.EnsureGameForeground())
+                {
+                    Logger.LogBotAction("InputBridge", "Skipped key_up: Wizard101 not focused");
+                    return false;
+                }
                 _controller.KeyUp(command.Key ?? string.Empty);
                 return true;
             case "delay":

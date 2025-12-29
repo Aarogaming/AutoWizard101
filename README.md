@@ -87,6 +87,14 @@ dotnet run --project ProjectMaelstrom
 - Run: `dotnet run --project ProjectMaelstrom`
 - Tests: `dotnet run --project ProjectMaelstrom` and click “Run Tests” in the UI (light utility tests).
 
+## Credits & Licenses
+- Emgu CV (OpenCV bindings) for image processing and template matching (BSD).
+- Tesseract OCR (Apache 2.0) for local text extraction.
+- WindowsInput/InputSimulator (MIT) for keyboard input.
+- Newtonsoft.Json (MIT) for JSON handling.
+- System.Drawing / Win32 interop for window/input helpers.
+- Community scripts/bots in `Scripts/Library` retain their original authorship; source URLs and authors should be listed in each `manifest.json` and surfaced in-app.
+
 ## TODO (single list)
 - UI/UX: fix button text clipping/spacing across all forms; give nav buttons more width; surface script author/source in the main list; wire "Run Macro" entry in nav to the Macro Runner; explore an optional Steam/Nvidia-style in-game overlay for status/hotkeys.
 - SmartPlay/Learn Mode: expose learn-mode profile (mixed/seek/avoid) and monster seek/avoid toggles; add health/mana/resource guards and auto-pause when Wizard101 loses focus; show SmartPlay queue length/status; keep capture/record behind dev when appropriate; spike "task learning" that watches player inputs and derives repeatable tasks/macros safely; leverage WizWiki data (cached/offline) to map mobs/zones for seek/avoid routing without live scraping.
