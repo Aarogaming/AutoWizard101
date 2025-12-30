@@ -31,6 +31,7 @@ Framework
 - Status communication: do not rely on color-only; keep accompanying text labels (status, profiles).
 - Disabled readability: disabled text must remain legible.
 - WinForms limitation: global corner radius requires custom paint; keep radius usage minimal unless custom drawn.
+- Settings -> Minigames: filters/list/details must keep visible focus cues and readable text at 175%; status/metadata should include text, not color alone.
 
 ## DPI notes
 - To be defined (100/125/150/175 scaling expectations).
