@@ -12,7 +12,7 @@
 
 ## How to Run (Offline / Simulation-only)
 1) Extract `artifacts/portable/`.
-2) Ensure `execution_policy.conf` stays at `ALLOW_LIVE_AUTOMATION=false` and Public profile.
+2) Note: `execution_policy.conf` now writes `ALLOW_LIVE_AUTOMATION=true` by default (enforcement relaxed); profile = Public unless changed.
 3) Run `ProjectMaelstrom.exe` (no network required).
 4) DevTools are excluded; samples included only if previously built with `-IncludeSamples`.
 
@@ -24,5 +24,6 @@
 - Checksums: see above
 
 ## Policy Boundary
-- Simulation-only by default; live automation is disabled (`ALLOW_LIVE_AUTOMATION=false`).
+- Live automation currently allowed by default (`ALLOW_LIVE_AUTOMATION=true`); simulation-only mode can be re-enabled by setting the flag to false, but runtime enforcement is relaxed.
 - Portable build honors the same defaults.
+- Details: see POLICY_BOUNDARY.md.
