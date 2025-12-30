@@ -1,5 +1,12 @@
 # UX Changelog
 
+## UX V1 CHECKPOINT (2025-12-30, branch ux/beautify-v1)
+- Scope: Screen 1 (Main), Screen 2 (Settings -> Minigames); tokens foundation.
+- Constraints reaffirmed: cosmetic-only; behavior and tab order unchanged; gold untouched; artifacts under artifacts/ux/** ignored.
+- Codex review: ACCEPT (UX profile, template ux).
+- Risks: WinForms DPI/resize drift, ForeColor reliance on defaults, Segoe UI availability.
+- How to verify: spot-check at 100/175% DPI; resize smaller/larger; confirm focus visibility and legible text in filters/list/details.
+
 ## Overview
 - Track cosmetic-only UX changes on branch ux/beautify-v1.
 

@@ -33,5 +33,9 @@ Framework
 - WinForms limitation: global corner radius requires custom paint; keep radius usage minimal unless custom drawn.
 - Settings -> Minigames: filters/list/details must keep visible focus cues and readable text at 175%; status/metadata should include text, not color alone.
 
+## UX V1 status (Screen 1 + Screen 2)
+- Risks: potential DPI/resize drift in WinForms layouts; dark list/details surfaces rely on default ForeColor; assumes Segoe UI availability (fallback could slightly shift sizing).
+- How to test: run at 100% and 175% DPI; resize smaller/larger; verify focus visibility on filters/list/details; confirm text remains legible and no clipping.
+
 ## DPI notes
 - To be defined (100/125/150/175 scaling expectations).
