@@ -18,7 +18,8 @@ internal static class Program
         bool Verbose,
         string Profile,
         bool NoRotate,
-        int MaxArchives);
+        int MaxArchives,
+        string Template);
 
     private static readonly string Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
     private static string RepoRoot = Path.GetFullPath(Directory.GetCurrentDirectory());
@@ -77,6 +78,7 @@ internal static class Program
         var profile = "docs";
         var noRotate = false;
         var maxArchives = 10;
+        var template = "docs";
 
         for (int i = 1; i < args.Length; i++)
         {
@@ -106,6 +108,10 @@ internal static class Program
                     profile = args[++i].ToLowerInvariant();
                     if (profile != "docs" && profile != "ux") throw new InvalidOperationException("Profile must be docs or ux");
                     break;
+                case "--template":
+                    if (i + 1 >= args.Length) throw new InvalidOperationException("--template requires value");
+                    template = args[++i].ToLowerInvariant();
+                    break;
                 case "--no-rotate":
                     noRotate = true;
                     break;
@@ -118,14 +124,14 @@ internal static class Program
             }
         }
 
-        return new Config(command, root, clean, includeDiffs, includeFiles, allowNoScan, verbose, profile, noRotate, maxArchives);
+        return new Config(command, root, clean, includeDiffs, includeFiles, allowNoScan, verbose, profile, noRotate, maxArchives, template);
     }
 
     private static int Usage()
     {
         Console.WriteLine("HandoffBridge commands:");
-        Console.WriteLine("  export [--root <path>] [--clean] [--include-diffs] [--no-files] [--allow-no-scan] [--verbose] [--profile docs|ux] [--no-rotate] [--max-archives N]");
-        Console.WriteLine("  import [--root <path>] [--allow-no-scan] [--verbose] [--profile docs|ux] [--no-rotate] [--max-archives N]");
+        Console.WriteLine("  export [--root <path>] [--clean] [--include-diffs] [--no-files] [--allow-no-scan] [--verbose] [--profile docs|ux] [--template <name>] [--no-rotate] [--max-archives N]");
+        Console.WriteLine("  import [--root <path>] [--allow-no-scan] [--verbose] [--profile docs|ux] [--template <name>] [--no-rotate] [--max-archives N]");
         Console.WriteLine("  --version");
         return 1;
     }
@@ -156,55 +162,12 @@ internal static class Program
 
         var fileList = cfg.IncludeFiles ? GetFileList(cfg) : Array.Empty<string>();
         var diffs = cfg.IncludeDiffs ? GetDiffs(cfg) : Array.Empty<string>();
+        var prompt = RenderTemplate(cfg, git, fileList, diffs);
+        File.WriteAllText(handoffPath, prompt);
 
-        var prompt = new StringBuilder();
-        prompt.AppendLine(Header("Handoff to Codex", cfg));
-        prompt.AppendLine("```");
-        prompt.AppendLine($"You are continuing Project Maelstrom (branch: {git.Branch}).");
-        prompt.AppendLine();
-        prompt.AppendLine("Context files:");
-        prompt.AppendLine("- POLICY_BOUNDARY.md");
-        prompt.AppendLine("- SUBMISSION.md");
-        prompt.AppendLine("- VERIFY.md");
-        prompt.AppendLine("- artifacts/submission/INDEX.txt");
-        prompt.AppendLine("- artifacts/submission/REPRO_STAMP.txt");
-        prompt.AppendLine();
-        prompt.AppendLine("Git:");
-        prompt.AppendLine($"- Branch: {git.Branch}");
-        prompt.AppendLine($"- Commit: {git.Commit}");
-        prompt.AppendLine("- Status:");
-        prompt.AppendLine(git.Status);
-        if (fileList.Length > 0)
-        {
-            prompt.AppendLine();
-            prompt.AppendLine("Recent files (names only):");
-            foreach (var f in fileList) prompt.AppendLine($"- {f}");
-        }
-        if (diffs.Length > 0)
-        {
-            prompt.AppendLine();
-            prompt.AppendLine("Recent diffs (name-only):");
-            foreach (var d in diffs) prompt.AppendLine($"- {d}");
-        }
-        prompt.AppendLine();
-        if (cfg.Profile == "docs")
-        {
-            prompt.AppendLine("DO NOT TOUCH: runtime, executors, policies, packaging, tests, or UI visuals.");
-        }
-        else
-        {
-            prompt.AppendLine("DO NOT TOUCH: runtime, executors, policies, packaging, tests. UI cosmetic changes only.");
-        }
-        prompt.AppendLine("Required output: write response to artifacts/handoff/from_codex/RESULT.md with EXACTLY ONE fenced code block.");
-        prompt.AppendLine();
-        prompt.AppendLine("Instructions:");
-        prompt.AppendLine("- IMPORTANT: Put your entire final response in a single code block.");
-        prompt.AppendLine("- Summarize changes, files touched, tests run/results, warnings/errors.");
-        prompt.AppendLine("```");
-        File.WriteAllText(handoffPath, prompt.ToString());
-
-        EnsureSingleCodeBlock(File.ReadAllText(handoffPath));
-        EnsureCodeBlockNotEmpty(File.ReadAllText(handoffPath));
+        var handoffContent = File.ReadAllText(handoffPath);
+        EnsureSingleCodeBlock(handoffContent);
+        EnsureCodeBlockNotEmpty(handoffContent);
 
         RunSecretScan(cfg, handoffPath);
         RunSecretScan(cfg, contextPath);
@@ -577,6 +540,49 @@ internal static class Program
     }
 
     private static string PathCombine(string root, string name) => Path.Combine(root, name);
+
+    private static string RenderTemplate(Config cfg, (string Branch, string Commit, string Status) git, string[] fileList, string[] diffs)
+    {
+        var templateName = string.IsNullOrWhiteSpace(cfg.Template) ? "docs" : cfg.Template;
+        var templatePath = Path.Combine(RepoRoot, "DevTools", "HandoffBridge", "Templates", templateName + ".md");
+        if (!File.Exists(templatePath)) throw new InvalidOperationException($"Template not found: {templateName}");
+
+        var template = File.ReadAllText(templatePath);
+        template = template.Replace("{{branch}}", git.Branch)
+                           .Replace("{{commit}}", git.Commit)
+                           .Replace("{{profile}}", cfg.Profile)
+                           .Replace("{{version}}", Version);
+
+        var sb = new StringBuilder();
+        sb.AppendLine(Header($"Handoff to Codex (template={templateName})", cfg));
+        sb.AppendLine("```");
+        sb.AppendLine(template.TrimEnd());
+        sb.AppendLine();
+        sb.AppendLine("Git:");
+        sb.AppendLine($"- Branch: {git.Branch}");
+        sb.AppendLine($"- Commit: {git.Commit}");
+        sb.AppendLine("- Status:");
+        sb.AppendLine(git.Status);
+        if (fileList.Length > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("Recent files (names only):");
+            foreach (var f in fileList) sb.AppendLine($"- {f}");
+        }
+        if (diffs.Length > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("Recent diffs (name-only):");
+            foreach (var d in diffs) sb.AppendLine($"- {d}");
+        }
+        sb.AppendLine();
+        sb.AppendLine("Required output: write response to artifacts/handoff/from_codex/RESULT.md with EXACTLY ONE fenced code block.");
+        sb.AppendLine("Instructions:");
+        sb.AppendLine("- IMPORTANT: Put your entire final response in a single code block.");
+        sb.AppendLine("- Summarize changes, files touched, tests run/results, warnings/errors.");
+        sb.AppendLine("```");
+        return sb.ToString();
+    }
 
     private static IEnumerable<string> CollectArchives(string prefix, string extension)
     {
