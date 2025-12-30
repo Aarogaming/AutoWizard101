@@ -101,6 +101,12 @@ dotnet run --project ProjectMaelstrom
 - System.Drawing / Win32 interop for window/input helpers.
 - Community scripts/bots in `Scripts/Library` retain their original authorship; source URLs and authors should be listed in each `manifest.json` and surfaced in-app.
 
+## Project Maturity
+- Gold baseline: v1.0.0-gold (immutable runtime/policy).
+- UX milestone: v1.1.0-ux (cosmetic-only; behavior/tab order unchanged).
+- Tooling: v1.0.2-tools (handoff bridge, CI-gated).
+- Stewardship: maintenance docs (UX_MAINTENANCE.md, STEWARDSHIP_CHECKLIST.md, TAG_POLICY.md) keep scope controlled.
+
 ## Quick Verify
 - Build: `dotnet build ProjectMaelstrom/ProjectMaelstrom.sln -c Debug`
 - Visual spot-check: open Screen 1 (Main) and Screen 2 (Settings → Minigames) at 175% DPI and a narrow window width for clipping.
