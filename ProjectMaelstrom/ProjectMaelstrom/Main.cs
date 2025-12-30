@@ -359,7 +359,7 @@ public partial class Main : Form
         launcherStatusLabel.Text = $"Launcher: {launcherDesc}";
         launcherStatusLabel.ForeColor = launcherState switch
         {
-            WizardLauncher.LauncherState.GameRunning => Color.LightGreen,
+            WizardLauncher.LauncherState.GameRunning => UiColorTokens.AccentGreenText,
             WizardLauncher.LauncherState.LauncherRunning => UiColorTokens.StatusDefaultText,
             _ => UiColorTokens.StatusReferenceText
         };
@@ -1407,7 +1407,7 @@ public partial class Main : Form
         if (pieces.Count == 0)
         {
             guardStatusLabel.Text = "Guards: OK";
-            guardStatusLabel.ForeColor = Color.LightGreen;
+            guardStatusLabel.ForeColor = UiColorTokens.AccentGreenText;
         }
         else
         {
@@ -2037,14 +2037,14 @@ public partial class Main : Form
             profileExperimentalButton.BackColor = UiColorTokens.StatusDeprecatedBack;
             profileExperimentalButton.ForeColor = UiColorTokens.StatusDeprecatedText;
             profilePublicButton.BackColor = UiColorTokens.AccentGreen;
-            profilePublicButton.ForeColor = Color.LightGreen;
+            profilePublicButton.ForeColor = UiColorTokens.AccentGreenText;
         }
         else
         {
             profileWarningLabel.Text = string.Empty;
             profileWarningLabel.Visible = false;
             profilePublicButton.BackColor = UiColorTokens.AccentGreen;
-            profilePublicButton.ForeColor = Color.LightGreen;
+            profilePublicButton.ForeColor = UiColorTokens.AccentGreenText;
             profileExperimentalButton.BackColor = UiColorTokens.ProfileExperimentalBack;
             profileExperimentalButton.ForeColor = UiColorTokens.StatusDeprecatedText;
         }
