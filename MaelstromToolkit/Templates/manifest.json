@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templates": [
+    { "name": "POLICY_BOUNDARY.md", "folder": "Policy" },
+    { "name": "policy.config.sample", "folder": "Policy" },
+    { "name": "TAG_POLICY.md", "folder": "Tags" },
+    { "name": "STEWARDSHIP_CHECKLIST.md", "folder": "Stewardship" },
+    { "name": "FEEDBACK_LOG.md", "folder": "Stewardship" },
+    { "name": "UX_MAINTENANCE.md", "folder": "UX" },
+    { "name": "UX_STYLE_GUIDE.md", "folder": "UX" },
+    { "name": "UX_CHANGELOG.md", "folder": "UX" },
+    { "name": "UX_TOKENS.md", "folder": "UX" },
+    { "name": "github_tools-only_workflow.yml", "folder": "CI" },
+    { "name": "README.md", "folder": "Handoff" }
+  ]
+}

@@ -49,6 +49,8 @@ internal static class Program
                 return 2;
             }
 
+            Console.WriteLine($"MaelstromToolkit {GetVersion()} | command={options.Command} {options.Subcommand}".Trim());
+
             switch (options.Command)
             {
                 case "init":
@@ -191,7 +193,7 @@ internal static class Program
             warnings.Add($"Skipped existing file: {dest}");
             return;
         }
-        WriteFile(dest, content, options, summary);
+        WriteFile(dest, content, options, summary, File.Exists(dest));
     }
 
     private static int RunSelftest(CommandOptions options, List<string> summary, List<string> warnings)
@@ -210,6 +212,19 @@ internal static class Program
             ("CI","github_tools-only_workflow.yml"),
             ("Handoff","README.md"),
         };
+
+        var schemaVersion = Path.Combine(AppContext.BaseDirectory, "Templates", "schema_version.txt");
+        var manifest = Path.Combine(AppContext.BaseDirectory, "Templates", "manifest.json");
+        if (!File.Exists(schemaVersion))
+        {
+            Console.Error.WriteLine("SELFTEST FAIL: missing schema_version.txt");
+            return 1;
+        }
+        if (!File.Exists(manifest))
+        {
+            Console.Error.WriteLine("SELFTEST FAIL: missing manifest.json");
+            return 1;
+        }
 
         foreach (var (folder, name) in templates)
         {
@@ -242,7 +257,7 @@ internal static class Program
         return 0;
     }
 
-    private static void WriteFile(string path, string content, CommandOptions options, List<string> summary)
+    private static void WriteFile(string path, string content, CommandOptions options, List<string> summary, bool existed)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         var utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
@@ -251,7 +266,7 @@ internal static class Program
         if (options.DryRun)
         {
             File.Delete(tmp);
-            summary.Add($"(dry-run) {path}");
+            summary.Add($"(dry-run) {(existed ? "would overwrite" : "would create")} {path}");
             return;
         }
         File.Move(tmp, path, overwrite: true);
@@ -293,10 +308,22 @@ internal static class Program
             Console.Error.WriteLine("ERROR: --out cannot be a filesystem root.");
             return false;
         }
+        if (IsSymlink(full))
+        {
+            Console.Error.WriteLine("ERROR: --out cannot be a symlinked directory.");
+            return false;
+        }
         if (options.Verbose)
         {
             Console.WriteLine($"Using output directory: {full}");
         }
         return true;
+    }
+
+    private static bool IsSymlink(string path)
+    {
+        var dirInfo = new DirectoryInfo(path);
+        if (!dirInfo.Exists) return false;
+        return dirInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
     }
 }
