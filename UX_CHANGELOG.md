@@ -7,7 +7,7 @@
 - (none yet)
 
 ## Commits
-- (pending)
+- ux: introduce design tokens (no visual change)
 
 ## Notes
 - UX changes are cosmetic-only; gold baselines remain untouched.

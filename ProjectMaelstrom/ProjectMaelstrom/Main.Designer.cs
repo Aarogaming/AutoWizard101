@@ -1,3 +1,5 @@
+using ProjectMaelstrom.Utilities;
+
 namespace ProjectMaelstrom
 {
     partial class Main
@@ -191,7 +193,7 @@ namespace ProjectMaelstrom
             // 
             filterChipLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             filterChipLabel.AutoSize = true;
-            filterChipLabel.BackColor = Color.FromArgb(50, 74, 110);
+            filterChipLabel.BackColor = UiColorTokens.FilterChipBack;
             filterChipLabel.ForeColor = Color.Gold;
             filterChipLabel.Location = new Point(850, 20);
             filterChipLabel.Name = "filterChipLabel";
@@ -226,7 +228,7 @@ namespace ProjectMaelstrom
             // 
             profilePublicButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             profilePublicButton.AutoSize = true;
-            profilePublicButton.BackColor = Color.FromArgb(28, 94, 65);
+            profilePublicButton.BackColor = UiColorTokens.ProfilePublicBack;
             profilePublicButton.ForeColor = Color.White;
             profilePublicButton.Location = new Point(770, 10);
             profilePublicButton.Name = "profilePublicButton";
@@ -240,7 +242,7 @@ namespace ProjectMaelstrom
             // 
             profileExperimentalButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             profileExperimentalButton.AutoSize = true;
-            profileExperimentalButton.BackColor = Color.FromArgb(120, 30, 30);
+            profileExperimentalButton.BackColor = UiColorTokens.ProfileExperimentalBack;
             profileExperimentalButton.ForeColor = Color.White;
             profileExperimentalButton.Location = new Point(770, 38);
             profileExperimentalButton.Name = "profileExperimentalButton";

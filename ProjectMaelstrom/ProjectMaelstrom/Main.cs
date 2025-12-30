@@ -357,8 +357,8 @@ public partial class Main : Form
         launcherStatusLabel.ForeColor = launcherState switch
         {
             WizardLauncher.LauncherState.GameRunning => Color.LightGreen,
-            WizardLauncher.LauncherState.LauncherRunning => Color.Gold,
-            _ => Color.Silver
+            WizardLauncher.LauncherState.LauncherRunning => UiColorTokens.StatusDefaultText,
+            _ => UiColorTokens.StatusReferenceText
         };
         switch (syncState.Health)
         {
@@ -1409,7 +1409,7 @@ public partial class Main : Form
         else
         {
             guardStatusLabel.Text = $"Guards: {string.Join(", ", pieces)}";
-            guardStatusLabel.ForeColor = Color.Gold;
+            guardStatusLabel.ForeColor = UiColorTokens.StatusDefaultText;
         }
 
         UpdateStatusRibbon();
@@ -1701,7 +1701,7 @@ public partial class Main : Form
             ApplyTypeStyling(item, badge);
             if (i % 2 == 1)
             {
-                item.BackColor = Color.FromArgb(26, 34, 58);
+                item.BackColor = UiColorTokens.SurfaceDark;
             }
             trainerListView.Items.Add(item);
         }
@@ -1919,10 +1919,10 @@ public partial class Main : Form
     {
         return badge switch
         {
-            "external" => (Color.FromArgb(24, 92, 96), Color.FromArgb(180, 255, 255)),
-            "reference" => (Color.FromArgb(54, 54, 54), Color.Silver),
-            "deprecated" => (Color.FromArgb(104, 52, 52), Color.MistyRose),
-            _ => (Color.FromArgb(62, 74, 110), Color.Gold)
+            "external" => (UiColorTokens.StatusExternalBack, UiColorTokens.StatusExternalText),
+            "reference" => (UiColorTokens.StatusReferenceBack, UiColorTokens.StatusReferenceText),
+            "deprecated" => (UiColorTokens.StatusDeprecatedBack, UiColorTokens.StatusDeprecatedText),
+            _ => (UiColorTokens.StatusDefaultBack, UiColorTokens.StatusDefaultText)
         };
     }
 
@@ -1992,19 +1992,19 @@ public partial class Main : Form
         {
             profileWarningLabel.Text = "Experimental features enabled (simulation only, live disabled)";
             profileWarningLabel.Visible = true;
-            profileExperimentalButton.BackColor = Color.FromArgb(104, 52, 52);
-            profileExperimentalButton.ForeColor = Color.MistyRose;
-            profilePublicButton.BackColor = Color.FromArgb(34, 74, 54);
+            profileExperimentalButton.BackColor = UiColorTokens.StatusDeprecatedBack;
+            profileExperimentalButton.ForeColor = UiColorTokens.StatusDeprecatedText;
+            profilePublicButton.BackColor = UiColorTokens.AccentGreen;
             profilePublicButton.ForeColor = Color.LightGreen;
         }
         else
         {
             profileWarningLabel.Text = string.Empty;
             profileWarningLabel.Visible = false;
-            profilePublicButton.BackColor = Color.FromArgb(34, 74, 54);
+            profilePublicButton.BackColor = UiColorTokens.AccentGreen;
             profilePublicButton.ForeColor = Color.LightGreen;
-            profileExperimentalButton.BackColor = Color.FromArgb(74, 34, 34);
-            profileExperimentalButton.ForeColor = Color.MistyRose;
+            profileExperimentalButton.BackColor = UiColorTokens.ProfileExperimentalBack;
+            profileExperimentalButton.ForeColor = UiColorTokens.StatusDeprecatedText;
         }
     }
 

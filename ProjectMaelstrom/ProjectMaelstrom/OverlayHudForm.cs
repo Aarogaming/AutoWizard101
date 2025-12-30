@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
+using ProjectMaelstrom.Utilities;
 
 namespace ProjectMaelstrom
 {
@@ -14,7 +15,7 @@ namespace ProjectMaelstrom
             FormBorderStyle = FormBorderStyle.None;
             ShowInTaskbar = false;
             TopMost = true;
-            BackColor = Color.FromArgb(18, 24, 38);
+            BackColor = UiColorTokens.SurfaceDeep;
             ForeColor = Color.Gold;
             Opacity = 0.9;
             StartPosition = FormStartPosition.Manual;
