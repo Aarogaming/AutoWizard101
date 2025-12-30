@@ -140,3 +140,9 @@ ProjectMaelstrom/
 
 
 
+
+## Tags
+- v1.0.0-gold: canonical baseline (offline-only, simulation-only; immutable)
+- v1.0.2-tools: handoff bridge tooling (cross-platform, CI-gated)
+- v1.1.0-ux: UX V1 cosmetic milestone (Screen 1 + Screen 2; tokens foundation; gold unchanged)
+
