@@ -1,4 +1,5 @@
 # Project Maelstrom
+[![CI](https://github.com/Aarogaming/AutoWizard101/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Aarogaming/AutoWizard101/actions/workflows/ci.yml)
 
 Wizard101 automation toolkit with bots, OCR-driven utilities, and a script runner that can load community scripts from a shared library folder.
 
