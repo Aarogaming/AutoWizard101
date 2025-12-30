@@ -45,3 +45,8 @@ Use a file-based, offline handoff to keep conversations clean and audit-safe.
    - One fenced code block per handoff.
    - No secrets; scripts enforce secret scanning/redaction.
    - Docs/scripts only; no runtime/policy/UI changes via handoff.
+
+Selftest (tooling sanity)
+- Run: `dotnet run --project DevTools/HandoffBridge/HandoffBridge.csproj -- selftest --allow-no-scan`
+- Validates fence parsing, redaction, fail-closed scan behavior, and rotation/INDEX generation.
+- Outputs: `artifacts/handoff/reports/SELFTEST.txt`

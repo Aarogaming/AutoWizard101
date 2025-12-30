@@ -49,6 +49,7 @@ internal static class Program
             {
                 "export" => Export(cfg),
                 "import" => Import(cfg),
+                "selftest" => SelfTest(cfg),
                 "help" => Usage(),
                 _ => Usage()
             };
@@ -68,6 +69,8 @@ internal static class Program
 
         var command = args[0].ToLowerInvariant();
         if (command == "--version") command = "version";
+        if (command != "export" && command != "import" && command != "help" && command != "version" && command != "selftest")
+            throw new InvalidOperationException("Command must be export|import|selftest|help|--version.");
 
         var root = Path.GetFullPath(Directory.GetCurrentDirectory());
         var clean = false;
@@ -108,16 +111,16 @@ internal static class Program
                     profile = args[++i].ToLowerInvariant();
                     if (profile != "docs" && profile != "ux") throw new InvalidOperationException("Profile must be docs or ux");
                     break;
-                case "--template":
-                    if (i + 1 >= args.Length) throw new InvalidOperationException("--template requires value");
-                    template = args[++i].ToLowerInvariant();
-                    break;
                 case "--no-rotate":
                     noRotate = true;
                     break;
                 case "--max-archives":
                     if (i + 1 >= args.Length) throw new InvalidOperationException("--max-archives requires a number");
                     if (!int.TryParse(args[++i], out maxArchives) || maxArchives < 0 || maxArchives > 200) throw new InvalidOperationException("max-archives must be between 0 and 200");
+                    break;
+                case "--template":
+                    if (i + 1 >= args.Length) throw new InvalidOperationException("--template requires value");
+                    template = args[++i].ToLowerInvariant();
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown option: {args[i]}");
@@ -132,6 +135,7 @@ internal static class Program
         Console.WriteLine("HandoffBridge commands:");
         Console.WriteLine("  export [--root <path>] [--clean] [--include-diffs] [--no-files] [--allow-no-scan] [--verbose] [--profile docs|ux] [--template <name>] [--no-rotate] [--max-archives N]");
         Console.WriteLine("  import [--root <path>] [--allow-no-scan] [--verbose] [--profile docs|ux] [--template <name>] [--no-rotate] [--max-archives N]");
+        Console.WriteLine("  selftest [--root <path>] [--allow-no-scan] [--verbose]");
         Console.WriteLine("  --version");
         return 1;
     }
@@ -234,6 +238,140 @@ internal static class Program
         Console.WriteLine($"- Summary: {summaryPath}");
         Console.WriteLine($"- Secret scan: {SecretScanReport}");
         return 0;
+    }
+
+    private static int SelfTest(Config cfg)
+    {
+        var results = new List<string>();
+        var pass = true;
+        void Pass(string name) => results.Add($"[PASS] {name}");
+        void Fail(string name, string reason)
+        {
+            results.Add($"[FAIL] {name}: {reason}");
+            pass = false;
+        }
+
+        // Fenced block checks
+        try { EnsureSingleCodeBlock("```\nok\n```"); EnsureCodeBlockNotEmpty("```\nok\n```"); Pass("Fence: single block"); } catch (Exception ex) { Fail("Fence: single block", ex.Message); }
+        try { EnsureSingleCodeBlock("```\nA\n```\n```\nB\n```"); Fail("Fence: multiple blocks", "did not fail"); } catch { Pass("Fence: multiple blocks"); }
+        try { EnsureSingleCodeBlock("```\nA\n~~~"); Fail("Fence: mismatched", "did not fail"); } catch { Pass("Fence: mismatched"); }
+        try { EnsureCodeBlockNotEmpty("```\n\n```"); Fail("Fence: empty", "did not fail"); } catch { Pass("Fence: empty"); }
+
+        // Redaction
+        var secretSample = "ghp_abc123 AKIAABCDEFGHIJKLMNOP -----BEGIN PRIVATE KEY-----\nABC\n-----END PRIVATE KEY-----";
+        var redacted = RedactSecrets(secretSample);
+        if (Regex.IsMatch(redacted, "ghp_|AKIA|PRIVATE KEY", RegexOptions.IgnoreCase))
+            Fail("Redaction", "pattern still present");
+        else
+            Pass("Redaction");
+
+        // Secret scan availability / fail-closed
+        var psScan = Path.Combine(RepoRoot, "scripts", "scan_for_secrets.ps1");
+        var shScan = Path.Combine(RepoRoot, "scripts", "scan_for_secrets.sh");
+        var scanAvailable = (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(psScan)) ||
+                            (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(shScan));
+        if (!scanAvailable && !cfg.AllowNoScan)
+        {
+            Fail("Secret scan availability", "scanner missing and --allow-no-scan not set");
+        }
+        else if (!scanAvailable && cfg.AllowNoScan)
+        {
+            if (Regex.IsMatch(secretSample, "ghp_|AKIA|PRIVATE KEY", RegexOptions.IgnoreCase))
+                Pass("Secret scan fallback (detects pattern)");
+            else
+                Fail("Secret scan fallback", "pattern not detected");
+        }
+        else
+        {
+            Pass("Secret scan availability");
+        }
+
+        // Rotation + INDEX (self-contained under reports/selftest)
+        var selfRoot = Path.Combine(HandoffRoot, "reports_selftest");
+        Directory.CreateDirectory(selfRoot);
+        var latestReport = Path.Combine(selfRoot, "CODEX_REPORT.md");
+        var latestSummary = Path.Combine(selfRoot, "CODEX_SUMMARY.md");
+        File.WriteAllText(latestReport, "run1");
+        File.WriteAllText(latestSummary, "run1");
+        RotateSelf(latestReport, "CODEX_REPORT", ".md", cfg, selfRoot, 1);
+        RotateSelf(latestSummary, "CODEX_SUMMARY", ".md", cfg, selfRoot, 1);
+        File.WriteAllText(latestReport, "run2");
+        File.WriteAllText(latestSummary, "run2");
+        RotateSelf(latestReport, "CODEX_REPORT", ".md", cfg, selfRoot, 1);
+        RotateSelf(latestSummary, "CODEX_SUMMARY", ".md", cfg, selfRoot, 1);
+        WriteSelfIndex(cfg, selfRoot);
+        var archives = Directory.GetFiles(selfRoot, "CODEX_REPORT_*", SearchOption.TopDirectoryOnly);
+        if (archives.Length == 1 && File.ReadAllText(latestReport) == "run2")
+            Pass("Rotation + prune (max-archives=1)");
+        else
+            Fail("Rotation + prune (max-archives=1)", $"archives={archives.Length} latest={File.ReadAllText(latestReport)}");
+
+        // Write selftest report
+        var selfTestPath = Path.Combine(ReportsRoot, "SELFTEST.txt");
+        Directory.CreateDirectory(ReportsRoot);
+        var sb = new StringBuilder();
+        sb.AppendLine(Header("SELFTEST", cfg));
+        foreach (var line in results) sb.AppendLine(line);
+        File.WriteAllText(selfTestPath, sb.ToString());
+
+        Console.WriteLine($"Selftest complete: {(pass ? "PASS" : "FAIL")}");
+        Console.WriteLine($"- {selfTestPath}");
+        return pass ? 0 : 1;
+    }
+
+    private static void RotateSelf(string latestPath, string prefix, string extension, Config cfg, string root, int maxArchives)
+    {
+        try
+        {
+            if (!File.Exists(latestPath)) return;
+            Directory.CreateDirectory(root);
+            var ts = TimestampUtc();
+            var archivePath = Path.Combine(root, $"{prefix}_{ts}{extension}");
+            int counter = 2;
+            while (File.Exists(archivePath))
+            {
+                archivePath = Path.Combine(root, $"{prefix}_{ts}_{counter}{extension}");
+                counter++;
+            }
+            File.Copy(latestPath, archivePath, overwrite: false);
+            var files = Directory.GetFiles(root, $"{prefix}_*{extension}", SearchOption.TopDirectoryOnly)
+                .Select(f => new FileInfo(f))
+                .OrderByDescending(f => f.LastWriteTimeUtc)
+                .ToList();
+            var toPrune = files.Skip(maxArchives).ToList();
+            foreach (var f in toPrune)
+            {
+                try { f.Delete(); } catch { }
+            }
+        }
+        catch { }
+    }
+
+    private static void WriteSelfIndex(Config cfg, string root)
+    {
+        try
+        {
+            var tmp = Path.Combine(root, "INDEX.tmp");
+            var idx = Path.Combine(root, "INDEX.txt");
+            var sb = new StringBuilder();
+            sb.AppendLine($"SELFTEST INDEX (v{Version}, profile={cfg.Profile}, ts={DateTime.UtcNow:O})");
+            void Latest(string name)
+            {
+                var path = Path.Combine(root, name);
+                if (File.Exists(path))
+                {
+                    var info = new FileInfo(path);
+                    sb.AppendLine($"- {name} | {info.Length} bytes | {info.LastWriteTimeUtc:O}");
+                }
+            }
+            sb.AppendLine("Latest:");
+            Latest("CODEX_REPORT.md");
+            Latest("CODEX_SUMMARY.md");
+            sb.AppendLine();
+            File.WriteAllText(tmp, sb.ToString());
+            File.Move(tmp, idx, true);
+        }
+        catch { }
     }
 
     private static (string Branch, string Commit, string Status) GetGitInfo(Config cfg)

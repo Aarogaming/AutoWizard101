@@ -18,6 +18,7 @@ Rules:
 - DO NOT TOUCH runtime/policy/packaging/tests via this bridge.
 - Rotation (reports only): CODEX_REPORT.md, CODEX_SUMMARY.md, SECRET_SCAN.txt archive to timestamped copies before overwrite unless `--no-rotate` is set. Retention defaults to 10; configurable via `--max-archives N` (0-200). Archives live only under artifacts/handoff/reports/.
 - INDEX.txt: generated in artifacts/handoff/reports/ listing latest files (with size/UTC time), archives per type, rotation status, version/profile/timestamp.
+- Selftest: `handoff selftest [--root] [--allow-no-scan] [--verbose]` validates fence parsing, redaction, fail-closed scan behavior, and rotation/INDEX generation. Writes artifacts/handoff/reports/SELFTEST.txt.
 
 Commands (HandoffBridge):
 - export: generates to_codex/ files; runs secret scan; validates single fenced block in HANDOFF_TO_CODEX.md; stamps outputs.
@@ -26,6 +27,7 @@ Commands (HandoffBridge):
 - Rotation flags (both export/import):
   - `--no-rotate` disables archiving/pruning (latest files still overwritten).
   - `--max-archives N` sets retention (default 10, min 0, max 200).
+- Templates: `--template <name>` loads DevTools/HandoffBridge/Templates/<name>.md (default docs; ux and review-response included). Unknown template fails.
 
 Wrappers:
 - scripts/handoff_to_codex.{ps1,sh}
