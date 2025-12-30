@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Maelstrom.TestProcess\Maelstrom.TestProcess.csproj" ReferenceOutputAssembly="true" OutputItemType="Content" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\ProjectMaelstrom\ProjectMaelstrom.csproj" />
   </ItemGroup>
 
