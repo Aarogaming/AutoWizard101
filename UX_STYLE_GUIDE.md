@@ -12,7 +12,10 @@ Framework
 - Usage must keep visuals unchanged unless explicitly noted.
 
 ## Layout rules
-- To be defined (grid, padding, alignment, hierarchy).
+- Base grid: 8px rhythm. Use UiSpacingTokens (SpaceXs/S/M/L/XL) for margins/padding.
+- Root/top panels: use SpaceL padding; inner panels/cards: SpaceM; small gaps SpaceS.
+- Align labels/inputs on consistent left edges; prefer padding over borders.
+- Section headers: UiTypographyTokens.Section (Segoe UI 12, bold). Titles: UiTypographyTokens.Title (Segoe UI 14, bold).
 
 ## Components
 - To be defined (buttons, inputs, lists, badges, overlays).

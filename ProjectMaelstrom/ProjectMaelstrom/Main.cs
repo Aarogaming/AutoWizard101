@@ -89,6 +89,9 @@ public partial class Main : Form
         this.Resize += Main_Resize;
         this.KeyDown += Main_KeyDown;
 
+        ApplyUxSpacingTokens();
+        ApplyUxComponentCohesion();
+
         if (DevMode.IsEnabled && Properties.Settings.Default.ENABLE_DEV_UI_SNAPSHOTS)
         {
             _devUiTimer = new System.Windows.Forms.Timer
@@ -1899,6 +1902,45 @@ public partial class Main : Form
             filterNoteMainLabel.Visible = false;
             filterChipLabel.Text = string.Empty;
             filterChipLabel.Visible = false;
+        }
+    }
+
+    private void ApplyUxSpacingTokens()
+    {
+        try
+        {
+            panel1.Padding = UiSpacingTokens.PaddingL;
+            navPanel.Padding = UiSpacingTokens.PaddingS;
+            speedPanel.Padding = UiSpacingTokens.PaddingS;
+            bottomPanel.Padding = new Padding(UiSpacingTokens.SpaceL, UiSpacingTokens.SpaceM, UiSpacingTokens.SpaceL, UiSpacingTokens.SpaceL);
+            statsFlowPanel.Padding = new Padding(0, UiSpacingTokens.SpaceS, 0, 0);
+            dashboardGroupBox.Padding = UiSpacingTokens.PaddingM;
+            quickPresetPanel.Padding = UiSpacingTokens.PaddingS;
+            smartPlayHeaderLabel.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.SectionSize, FontStyle.Bold);
+            modeLabel.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.SectionSize, FontStyle.Bold);
+            statusRibbonLabel.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.BodySize, FontStyle.Bold);
+        }
+        catch
+        {
+            // spacing best-effort; ignore if designer names change
+        }
+    }
+
+    private void ApplyUxComponentCohesion()
+    {
+        try
+        {
+            foreach (var btn in navPanel.Controls.OfType<Button>())
+            {
+                btn.Padding = UiSpacingTokens.PaddingS;
+            }
+            profilePublicButton.Padding = UiSpacingTokens.PaddingS;
+            profileExperimentalButton.Padding = UiSpacingTokens.PaddingS;
+            filterChipLabel.Padding = UiSpacingTokens.PaddingS;
+        }
+        catch
+        {
+            // non-fatal
         }
     }
 

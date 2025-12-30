@@ -4,10 +4,11 @@
 - Track cosmetic-only UX changes on branch ux/beautify-v1.
 
 ## Screens touched
-- (none yet)
+- Screen 1 (Main form shell): spacing/hierarchy, typography alignment.
 
 ## Commits
 - ux: introduce design tokens (no visual change)
+- ux: screen 1 spacing and hierarchy (Main form)
 
 ## Notes
 - UX changes are cosmetic-only; gold baselines remain untouched.
