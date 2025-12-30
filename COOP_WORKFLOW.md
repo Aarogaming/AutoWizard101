@@ -1,4 +1,4 @@
-# Co-op Workflow (Project Maelstrom)
+﻿# Co-op Workflow (Project Maelstrom)
 
 ## Final Phase Checklist
 - UI polish locked: verify 150% / 175% captures via UiAuditSelfCapture.
@@ -17,3 +17,27 @@
 - Run before push: `./scripts/scan_for_secrets.ps1`
   - Scans common extensions for ghp_/AIza/private keys.
   - Exit 1 if any hits; review/redact (vendor third-party assets if needed).
+
+## Codex ↔ ChatGPT Handoff Bridge
+Use a file-based, offline handoff to keep conversations clean and audit-safe.
+
+1) From ChatGPT to Codex
+   - Place ChatGPT output in `artifacts/handoff/from_codex/RESULT.md` (one fenced code block required).
+   - Run: `./scripts/handoff_from_codex.ps1` (Windows) or `./scripts/handoff_from_codex.sh` (macOS/Linux) which call the cross-platform HandoffBridge tool (`import`).
+   - Outputs:
+     - `artifacts/handoff/reports/CODEX_REPORT.md` (redacted copy, stamped with version/profile/timestamp and scan PASS/FAIL header)
+     - `artifacts/handoff/reports/CODEX_SUMMARY.md` (files/tests/warnings if present)
+
+2) From Codex to ChatGPT
+   - Run: `./scripts/handoff_to_codex.ps1` (Windows) or `./scripts/handoff_to_codex.sh` (macOS/Linux) which call the cross-platform HandoffBridge tool (`export`).
+   - Generates:
+     - `artifacts/handoff/to_codex/HANDOFF_TO_CODEX.md` (single copy-block prompt, stamped with version/profile/timestamp)
+     - `CONTEXT_SNAPSHOT.md` (key doc paths)
+     - `REPO_STATUS.txt` (branch/commit/status)
+   - Secret scan runs; export fails closed if secrets are suspected (see `artifacts/handoff/reports/SECRET_SCAN.txt`, stamped with version/profile/timestamp).
+   - Tool version: `dotnet run --project DevTools/HandoffBridge/HandoffBridge.csproj -- --version`
+
+3) Rules
+   - One fenced code block per handoff.
+   - No secrets; scripts enforce secret scanning/redaction.
+   - Docs/scripts only; no runtime/policy/UI changes via handoff.

@@ -217,6 +217,7 @@ ui_current/
 ui_audit_pack*.zip
 ui_audit_pack_selfcapture/
 artifacts/
+artifacts/handoff/
 handoff_pack.zip
 HANDOFF.md
 tessdata/
