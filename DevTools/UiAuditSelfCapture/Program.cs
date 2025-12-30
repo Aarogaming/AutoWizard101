@@ -58,6 +58,10 @@ internal static class Program
         ProjectMaelstrom.Utilities.AppBootstrap.InitializeForDevTools();
         TryReloadPolicyAndPlugins();
 
+        // Some app components try to write to a local "screenshots" directory; ensure it exists to avoid warnings.
+        var screenshotDir = Path.Combine(Environment.CurrentDirectory, "screenshots");
+        Directory.CreateDirectory(screenshotDir);
+
         var outputDir = Path.GetFullPath(config.OutputDir);
         if (Directory.Exists(outputDir))
         {
