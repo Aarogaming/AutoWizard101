@@ -8,6 +8,16 @@ Wizard101 automation toolkit with bots, OCR-driven utilities, and a script runne
 - Portable builds exclude DevTools; sample plugins included only when explicitly requested.
 - Audit readiness: GOLD_FREEZE.md, AUDIT_TRAIL.md, MAINTENANCE.md capture policy, checks, and freeze state.
 
+### Runtime guards (enforced)
+- Policy load: `ExecutionPolicyManager` reads `execution_policy.conf`; defaults are safe (`ALLOW_LIVE_AUTOMATION=false`, `EXECUTION_PROFILE=AcademicSimulation`).
+- Executor selection: `ExecutorFactory` / `LiveExecutor` block live dispatch when live is disabled.
+- Plugin gating: `Plugins.Evaluate` blocks `LiveIntegration` capability when live is disabled or profile is AcademicSimulation.
+- Input/Macro bridges: `InputBridge` and `MacroPlayer` block command dispatch when live is disabled.
+- Settings shows the active policy snapshot (Allow, Mode, Path, Loaded UTC, backend info).
+
+### Not enforced (planned)
+- Additional sandboxing or stricter separation would require future code changes; not active today.
+
 ## Highlights
 - WinForms app (C# / .NET 9) with ready-made bots: Halfang farming, Bazaar reagent buying, Pet Dance launcher.
 - Image + OCR pipeline (Emgu CV + Tesseract) for detecting UI elements and reading stats.
