@@ -101,6 +101,11 @@ dotnet run --project ProjectMaelstrom
 - System.Drawing / Win32 interop for window/input helpers.
 - Community scripts/bots in `Scripts/Library` retain their original authorship; source URLs and authors should be listed in each `manifest.json` and surfaced in-app.
 
+## Quick Verify
+- Build: `dotnet build ProjectMaelstrom/ProjectMaelstrom.sln -c Debug`
+- Visual spot-check: open Screen 1 (Main) and Screen 2 (Settings → Minigames) at 175% DPI and a narrow window width for clipping.
+- More details: see UX_MAINTENANCE.md.
+
 ## TODO (single list)
 - UI/UX: fix button text clipping/spacing across all forms; give nav buttons more width; surface script author/source in the main list; wire "Run Macro" entry in nav to the Macro Runner; explore an optional Steam/Nvidia-style in-game overlay for status/hotkeys.
 - SmartPlay/Learn Mode: expose learn-mode profile (mixed/seek/avoid) and monster seek/avoid toggles; add health/mana/resource guards and auto-pause when Wizard101 loses focus; show SmartPlay queue length/status; keep capture/record behind dev when appropriate; spike "task learning" that watches player inputs and derives repeatable tasks/macros safely; leverage WizWiki data (cached/offline) to map mobs/zones for seek/avoid routing without live scraping.
