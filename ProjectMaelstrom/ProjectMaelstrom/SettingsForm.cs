@@ -13,6 +13,8 @@ namespace ProjectMaelstrom;
 
 public partial class SettingsForm : Form
 {
+    private List<MinigameCatalogEntry> _minigameEntries = new();
+
     public SettingsForm()
     {
         InitializeComponent();
@@ -63,6 +65,7 @@ public partial class SettingsForm : Form
         PopulatePlugins();
         PopulateReplays();
         PopulateOverlayWidgets();
+        PopulateMinigames();
 
         // Apply system theme
         ThemeManager.ApplyTheme(this);
@@ -144,6 +147,12 @@ public partial class SettingsForm : Form
         overlayHostPanel.BackColor = palette.Surface;
         overlayListBox.BackColor = palette.ControlBack;
         overlayListBox.ForeColor = palette.ControlFore;
+        minigameDetailsBox.BackColor = palette.Surface;
+        minigameDetailsBox.ForeColor = palette.Fore;
+        minigameCategoryFilter.BackColor = palette.ControlBack;
+        minigameCategoryFilter.ForeColor = palette.ControlFore;
+        minigameStatusFilter.BackColor = palette.ControlBack;
+        minigameStatusFilter.ForeColor = palette.ControlFore;
     }
 
     private void openPolicyFolderButton_Click(object sender, EventArgs e)
@@ -461,6 +470,7 @@ public partial class SettingsForm : Form
         PluginLoader.Reload();
         PopulatePlugins();
         PopulateOverlayWidgets();
+        PopulateMinigames();
     }
 
     private void PopulateReplays()
@@ -553,9 +563,20 @@ public partial class SettingsForm : Form
                 new[] { PluginCapability.OverlayWidgets.ToString() },
                 "Public");
 
+            WriteSampleManifest(
+                Path.Combine(samplesRoot, PluginSamples.SampleMinigameCatalogId, "plugin.manifest.json"),
+                PluginSamples.SampleMinigameCatalogId,
+                "Sample Minigame Catalog",
+                new[] { PluginCapability.MinigameCatalog.ToString() },
+                "Public");
+
+            WriteSampleMinigameCatalog(Path.Combine(samplesRoot, PluginSamples.SampleMinigameCatalogId, "minigames.catalog.json"));
+
             PluginLoader.Reload();
+            MinigameCatalogRegistry.Reload();
             PopulatePlugins();
             PopulateOverlayWidgets();
+            PopulateMinigames();
             MessageBox.Show("Sample plugins installed (manifest-only). Reloaded plugin list.", "Plugins", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
@@ -573,7 +594,8 @@ public partial class SettingsForm : Form
             {
                 Path.Combine(samplesRoot, PluginSamples.SampleOverlayId),
                 Path.Combine(samplesRoot, PluginSamples.SampleLiveIntegrationId),
-                Path.Combine(samplesRoot, PluginSamples.SampleOverlayWidgetsId)
+                Path.Combine(samplesRoot, PluginSamples.SampleOverlayWidgetsId),
+                Path.Combine(samplesRoot, PluginSamples.SampleMinigameCatalogId)
             };
             foreach (var dir in sampleDirs)
             {
@@ -583,8 +605,10 @@ public partial class SettingsForm : Form
                 }
             }
             PluginLoader.Reload();
+            MinigameCatalogRegistry.Reload();
             PopulatePlugins();
             PopulateOverlayWidgets();
+            PopulateMinigames();
             MessageBox.Show("Sample plugins removed.", "Plugins", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
@@ -614,6 +638,63 @@ public partial class SettingsForm : Form
 
         var json = System.Text.Json.JsonSerializer.Serialize(manifest, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(manifestPath, json);
+    }
+
+    private void WriteSampleMinigameCatalog(string catalogPath)
+    {
+        var targetDir = Path.GetDirectoryName(catalogPath)!;
+        Directory.CreateDirectory(targetDir);
+        if (File.Exists(catalogPath))
+        {
+            return;
+        }
+
+        var entries = new[]
+        {
+            new MinigameCatalogEntry
+            {
+                Id = "pet-dance",
+                Name = "Pet Dance",
+                Category = MinigameCategory.Pet,
+                Status = MinigameStatus.Planned,
+                Description = "Future pet mini dance game concept (catalog only).",
+                Tags = new[] { "pet", "rhythm" },
+                Notes = "Catalog entry only. No gameplay implemented."
+            },
+            new MinigameCatalogEntry
+            {
+                Id = "potion-refill",
+                Name = "Potion Refill",
+                Category = MinigameCategory.Potion,
+                Status = MinigameStatus.Planned,
+                Description = "Potion refill minigame goal; track requirements for future build.",
+                Tags = new[] { "potion", "timing" },
+                Requirements = "Needs potion station assets.",
+                Notes = "Declarative listing only."
+            },
+            new MinigameCatalogEntry
+            {
+                Id = "gardening-cycle",
+                Name = "Gardening",
+                Category = MinigameCategory.Gardening,
+                Status = MinigameStatus.Planned,
+                Description = "Gardening helper minigame concept for future iteration.",
+                Tags = new[] { "gardening", "loop" }
+            },
+            new MinigameCatalogEntry
+            {
+                Id = "crafting-puzzle",
+                Name = "Crafting Puzzle",
+                Category = MinigameCategory.Other,
+                Status = MinigameStatus.Planned,
+                Description = "Placeholder crafting puzzle idea; serves as catalog example.",
+                Tags = new[] { "crafting", "puzzle" },
+                Notes = "Demo entry in sample catalog."
+            }
+        };
+
+        var json = System.Text.Json.JsonSerializer.Serialize(entries, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(catalogPath, json);
     }
 
     private async void checkUpdatesButton_Click(object sender, EventArgs e)
@@ -937,5 +1018,135 @@ public partial class SettingsForm : Form
         {
             // ignore
         }
+    }
+
+    private void PopulateMinigames()
+    {
+        try
+        {
+            MinigameCatalogRegistry.Reload();
+            _minigameEntries = MinigameCatalogRegistry.Current.ToList();
+
+            // filters: populate combos once
+            if (minigameCategoryFilter.Items.Count == 0)
+            {
+                minigameCategoryFilter.Items.Add("All");
+                foreach (var cat in Enum.GetNames(typeof(MinigameCategory)))
+                {
+                    minigameCategoryFilter.Items.Add(cat);
+                }
+                minigameCategoryFilter.SelectedIndex = 0;
+            }
+            if (minigameStatusFilter.Items.Count == 0)
+            {
+                minigameStatusFilter.Items.Add("All");
+                foreach (var st in Enum.GetNames(typeof(MinigameStatus)))
+                {
+                    minigameStatusFilter.Items.Add(st);
+                }
+                minigameStatusFilter.SelectedIndex = 0;
+            }
+
+            ApplyMinigameFilters();
+        }
+        catch (Exception ex)
+        {
+            minigameListView.Items.Clear();
+            minigameListView.Items.Add(new ListViewItem(new[] { "Error loading catalog", ex.Message, "-", "-", "-" }));
+            minigameDetailsBox.Text = $"Error: {ex.Message}";
+        }
+    }
+
+    private void ApplyMinigameFilters()
+    {
+        minigameListView.Items.Clear();
+        IEnumerable<MinigameCatalogEntry> filtered = _minigameEntries;
+
+        if (minigameCategoryFilter.SelectedIndex > 0)
+        {
+            var selected = minigameCategoryFilter.SelectedItem?.ToString();
+            if (Enum.TryParse<MinigameCategory>(selected, out var cat))
+            {
+                filtered = filtered.Where(e => e.Category == cat);
+            }
+        }
+
+        if (minigameStatusFilter.SelectedIndex > 0)
+        {
+            var selected = minigameStatusFilter.SelectedItem?.ToString();
+            if (Enum.TryParse<MinigameStatus>(selected, out var status))
+            {
+                filtered = filtered.Where(e => e.Status == status);
+            }
+        }
+
+        foreach (var entry in filtered)
+        {
+            var tags = entry.Tags != null && entry.Tags.Length > 0
+                ? string.Join(", ", entry.Tags)
+                : "-";
+            var item = new ListViewItem(new[]
+            {
+                entry.Name,
+                entry.Category.ToString(),
+                entry.Status.ToString(),
+                tags,
+                string.IsNullOrWhiteSpace(entry.SourcePluginId) ? "-" : entry.SourcePluginId
+            })
+            { Tag = entry };
+            minigameListView.Items.Add(item);
+        }
+
+        if (minigameListView.Items.Count == 0)
+        {
+            minigameListView.Items.Add(new ListViewItem(new[] { "No minigame catalogs found", "-", "-", "-", "-" }));
+            minigameDetailsBox.Text = string.Empty;
+            return;
+        }
+
+        if (minigameListView.Items[0].Tag is MinigameCatalogEntry)
+        {
+            minigameListView.Items[0].Selected = true;
+        }
+    }
+
+    private void minigameListView_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (minigameListView.SelectedItems.Count == 0 || minigameListView.SelectedItems[0].Tag is not MinigameCatalogEntry entry)
+        {
+            minigameDetailsBox.Text = string.Empty;
+            return;
+        }
+
+        var details = new List<string>
+        {
+            $"Plugin: {entry.SourcePluginId}",
+            $"Description: {entry.Description}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(entry.Requirements))
+        {
+            details.Add($"Requirements: {entry.Requirements}");
+        }
+        if (!string.IsNullOrWhiteSpace(entry.Notes))
+        {
+            details.Add($"Notes: {entry.Notes}");
+        }
+        if (!string.IsNullOrWhiteSpace(entry.Provenance))
+        {
+            details.Add($"Provenance: {entry.Provenance}");
+        }
+
+        minigameDetailsBox.Text = string.Join(Environment.NewLine + Environment.NewLine, details);
+    }
+
+    private void minigameCategoryFilter_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        ApplyMinigameFilters();
+    }
+
+    private void minigameStatusFilter_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        ApplyMinigameFilters();
     }
 }

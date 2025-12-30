@@ -22,6 +22,7 @@ internal static class PluginHost
         var allowed = PluginLoader.Current.Where(p => p.Status == PluginStatus.Allowed && !string.IsNullOrWhiteSpace(p.AssemblyPath));
         ReplayAnalyzerRegistry.Clear();
         Overlay.OverlayWidgetRegistry.Clear();
+        MinigameCatalogRegistry.Clear();
 
         foreach (var plugin in allowed)
         {
@@ -41,6 +42,15 @@ internal static class PluginHost
             {
                 Logger.LogError($"[PluginHost] Failed to load plugin {plugin.PluginId}", ex);
             }
+        }
+
+        try
+        {
+            MinigameCatalogRegistry.Reload();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("[PluginHost] Failed to refresh MinigameCatalog", ex);
         }
     }
 }

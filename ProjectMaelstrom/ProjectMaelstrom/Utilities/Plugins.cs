@@ -7,6 +7,7 @@ namespace ProjectMaelstrom.Utilities;
 internal enum PluginCapability
 {
     OverlayWidgets,
+    MinigameCatalog,
     MinigameDefinitions,
     ReplayAnalyzers,
     LiveIntegration,
@@ -65,6 +66,7 @@ internal sealed class PluginInfo
     public PluginProfileRequirement RequiredProfile { get; init; } = PluginProfileRequirement.Public;
     public IReadOnlyList<PluginCapability> Capabilities { get; init; } = Array.Empty<PluginCapability>();
     public string AssemblyPath { get; init; } = string.Empty;
+    public string ManifestPath { get; init; } = string.Empty;
     public PluginStatus Status { get; init; }
     public string Reason { get; init; } = string.Empty;
 }
@@ -280,6 +282,7 @@ internal static class PluginLoader
             RequiredProfile = profileReq,
             Capabilities = capabilities,
             AssemblyPath = assemblyPath,
+            ManifestPath = manifestPath,
             Status = status,
             Reason = reason
         };
@@ -292,5 +295,6 @@ internal static class PluginSamples
     public const string SampleLiveIntegrationId = "SampleLiveIntegration";
     public const string SampleReplayAnalyzerId = "SampleReplayAnalyzer";
     public const string SampleOverlayWidgetsId = "SampleOverlayWidgets";
+    public const string SampleMinigameCatalogId = "SampleMinigameCatalog";
     public static string SamplesRoot => Path.Combine(PluginLoader.PluginRoot, "_samples");
 }

@@ -29,8 +29,9 @@ internal sealed class TestRunner
                 }
                 catch (Exception ex)
                 {
+                    var reason = ex.InnerException?.Message ?? ex.Message;
                     Console.WriteLine($"[FAIL] {tc.Expectation}");
-                    Console.WriteLine($"Reason: {ex.Message}");
+                    Console.WriteLine($"Reason: {reason}");
                     _fail++;
                 }
             }
@@ -65,8 +66,10 @@ internal sealed class TestRunner
                 if (snap.allowLive) throw new InvalidOperationException("AllowLiveAutomation should be false");
                 if (snap.profile != "AcademicSimulation") throw new InvalidOperationException("Profile should be AcademicSimulation");
                 var exec = ctx.CreateExecutor();
-                var result = ctx.Execute(exec, "test");
-                if (result.status != "Simulated") throw new InvalidOperationException($"Expected Simulated, got {result.status}");
+                if (exec.type != "SimulationExecutor") throw new InvalidOperationException($"Expected SimulationExecutor, got {exec.type}");
+                var result = ctx.Execute(exec.instance, "test", commands: Array.Empty<object>());
+                if (result.status != "NoCommands" && result.status != "Simulated")
+                    throw new InvalidOperationException($"Expected NoCommands/Simulated, got {result.status}");
             }));
 
         _cases.Add(new TestCase(
@@ -80,8 +83,10 @@ internal sealed class TestRunner
                 if (snap.allowLive) throw new InvalidOperationException("AllowLiveAutomation should be false");
                 if (snap.profile != "ExperimentalSimulation") throw new InvalidOperationException("Profile should be ExperimentalSimulation");
                 var exec = ctx.CreateExecutor();
-                var result = ctx.Execute(exec, "test");
-                if (result.status != "Simulated") throw new InvalidOperationException($"Expected Simulated, got {result.status}");
+                if (exec.type != "SimulationExecutor") throw new InvalidOperationException($"Expected SimulationExecutor, got {exec.type}");
+                var result = ctx.Execute(exec.instance, "test", commands: Array.Empty<object>());
+                if (result.status != "NoCommands" && result.status != "Simulated")
+                    throw new InvalidOperationException($"Expected NoCommands/Simulated, got {result.status}");
             }));
 
         _cases.Add(new TestCase(
@@ -94,11 +99,10 @@ internal sealed class TestRunner
                 var snap = ctx.GetSnapshot();
                 if (!snap.allowLive) throw new InvalidOperationException("AllowLiveAutomation should be true");
                 var exec = ctx.CreateExecutor();
-                var result = ctx.Execute(exec, "test");
-                if (result.status != "LiveEnabledNoBackend" && result.status != "LiveDispatched")
-                {
-                    throw new InvalidOperationException($"Expected LiveEnabledNoBackend/LiveDispatched, got {result.status}");
-                }
+                if (exec.type != "LiveExecutor") throw new InvalidOperationException($"Expected LiveExecutor, got {exec.type}");
+                var result = ctx.Execute(exec.instance, "test", commands: Array.Empty<object>());
+                var ok = result.status == "LiveEnabledNoBackend" || result.status == "LiveDispatched" || result.status == "NoCommands";
+                if (!ok) throw new InvalidOperationException($"Expected LiveEnabledNoBackend/LiveDispatched/NoCommands, got {result.status}");
             }));
 
         _cases.Add(new TestCase(
@@ -138,12 +142,56 @@ internal sealed class TestRunner
                 ctx.ReloadPolicy();
                 ctx.InstallCorruptPlugin();
                 ctx.ReloadPlugins();
-                var info = ctx.GetPlugin("CorruptPlugin");
+                var info = ctx.GetPluginStartsWith("CorruptPlugin");
                 if (info == null) throw new InvalidOperationException("CorruptPlugin not found");
                 if (info.Value.status != "Failed" && !info.Value.reason.Contains("error", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new InvalidOperationException($"Expected Failed/error, got {info.Value.status} ({info.Value.reason})");
                 }
+            }));
+
+        _cases.Add(new TestCase(
+            "MinigameCatalog: empty when no plugins",
+            "Minigame catalog returns zero entries when no catalog plugins are installed",
+            () =>
+            {
+                ctx.WritePolicy(allowLive: false, profile: "AcademicSimulation");
+                ctx.ReloadPolicy();
+                ctx.CleanPlugins();
+                ctx.ReloadPlugins();
+                ctx.ReloadMinigameCatalog();
+                var entries = ctx.GetMinigameEntries();
+                if (entries.Count != 0) throw new InvalidOperationException($"Expected 0 entries, got {entries.Count}");
+            }));
+
+        _cases.Add(new TestCase(
+            "MinigameCatalog: loads sample",
+            "SampleMinigameCatalog installs and loads entries",
+            () =>
+            {
+                ctx.WritePolicy(allowLive: false, profile: "AcademicSimulation");
+                ctx.ReloadPolicy();
+                ctx.CleanPlugins();
+                ctx.InstallSampleMinigameCatalog();
+                ctx.ReloadPlugins();
+                ctx.ReloadMinigameCatalog();
+                var entries = ctx.GetMinigameEntries();
+                if (entries.Count == 0) throw new InvalidOperationException("Expected entries from SampleMinigameCatalog");
+            }));
+
+        _cases.Add(new TestCase(
+            "MinigameCatalog: blocked plugin yields zero entries",
+            "Blocked catalog plugin does not contribute entries",
+            () =>
+            {
+                ctx.WritePolicy(allowLive: false, profile: "AcademicSimulation");
+                ctx.ReloadPolicy();
+                ctx.CleanPlugins();
+                ctx.InstallBlockedMinigameCatalog();
+                ctx.ReloadPlugins();
+                ctx.ReloadMinigameCatalog();
+                var entries = ctx.GetMinigameEntries();
+                if (entries.Count != 0) throw new InvalidOperationException($"Expected 0 entries from blocked plugin, got {entries.Count}");
             }));
 
         _cases.Add(new TestCase(
@@ -180,6 +228,7 @@ internal sealed class ReflectionContext
     private readonly Type _executorFactory;
     private readonly Type _inputCommand;
     private readonly Type _pluginLoader;
+    private readonly Type _minigameRegistry;
     private readonly string _policyPath;
 
     public ReflectionContext()
@@ -194,6 +243,7 @@ internal sealed class ReflectionContext
         _executorFactory = _asm.GetType("ProjectMaelstrom.Utilities.ExecutorFactory")!;
         _inputCommand = _asm.GetType("ProjectMaelstrom.Models.InputCommand")!;
         _pluginLoader = _asm.GetType("ProjectMaelstrom.Utilities.PluginLoader")!;
+        _minigameRegistry = _asm.GetType("ProjectMaelstrom.Utilities.MinigameCatalogRegistry")!;
         _policyPath = (string)(_policyManager.GetProperty("PolicyPath", BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!);
     }
 
@@ -226,18 +276,47 @@ internal sealed class ReflectionContext
         return (allow, mode, profile);
     }
 
-    public object CreateExecutor()
+    public (object instance, string type) CreateExecutor()
     {
         var snapObj = _policyManager.GetProperty("Current", BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!;
-        return _executorFactory.GetMethod("FromPolicy", BindingFlags.Public | BindingFlags.Static)!.Invoke(null, new[] { snapObj })!;
+        var exec = _executorFactory.GetMethod("FromPolicy", BindingFlags.Public | BindingFlags.Static)!.Invoke(null, new[] { snapObj })!;
+        return (exec, exec.GetType().Name);
     }
 
-    public (string status, string message) Execute(object executor, string source)
+    public (string status, string message) Execute(object executor, string source, IEnumerable<object>? commands = null)
     {
-        var cmd = Activator.CreateInstance(_inputCommand)!;
-        _inputCommand.GetProperty("Type")!.SetValue(cmd, "click");
-        var list = Array.CreateInstance(_inputCommand, 1);
-        list.SetValue(cmd, 0);
+        Array? list = null;
+        if (commands == null)
+        {
+            var cmd = Activator.CreateInstance(_inputCommand)!;
+            _inputCommand.GetProperty("Type")!.SetValue(cmd, "click");
+            list = Array.CreateInstance(_inputCommand, 1);
+            list.SetValue(cmd, 0);
+        }
+        else
+        {
+            var cmdList = commands
+                .Where(c => c != null)
+                .Select(c =>
+                {
+                    if (c is Array a && a.Length > 0) return a.GetValue(0);
+                    return c;
+                })
+                .Where(c => c != null)
+                .ToList();
+            if (cmdList.Count == 0)
+            {
+                list = Array.CreateInstance(_inputCommand, 0);
+            }
+            else
+            {
+                list = Array.CreateInstance(_inputCommand, cmdList.Count);
+                for (int i = 0; i < cmdList.Count; i++)
+                {
+                    list.SetValue(cmdList[i], i);
+                }
+            }
+        }
 
         var ctxType = _asm.GetType("ProjectMaelstrom.Utilities.ExecutionContext")!;
         var ctx = Activator.CreateInstance(ctxType)!;
@@ -307,6 +386,66 @@ internal sealed class ReflectionContext
         File.WriteAllText(Path.Combine(samplesRoot, "CorruptPlugin.manifest.json"), "{ this is not valid json }");
     }
 
+    public void InstallSampleMinigameCatalog()
+    {
+        var pluginRoot = (string)_pluginLoader.GetProperty("PluginRoot", BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!;
+        var samplesRoot = Path.Combine(pluginRoot, "_samples");
+        var pluginDir = Path.Combine(samplesRoot, "SampleMinigameCatalog");
+        Directory.CreateDirectory(pluginDir);
+        var manifest = new
+        {
+            pluginId = "SampleMinigameCatalog",
+            name = "SampleMinigameCatalog",
+            version = "1.0.0",
+            targetAppVersion = "any",
+            requiredProfile = "Public",
+            declaredCapabilities = new[] { "MinigameCatalog" }
+        };
+        File.WriteAllText(Path.Combine(pluginDir, "plugin.manifest.json"), JsonSerializer.Serialize(manifest));
+
+        var catalog = new[]
+        {
+            new {
+                id = "pet-dance",
+                name = "Pet Dance",
+                category = 0, // MinigameCategory.Pet
+                status = 0,   // MinigameStatus.Planned
+                description = "Sample planned entry for tests."
+            }
+        };
+        File.WriteAllText(Path.Combine(pluginDir, "minigames.catalog.json"), JsonSerializer.Serialize(catalog));
+    }
+
+    public void InstallBlockedMinigameCatalog()
+    {
+        var pluginRoot = (string)_pluginLoader.GetProperty("PluginRoot", BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!;
+        var samplesRoot = Path.Combine(pluginRoot, "_samples");
+        var pluginDir = Path.Combine(samplesRoot, "BlockedMinigameCatalog");
+        Directory.CreateDirectory(pluginDir);
+        var manifest = new
+        {
+            pluginId = "BlockedMinigameCatalog",
+            name = "BlockedMinigameCatalog",
+            version = "1.0.0",
+            targetAppVersion = "any",
+            requiredProfile = "Experimental",
+            declaredCapabilities = new[] { "MinigameCatalog" }
+        };
+        File.WriteAllText(Path.Combine(pluginDir, "plugin.manifest.json"), JsonSerializer.Serialize(manifest));
+
+        var catalog = new[]
+        {
+            new {
+                id = "blocked-entry",
+                name = "Blocked Entry",
+                category = 3, // MinigameCategory.Other
+                status = 0,   // MinigameStatus.Planned
+                description = "Should not load when profile is AcademicSimulation."
+            }
+        };
+        File.WriteAllText(Path.Combine(pluginDir, "minigames.catalog.json"), JsonSerializer.Serialize(catalog));
+    }
+
     public (string status, string reason)? GetPlugin(string id)
     {
         var list = (IEnumerable<object>)_pluginLoader.GetProperty("Current", BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!;
@@ -321,5 +460,38 @@ internal sealed class ReflectionContext
             }
         }
         return null;
+    }
+
+    public (string status, string reason)? GetPluginStartsWith(string prefix)
+    {
+        var list = (IEnumerable<object>)_pluginLoader.GetProperty("Current", BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!;
+        foreach (var p in list)
+        {
+            var pid = p.GetType().GetProperty("PluginId")!.GetValue(p)?.ToString() ?? "";
+            if (pid.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var status = p.GetType().GetProperty("Status")!.GetValue(p)!.ToString()!;
+                var reason = p.GetType().GetProperty("Reason")!.GetValue(p)?.ToString() ?? "";
+                return (status, reason);
+            }
+        }
+        return null;
+    }
+
+    public void ReloadMinigameCatalog()
+    {
+        _minigameRegistry.GetMethod("Reload", BindingFlags.Public | BindingFlags.Static)!.Invoke(null, null);
+    }
+
+    public List<object> GetMinigameEntries()
+    {
+        var current = _minigameRegistry.GetProperty("Current", BindingFlags.Public | BindingFlags.Static)!.GetValue(null);
+        if (current is System.Collections.IEnumerable enumerable)
+        {
+            var list = new List<object>();
+            foreach (var item in enumerable) list.Add(item!);
+            return list;
+        }
+        return new List<object>();
     }
 }

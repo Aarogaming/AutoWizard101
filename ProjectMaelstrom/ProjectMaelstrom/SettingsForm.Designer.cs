@@ -90,6 +90,19 @@ namespace ProjectMaelstrom
             overlayListBox = new ListBox();
             overlayHostPanel = new Panel();
             overlayStatusLabel = new Label();
+            minigamesLabel = new Label();
+            minigameFiltersFlow = new FlowLayoutPanel();
+            minigameCategoryFilterLabel = new Label();
+            minigameCategoryFilter = new ComboBox();
+            minigameStatusFilterLabel = new Label();
+            minigameStatusFilter = new ComboBox();
+            minigameListView = new ListView();
+            minigameNameColumn = new ColumnHeader();
+            minigameCategoryColumn = new ColumnHeader();
+            minigameStatusColumn = new ColumnHeader();
+            minigameTagsColumn = new ColumnHeader();
+            minigamePluginColumn = new ColumnHeader();
+            minigameDetailsBox = new TextBox();
             pluginButtonsFlow = new FlowLayoutPanel();
             replayButtonsFlow = new FlowLayoutPanel();
             overlayLayout = new FlowLayoutPanel();
@@ -557,6 +570,116 @@ namespace ProjectMaelstrom
             overlayStatusLabel.Size = new Size(0, 30);
             overlayStatusLabel.TabIndex = 54;
             // 
+            // minigamesLabel
+            // 
+            minigamesLabel.AutoSize = true;
+            minigamesLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
+            minigamesLabel.Margin = new Padding(0, 6, 0, 4);
+            minigamesLabel.Name = "minigamesLabel";
+            minigamesLabel.Size = new Size(115, 28);
+            minigamesLabel.TabIndex = 55;
+            minigamesLabel.Text = "Minigames";
+            // 
+            // minigameFiltersFlow
+            // 
+            minigameFiltersFlow.AutoSize = true;
+            minigameFiltersFlow.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            minigameFiltersFlow.FlowDirection = FlowDirection.LeftToRight;
+            minigameFiltersFlow.Margin = new Padding(0, 0, 0, 4);
+            minigameFiltersFlow.WrapContents = true;
+            minigameFiltersFlow.Controls.Add(minigameCategoryFilterLabel);
+            minigameFiltersFlow.Controls.Add(minigameCategoryFilter);
+            minigameFiltersFlow.Controls.Add(minigameStatusFilterLabel);
+            minigameFiltersFlow.Controls.Add(minigameStatusFilter);
+            // 
+            // minigameCategoryFilterLabel
+            // 
+            minigameCategoryFilterLabel.AutoSize = true;
+            minigameCategoryFilterLabel.Margin = new Padding(0, 6, 6, 0);
+            minigameCategoryFilterLabel.Name = "minigameCategoryFilterLabel";
+            minigameCategoryFilterLabel.Size = new Size(88, 30);
+            minigameCategoryFilterLabel.TabIndex = 0;
+            minigameCategoryFilterLabel.Text = "Category";
+            // 
+            // minigameCategoryFilter
+            // 
+            minigameCategoryFilter.DropDownStyle = ComboBoxStyle.DropDownList;
+            minigameCategoryFilter.Margin = new Padding(0, 0, 12, 0);
+            minigameCategoryFilter.Name = "minigameCategoryFilter";
+            minigameCategoryFilter.Size = new Size(180, 38);
+            minigameCategoryFilter.TabIndex = 1;
+            minigameCategoryFilter.SelectedIndexChanged += minigameCategoryFilter_SelectedIndexChanged;
+            // 
+            // minigameStatusFilterLabel
+            // 
+            minigameStatusFilterLabel.AutoSize = true;
+            minigameStatusFilterLabel.Margin = new Padding(0, 6, 6, 0);
+            minigameStatusFilterLabel.Name = "minigameStatusFilterLabel";
+            minigameStatusFilterLabel.Size = new Size(68, 30);
+            minigameStatusFilterLabel.TabIndex = 2;
+            minigameStatusFilterLabel.Text = "Status";
+            // 
+            // minigameStatusFilter
+            // 
+            minigameStatusFilter.DropDownStyle = ComboBoxStyle.DropDownList;
+            minigameStatusFilter.Margin = new Padding(0);
+            minigameStatusFilter.Name = "minigameStatusFilter";
+            minigameStatusFilter.Size = new Size(170, 38);
+            minigameStatusFilter.TabIndex = 3;
+            minigameStatusFilter.SelectedIndexChanged += minigameStatusFilter_SelectedIndexChanged;
+            // 
+            // minigameListView
+            // 
+            minigameListView.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            minigameListView.Columns.AddRange(new ColumnHeader[] { minigameNameColumn, minigameCategoryColumn, minigameStatusColumn, minigameTagsColumn, minigamePluginColumn });
+            minigameListView.FullRowSelect = true;
+            minigameListView.GridLines = true;
+            minigameListView.Location = new Point(520, 510);
+            minigameListView.Margin = new Padding(0, 4, 0, 4);
+            minigameListView.MultiSelect = false;
+            minigameListView.Name = "minigameListView";
+            minigameListView.Size = new Size(780, 170);
+            minigameListView.TabIndex = 56;
+            minigameListView.UseCompatibleStateImageBehavior = false;
+            minigameListView.View = View.Details;
+            minigameListView.SelectedIndexChanged += minigameListView_SelectedIndexChanged;
+            // 
+            // minigameNameColumn
+            // 
+            minigameNameColumn.Text = "Name";
+            minigameNameColumn.Width = 220;
+            // 
+            // minigameCategoryColumn
+            // 
+            minigameCategoryColumn.Text = "Category";
+            minigameCategoryColumn.Width = 120;
+            // 
+            // minigameStatusColumn
+            // 
+            minigameStatusColumn.Text = "Status";
+            minigameStatusColumn.Width = 110;
+            // 
+            // minigameTagsColumn
+            // 
+            minigameTagsColumn.Text = "Tags";
+            minigameTagsColumn.Width = 160;
+            // 
+            // minigamePluginColumn
+            // 
+            minigamePluginColumn.Text = "Plugin";
+            minigamePluginColumn.Width = 150;
+            // 
+            // minigameDetailsBox
+            // 
+            minigameDetailsBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            minigameDetailsBox.Location = new Point(520, 686);
+            minigameDetailsBox.Multiline = true;
+            minigameDetailsBox.Name = "minigameDetailsBox";
+            minigameDetailsBox.ReadOnly = false;
+            minigameDetailsBox.ScrollBars = ScrollBars.Vertical;
+            minigameDetailsBox.Size = new Size(780, 120);
+            minigameDetailsBox.TabIndex = 57;
+            // 
             // pluginButtonsFlow
             // 
             pluginButtonsFlow.AutoSize = true;
@@ -607,19 +730,24 @@ namespace ProjectMaelstrom
             devLayout.Controls.Add(pluginListView, 0, 9);
             devLayout.Controls.Add(pluginInstallStatusLabel, 0, 10);
             devLayout.Controls.Add(pluginButtonsFlow, 0, 11);
-            devLayout.Controls.Add(installFromGithubButton, 0, 12);
-            devLayout.Controls.Add(replaysLabel, 0, 13);
-            devLayout.Controls.Add(replayListView, 0, 14);
-            devLayout.Controls.Add(replayButtonsFlow, 0, 15);
-            devLayout.Controls.Add(replayDetailsBox, 0, 16);
-            devLayout.Controls.Add(overlayWidgetsLabel, 0, 17);
-            devLayout.Controls.Add(overlayLayout, 0, 18);
-            devLayout.Controls.Add(overlayEmptyLabel, 0, 19);
-            devLayout.Controls.Add(overlayStatusLabel, 0, 20);
+            devLayout.Controls.Add(minigamesLabel, 0, 12);
+            devLayout.Controls.Add(minigameFiltersFlow, 0, 13);
+            devLayout.Controls.Add(minigameListView, 0, 14);
+            devLayout.Controls.Add(minigameDetailsBox, 0, 15);
+            devLayout.Controls.Add(installFromGithubButton, 0, 16);
+            devLayout.Controls.Add(replaysLabel, 0, 17);
+            devLayout.Controls.Add(replayListView, 0, 18);
+            devLayout.Controls.Add(replayButtonsFlow, 0, 19);
+            devLayout.Controls.Add(replayDetailsBox, 0, 20);
+            devLayout.Controls.Add(overlayWidgetsLabel, 0, 21);
+            devLayout.Controls.Add(overlayLayout, 0, 22);
+            devLayout.Controls.Add(overlayEmptyLabel, 0, 23);
+            devLayout.Controls.Add(overlayStatusLabel, 0, 24);
             devLayout.Location = new Point(520, 14);
             devLayout.Name = "devLayout";
             devLayout.Padding = new Padding(6);
-            devLayout.RowCount = 21;
+            devLayout.RowCount = 25;
+            devLayout.RowStyles.Add(new RowStyle());
             devLayout.RowStyles.Add(new RowStyle());
             devLayout.RowStyles.Add(new RowStyle());
             devLayout.RowStyles.Add(new RowStyle());
@@ -952,6 +1080,19 @@ namespace ProjectMaelstrom
         private ListBox overlayListBox;
         private Panel overlayHostPanel;
         private Label overlayStatusLabel;
+        private Label minigamesLabel;
+        private FlowLayoutPanel minigameFiltersFlow;
+        private Label minigameCategoryFilterLabel;
+        private ComboBox minigameCategoryFilter;
+        private Label minigameStatusFilterLabel;
+        private ComboBox minigameStatusFilter;
+        private ListView minigameListView;
+        private ColumnHeader minigameNameColumn;
+        private ColumnHeader minigameCategoryColumn;
+        private ColumnHeader minigameStatusColumn;
+        private ColumnHeader minigameTagsColumn;
+        private ColumnHeader minigamePluginColumn;
+        private TextBox minigameDetailsBox;
         private FlowLayoutPanel pluginButtonsFlow;
         private FlowLayoutPanel replayButtonsFlow;
         private FlowLayoutPanel overlayLayout;

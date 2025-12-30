@@ -7,6 +7,12 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+$repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path | Split-Path -Parent
+$tessdata = Join-Path $repoRoot "tessdata"
+if (Test-Path $tessdata) {
+    $env:TESSDATA_PREFIX = $tessdata
+}
+
 $baselineDir = "ui_baseline"
 $currentDir = "ui_current"
 

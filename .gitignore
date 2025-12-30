@@ -212,6 +212,14 @@ _pkginfo.txt
 *.appx
 *.appxbundle
 *.appxupload
+ui_baseline/
+ui_current/
+ui_audit_pack*.zip
+ui_audit_pack_selfcapture/
+artifacts/
+handoff_pack.zip
+HANDOFF.md
+tessdata/
 
 # Visual Studio cache files
 # files ending in .cache can be ignored

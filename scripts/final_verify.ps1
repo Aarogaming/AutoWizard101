@@ -10,6 +10,12 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Resolve-Path (Join-Path $scriptDir "..")
 Set-Location $repoRoot
 
+# Hint tessdata for UiAuditSelfCapture
+$tessdata = Join-Path $repoRoot "tessdata"
+if (Test-Path $tessdata) {
+    $env:TESSDATA_PREFIX = $tessdata
+}
+
 $steps = New-Object System.Collections.Generic.List[object]
 $results = New-Object System.Collections.Generic.List[object]
 
@@ -56,7 +62,7 @@ Add-Step "Functional Tests" {
 }
 
 Add-Step "Secret Scan" {
-    powershell -ExecutionPolicy Bypass -File "./scripts/scan_for_secrets.ps1"
+    powershell -ExecutionPolicy Bypass -File "./scripts/scan_for_secrets.ps1" -Path "." -Extensions ".cs,.ps1,.md,.json,.txt,.yml,.yaml,.config,.htm,.html,.js"
 }
 
 if ($Portable.IsPresent) {

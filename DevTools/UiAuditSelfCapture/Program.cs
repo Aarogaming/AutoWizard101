@@ -264,7 +264,13 @@ internal static class Program
         };
 
         var label = new Label { Text = "GitHub Release Asset ZIP URL:", AutoSize = true, Location = new Point(12, 12) };
-        var text = new TextBox { Location = new Point(12, 40), Width = 480, Text = "https://github.com/owner/repo/releases/download/v1.0/asset.zip" };
+        var text = new TextBox
+        {
+            Location = new Point(12, 40),
+            Width = 480,
+            Text = "https://github.com/owner/repo/releases/download/v1.0/asset.zip",
+            ReadOnly = true
+        };
         var installBtn = new Button { Text = "Install", Location = new Point(320, 100), Width = 80 };
         var cancelBtn = new Button { Text = "Cancel", Location = new Point(410, 100), Width = 80 };
         dialog.Controls.Add(label);

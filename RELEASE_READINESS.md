@@ -1,7 +1,7 @@
 ﻿# Release Readiness (Project Maelstrom)
 
 ## 1) Overview
-Project Maelstrom is an offline-first, simulation-only trainer by default. Live automation is disabled by policy (ALLOW_LIVE_AUTOMATION=false) and the default profile is Public.
+Project Maelstrom is an offline-first, simulation-only trainer by default. Live automation is disabled by policy (ALLOW_LIVE_AUTOMATION=false) and the default profile is Public. **Gold Freeze: ACTIVE**.
 
 ## 2) Build Commands
 - Debug: `dotnet build ProjectMaelstrom/ProjectMaelstrom.sln -c Debug`
@@ -17,8 +17,9 @@ Project Maelstrom is an offline-first, simulation-only trainer by default. Live 
 - UI regression:
   - Baseline refresh: `powershell -ExecutionPolicy Bypass -File ./scripts/ui_set_baseline.ps1`
   - Check: `powershell -ExecutionPolicy Bypass -File ./scripts/ui_check_regression.ps1` (default threshold 0.5%)
+- UI spot-check: Developer Options → Minigames shows planned catalog entries when SampleMinigameCatalog is installed.
 - Functional tests:
-  - Run FunctionalTestRunner (ensure it passes; use existing command/path in DevTools).
+  - Run FunctionalTestRunner (ensure it passes; uses inline fixtures incl. corrupt manifest check).
 - Secret preflight:
   - `powershell -ExecutionPolicy Bypass -File ./scripts/scan_for_secrets.ps1` (exit code 0 required)
 - Known benign warnings: Tesseract "missing tessdata" messages may appear in DevTools self-capture; harmless. To silence, set `TESSDATA_PREFIX` to the tessdata folder or ignore during capture.

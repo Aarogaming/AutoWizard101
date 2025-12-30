@@ -2,6 +2,12 @@
 
 Wizard101 automation toolkit with bots, OCR-driven utilities, and a script runner that can load community scripts from a shared library folder.
 
+## Version Support / Policy
+- Current target: net9.0-windows10.0.22621.0
+- Profiles: Public (default, simulation-only), Experimental (dev), live automation disabled by default (`ALLOW_LIVE_AUTOMATION=false`).
+- Portable builds exclude DevTools; sample plugins included only when explicitly requested.
+- Audit readiness: GOLD_FREEZE.md, AUDIT_TRAIL.md, MAINTENANCE.md capture policy, checks, and freeze state.
+
 ## Highlights
 - WinForms app (C# / .NET 9) with ready-made bots: Halfang farming, Bazaar reagent buying, Pet Dance launcher.
 - Image + OCR pipeline (Emgu CV + Tesseract) for detecting UI elements and reading stats.
