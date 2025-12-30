@@ -19,7 +19,10 @@ Framework
 - Section headers: UiTypographyTokens.Section (Segoe UI 12, bold). Titles: UiTypographyTokens.Title (Segoe UI 14, bold).
 
 ## Components
-- To be defined (buttons, inputs, lists, badges, overlays).
+- Filters (Settings -> Minigames): use UiTypographyTokens.Body for labels and dropdowns; SpaceS between controls; keep dropdown margins aligned to filter row baseline.
+- Lists (Settings -> Minigames): Body font for rows; use SpaceM top/bottom margin; prefer subtle dark surface background for readability; keep striping/selection readable.
+- Details boxes: Body font; SpaceS top margin, SpaceM bottom margin; SurfaceDark background for legibility.
+- Buttons/chips/badges: keep existing token colors (UiColorTokens) when styling; padding via UiSpacingTokens for consistency.
 
 ## Accessibility
 - Keyboard navigation: Tab/Shift+Tab through all interactive controls; do not alter tab order in Designer.
