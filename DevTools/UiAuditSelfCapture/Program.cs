@@ -182,7 +182,8 @@ internal static class Program
         catch (Exception ex)
         {
             var stack = ex.StackTrace ?? "<no stack>";
-            var full = $"{ex.GetType().FullName}: {ex.Message} | {stack}";
+            var inner = ex.InnerException != null ? $" | Inner: {ex.InnerException.GetType().FullName}: {ex.InnerException.Message}" : string.Empty;
+            var full = $"{ex.GetType().FullName}: {ex.Message}{inner} | {stack}";
             result.Status = "Missing";
             result.Notes = full;
             Console.WriteLine($"[WARN] {target} at {label}% failed: {full}");

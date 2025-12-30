@@ -10,10 +10,31 @@ public partial class ManageScriptsForm : Form
     private readonly ScriptLibraryService _service = ScriptLibraryService.Instance;
     private readonly BridgeCoordinator? _bridge;
 
+    public ManageScriptsForm() : this(null)
+    {
+    }
+
     internal ManageScriptsForm(BridgeCoordinator? bridge = null)
     {
         _bridge = bridge;
         InitializeComponent();
+        NormalizeSplitter();
+    }
+
+    private void NormalizeSplitter()
+    {
+        try
+        {
+            var min = Math.Max(1, splitContainer.Panel1MinSize);
+            var max = Math.Max(min, Math.Max(1, splitContainer.Width - splitContainer.Panel2MinSize));
+            var desired = splitContainer.SplitterDistance;
+            var safe = Math.Clamp(desired, min, max);
+            splitContainer.SplitterDistance = safe;
+        }
+        catch
+        {
+            // non-fatal for dev tools capture
+        }
     }
 
     private void ManageScriptsForm_Load(object sender, EventArgs e)

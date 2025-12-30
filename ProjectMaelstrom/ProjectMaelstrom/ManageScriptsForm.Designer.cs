@@ -392,12 +392,12 @@ namespace ProjectMaelstrom
             splitContainer.Name = "splitContainer";
             splitContainer.Panel1.Controls.Add(scriptListBox);
             splitContainer.Panel1.Padding = new Padding(6, 8, 6, 8);
-            splitContainer.Panel1MinSize = 320;
+            splitContainer.Panel1MinSize = 0;
             splitContainer.Panel2.Controls.Add(detailLayout);
             splitContainer.Panel2.Padding = new Padding(6, 8, 6, 8);
-            splitContainer.Panel2MinSize = 420;
+            splitContainer.Panel2MinSize = 0;
             splitContainer.Size = new Size(1200, 760);
-            splitContainer.SplitterDistance = 513;
+            splitContainer.SplitterDistance = 600;
             splitContainer.TabIndex = 0;
             // 
             // ManageScriptsForm

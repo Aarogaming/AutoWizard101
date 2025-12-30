@@ -1,4 +1,4 @@
-(function(){'use strict';var r,aa=typeof Object.create=="function"?Object.create:function(a){function b(){}
+﻿(function(){'use strict';var r,aa=typeof Object.create=="function"?Object.create:function(a){function b(){}
 b.prototype=a;return new b},ba=typeof Object.defineProperties=="function"?Object.defineProperty:function(a,b,c){if(a==Array.prototype||a==Object.prototype)return a;
 a[b]=c.value;return a},ca=globalThis;
 function da(a,b){if(b)a:{var c=ca;a=a.split(".");for(var d=0;d<a.length-1;d++){var e=a[d];if(!(e in c))break a;c=c[e]}a=a[a.length-1];d=c[a];b=b(d);b!=d&&b!=null&&ba(c,a,{configurable:!0,writable:!0,value:b})}}
@@ -1557,7 +1557,7 @@ function UA(){var a=new fu;Hl.ra(async()=>{if(!R("ytidb_clear_optimizations_kill
 async function Ak(a,b,c){Cz();Fz("att_fs",void 0,"attestation_challenge_fetch");if(!a.h)throw new Aj(9,"Missing fetcher");const d=await a.h(b,c);b=d?.bgChallenge;if(!b)throw new Aj(15,"Missing field");a.i=d;a.j.forEach(e=>{e(d)});
 a=xy(b);Fz("att_fc",void 0,"attestation_challenge_fetch");Dz();return a}
 async function il(a,b){const c=new Oh(100,3E5,.25,2);let d=void 0;for(;c.i<10;)try{return c.i>0&&await VA(c.getValue()),await WA(a,b)}catch(e){d=e instanceof Aj?e:new Aj(9,e instanceof Error?e.message:"Unknown"),Ph(c)}if(d)throw d;throw new Aj(9,"Unknown error");}
-function WA(a,b){b=tk(uk(new vk,b),a.requestKey);const c=new ik,d=a.u();d.open("POST",a.o);d.setRequestHeader("X-Goog-Api-Key","AIzaSyDyT5W0Jh49F30Pqqtyfdf7pDLFKLJoAnw");d.setRequestHeader("Content-Type","application/json+protobuf");d.onload=()=>{if(Qo(d)){const e=Fl(d.responseText);c.resolve(e)}else c.reject(new Aj(yj(Ro(d)),d.statusText))};
+function WA(a,b){b=tk(uk(new vk,b),a.requestKey);const c=new ik,d=a.u();d.open("POST",a.o);d.setRequestHeader("X-Goog-Api-Key","REDACTED_GOOGLE_API_KEY");d.setRequestHeader("Content-Type","application/json+protobuf");d.onload=()=>{if(Qo(d)){const e=Fl(d.responseText);c.resolve(e)}else c.reject(new Aj(yj(Ro(d)),d.statusText))};
 d.onerror=()=>{c.reject(new Aj(yj(Ro(d)),d.statusText))};
 d.send(b.serialize());return c.promise}
 var XA=class{constructor(a,b,c){this.requestKey=a;this.o=b;this.i=c;this.u=()=>new XMLHttpRequest;
@@ -1725,3 +1725,4 @@ sj=sw;window.addEventListener("unhandledrejection",a=>{if(a.reason instanceof Er
 (function(){if(O("ENABLE_JS_API")){var a=b=>{$B=b;window.removeEventListener("message",a)};
 window.addEventListener("message",a)}})();
 Fz("ep_init_epe");}).call(this);
+

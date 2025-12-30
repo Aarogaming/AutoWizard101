@@ -47,7 +47,6 @@ public partial class Main : Form
     private bool _smartPaused;
     private readonly WizWikiDataService _wikiData = WizWikiDataService.Instance;
     private BridgeCoordinator? _bridge;
-    private OverlayHudForm? _hud;
     private string _lastBanner = string.Empty;
     private string _scriptSearchTerm = string.Empty;
     private string _statusFilter = "All";

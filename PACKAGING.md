@@ -1,4 +1,4 @@
-# Project Maelstrom — Portable Packaging
+﻿# Project Maelstrom — Portable Packaging
 
 ## Goals
 - Ship a minimal, safe Core build.
@@ -47,10 +47,16 @@ Outputs to: `artifacts/portable/` (includes `plugins/_samples`)
 - Confirm it starts with no plugins present (plugins/ empty or missing).
 - Confirm plugin loader shows no errors when plugins/ is empty.
 - Optionally add a plugin (copy into plugins/) and verify it appears in Plugin Manager.
+- See `RELEASE_READINESS.md` and `scripts/final_verify.ps1` for the full release checklist and one-command verification.
 
 ## Optional: self-contained publish
 If you want a self-contained portable:
 ```pwsh
 dotnet publish ProjectMaelstrom/ProjectMaelstrom/ProjectMaelstrom.csproj -c Release -r win-x64 --self-contained true -o artifacts/portable
 ```
-Adjust `build_portable.ps1` as needed if you prefer publish over build+copy.***
+Adjust `build_portable.ps1` as needed if you prefer publish over build+copy.
+
+## Quality Gates
+- UI regression baseline required before release (`./scripts/ui_set_baseline.ps1` then `./scripts/ui_check_regression.ps1`).
+- Default UiAuditDiff threshold: 0.5% pixel diff (fail if above or missing baseline files).
+- DevTools (UiAuditSelfCapture, UiAuditDiff, UiAuditRunner, FunctionalTestRunner) stay excluded from portable builds by default.

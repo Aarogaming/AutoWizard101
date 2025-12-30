@@ -11,10 +11,14 @@ internal static class ReplayLogger
     {
         get
         {
-            var policyDir = Path.GetDirectoryName(ExecutionPolicyManager.PolicyPath);
+            var policyPath = ExecutionPolicyManager.PolicyPath;
+            string? policyDir = string.IsNullOrWhiteSpace(policyPath)
+                ? null
+                : Path.GetDirectoryName(policyPath);
+
             var root = string.IsNullOrWhiteSpace(policyDir)
                 ? StorageUtils.GetCacheDirectory()
-                : policyDir!;
+                : policyDir;
             return Path.Combine(root, "replays");
         }
     }
@@ -37,14 +41,13 @@ internal static class ReplayLogger
             {
                 foreach (var cmd in commands)
                 {
-                    if (cmd == null) continue;
-                    var safeCmd = cmd;
+                    if (cmd is not InputCommand c) continue;
                     cmdList.Add(new
                     {
-                        type = safeCmd!.Type.ToString(),
-                        X = safeCmd.X,
-                        Y = safeCmd.Y,
-                        safeCmd.DelayMs
+                        type = c?.Type?.ToString() ?? "Unknown",
+                        X = c?.X ?? 0,
+                        Y = c?.Y ?? 0,
+                        delayMs = c?.DelayMs ?? 0
                     });
                     if (cmdList.Count >= 20) break;
                 }

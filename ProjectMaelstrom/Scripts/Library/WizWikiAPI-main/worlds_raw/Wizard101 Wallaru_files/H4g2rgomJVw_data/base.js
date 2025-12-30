@@ -1,4 +1,4 @@
-var _yt_player={};(function(g){var window=this;/*
+﻿var _yt_player={};(function(g){var window=this;/*
 
  Copyright The Closure Library Authors.
  SPDX-License-Identifier: Apache-2.0
@@ -5579,7 +5579,7 @@ HiP=function(S,W,m){if(!S.TN())if(W){wI(S,{onkmtyp:m});S.status="km";switch(m){c
 0;
 a.C.N>=3&&(E=1,J="drm.net.retryexhausted");wI(S,{onlcsrqerr:J,info:B});S.error(J,E,B);S.shouldRetry(J3(E),a)&&RVD(S,a)}});
 g.Z(S,W);eVO(S,W)}else S.error("drm.unavailable",1,"km.empty")};
-MiP=function(S,W){wI(S,{sdpvrq:1});S.V=Date.now();if(S.N.flavor!=="widevine")S.error("drm.provision",1,"e.flavor;f."+S.N.flavor+";l."+W.byteLength);else{var m={cpn:S.videoData.clientPlaybackNonce};Object.assign(m,S.Y.C);m=g.ex("https://www.googleapis.com/certificateprovisioning/v1/devicecertificates/create?key=AIzaSyB-5OLKTx2iU5mko18DfdwK5611JIjbUhE",m);W={format:"RAW",headers:{"content-type":"application/json"},method:"POST",postBody:JSON.stringify({signedRequest:String.fromCharCode.apply(null,W)}),
+MiP=function(S,W){wI(S,{sdpvrq:1});S.V=Date.now();if(S.N.flavor!=="widevine")S.error("drm.provision",1,"e.flavor;f."+S.N.flavor+";l."+W.byteLength);else{var m={cpn:S.videoData.clientPlaybackNonce};Object.assign(m,S.Y.C);m=g.ex("https://www.googleapis.com/certificateprovisioning/v1/devicecertificates/create?key=REDACTED_GOOGLE_API_KEY",m);W={format:"RAW",headers:{"content-type":"application/json"},method:"POST",postBody:JSON.stringify({signedRequest:String.fromCharCode.apply(null,W)}),
 responseType:"arraybuffer"};g.eo(m,W,3,500).then(z4(function(a){a=a.xhr;if(!S.TN()){a=new Uint8Array(a.response);var J=String.fromCharCode.apply(null,a);try{var B=JSON.parse(J)}catch(E){}B&&B.signedResponse?(S.publish("ctmp","drminfo",{provisioning:1}),B=(Date.now()-S.V)/1E3,S.V=NaN,S.publish("ctmp","provs",{et:B.toFixed(3)}),S.B&&S.B.update(a)):(B=B&&B.error&&B.error.message,a="e.parse",B&&(a+=";m."+B),S.error("drm.provision",1,a))}}),z4(function(a){S.TN()||S.error("drm.provision",1,"e."+a.errorCode+
 ";c."+(a.xhr&&a.xhr.status))}))}};
 Sg=function(S){var W;if(W=S.N2&&S.B!=null)S=S.B,W=!(!S.C||!S.C.keyStatuses);return W};
@@ -6262,7 +6262,7 @@ this.useLivingRoomPoToken=!(m==null||!m.useLivingRoomPoToken);S.addEventListener
 S.addEventListener("trackListLoaded",this.yd.bind(this));S.Th(this)};
 p8P=function(S){var W=(S.T("html5_generate_session_po_token")||S.T("html5_generate_content_po_token"))&&!S.useLivingRoomPoToken;try{if(S.T("html5_use_shared_owl_instance"))F0Q(S);else if(W){S.Pv.uJ("pot_isc");var m=g.Db(S.api.J().experiments,"html5_webpo_kaios_defer_timeout_ms");m?(V7D(S),g.s7(function(){Du(S)},m)):S.T("html5_webpo_idle_priority_job")?(V7D(S),g.cX(g.wU(),function(){Du(S)})):Du(S)}}catch(a){a instanceof Error&&g.Ue(a)}};
 nPO=function(S){var W=OZ(S.experiments,"html5_web_po_request_key");return W?W:g.pt(S)?"Z1elNkAKLpSR3oPOUMSN":"O43z0dpjhgX20SCx4KAo"};
-s46=function(S){var W=new UOG,m={},a=(m["X-Goog-Api-Key"]="AIzaSyDyT5W0Jh49F30Pqqtyfdf7pDLFKLJoAnw",m);return new si(W,S,function(){return a})};
+s46=function(S){var W=new UOG,m={},a=(m["X-Goog-Api-Key"]="REDACTED_GOOGLE_API_KEY",m);return new si(W,S,function(){return a})};
 uBG=function(S){return new us(S)};
 wm=function(S,W){S.T("html5_webpo_bge_ctmp")&&S.api.iY(W,{hwpo:!!S.N,hwpor:S.C})};
 F0Q=function(S){var W,m;g.k(function(a){if(a.C==1)return wm(S,"swpo_i"),V7D(S),Sb(S),g.P(a,yB(),2);if(a.C!=3)return W=a.N,wm(S,"swpo_co"),g.P(a,Ji_(W),3);m=a.N;S.T("html5_web_po_token_disable_caching")||m.qC(150);S.N=m;wm(S,"swpo_cc");Tm7(m.FA()).then(function(){S.C=!0;S.X.resolve();wm(S,"swpo_re")});
@@ -14015,3 +14015,4 @@ g.V.Qc=function(S){var W=this.api.isEmbedsShortsMode()?.5625:16/9,m=this.api.wp(
 g.V.onVideoDataChange=function(){var S=this.api.J(),W=this.api.getVideoData();this.X=W.uP?!1:S.j;this.suggestionData=W.suggestions?g.fL(W.suggestions,function(m){return m&&!m.playlistId}):[];
 OHP(this);W.uP?this.title.update({title:g.Wo("More videos from $DNI_RELATED_CHANNEL",{DNI_RELATED_CHANNEL:W.author})}):this.title.update({title:this.api.isEmbedsShortsMode()?"More shorts":"More videos"})};
 g.V.scrollTo=function(S){S=g.Su(S,this.containerWidth-this.suggestionData.length*(this.j+8),0);this.V.start(this.scrollPosition,S,1E3);this.scrollPosition=S;g.wL(this);u76(this)};})(_yt_player);
+
