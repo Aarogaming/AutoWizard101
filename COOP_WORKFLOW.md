@@ -50,3 +50,6 @@ Selftest (tooling sanity)
 - Run: `dotnet run --project DevTools/HandoffBridge/HandoffBridge.csproj -- selftest --allow-no-scan`
 - Validates fence parsing, redaction, fail-closed scan behavior, and rotation/INDEX generation.
 - Outputs: `artifacts/handoff/reports/SELFTEST.txt`
+
+CI gate (tooling)
+- GitHub Actions: runs dotnet build + `handoff selftest --allow-no-scan` on changes to HandoffBridge, handoff wrappers, or this spec.

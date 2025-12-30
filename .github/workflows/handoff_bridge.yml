@@ -1,0 +1,35 @@
+name: HandoffBridge Tooling
+
+on:
+  push:
+    paths:
+      - 'DevTools/HandoffBridge/**'
+      - 'scripts/handoff_*'
+      - 'HANDOFF_BRIDGE_SPEC.md'
+      - 'COOP_WORKFLOW.md'
+      - '.github/workflows/handoff_bridge.yml'
+  pull_request:
+    paths:
+      - 'DevTools/HandoffBridge/**'
+      - 'scripts/handoff_*'
+      - 'HANDOFF_BRIDGE_SPEC.md'
+      - 'COOP_WORKFLOW.md'
+      - '.github/workflows/handoff_bridge.yml'
+
+jobs:
+  build-and-selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build HandoffBridge
+        run: dotnet build DevTools/HandoffBridge/HandoffBridge.csproj -c Debug
+
+      - name: Run HandoffBridge selftest
+        run: dotnet run --project DevTools/HandoffBridge/HandoffBridge.csproj -- selftest --allow-no-scan

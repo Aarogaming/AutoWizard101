@@ -19,6 +19,7 @@ Rules:
 - Rotation (reports only): CODEX_REPORT.md, CODEX_SUMMARY.md, SECRET_SCAN.txt archive to timestamped copies before overwrite unless `--no-rotate` is set. Retention defaults to 10; configurable via `--max-archives N` (0-200). Archives live only under artifacts/handoff/reports/.
 - INDEX.txt: generated in artifacts/handoff/reports/ listing latest files (with size/UTC time), archives per type, rotation status, version/profile/timestamp.
 - Selftest: `handoff selftest [--root] [--allow-no-scan] [--verbose]` validates fence parsing, redaction, fail-closed scan behavior, and rotation/INDEX generation. Writes artifacts/handoff/reports/SELFTEST.txt.
+- CI gate: GitHub Actions workflow runs dotnet build + `handoff selftest --allow-no-scan` when HandoffBridge/tooling/docs change.
 
 Commands (HandoffBridge):
 - export: generates to_codex/ files; runs secret scan; validates single fenced block in HANDOFF_TO_CODEX.md; stamps outputs.
