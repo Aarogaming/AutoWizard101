@@ -39,6 +39,16 @@ internal static class Program
 
         try
         {
+            if (RequiresOut(options.Command) && !options.Args.ContainsKey("out"))
+            {
+                Console.Error.WriteLine("ERROR: --out <dir> is required for this command.");
+                return 1;
+            }
+            if (RequiresOut(options.Command) && !ValidateOut(root, options))
+            {
+                return 2;
+            }
+
             switch (options.Command)
             {
                 case "init":
@@ -267,5 +277,26 @@ internal static class Program
         if (templateName.StartsWith("UX_", StringComparison.OrdinalIgnoreCase) || templateName.StartsWith("UX ", StringComparison.OrdinalIgnoreCase) || templateName.Contains("UX", StringComparison.OrdinalIgnoreCase)) return "UX";
         if (templateName.Equals("README.md", StringComparison.OrdinalIgnoreCase)) return "Handoff";
         return string.Empty;
+    }
+
+    private static bool RequiresOut(string command) =>
+        command is "init" or "policy" or "tags" or "stewardship" or "ux" or "ci" or "handoff";
+
+    private static bool ValidateOut(string outPath, CommandOptions options)
+    {
+        var full = Path.GetFullPath(outPath);
+        var root = Path.GetPathRoot(full);
+        if (string.Equals(full.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                root?.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar),
+                StringComparison.OrdinalIgnoreCase))
+        {
+            Console.Error.WriteLine("ERROR: --out cannot be a filesystem root.");
+            return false;
+        }
+        if (options.Verbose)
+        {
+            Console.WriteLine($"Using output directory: {full}");
+        }
+        return true;
     }
 }
