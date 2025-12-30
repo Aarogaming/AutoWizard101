@@ -1,3 +1,5 @@
+using ProjectMaelstrom.Utilities;
+
 namespace ProjectMaelstrom
 {
     partial class SettingsForm
@@ -573,8 +575,8 @@ namespace ProjectMaelstrom
             // minigamesLabel
             // 
             minigamesLabel.AutoSize = true;
-            minigamesLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
-            minigamesLabel.Margin = new Padding(0, 6, 0, 4);
+            minigamesLabel.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.SectionSize, FontStyle.Bold, GraphicsUnit.Point);
+            minigamesLabel.Margin = new Padding(0, UiSpacingTokens.SpaceM, 0, UiSpacingTokens.SpaceS);
             minigamesLabel.Name = "minigamesLabel";
             minigamesLabel.Size = new Size(115, 28);
             minigamesLabel.TabIndex = 55;
@@ -585,7 +587,8 @@ namespace ProjectMaelstrom
             minigameFiltersFlow.AutoSize = true;
             minigameFiltersFlow.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             minigameFiltersFlow.FlowDirection = FlowDirection.LeftToRight;
-            minigameFiltersFlow.Margin = new Padding(0, 0, 0, 4);
+            minigameFiltersFlow.Margin = new Padding(0, UiSpacingTokens.SpaceS, 0, UiSpacingTokens.SpaceM);
+            minigameFiltersFlow.Padding = UiSpacingTokens.PaddingS;
             minigameFiltersFlow.WrapContents = true;
             minigameFiltersFlow.Controls.Add(minigameCategoryFilterLabel);
             minigameFiltersFlow.Controls.Add(minigameCategoryFilter);
@@ -595,7 +598,7 @@ namespace ProjectMaelstrom
             // minigameCategoryFilterLabel
             // 
             minigameCategoryFilterLabel.AutoSize = true;
-            minigameCategoryFilterLabel.Margin = new Padding(0, 6, 6, 0);
+            minigameCategoryFilterLabel.Margin = new Padding(0, UiSpacingTokens.SpaceS, UiSpacingTokens.SpaceS, 0);
             minigameCategoryFilterLabel.Name = "minigameCategoryFilterLabel";
             minigameCategoryFilterLabel.Size = new Size(88, 30);
             minigameCategoryFilterLabel.TabIndex = 0;
@@ -604,7 +607,7 @@ namespace ProjectMaelstrom
             // minigameCategoryFilter
             // 
             minigameCategoryFilter.DropDownStyle = ComboBoxStyle.DropDownList;
-            minigameCategoryFilter.Margin = new Padding(0, 0, 12, 0);
+            minigameCategoryFilter.Margin = new Padding(0, 0, UiSpacingTokens.SpaceM, 0);
             minigameCategoryFilter.Name = "minigameCategoryFilter";
             minigameCategoryFilter.Size = new Size(180, 38);
             minigameCategoryFilter.TabIndex = 1;
@@ -613,7 +616,7 @@ namespace ProjectMaelstrom
             // minigameStatusFilterLabel
             // 
             minigameStatusFilterLabel.AutoSize = true;
-            minigameStatusFilterLabel.Margin = new Padding(0, 6, 6, 0);
+            minigameStatusFilterLabel.Margin = new Padding(0, UiSpacingTokens.SpaceS, UiSpacingTokens.SpaceS, 0);
             minigameStatusFilterLabel.Name = "minigameStatusFilterLabel";
             minigameStatusFilterLabel.Size = new Size(68, 30);
             minigameStatusFilterLabel.TabIndex = 2;
@@ -622,7 +625,7 @@ namespace ProjectMaelstrom
             // minigameStatusFilter
             // 
             minigameStatusFilter.DropDownStyle = ComboBoxStyle.DropDownList;
-            minigameStatusFilter.Margin = new Padding(0);
+            minigameStatusFilter.Margin = new Padding(0, 0, UiSpacingTokens.SpaceS, 0);
             minigameStatusFilter.Name = "minigameStatusFilter";
             minigameStatusFilter.Size = new Size(170, 38);
             minigameStatusFilter.TabIndex = 3;
@@ -635,11 +638,12 @@ namespace ProjectMaelstrom
             minigameListView.FullRowSelect = true;
             minigameListView.GridLines = true;
             minigameListView.Location = new Point(520, 510);
-            minigameListView.Margin = new Padding(0, 4, 0, 4);
+            minigameListView.Margin = new Padding(0, UiSpacingTokens.SpaceM, 0, UiSpacingTokens.SpaceM);
             minigameListView.MultiSelect = false;
             minigameListView.Name = "minigameListView";
             minigameListView.Size = new Size(780, 170);
             minigameListView.TabIndex = 56;
+            minigameListView.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.BodySize, FontStyle.Regular, GraphicsUnit.Point);
             minigameListView.UseCompatibleStateImageBehavior = false;
             minigameListView.View = View.Details;
             minigameListView.SelectedIndexChanged += minigameListView_SelectedIndexChanged;
@@ -679,6 +683,8 @@ namespace ProjectMaelstrom
             minigameDetailsBox.ScrollBars = ScrollBars.Vertical;
             minigameDetailsBox.Size = new Size(780, 120);
             minigameDetailsBox.TabIndex = 57;
+            minigameDetailsBox.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.BodySize, FontStyle.Regular, GraphicsUnit.Point);
+            minigameDetailsBox.Margin = new Padding(0, UiSpacingTokens.SpaceS, 0, UiSpacingTokens.SpaceM);
             // 
             // pluginButtonsFlow
             // 

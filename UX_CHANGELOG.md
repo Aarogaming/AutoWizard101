@@ -5,14 +5,28 @@
 
 ## Screens touched
 - Screen 1 (Main form shell): spacing/hierarchy, typography alignment.
-- Screen 2 (SettingsForm â€” Developer Options â†’ Minigames): upcoming spacing/hierarchy, cohesion, accessibility.
+- Screen 2 (SettingsForm — Developer Options -> Minigames): spacing/hierarchy, cohesion, accessibility.
 
 ## Commits
 - ux: introduce design tokens (no visual change)
 - ux: screen 1 spacing and hierarchy (Main form)
 - ux: screen 1 accessibility polish (focus/readability/state text)
 - ux: add screen 2 plan (settings minigames)
+- ux: screen 2 spacing and hierarchy (settings minigames)
 
 ## Notes
 - UX changes are cosmetic-only; gold baselines remain untouched.
-\n## Screen 2 (SettingsForm — Developer Options ? Minigames)\n### Goals\n- Improve spacing/hierarchy for filters and list\n- Improve component cohesion (chips/buttons/badges) using tokens\n- Maintain readability at 175% DPI\n\n### Do not change\n- Behavior, filtering logic, data loading\n- Tab order\n- Gold baselines\n
+
+## Screen 2 (SettingsForm — Developer Options -> Minigames)
+### Goals
+- Improve spacing/hierarchy for filters and list
+- Improve component cohesion (chips/buttons/badges) using tokens
+- Maintain readability at 175% DPI
+
+### Do not change
+- Behavior, filtering logic, data loading
+- Tab order
+- Gold baselines
+
+### Progress
+- Spacing/hierarchy: aligned filters to 8px rhythm, applied Section/Body typography, added breathing room around list and details box.

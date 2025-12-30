@@ -14,6 +14,7 @@ Framework
 ## Layout rules
 - Base grid: 8px rhythm. Use UiSpacingTokens (SpaceXs/S/M/L/XL) for margins/padding.
 - Root/top panels: use SpaceL padding; inner panels/cards: SpaceM; small gaps SpaceS.
+- Filters/lists (Settings -> Minigames): SpaceS between filter controls, SpaceM between filter row and list; keep list padding consistent with SpaceM top/bottom; details areas use SpaceS top margin and SpaceM bottom margin.
 - Align labels/inputs on consistent left edges; prefer padding over borders.
 - Section headers: UiTypographyTokens.Section (Segoe UI 12, bold). Titles: UiTypographyTokens.Title (Segoe UI 14, bold).
 
