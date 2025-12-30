@@ -9,6 +9,7 @@
 ## Commits
 - ux: introduce design tokens (no visual change)
 - ux: screen 1 spacing and hierarchy (Main form)
+- ux: screen 1 accessibility polish (focus/readability/state text)
 
 ## Notes
 - UX changes are cosmetic-only; gold baselines remain untouched.

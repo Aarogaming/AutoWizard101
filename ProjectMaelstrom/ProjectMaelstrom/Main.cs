@@ -1919,6 +1919,8 @@ public partial class Main : Form
             smartPlayHeaderLabel.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.SectionSize, FontStyle.Bold);
             modeLabel.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.SectionSize, FontStyle.Bold);
             statusRibbonLabel.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.BodySize, FontStyle.Bold);
+            profileWarningLabel.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.BodySize, FontStyle.Bold);
+            filterNoteMainLabel.Font = new Font(UiTypographyTokens.FontFamily, UiTypographyTokens.BodySize, FontStyle.Regular);
         }
         catch
         {

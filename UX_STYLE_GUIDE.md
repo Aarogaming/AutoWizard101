@@ -21,7 +21,12 @@ Framework
 - To be defined (buttons, inputs, lists, badges, overlays).
 
 ## Accessibility
-- To be defined (contrast, focus, keyboard navigation).
+- Keyboard navigation: Tab/Shift+Tab through all interactive controls; do not alter tab order in Designer.
+- Focus visibility: ensure focus rectangle visible on buttons/inputs at 100–175% DPI.
+- Text legibility: Section/Body/Caption tokens at 175% must remain readable.
+- Status communication: do not rely on color-only; keep accompanying text labels (status, profiles).
+- Disabled readability: disabled text must remain legible.
+- WinForms limitation: global corner radius requires custom paint; keep radius usage minimal unless custom drawn.
 
 ## DPI notes
 - To be defined (100/125/150/175 scaling expectations).
