@@ -91,7 +91,8 @@ dotnet run --project ProjectMaelstrom
 ## Development
 - Build: `dotnet build`
 - Run: `dotnet run --project ProjectMaelstrom`
-- Tests: `dotnet run --project ProjectMaelstrom` and click “Run Tests” in the UI (light utility tests).
+- Core tests: `dotnet test ProjectMaelstrom/ProjectMaelstrom.sln -c Debug`
+- Toolkit selftest: `dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- selftest`
 
 ## Credits & Licenses
 - Emgu CV (OpenCV bindings) for image processing and template matching (BSD).
