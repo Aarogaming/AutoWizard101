@@ -36,6 +36,10 @@ Use a file-based, offline handoff to keep conversations clean and audit-safe.
      - `REPO_STATUS.txt` (branch/commit/status)
    - Secret scan runs; export fails closed if secrets are suspected (see `artifacts/handoff/reports/SECRET_SCAN.txt`, stamped with version/profile/timestamp).
    - Tool version: `dotnet run --project DevTools/HandoffBridge/HandoffBridge.csproj -- --version`
+   - Rotation flags:
+     - `--no-rotate` disables archiving/pruning of reports/scan logs (latest overwritten).
+     - `--max-archives N` (0-200, default 10) sets report archive retention under `artifacts/handoff/reports/`.
+   - `INDEX.txt` lives in `artifacts/handoff/reports/` and lists latest files plus archives (newest first).
 
 3) Rules
    - One fenced code block per handoff.

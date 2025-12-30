@@ -111,7 +111,7 @@ internal static class Program
                     break;
                 case "--max-archives":
                     if (i + 1 >= args.Length) throw new InvalidOperationException("--max-archives requires a number");
-                    if (!int.TryParse(args[++i], out maxArchives) || maxArchives < 1) throw new InvalidOperationException("max-archives must be >=1");
+                    if (!int.TryParse(args[++i], out maxArchives) || maxArchives < 0 || maxArchives > 200) throw new InvalidOperationException("max-archives must be between 0 and 200");
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown option: {args[i]}");
@@ -229,12 +229,14 @@ internal static class Program
 
         var redacted = RedactSecrets(text);
         var reportPath = Path.Combine(ReportsRoot, "CODEX_REPORT.md");
+        if (!cfg.NoRotate) ArchiveLatestFile(reportPath, "CODEX_REPORT", ".md", cfg);
         File.WriteAllText(reportPath, $"{Header("CODEX REPORT", cfg)}{Environment.NewLine}{redacted}");
 
         var filesPath = Path.Combine(FromCodexRoot, "FILES_TOUCHED.txt");
         var testsPath = Path.Combine(FromCodexRoot, "TESTS_RUN.txt");
         var notesPath = Path.Combine(FromCodexRoot, "NOTES.md");
         var summaryPath = Path.Combine(ReportsRoot, "CODEX_SUMMARY.md");
+        if (!cfg.NoRotate) ArchiveLatestFile(summaryPath, "CODEX_SUMMARY", ".md", cfg);
         var summary = new StringBuilder();
         summary.AppendLine(Header("CODEX SUMMARY", cfg));
         summary.AppendLine();
@@ -254,13 +256,15 @@ internal static class Program
         try
         {
             RunSecretScan(cfg, reportPath);
-            PrependReportHeader(reportPath, "> SCAN PASS — SAFE TO PASTE");
+            PrependReportHeader(reportPath, "> SCAN PASS - SAFE TO PASTE");
         }
         catch
         {
-            PrependReportHeader(reportPath, "> SCAN FAILED — DO NOT PASTE");
+            PrependReportHeader(reportPath, "> SCAN FAILED - DO NOT PASTE");
             throw;
         }
+
+        UpdateIndex(cfg);
 
         Console.WriteLine($"Import complete (v{Version}, profile={cfg.Profile}):");
         Console.WriteLine($"- Report: {reportPath}");
@@ -394,6 +398,7 @@ internal static class Program
         var builder = new StringBuilder();
 
         int exit = 0;
+        if (!cfg.NoRotate) ArchiveLatestFile(SecretScanReport, "SECRET_SCAN", ".txt", cfg);
         if (isWindows && File.Exists(psScan))
         {
             exit = RunScanner("powershell", $"-ExecutionPolicy Bypass -File \"{psScan}\" -Path \"{targetPath}\"", builder, cfg);
@@ -433,6 +438,7 @@ internal static class Program
         }
 
         File.WriteAllText(SecretScanReport, $"{Header("SECRET SCAN", cfg)}{Environment.NewLine}{builder}");
+        UpdateIndex(cfg);
         if (exit != 0)
             throw new InvalidOperationException("Secret scan failed or detected potential secrets. See SECRET_SCAN.txt.");
     }
@@ -496,5 +502,141 @@ internal static class Program
     private static string Header(string title, Config cfg)
     {
         return $"# {title} (v{Version}, profile={cfg.Profile}, ts={DateTime.UtcNow:O})";
+    }
+
+    private static string TimestampUtc() => DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+
+    private static void ArchiveLatestFile(string latestPath, string prefix, string extension, Config cfg)
+    {
+        try
+        {
+            if (!File.Exists(latestPath)) return;
+            Directory.CreateDirectory(ReportsRoot);
+            var ts = TimestampUtc();
+            var archivePath = Path.Combine(ReportsRoot, $"{prefix}_{ts}{extension}");
+            int counter = 2;
+            while (File.Exists(archivePath))
+            {
+                archivePath = Path.Combine(ReportsRoot, $"{prefix}_{ts}_{counter}{extension}");
+                counter++;
+            }
+            File.Copy(latestPath, archivePath, overwrite: false);
+            PruneArchives(prefix, extension, cfg);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[warn] Archive skipped for {latestPath}: {ex.Message}");
+        }
+    }
+
+    private static void PruneArchives(string prefix, string extension, Config cfg)
+    {
+        if (cfg.NoRotate) return;
+        var files = Directory.Exists(ReportsRoot)
+            ? Directory.GetFiles(ReportsRoot, $"{prefix}_*{extension}", SearchOption.TopDirectoryOnly)
+            : Array.Empty<string>();
+        var ordered = files
+            .Select(f => new FileInfo(f))
+            .OrderByDescending(f => f.LastWriteTimeUtc)
+            .ToList();
+        var toPrune = ordered.Skip(cfg.MaxArchives).ToList();
+        int pruned = 0;
+        foreach (var f in toPrune)
+        {
+            try
+            {
+                f.Delete();
+                pruned++;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[warn] Prune skipped for {f.Name}: {ex.Message}");
+            }
+        }
+        if (pruned > 0 && cfg.Verbose)
+        {
+            Console.WriteLine($"[rotate] Pruned {pruned} archives for {prefix}");
+        }
+    }
+
+    private static IEnumerable<(string File, long Size, DateTime LastWriteUtc)> CollectLatestFiles()
+    {
+        var list = new List<(string, long, DateTime)>();
+        void AddIfExists(string path)
+        {
+            if (File.Exists(path))
+            {
+                var info = new FileInfo(path);
+                list.Add((Path.GetFileName(path), info.Length, info.LastWriteTimeUtc));
+            }
+        }
+        AddIfExists(Path.Combine(ReportsRoot, "CODEX_REPORT.md"));
+        AddIfExists(Path.Combine(ReportsRoot, "CODEX_SUMMARY.md"));
+        AddIfExists(PathCombine(ReportsRoot, "SECRET_SCAN.txt"));
+        return list;
+    }
+
+    private static string PathCombine(string root, string name) => Path.Combine(root, name);
+
+    private static IEnumerable<string> CollectArchives(string prefix, string extension)
+    {
+        if (!Directory.Exists(ReportsRoot)) return Array.Empty<string>();
+        return Directory.GetFiles(ReportsRoot, $"{prefix}_*{extension}", SearchOption.TopDirectoryOnly)
+            .OrderByDescending(f => new FileInfo(f).LastWriteTimeUtc)
+            .Select(f => Path.GetFileName(f) ?? string.Empty)
+            .Where(n => !string.IsNullOrWhiteSpace(n));
+    }
+
+    private static void UpdateIndex(Config cfg)
+    {
+        try
+        {
+            Directory.CreateDirectory(ReportsRoot);
+            var tmp = Path.Combine(ReportsRoot, "INDEX.tmp");
+            var idx = Path.Combine(ReportsRoot, "INDEX.txt");
+            var sb = new StringBuilder();
+            sb.AppendLine($"HandoffBridge INDEX (v{Version}, profile={cfg.Profile}, ts={DateTime.UtcNow:O})");
+            sb.AppendLine($"Rotation: {(cfg.NoRotate ? "disabled" : "enabled")} (max-archives={cfg.MaxArchives})");
+            sb.AppendLine();
+            sb.AppendLine("Latest:");
+            foreach (var item in CollectLatestFiles())
+            {
+                sb.AppendLine($"- {item.File} | {item.Size} bytes | {item.LastWriteUtc:O}");
+            }
+            sb.AppendLine();
+            void WriteArchives(string label, string prefix, string ext)
+            {
+                sb.AppendLine($"{label}:");
+                var archives = CollectArchives(prefix, ext).ToList();
+                if (archives.Count == 0)
+                {
+                    sb.AppendLine("  (none)");
+                }
+                else
+                {
+                    foreach (var a in archives)
+                    {
+                        var info = new FileInfo(Path.Combine(ReportsRoot, a));
+                        sb.AppendLine($"  - {a} | {info.Length} bytes | {info.LastWriteTimeUtc:O}");
+                    }
+                }
+                sb.AppendLine();
+            }
+
+            WriteArchives("CODEX_REPORT archives", "CODEX_REPORT", ".md");
+            WriteArchives("CODEX_SUMMARY archives", "CODEX_SUMMARY", ".md");
+            WriteArchives("SECRET_SCAN archives", "SECRET_SCAN", ".txt");
+
+            File.WriteAllText(tmp, sb.ToString());
+            File.Move(tmp, idx, true);
+            if (cfg.Verbose)
+            {
+                Console.WriteLine($"[index] Updated {idx}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[warn] Failed to update INDEX.txt: {ex.Message}");
+        }
     }
 }

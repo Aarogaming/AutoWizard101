@@ -16,11 +16,16 @@ Rules:
 - Branch-agnostic prompts (uses git branch name).
 - Stamps include tool version/profile/timestamp on key outputs (HANDOFF_TO_CODEX.md, CODEX_REPORT.md, SECRET_SCAN.txt).
 - DO NOT TOUCH runtime/policy/packaging/tests via this bridge.
+- Rotation (reports only): CODEX_REPORT.md, CODEX_SUMMARY.md, SECRET_SCAN.txt archive to timestamped copies before overwrite unless `--no-rotate` is set. Retention defaults to 10; configurable via `--max-archives N` (0-200). Archives live only under artifacts/handoff/reports/.
+- INDEX.txt: generated in artifacts/handoff/reports/ listing latest files (with size/UTC time), archives per type, rotation status, version/profile/timestamp.
 
 Commands (HandoffBridge):
-- export: generates to_codex/ files; runs secret scan; validates single fenced block in HANDOFF_TO_CODEX.md.
-- import: validates RESULT.md, redacts, writes reports; runs secret scan; marks report header PASS/FAIL.
+- export: generates to_codex/ files; runs secret scan; validates single fenced block in HANDOFF_TO_CODEX.md; stamps outputs.
+- import: validates RESULT.md, redacts, writes reports; rotates reports unless disabled; runs secret scan; marks report header PASS/FAIL; updates INDEX.txt.
 - --version: prints tool version (also shown in stamps).
+- Rotation flags (both export/import):
+  - `--no-rotate` disables archiving/pruning (latest files still overwritten).
+  - `--max-archives N` sets retention (default 10, min 0, max 200).
 
 Wrappers:
 - scripts/handoff_to_codex.{ps1,sh}
