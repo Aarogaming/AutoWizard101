@@ -30,7 +30,10 @@ dotnet build -c Release
 - Maintain portability: avoid hardcoding user-specific paths; keep external dependencies bundled or optional.
 
 ## Testing
-- Run `dotnet build -c Release` before raising PRs.
+- Preferred checks before raising PRs:
+  - `dotnet build ProjectMaelstrom/ProjectMaelstrom.sln -c Debug`
+  - `dotnet test ProjectMaelstrom/ProjectMaelstrom.sln -c Debug`
+  - `dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- selftest`
 - If you touch image recognition or memory hooks, verify against a running Wizard101 client when possible; otherwise, stub with safe fallbacks.
 
 ## Submitting changes
