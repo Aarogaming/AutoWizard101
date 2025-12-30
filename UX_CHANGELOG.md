@@ -15,3 +15,4 @@
 
 ## Notes
 - UX changes are cosmetic-only; gold baselines remain untouched.
+\n## Screen 2 (SettingsForm — Developer Options ? Minigames)\n### Goals\n- Improve spacing/hierarchy for filters and list\n- Improve component cohesion (chips/buttons/badges) using tokens\n- Maintain readability at 175% DPI\n\n### Do not change\n- Behavior, filtering logic, data loading\n- Tab order\n- Gold baselines\n
