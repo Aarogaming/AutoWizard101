@@ -34,5 +34,8 @@ Provide a deterministic record of verification steps, policy boundaries, and cap
 6) Verify portable build is DevTools-free.
 
 ## Attestation Templates
-- Compliance: “We attest all default policies remain simulation-only; live automation disabled.”
-- Reproducibility: “We attest builds were produced from commit <hash> using `scripts/final_verify.ps1` and match recorded checksums.”
+- Compliance: "We attest all default policies remain enforced as documented; live automation settings were reviewed."
+- Reproducibility: "We attest builds were produced from commit <hash> using `scripts/final_verify.ps1` and match recorded checksums."
+
+## Updates
+- 2025-12-31: Added continuity docs (ROADMAP, GOALS, COOPERATIVE_EVALUATION, POLICY_TXT_SPEC), prompt protocol in ASSISTANT_CONTEXT, and handoff continuity notes. Purpose: preserve no-swerving policy, live-means-live governance, and professor review continuity.

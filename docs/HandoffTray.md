@@ -8,3 +8,9 @@
 - Safety: no auto-posting; toggle + confirmation required. No secrets stored.
 - CLI dependency: `dotnet` available; runs `dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- handoff import --out artifacts/handoff/reports`.
 - Server status check: tray menu → “Check server status” (expects local API at `http://127.0.0.1:9411/api/status`).
+
+## Continuity Protocol
+- All chats/agents must use copyable prompts; CodeX outputs end with a “COPYABLE PROMPT FOR CHATGPT 5.2 PRO”.
+- Keep continuity docs current: `docs/ROADMAP.md`, `docs/GOALS.md`, `docs/COOPERATIVE_EVALUATION.md`, `docs/POLICY_TXT_SPEC.md`.
+- Handoff artifacts live under `artifacts/handoff/**` (ignored by git).
+- Relevant scripts: `scripts/handoff_from_codex.ps1`, `scripts/handoff_to_codex.ps1`, `scripts/coop_loop.ps1`.

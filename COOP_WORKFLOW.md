@@ -13,6 +13,10 @@
 - `./scripts/coop_loop.ps1 -Watch` (or without -Watch to prompt)  
   Steps: paste Codex output -> generates handoff (clipboard) -> paste into ChatGPT -> use `./scripts/handoff_to_codex.ps1` footer when prompting Codex.
 
+## Evaluation + handoff
+- See `docs/COOPERATIVE_EVALUATION.md` for rubric (professor review, CI/CodeX, safety/determinism).
+- Handoff updates flow through HandoffTray/toolkit/scripts; keep `artifacts/handoff/**` outputs current.
+
 ## Preflight Secret Scan
 - Run before push: `./scripts/scan_for_secrets.ps1`
   - Scans common extensions for ghp_/AIza/private keys.
