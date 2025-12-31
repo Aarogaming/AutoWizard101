@@ -4,6 +4,7 @@ using System.Text;
 using Dapper;
 using Microsoft.Data.Sqlite;
 using StandardWebhooks;
+using MaelstromBot.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,9 @@ var app = builder.Build();
 var dbPath = Path.Combine(app.Environment.ContentRootPath, "artifacts", "bot", "db", "maelstrombot.db");
 Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
 var connString = $"Data Source={dbPath}";
+builder.Services.AddSingleton(new DatabaseOptions(connString));
+builder.Services.AddHttpClient();
+builder.Services.AddHostedService<GitHubPoller>();
 
 // Initialize schema
 using (var conn = new SqliteConnection(connString))
@@ -48,6 +52,13 @@ using (var conn = new SqliteConnection(connString))
         id TEXT PRIMARY KEY,
         role TEXT,
         hash TEXT
+    );
+    """);
+
+    conn.Execute("""
+    CREATE TABLE IF NOT EXISTS state (
+        key TEXT PRIMARY KEY,
+        value TEXT
     );
     """);
 }
@@ -192,3 +203,5 @@ app.MapGet("/api/status", (HttpContext ctx) =>
 });
 
 app.Run();
+
+public record DatabaseOptions(string ConnectionString);
