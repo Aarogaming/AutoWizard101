@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using MaelstromToolkit.Planning;
@@ -123,38 +124,37 @@ internal static class Program
         if (args.Length == 0) return null;
         var showHelp = args.Contains("--help", StringComparer.OrdinalIgnoreCase);
         var showVersion = args.Contains("--version", StringComparer.OrdinalIgnoreCase);
-        string? command = null;
-        string sub = string.Empty;
         var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var positional = new List<string>();
         var force = args.Contains("--force", StringComparer.OrdinalIgnoreCase);
         var dryRun = args.Contains("--dry-run", StringComparer.OrdinalIgnoreCase);
         var verbose = args.Contains("--verbose", StringComparer.OrdinalIgnoreCase);
 
-        foreach (var arg in args)
-        {
-            if (arg.StartsWith("--", StringComparison.Ordinal)) continue;
-            if (command == null)
-            {
-                command = arg;
-            }
-            else if (string.IsNullOrEmpty(sub))
-            {
-                sub = arg;
-            }
-        }
-
         for (var i = 0; i < args.Length; i++)
         {
-            if (!args[i].StartsWith("--", StringComparison.Ordinal)) continue;
-            var key = args[i][2..];
-            if (key is "force" or "dry-run" or "verbose" or "help" or "version") continue;
-            if (i + 1 < args.Length && !args[i + 1].StartsWith("--", StringComparison.Ordinal))
+            var arg = args[i];
+            if (arg.StartsWith("--", StringComparison.Ordinal))
             {
-                dict[key] = args[i + 1];
+                var key = arg[2..];
+                if (key is "force" or "dry-run" or "verbose" or "help" or "version") continue;
+                if (i + 1 < args.Length && !args[i + 1].StartsWith("--", StringComparison.Ordinal))
+                {
+                    dict[key] = args[i + 1];
+                }
+                continue;
             }
+            positional.Add(arg);
         }
 
-        if (string.IsNullOrWhiteSpace(command)) return null;
+        if (positional.Count == 0) return null;
+        string command = positional[0];
+        string sub = positional.Count > 1 ? positional[1] : string.Empty;
+        if (command.Equals("aas", StringComparison.OrdinalIgnoreCase) && positional.Count > 1)
+        {
+            command = positional[1];
+            sub = positional.Count > 2 ? positional[2] : string.Empty;
+        }
+
         return new CommandOptions(command, sub, dict, force, dryRun, verbose, showHelp, showVersion);
     }
 
@@ -272,23 +272,76 @@ internal static class Program
     private static int RunPolicyValidate(string root, CommandOptions options)
     {
         var (policyPath, outRoot) = GetPolicyPaths(root, options);
-        var service = new PolicyService();
-        var result = service.Load(policyPath);
-        service.WriteDiagnostics(outRoot, result);
-
-        if (result.HasErrors || result.Document == null)
+        if (!OutIsSafe(outRoot))
         {
-            service.WriteRejected(outRoot, result);
-            Console.Error.WriteLine("Policy INVALID");
-            foreach (var d in result.SortedDiagnostics()) Console.Error.WriteLine($"{d.Code}: {d.Message} (section={d.Section} key={d.Key} line={d.LineNumber?.ToString() ?? "-"})");
+            Console.Error.WriteLine("ERROR: --out must contain the segment \"--out\" (case-insensitive). No files written.");
             return 1;
         }
 
-        var content = File.Exists(policyPath) ? File.ReadAllText(policyPath) : string.Empty;
-        var hash = service.WriteLkg(outRoot, content);
-        Console.WriteLine($"Policy VALID (hash={hash})");
-        foreach (var d in result.SortedDiagnostics().Where(d => d.Severity != DiagnosticSeverity.Info)) Console.WriteLine($"Note: {d.Code} {d.Message}");
-        return 0;
+        Directory.CreateDirectory(Path.Combine(outRoot, "system"));
+
+        var parserFacade = new PolicyTxtParserFacade();
+        var validator = new PolicyValidator();
+        var diagnostics = new List<PolicyDiagnostic>();
+        string policyText = string.Empty;
+
+        if (!File.Exists(policyPath))
+        {
+            diagnostics.Add(new PolicyDiagnostic("AASPOL001", DiagnosticSeverity.Error, "file", "missing", null, $"File not found: {policyPath}"));
+        }
+        else
+        {
+            policyText = File.ReadAllText(policyPath);
+        }
+
+        PolicySnapshot? snapshot = null;
+        if (!string.IsNullOrEmpty(policyText) || diagnostics.Count == 0)
+        {
+            var parsed = parserFacade.Parse(policyText);
+            diagnostics.AddRange(parsed.Diagnostics);
+            if (parsed.Snapshot != null)
+            {
+                var validation = validator.Validate(parsed.Snapshot);
+                diagnostics.AddRange(validation.Diagnostics);
+                snapshot = parsed.Snapshot;
+            }
+        }
+
+        var ordered = diagnostics
+            .OrderBy(d => d.Code, StringComparer.Ordinal)
+            .ThenBy(d => d.Section, StringComparer.Ordinal)
+            .ThenBy(d => d.Key, StringComparer.Ordinal)
+            .ThenBy(d => d.LineNumber ?? int.MaxValue)
+            .ThenBy(d => d.Message, StringComparer.Ordinal)
+            .ToList();
+
+        var hasErrors = ordered.Any(d => d.Severity == DiagnosticSeverity.Error) || snapshot == null;
+        var hash = string.IsNullOrEmpty(policyText) ? "none" : ComputeSha256(policyText);
+        var activeProfile = snapshot?.Global.ActiveProfile ?? "unknown";
+
+        var mode = "UNKNOWN";
+        var liveStatus = "N/A";
+        if (snapshot != null)
+        {
+            var validation = validator.Validate(snapshot);
+            mode = validation.OperatingMode;
+            liveStatus = validation.LiveStatus;
+        }
+
+        WriteValidateFile(outRoot, policyPath, hash, activeProfile, mode, liveStatus, ordered, !hasErrors);
+
+        if (!hasErrors)
+        {
+            WriteAtomic(Path.Combine(outRoot, "system", "policy.lkg.txt"), policyText);
+            WriteAtomic(Path.Combine(outRoot, "system", "policy.lkg.sha256"), hash);
+            Console.WriteLine($"VALID hash={hash} activeProfile={activeProfile} mode={mode} liveStatus={liveStatus} diagCount={ordered.Count}");
+            return 0;
+        }
+
+        WriteRejected(outRoot, ordered);
+        var top5 = string.Join(",", ordered.Take(5).Select(d => d.Code));
+        Console.WriteLine($"INVALID hash={hash} activeProfile={activeProfile} mode={mode} liveStatus={liveStatus} diagCount={ordered.Count} top5={top5}");
+        return 1;
     }
 
     private static int RunPolicyEffective(string root, CommandOptions options)
@@ -410,6 +463,60 @@ internal static class Program
 
     private static string GetVersion() =>
         Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "unknown";
+
+    private static bool OutIsSafe(string outRoot) =>
+        outRoot.IndexOf("--out", StringComparison.OrdinalIgnoreCase) >= 0;
+
+    private static void WriteValidateFile(string outRoot, string policyPath, string hash, string activeProfile, string mode, string liveStatus, IReadOnlyList<PolicyDiagnostic> diagnostics, bool isValid)
+    {
+        var systemDir = Path.Combine(outRoot, "system");
+        Directory.CreateDirectory(systemDir);
+        var path = Path.Combine(systemDir, "policy.validate.txt");
+        var sb = new StringBuilder();
+        sb.AppendLine(isValid ? "VALID" : "INVALID");
+        sb.AppendLine($"File: {policyPath}");
+        sb.AppendLine($"Hash: {hash}");
+        sb.AppendLine($"ActiveProfile: {activeProfile}");
+        sb.AppendLine($"OperatingMode: {mode}");
+        sb.AppendLine($"LiveStatus: {liveStatus}");
+        sb.AppendLine($"Diagnostics: {diagnostics.Count}");
+        foreach (var d in diagnostics)
+        {
+            var line = d.LineNumber.HasValue ? d.LineNumber.Value.ToString() : "-";
+            sb.AppendLine($"{d.Code} | {d.Severity} | {d.Section}.{d.Key} | {line} | {d.Message}");
+        }
+        WriteAtomic(path, sb.ToString());
+    }
+
+    private static void WriteRejected(string outRoot, IReadOnlyList<PolicyDiagnostic> diagnostics)
+    {
+        var systemDir = Path.Combine(outRoot, "system");
+        Directory.CreateDirectory(systemDir);
+        var path = Path.Combine(systemDir, "policy.rejected.txt");
+        var sb = new StringBuilder();
+        foreach (var d in diagnostics)
+        {
+            var line = d.LineNumber.HasValue ? d.LineNumber.Value.ToString() : "-";
+            sb.AppendLine($"{d.Code} | {d.Severity} | {d.Section}.{d.Key} | {line} | {d.Message}");
+        }
+        WriteAtomic(path, sb.ToString());
+    }
+
+    private static void WriteAtomic(string path, string content)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        var tmp = path + ".tmp_" + Guid.NewGuid().ToString("N");
+        File.WriteAllText(tmp, NormalizeLineEndings(content), new UTF8Encoding(false));
+        File.Move(tmp, path, overwrite: true);
+    }
+
+    private static string ComputeSha256(string text)
+    {
+        using var sha = SHA256.Create();
+        var bytes = Encoding.UTF8.GetBytes(NormalizeLineEndings(text));
+        var hash = sha.ComputeHash(bytes);
+        return BitConverter.ToString(hash).Replace("-", string.Empty).ToLowerInvariant();
+    }
 
     private static string templateFolderFor(string templateName)
     {

@@ -54,3 +54,11 @@
 - Last Known Good snapshot written to `--out/system/policy.lkg.txt` and hash to `--out/system/policy.lkg.sha256`.
 - Rejected diagnostics written to `--out/system/policy.rejected.txt`.
 - Tooling never overwrites aas.policy.txt automatically.
+
+## Toolkit command (validate)
+- Run: `dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- aas policy validate --file ./aas.policy.txt --out ./--out`
+- Writes under `--out/system/`:
+  - `policy.validate.txt` (status, hash, activeProfile, OperatingMode, LiveStatus, diagnostics)
+  - If valid: `policy.lkg.txt`, `policy.lkg.sha256`
+  - If invalid: `policy.rejected.txt`
+- `--out` path must contain `--out` segment; no writes otherwise.
