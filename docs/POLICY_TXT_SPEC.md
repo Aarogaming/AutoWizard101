@@ -71,3 +71,12 @@
   - `policy.effective.json` (when `--format json`)
 - Summaries include: source, hash, activeProfile, profileMode, OperatingMode, LiveStatus, reasons, AI summary, ethics summary, diagnostics, and top rejection codes for FILE/LKG if fallbacks were used.
 - Invalid edits never brick: FILE errors are recorded, but LKG or DEFAULT keep the tool running.
+
+## Toolkit command (watch / hot reload)
+- Run: `dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- aas policy watch --file ./aas.policy.txt --out ./--out`
+- Behavior:
+  - Debounced file watcher reads policy safely (retry on IO locks).
+  - VALID edits: ACCEPTED, writes LKG (`policy.lkg.txt/.sha256`) and `policy.watch.last.txt`.
+  - INVALID edits: REJECTED, keeps previous snapshot, writes `policy.rejected.txt`.
+  - LIVE means LIVE preserved; no global fallback.
+- Outputs under `--out/system/`.

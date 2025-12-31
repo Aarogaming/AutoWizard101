@@ -12,6 +12,7 @@ requireAllProfilesValid = true
 denyUnknownCapabilities = true
 denyUnknownKeys = false
 liveMeansLive = true
+safeWrites = outOnly
 
 [ethics]
 purpose = educational_research

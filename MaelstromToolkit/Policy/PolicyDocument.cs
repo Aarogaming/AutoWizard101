@@ -9,6 +9,7 @@ internal sealed class GlobalSettings
     public bool DenyUnknownCapabilities { get; set; } = true;
     public bool DenyUnknownKeys { get; set; } = false;
     public bool LiveMeansLive { get; set; } = true;
+    public string SafeWrites { get; set; } = "outOnly";
 }
 
 internal sealed class EthicsSettings
@@ -38,6 +39,8 @@ internal sealed class AiSettings
     public double Temperature { get; set; } = 0;
     public bool AllowSendScreenshotsToModel { get; set; } = false;
     public bool AllowSendAudioToModel { get; set; } = false;
+    public string? AllowedTools { get; set; }
+    public string? DeniedTools { get; set; }
 }
 
 internal sealed class PolicyDocument

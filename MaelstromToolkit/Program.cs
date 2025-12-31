@@ -390,58 +390,15 @@ internal static class Program
     private static int RunPolicyWatch(string root, CommandOptions options)
     {
         var (policyPath, outRoot) = GetPolicyPaths(root, options);
-        var service = new PolicyService();
-        var resolver = new PolicyResolver(service);
-
-        void EvaluateAndReport()
+        if (!OutIsSafe(outRoot))
         {
-            var (effective, sourceResult, source) = resolver.Resolve(policyPath, outRoot);
-            service.WriteDiagnostics(outRoot, sourceResult);
-            if (sourceResult.HasErrors || source == "default")
-            {
-                service.WriteRejected(outRoot, sourceResult);
-                Console.WriteLine($"REJECTED ({source})");
-                foreach (var d in sourceResult.SortedDiagnostics()) Console.WriteLine($"{d.Code}: {d.Message}");
-            }
-            else
-            {
-                var content = File.Exists(policyPath) ? File.ReadAllText(policyPath) : string.Empty;
-                var hash = service.WriteLkg(outRoot, content);
-                Console.WriteLine($"ACCEPTED ({source}) hash={hash}");
-            }
-
-            Console.WriteLine($"ActiveProfile={effective.ActiveProfile} OperatingMode={effective.OperatingMode} LiveStatus={effective.LiveStatus}");
+            Console.Error.WriteLine("ERROR: --out must contain \"--out\" segment (safety guard).");
+            return 1;
         }
 
-        EvaluateAndReport();
-
-        Console.WriteLine("Watching for changes (Ctrl+C to stop)...");
-        var exit = new ManualResetEventSlim(false);
-        Console.CancelKeyPress += (_, e) => { e.Cancel = true; exit.Set(); };
-
-        using var watcher = new FileSystemWatcher(Path.GetDirectoryName(policyPath) ?? ".", Path.GetFileName(policyPath))
-        {
-            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName | NotifyFilters.Attributes,
-            EnableRaisingEvents = true
-        };
-
-        Timer? debounce = null;
-        FileSystemEventHandler handler = (_, __) =>
-        {
-            debounce?.Dispose();
-            debounce = new Timer(_ =>
-            {
-                EvaluateAndReport();
-            }, null, 200, Timeout.Infinite);
-        };
-
-        watcher.Changed += handler;
-        watcher.Created += handler;
-        watcher.Renamed += (_, __) => EvaluateAndReport();
-
-        exit.Wait();
-        debounce?.Dispose();
-        return 0;
+        var runner = new PolicyWatchRunner(policyPath, outRoot, DefaultPolicyText);
+        Console.WriteLine($"Watching {policyPath} (Ctrl+C to stop)...");
+        return runner.Run();
     }
 
     private static (string policyPath, string outRoot) GetPolicyPaths(string root, CommandOptions options)

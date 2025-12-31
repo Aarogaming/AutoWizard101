@@ -31,6 +31,10 @@ internal sealed class PolicyValidator
         {
             diagnostics.Add(new PolicyDiagnostic("AASPOL020", DiagnosticSeverity.Error, "global", "schemaVersion", null, "Unsupported schemaVersion (expected 1)."));
         }
+        if (!snapshot.Global.SafeWrites.Equals("outOnly", StringComparison.OrdinalIgnoreCase))
+        {
+            diagnostics.Add(new PolicyDiagnostic("AASPOL020", DiagnosticSeverity.Error, "global", "safeWrites", null, "safeWrites must be outOnly."));
+        }
     }
 
     private static void ValidateProfiles(PolicySnapshot snapshot, List<PolicyDiagnostic> diagnostics)

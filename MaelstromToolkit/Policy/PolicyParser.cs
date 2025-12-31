@@ -123,6 +123,9 @@ internal sealed class PolicyParser
             case "livemeanslive":
                 AssignBool(entry, v => global.LiveMeansLive = v, result);
                 break;
+            case "safewrites":
+                global.SafeWrites = entry.Value;
+                break;
             default:
                 AddUnknown(entry, result, "AASPOL011");
                 break;
@@ -203,6 +206,12 @@ internal sealed class PolicyParser
                 break;
             case "allowsendaudiotomodel":
                 AssignBool(entry, v => ai.AllowSendAudioToModel = v, result);
+                break;
+            case "allowedtools":
+                ai.AllowedTools = entry.Value;
+                break;
+            case "deniedtools":
+                ai.DeniedTools = entry.Value;
                 break;
             default:
                 AddUnknown(entry, result, "AASPOL011");
