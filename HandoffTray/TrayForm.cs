@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -18,12 +19,24 @@ public class TrayForm : Form
     private readonly ToolStripMenuItem _modeBoth;
     private readonly ToolStripMenuItem _toggleApi;
     private readonly ToolStripMenuItem _statusItem;
+    private readonly ToolStripMenuItem _openDashboardItem;
+    private readonly ToolStripMenuItem _automationsMenu;
+    private readonly ToolStripMenuItem _cancelJobItem;
+    private readonly ToolStripMenuItem _settingsItem;
 
     private readonly HandoffWatcher _watcher;
     private readonly ApiSender _apiSender = new();
     private readonly LogHelper _log;
     private readonly string _root;
     private bool _apiSendEnabled;
+
+    private readonly BotApiClient _botApi;
+    private readonly TraySettings _settings;
+    private string? _token;
+    private readonly System.Windows.Forms.Timer _pollTimer;
+    private string? _lastNotifiedJobId;
+    private bool _initialLoadDone;
+    private DateTime _nextRetryUtc;
 
     public TrayForm()
     {
@@ -38,6 +51,10 @@ public class TrayForm : Form
         _watcher.PromptDetected += OnPromptDetected;
         _watcher.ResultDetected += OnResultDetected;
 
+        _settings = SettingsStore.Load();
+        _token = TokenStore.TryLoad();
+        _botApi = new BotApiClient(_settings.BaseUrl, _token);
+
         _menu = new ContextMenuStrip();
         _modeOff = new ToolStripMenuItem("Mode: Off", null, (_, _) => SetMode(Mode.Off)) { Checked = true };
         _modeTo = new ToolStripMenuItem("Mode: Watch To-Codex", null, (_, _) => SetMode(Mode.To));
@@ -48,7 +65,11 @@ public class TrayForm : Form
             Checked = false,
             CheckOnClick = true
         };
-        _statusItem = new ToolStripMenuItem("Status: (not checked)");
+        _statusItem = new ToolStripMenuItem("Status: (not checked)") { Enabled = false };
+        _openDashboardItem = new ToolStripMenuItem("Open Dashboard (/bot/ui)", null, (_, _) => OpenDashboard());
+        _automationsMenu = new ToolStripMenuItem("Automations (toggle)");
+        _cancelJobItem = new ToolStripMenuItem("Cancel latest awaiting job", null, async (_, _) => await CancelLatestAsync());
+        _settingsItem = new ToolStripMenuItem("Settings...", null, (_, _) => OpenSettings());
 
         _menu.Items.AddRange(new ToolStripItem[]
         {
@@ -59,8 +80,13 @@ public class TrayForm : Form
             new ToolStripMenuItem("Send latest prompt via API", null, async (_, _) => await SendLatestPromptAsync()),
             new ToolStripMenuItem("Open reports folder", null, (_, _) => OpenReports()),
             new ToolStripSeparator(),
+            _openDashboardItem,
+            _automationsMenu,
+            _cancelJobItem,
+            _settingsItem,
+            new ToolStripSeparator(),
             _toggleApi,
-            new ToolStripMenuItem("Check server status", null, async (_, _) => await CheckStatusAsync()),
+            new ToolStripMenuItem("Check server status", null, async (_, _) => await PollOnceAsync(forceNotify:true)),
             _statusItem,
             new ToolStripSeparator(),
             new ToolStripMenuItem("Exit", null, (_, _) => ExitApplication())
@@ -74,6 +100,10 @@ public class TrayForm : Form
             Text = "HandoffTray (default OFF)"
         };
 
+        _pollTimer = new System.Windows.Forms.Timer { Interval = 5000 };
+        _pollTimer.Tick += async (_, _) => await PollOnceAsync();
+        _pollTimer.Start();
+
         ShowInTaskbar = false;
         WindowState = FormWindowState.Minimized;
         Visible = false;
@@ -82,6 +112,8 @@ public class TrayForm : Form
     private void ExitApplication()
     {
         _notifyIcon.Visible = false;
+        _pollTimer.Stop();
+        _pollTimer.Dispose();
         _watcher.Dispose();
         Application.Exit();
     }
@@ -239,26 +271,178 @@ public class TrayForm : Form
         _log.Info($"API send enabled: {_apiSendEnabled}");
     }
 
-    private async Task CheckStatusAsync()
+    private async Task PollOnceAsync(bool forceNotify = false)
     {
+        if (DateTime.UtcNow < _nextRetryUtc) return;
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(4));
         try
         {
-            var http = new HttpClient();
-            var uri = new Uri("http://127.0.0.1:9411/api/status");
-            var resp = await http.GetAsync(uri);
-            if (!resp.IsSuccessStatusCode)
-            {
-                _statusItem.Text = $"Status: {resp.StatusCode}";
-                return;
-            }
-            var json = await resp.Content.ReadAsStringAsync();
-            _statusItem.Text = $"Status: OK ({json})";
+            var status = await _botApi.GetStatusAsync(cts.Token);
+            var jobs = await _botApi.GetJobsAsync(limit: 5, cts.Token) ?? new List<JobDto>();
+
+            var tip = status is null
+                ? "Status unavailable"
+                : $"Q={status.Queued} A={status.Awaiting} C={status.Completed} F={status.Failed}";
+            _statusItem.Text = $"Status: {tip}";
+            _notifyIcon.Text = $"HandoffTray ({tip})";
+
+            await RefreshAutomationsAsync(cts.Token);
+            MaybeNotify(jobs, forceNotify);
+
+            _initialLoadDone = true;
+            _nextRetryUtc = DateTime.UtcNow.AddSeconds(5);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            _statusItem.Text = "Status: Unauthorized (set token)";
+            _notifyIcon.Text = "HandoffTray (unauthorized)";
+            _nextRetryUtc = DateTime.UtcNow.AddSeconds(30);
         }
         catch (Exception ex)
         {
-            _statusItem.Text = $"Status error";
-            _log.Error($"Status check failed: {ex}");
+            _statusItem.Text = "Status: offline";
+            _notifyIcon.Text = "HandoffTray (server offline)";
+            _log.Error($"Poll failed: {ex.Message}");
+            _nextRetryUtc = DateTime.UtcNow.AddSeconds(15);
         }
+    }
+
+    private void MaybeNotify(List<JobDto> jobs, bool forceNotify)
+    {
+        if (jobs.Count == 0) return;
+        var latest = jobs.OrderByDescending(j => j.UpdatedAtUtc).First();
+
+        if (!_initialLoadDone && !forceNotify)
+        {
+            _lastNotifiedJobId = latest.JobId;
+            return;
+        }
+
+        if (latest.Status.Equals("completed", StringComparison.OrdinalIgnoreCase) ||
+            latest.Status.Equals("failed", StringComparison.OrdinalIgnoreCase))
+        {
+            if (_lastNotifiedJobId != latest.JobId)
+            {
+                var snippet = latest.ResultSnippet ?? latest.Error ?? "(no details)";
+                if (snippet.Length > 120) snippet = snippet[..120] + "...";
+                _notifyIcon.BalloonTipTitle = "MaelstromBot";
+                _notifyIcon.BalloonTipText = $"{latest.Status}: {snippet}";
+                _notifyIcon.ShowBalloonTip(2500);
+                _lastNotifiedJobId = latest.JobId;
+            }
+        }
+    }
+
+    private async Task RefreshAutomationsAsync(CancellationToken ct)
+    {
+        try
+        {
+            var autos = await _botApi.GetAutomationsAsync(ct);
+            if (autos is null) return;
+            _automationsMenu.DropDownItems.Clear();
+            foreach (var a in autos)
+            {
+                var item = new ToolStripMenuItem(a.Id)
+                {
+                    Checked = a.Enabled,
+                    CheckOnClick = true
+                };
+                item.Click += async (_, _) =>
+                {
+                    try
+                    {
+                        await _botApi.SetAutomationAsync(a.Id, item.Checked, ct);
+                    }
+                    catch
+                    {
+                        item.Checked = !item.Checked;
+                        _notifyIcon.BalloonTipTitle = "MaelstromBot";
+                        _notifyIcon.BalloonTipText = "Failed to update automation (check token/role).";
+                        _notifyIcon.ShowBalloonTip(2000);
+                    }
+                };
+                _automationsMenu.DropDownItems.Add(item);
+            }
+        }
+        catch
+        {
+            // ignore errors; will retry on next poll
+        }
+    }
+
+    private async Task CancelLatestAsync()
+    {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        try
+        {
+            var jobs = await _botApi.GetJobsAsync(5, cts.Token);
+            var job = jobs?.FirstOrDefault(j => j.Status.Equals("awaiting_openai", StringComparison.OrdinalIgnoreCase) || j.Status.Equals("running", StringComparison.OrdinalIgnoreCase));
+            if (job == null)
+            {
+                _notifyIcon.BalloonTipTitle = "MaelstromBot";
+                _notifyIcon.BalloonTipText = "No running/awaiting job to cancel.";
+                _notifyIcon.ShowBalloonTip(2000);
+                return;
+            }
+
+            var ok = await _botApi.CancelJobAsync(job.JobId, cts.Token);
+            _notifyIcon.BalloonTipTitle = "MaelstromBot";
+            _notifyIcon.BalloonTipText = ok ? "Cancel requested." : "Cancel failed.";
+            _notifyIcon.ShowBalloonTip(2000);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            _notifyIcon.BalloonTipTitle = "MaelstromBot";
+            _notifyIcon.BalloonTipText = "Unauthorized (use admin token).";
+            _notifyIcon.ShowBalloonTip(2000);
+        }
+        catch (Exception ex)
+        {
+            _notifyIcon.BalloonTipTitle = "MaelstromBot";
+            _notifyIcon.BalloonTipText = "Cancel failed.";
+            _notifyIcon.ShowBalloonTip(2000);
+            _log.Error($"Cancel failed: {ex.Message}");
+        }
+    }
+
+    private void OpenDashboard()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = _settings.BaseUrl.TrimEnd('/') + "/bot/ui",
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            _log.Error($"Failed to open dashboard: {ex.Message}");
+        }
+    }
+
+    private void OpenSettings()
+    {
+        using var f = new SettingsForm(_settings, _token);
+        if (f.ShowDialog() != DialogResult.OK) return;
+
+        _settings.BaseUrl = string.IsNullOrWhiteSpace(f.BaseUrl) ? _settings.BaseUrl : f.BaseUrl;
+        SettingsStore.Save(_settings);
+        _botApi.SetBaseUrl(_settings.BaseUrl);
+
+        if (!string.IsNullOrWhiteSpace(f.Token))
+        {
+            _token = f.Token;
+            TokenStore.Save(_token);
+            _botApi.SetToken(_token);
+        }
+
+        _nextRetryUtc = DateTime.UtcNow;
+    }
+
+    private async Task PollOnceAsync()
+    {
+        await PollOnceAsync(forceNotify: false);
     }
 
     protected override void Dispose(bool disposing)
@@ -266,6 +450,7 @@ public class TrayForm : Form
         if (disposing)
         {
             _notifyIcon.Dispose();
+            _pollTimer.Dispose();
             _watcher.Dispose();
         }
         base.Dispose(disposing);
