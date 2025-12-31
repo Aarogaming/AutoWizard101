@@ -3,6 +3,11 @@
 
 Wizard101 automation toolkit with bots, OCR-driven utilities, and a script runner that can load community scripts from a shared library folder.
 
+### DevTools and handoff helpers
+- Handoff bridge & toolkit: see `HANDOFF_BRIDGE_SPEC.md`, `COOP_WORKFLOW.md`, `TEMPLATE_SYSTEM.md`.
+- Tray + watcher helper (Windows only, default OFF): `docs/HandoffTray.md`.
+- Toolkit selftest: `dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- selftest`.
+
 ## Version Support / Policy
 - Current target: net9.0-windows10.0.22621.0
 - Profiles: Public (default, simulation-only), Experimental (dev), live automation disabled by default (`ALLOW_LIVE_AUTOMATION=false`).
