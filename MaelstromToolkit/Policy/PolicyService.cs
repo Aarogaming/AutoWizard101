@@ -70,7 +70,7 @@ internal sealed class PolicyService
         var lines = result.SortedDiagnostics()
             .Select(d =>
             {
-                var line = d.Line.HasValue ? d.Line.Value.ToString() : "-";
+                var line = d.LineNumber.HasValue ? d.LineNumber.Value.ToString() : "-";
                 return $"{d.Code}|{d.Severity}|{d.Section}|{d.Key}|{line}|{d.Message}";
             });
         return string.Join(Environment.NewLine, lines);

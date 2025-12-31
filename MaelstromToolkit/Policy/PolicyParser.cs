@@ -43,7 +43,7 @@ internal sealed class PolicyParser
             var kvp = line.Split('=', 2);
             if (kvp.Length != 2)
             {
-                result.Diagnostics.Add(new PolicyDiagnostic("POL000", DiagnosticSeverity.Error, currentSection, string.Empty, i + 1, $"Invalid entry \"{raw}\" (expected key=value)."));
+                result.Diagnostics.Add(new PolicyDiagnostic("AASPOL001", DiagnosticSeverity.Error, currentSection, string.Empty, i + 1, $"Invalid entry \"{raw}\" (expected key=value)."));
                 continue;
             }
 
@@ -75,7 +75,7 @@ internal sealed class PolicyParser
                         if (profileName.StartsWith(" ", StringComparison.Ordinal)) profileName = profileName.Trim();
                         if (string.IsNullOrWhiteSpace(profileName))
                         {
-                            result.Diagnostics.Add(new PolicyDiagnostic("POL010", DiagnosticSeverity.Error, entry.Section, entry.Key, entry.Line, "Profile section missing name (use [profile <name>])."));
+                        result.Diagnostics.Add(new PolicyDiagnostic("AASPOL010", DiagnosticSeverity.Error, entry.Section, entry.Key, entry.Line, "Profile section missing name (use [profile <name>])."));
                             break;
                         }
                         if (!doc.Profiles.TryGetValue(profileName, out var profile))
@@ -87,8 +87,8 @@ internal sealed class PolicyParser
                     }
                     else
                     {
-                        var severity = doc.Global.DenyUnknownKeys ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
-                        result.Diagnostics.Add(new PolicyDiagnostic("POL011", severity, entry.Section, entry.Key, entry.Line, $"Unknown section [{entry.Section}]."));
+                var severity = doc.Global.DenyUnknownKeys ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
+                result.Diagnostics.Add(new PolicyDiagnostic("AASPOL011", severity, entry.Section, entry.Key, entry.Line, $"Unknown section [{entry.Section}]."));
                     }
                     break;
             }
@@ -103,7 +103,7 @@ internal sealed class PolicyParser
         {
             case "schemaversion":
                 if (int.TryParse(entry.Value, out var ver)) global.SchemaVersion = ver;
-                else AddInvalid(result, entry, "POL101", "schemaVersion must be an integer.");
+                else AddInvalid(result, entry, "AASPOL001", "schemaVersion must be an integer.");
                 break;
             case "activeprofile":
                 global.ActiveProfile = entry.Value;
@@ -124,7 +124,7 @@ internal sealed class PolicyParser
                 AssignBool(entry, v => global.LiveMeansLive = v, result);
                 break;
             default:
-                AddUnknown(entry, result, "POL199");
+                AddUnknown(entry, result, "AASPOL011");
                 break;
         }
     }
@@ -152,7 +152,7 @@ internal sealed class PolicyParser
                 AssignBool(entry, v => ethics.PrivacyStoreAudio = v, result);
                 break;
             default:
-                AddUnknown(entry, result, "POL299");
+                AddUnknown(entry, result, "AASPOL011");
                 break;
         }
     }
@@ -169,7 +169,7 @@ internal sealed class PolicyParser
                 break;
             default:
                 var severity = denyUnknownKeys ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
-                result.Diagnostics.Add(new PolicyDiagnostic("POL399", severity, $"profile {profile.Name}", entry.Key, entry.Line, $"Unknown key {entry.Key}"));
+                result.Diagnostics.Add(new PolicyDiagnostic("AASPOL011", severity, $"profile {profile.Name}", entry.Key, entry.Line, $"Unknown key {entry.Key}"));
                 break;
         }
     }
@@ -196,7 +196,7 @@ internal sealed class PolicyParser
             case "temperature":
                 if (double.TryParse(entry.Value, NumberStyles.Float, CultureInfo.InvariantCulture, out var t))
                     ai.Temperature = t;
-                else AddInvalid(result, entry, "POL499", "temperature must be numeric.");
+                else AddInvalid(result, entry, "AASPOL001", "temperature must be numeric.");
                 break;
             case "allowsendscreenshotstomodel":
                 AssignBool(entry, v => ai.AllowSendScreenshotsToModel = v, result);
@@ -205,7 +205,7 @@ internal sealed class PolicyParser
                 AssignBool(entry, v => ai.AllowSendAudioToModel = v, result);
                 break;
             default:
-                AddUnknown(entry, result, "POL499");
+                AddUnknown(entry, result, "AASPOL011");
                 break;
         }
     }
@@ -214,7 +214,7 @@ internal sealed class PolicyParser
     {
         if (doc.Global.SchemaVersion != 1)
         {
-            result.Diagnostics.Add(new PolicyDiagnostic("POL901", DiagnosticSeverity.Error, "global", "schemaVersion", null, "Unsupported schemaVersion (expected 1)."));
+            result.Diagnostics.Add(new PolicyDiagnostic("AASPOL020", DiagnosticSeverity.Error, "global", "schemaVersion", null, "Unsupported schemaVersion (expected 1)."));
         }
 
         var requiredProfiles = new[] { "catalog", "simulation", "live_advisory", "live_pilot" };
@@ -223,7 +223,7 @@ internal sealed class PolicyParser
             if (!doc.Profiles.ContainsKey(rp))
             {
                 var severity = doc.Global.RequireAllProfilesValid ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
-                result.Diagnostics.Add(new PolicyDiagnostic("POL902", severity, "profiles", rp, null, $"Missing required profile \"{rp}\"."));
+                result.Diagnostics.Add(new PolicyDiagnostic("AASPOL010", severity, "profiles", rp, null, $"Missing required profile \"{rp}\"."));
             }
         }
 
@@ -231,17 +231,17 @@ internal sealed class PolicyParser
         {
             if (!IsValidMode(p.Mode))
             {
-                result.Diagnostics.Add(new PolicyDiagnostic("POL903", DiagnosticSeverity.Error, $"profile {p.Name}", "mode", null, $"Invalid mode \"{p.Mode}\" (expected catalog|simulation|live)."));
+                result.Diagnostics.Add(new PolicyDiagnostic("AASPOL020", DiagnosticSeverity.Error, $"profile {p.Name}", "mode", null, $"Invalid mode \"{p.Mode}\" (expected catalog|simulation|live)."));
             }
             if (p.Mode.Equals("live", StringComparison.OrdinalIgnoreCase) && string.IsNullOrWhiteSpace(p.Autonomy))
             {
-                result.Diagnostics.Add(new PolicyDiagnostic("POL904", DiagnosticSeverity.Error, $"profile {p.Name}", "autonomy", null, "Autonomy is required for live profiles."));
+                result.Diagnostics.Add(new PolicyDiagnostic("AASPOL030", DiagnosticSeverity.Error, $"profile {p.Name}", "autonomy", null, "Autonomy is required for live profiles."));
             }
         }
 
         if (!doc.Profiles.ContainsKey(doc.Global.ActiveProfile))
         {
-            result.Diagnostics.Add(new PolicyDiagnostic("POL905", DiagnosticSeverity.Error, "global", "activeProfile", null, $"Active profile \"{doc.Global.ActiveProfile}\" is not defined."));
+            result.Diagnostics.Add(new PolicyDiagnostic("AASPOL011", DiagnosticSeverity.Error, "global", "activeProfile", null, $"Active profile \"{doc.Global.ActiveProfile}\" is not defined."));
         }
 
         if (doc.Ai.Enabled)
@@ -249,15 +249,15 @@ internal sealed class PolicyParser
             var provider = doc.Ai.Provider.ToLowerInvariant();
             if (provider is not ("openai" or "http" or "none"))
             {
-                result.Diagnostics.Add(new PolicyDiagnostic("POL906", DiagnosticSeverity.Error, "ai", "provider", null, "Provider must be openai|http|none."));
+                result.Diagnostics.Add(new PolicyDiagnostic("AASPOL020", DiagnosticSeverity.Error, "ai", "provider", null, "Provider must be openai|http|none."));
             }
             if (provider == "openai" && string.IsNullOrWhiteSpace(doc.Ai.ApiKeyEnv))
             {
-                result.Diagnostics.Add(new PolicyDiagnostic("POL907", DiagnosticSeverity.Error, "ai", "apiKeyEnv", null, "apiKeyEnv is required when provider=openai."));
+                result.Diagnostics.Add(new PolicyDiagnostic("AASPOL011", DiagnosticSeverity.Error, "ai", "apiKeyEnv", null, "apiKeyEnv is required when provider=openai."));
             }
             if (provider == "http" && string.IsNullOrWhiteSpace(doc.Ai.Endpoint))
             {
-                result.Diagnostics.Add(new PolicyDiagnostic("POL908", DiagnosticSeverity.Warning, "ai", "endpoint", null, "endpoint should be set when provider=http."));
+                result.Diagnostics.Add(new PolicyDiagnostic("AASPOL011", DiagnosticSeverity.Warning, "ai", "endpoint", null, "endpoint should be set when provider=http."));
             }
         }
     }

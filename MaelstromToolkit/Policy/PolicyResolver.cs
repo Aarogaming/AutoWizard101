@@ -1,68 +1,73 @@
 namespace MaelstromToolkit.Policy;
 
+internal sealed record EffectivePolicy(
+    string Source,
+    string ActiveProfile,
+    string OperatingMode,
+    string LiveStatus,
+    IReadOnlyList<string> Reasons,
+    string AiProvider,
+    string AiModel,
+    string AiKeyEnv,
+    bool LiveMeansLive);
+
 internal sealed class PolicyResolver
 {
     private readonly PolicyService _service;
+    private readonly PolicyValidator _validator = new();
 
     public PolicyResolver(PolicyService service)
     {
         _service = service;
     }
 
-    public (EffectivePolicy policy, PolicyLoadResult sourceResult, string source) Resolve(string policyPath, string outRoot)
+    public (EffectivePolicy effective, PolicyLoadResult sourceResult, string source) Resolve(string policyPath, string outRoot)
     {
-        var current = _service.Load(policyPath);
-        if (!current.HasErrors && current.Document != null)
+        var load = _service.Load(policyPath);
+        var mergedDiagnostics = new List<PolicyDiagnostic>(load.Diagnostics);
+
+        PolicySnapshot? snapshot = null;
+        if (load.Document != null && !load.HasErrors)
         {
-            return (BuildEffective(current.Document, "current", current.Diagnostics), current, "current");
+            snapshot = PolicySnapshot.FromDocument(load.Document);
+            var validation = _validator.Validate(snapshot);
+            mergedDiagnostics.AddRange(validation.Diagnostics);
+            var combinedResult = new PolicyLoadResult { Document = load.Document };
+            combinedResult.Diagnostics.AddRange(mergedDiagnostics
+                .OrderBy(d => d.Code, StringComparer.Ordinal)
+                .ThenBy(d => d.Section, StringComparer.Ordinal)
+                .ThenBy(d => d.Key, StringComparer.Ordinal)
+                .ThenBy(d => d.LineNumber ?? int.MaxValue)
+                .ThenBy(d => d.Message, StringComparer.Ordinal));
+
+            var effective = new EffectivePolicy(
+                Source: "current",
+                ActiveProfile: snapshot.Global.ActiveProfile,
+                OperatingMode: validation.OperatingMode,
+                LiveStatus: validation.LiveStatus,
+                Reasons: validation.Reasons,
+                AiProvider: snapshot.Ai.Provider,
+                AiModel: snapshot.Ai.Model,
+                AiKeyEnv: snapshot.Ai.ApiKeyEnv,
+                LiveMeansLive: snapshot.Global.LiveMeansLive);
+
+            return (effective, combinedResult, "current");
         }
 
-        var lkg = _service.TryLoadLkg(outRoot);
-        if (!lkg.HasErrors && lkg.Document != null)
-        {
-            var eff = BuildEffective(lkg.Document, "lkg", lkg.Diagnostics);
-            return (eff with { LiveStatus = eff.LiveStatus == "READY" ? "DEGRADED" : eff.LiveStatus, Reasons = eff.Reasons.Concat(new[] { "POLICY_FALLBACK_LKG" }).ToList() }, lkg, "lkg");
-        }
+        var errorResult = new PolicyLoadResult { Document = load.Document };
+        errorResult.Diagnostics.AddRange(mergedDiagnostics);
 
-        var fallbackDoc = BuildDefaultPolicy();
-        var effDefault = BuildEffective(fallbackDoc, "default", new List<PolicyDiagnostic>());
-        effDefault = effDefault with
-        {
-            LiveStatus = effDefault.OperatingMode == "LIVE" ? "BLOCKED" : "N/A",
-            Reasons = effDefault.Reasons.Concat(new[] { "POLICY_DEFAULT_ACTIVE" }).ToList()
-        };
-        var fallbackResult = new PolicyLoadResult { Document = fallbackDoc };
-        return (effDefault, fallbackResult, "default");
-    }
+        var effectiveFallback = new EffectivePolicy(
+            Source: "current",
+            ActiveProfile: load.Document?.Global.ActiveProfile ?? "unknown",
+            OperatingMode: "UNKNOWN",
+            LiveStatus: "BLOCKED",
+            Reasons: new List<string> { "AASLIVE001" },
+            AiProvider: load.Document?.Ai.Provider ?? "none",
+            AiModel: load.Document?.Ai.Model ?? string.Empty,
+            AiKeyEnv: load.Document?.Ai.ApiKeyEnv ?? string.Empty,
+            LiveMeansLive: load.Document?.Global.LiveMeansLive ?? true);
 
-    private static PolicyDocument BuildDefaultPolicy()
-    {
-        var doc = new PolicyDocument();
-        doc.Global.ActiveProfile = "catalog";
-        doc.Profiles["catalog"] = new ProfileSettings { Name = "catalog", Mode = "catalog" };
-        doc.Profiles["simulation"] = new ProfileSettings { Name = "simulation", Mode = "simulation" };
-        doc.Profiles["live_advisory"] = new ProfileSettings { Name = "live_advisory", Mode = "live", Autonomy = "advisory" };
-        doc.Profiles["live_pilot"] = new ProfileSettings { Name = "live_pilot", Mode = "live", Autonomy = "pilot" };
-        return doc;
-    }
-
-    private static EffectivePolicy BuildEffective(PolicyDocument doc, string source, IEnumerable<PolicyDiagnostic> diagnostics)
-    {
-        var evaluator = new PolicyEvaluator(doc);
-        var eff = evaluator.Evaluate();
-        var reasons = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning || d.Severity == DiagnosticSeverity.Error)
-            .Select(d => d.Code)
-            .ToList();
-
-        var liveStatus = eff.OperatingMode == "LIVE"
-            ? (reasons.Count == 0 ? "READY" : "DEGRADED")
-            : "N/A";
-
-        return eff with
-        {
-            Source = source,
-            LiveStatus = liveStatus,
-            Reasons = reasons
-        };
+        return (effectiveFallback, errorResult, "current");
     }
 }

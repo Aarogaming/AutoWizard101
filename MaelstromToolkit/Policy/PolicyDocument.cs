@@ -50,11 +50,11 @@ internal sealed class PolicyDocument
 
 internal enum DiagnosticSeverity { Info, Warning, Error }
 
-internal sealed record PolicyDiagnostic(string Code, DiagnosticSeverity Severity, string Section, string Key, int? Line, string Message);
+internal sealed record PolicyDiagnostic(string Code, DiagnosticSeverity Severity, string Section, string Key, int? LineNumber, string Message);
 
 internal sealed class PolicyLoadResult
 {
-    public PolicyDocument? Document { get; init; }
+    public PolicyDocument? Document { get; set; }
     public List<PolicyDiagnostic> Diagnostics { get; } = new();
     public bool HasErrors => Diagnostics.Any(d => d.Severity == DiagnosticSeverity.Error);
     public IEnumerable<PolicyDiagnostic> SortedDiagnostics() =>
@@ -62,6 +62,6 @@ internal sealed class PolicyLoadResult
             .OrderBy(d => d.Code, StringComparer.Ordinal)
             .ThenBy(d => d.Section, StringComparer.Ordinal)
             .ThenBy(d => d.Key, StringComparer.Ordinal)
-            .ThenBy(d => d.Line ?? int.MaxValue)
+            .ThenBy(d => d.LineNumber ?? int.MaxValue)
             .ThenBy(d => d.Message, StringComparer.Ordinal);
 }

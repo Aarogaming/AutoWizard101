@@ -37,7 +37,6 @@ internal sealed class PolicyWatcher : IDisposable
         }
         else
         {
-            result.Warnings.Add("Load failed; attempting to keep last good policy.");
             TryLoadLkg(result);
         }
         return result;
@@ -69,7 +68,8 @@ internal sealed class PolicyWatcher : IDisposable
         var result = Load();
         if (result.HasErrors)
         {
-            onError(string.Join(Environment.NewLine, result.Errors));
+            var errs = result.SortedDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.Message);
+            onError(string.Join(Environment.NewLine, errs));
         }
         else
         {
@@ -89,7 +89,7 @@ internal sealed class PolicyWatcher : IDisposable
         if (lkg.Document != null && !lkg.HasErrors)
         {
             lock (_lock) _current = lkg.Document;
-            result.Warnings.Add("Fell back to last known good policy.");
+            result.Diagnostics.Add(new PolicyDiagnostic("AASPOL010", DiagnosticSeverity.Warning, "lkg", "fallback", null, "Fell back to last known good policy."));
         }
     }
 

@@ -280,7 +280,7 @@ internal static class Program
         {
             service.WriteRejected(outRoot, result);
             Console.Error.WriteLine("Policy INVALID");
-            foreach (var d in result.SortedDiagnostics()) Console.Error.WriteLine($"{d.Code}: {d.Message} (section={d.Section} key={d.Key} line={d.Line?.ToString() ?? "-"})");
+            foreach (var d in result.SortedDiagnostics()) Console.Error.WriteLine($"{d.Code}: {d.Message} (section={d.Section} key={d.Key} line={d.LineNumber?.ToString() ?? "-"})");
             return 1;
         }
 
