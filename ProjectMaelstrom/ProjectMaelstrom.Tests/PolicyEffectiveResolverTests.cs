@@ -1,4 +1,5 @@
 using MaelstromToolkit.Policy;
+using System.Collections.Generic;
 
 namespace ProjectMaelstrom.Tests;
 
@@ -112,5 +113,54 @@ deniedTools = raw.shell
         var validation = new PolicyValidator().Validate(snapshot);
 
         Assert.Contains(validation.Diagnostics, d => d.Code == "AASPOL020" && d.Key == "safeWrites");
+    }
+
+    [Fact]
+    public void RiskIsHighWhenProhibitRemoved()
+    {
+        var recorder = new PolicyApplyRecorder();
+        var prev = BuildSnapshot(prohibit: "unauthorized_access,bypass_protections");
+        var current = BuildSnapshot(prohibit: "unauthorized_access");
+
+        var eval = recorder.Evaluate(current, prev, "prevhash", "newhash");
+
+        Assert.Equal("HIGH", eval.RiskLevel);
+        Assert.Contains("ethics.prohibit", eval.ChangedFields);
+    }
+
+    [Fact]
+    public void RiskIsMediumWhenAiEnabled()
+    {
+        var recorder = new PolicyApplyRecorder();
+        var current = BuildSnapshot(aiEnabled: true);
+        var eval = recorder.Evaluate(current, null, "none", "newhash");
+
+        Assert.Equal("MEDIUM", eval.RiskLevel);
+        Assert.Contains("ai.enabled", eval.ChangedFields);
+    }
+
+    [Fact]
+    public void RiskIsLowWhenNoChanges()
+    {
+        var recorder = new PolicyApplyRecorder();
+        var current = BuildSnapshot();
+        var eval = recorder.Evaluate(current, current, "hash", "hash");
+
+        Assert.Equal("LOW", eval.RiskLevel);
+        Assert.Empty(eval.ChangedFields);
+    }
+
+    private static PolicySnapshot BuildSnapshot(string prohibit = "unauthorized_access", bool aiEnabled = false)
+    {
+        var doc = new PolicyDocument();
+        doc.Global.ActiveProfile = "catalog";
+        doc.Global.SafeWrites = "outOnly";
+        doc.Profiles["catalog"] = new ProfileSettings { Name = "catalog", Mode = "catalog" };
+        doc.Profiles["simulation"] = new ProfileSettings { Name = "simulation", Mode = "simulation" };
+        doc.Profiles["live_advisory"] = new ProfileSettings { Name = "live_advisory", Mode = "live", Autonomy = "advisory" };
+        doc.Profiles["live_pilot"] = new ProfileSettings { Name = "live_pilot", Mode = "live", Autonomy = "pilot" };
+        doc.Ethics.Prohibit = prohibit;
+        doc.Ai.Enabled = aiEnabled;
+        return PolicySnapshot.FromDocument(doc);
     }
 }

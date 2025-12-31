@@ -9,6 +9,7 @@ internal sealed class PolicyWatchRunner
     private readonly string _policyPath;
     private readonly string _outRoot;
     private readonly PolicyEffectiveResolver _resolver;
+    private readonly PolicyApplyRecorder _recorder = new();
     private PolicyEffectiveResult _current;
 
     public PolicyWatchRunner(string policyPath, string outRoot, string defaultPolicyText)
@@ -71,6 +72,8 @@ internal sealed class PolicyWatchRunner
 
     private void EvaluateChange()
     {
+        var previousText = _current.RawText;
+        var previousHash = _current.Hash;
         var fileText = TryReadWithRetry(_policyPath, 5, 100);
         if (fileText == null)
         {
@@ -109,7 +112,7 @@ internal sealed class PolicyWatchRunner
 
         var textNormalized = Normalize(fileText);
         var hash = ComputeSha256(textNormalized);
-        _current = new PolicyEffectiveResult(
+        var next = new PolicyEffectiveResult(
             Source: "FILE",
             Hash: hash,
             Snapshot: validation.Snapshot,
@@ -123,6 +126,8 @@ internal sealed class PolicyWatchRunner
             LkgDiagnostics: Array.Empty<PolicyDiagnostic>(),
             RawText: textNormalized);
 
+        _recorder.Record(_outRoot, _policyPath, next, textNormalized, previousText, previousHash);
+        _current = next;
         WriteLkg(textNormalized, hash);
         WriteWatchLast(_current);
         Console.WriteLine($"ACCEPTED hash={hash} profile={_current.ActiveProfile} mode={_current.OperatingMode} liveStatus={_current.LiveStatus}");

@@ -80,3 +80,9 @@
   - INVALID edits: REJECTED, keeps previous snapshot, writes `policy.rejected.txt`.
   - LIVE means LIVE preserved; no global fallback.
 - Outputs under `--out/system/`.
+
+## Policy apply history
+- ACCEPTED policies (validate or watch) also write under `--out/policy/history/<hash>/`:
+  - `policy.txt`, `policy.sha256`
+  - `effective.txt`
+  - `eval.md`, `eval.json` (changed fields, risk level, notes)

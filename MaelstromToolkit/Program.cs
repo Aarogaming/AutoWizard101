@@ -324,19 +324,44 @@ internal static class Program
 
         var mode = "UNKNOWN";
         var liveStatus = "N/A";
+        PolicyValidationResult? validationResult = null;
         if (snapshot != null)
         {
-            var validation = validator.Validate(snapshot);
-            mode = validation.OperatingMode;
-            liveStatus = validation.LiveStatus;
+            validationResult = validator.Validate(snapshot);
+            mode = validationResult.OperatingMode;
+            liveStatus = validationResult.LiveStatus;
         }
 
         WriteValidateFile(outRoot, policyPath, hash, activeProfile, mode, liveStatus, ordered, !hasErrors);
 
         if (!hasErrors)
         {
+            if (validationResult == null || validationResult.Snapshot == null)
+            {
+                Console.Error.WriteLine("ERROR: Validation unexpectedly missing snapshot.");
+                return 1;
+            }
+            var prevLkgPath = Path.Combine(outRoot, "system", "policy.lkg.txt");
+            var prevHashPath = Path.Combine(outRoot, "system", "policy.lkg.sha256");
+            var prevText = File.Exists(prevLkgPath) ? File.ReadAllText(prevLkgPath) : null;
+            var prevHash = File.Exists(prevHashPath) ? File.ReadAllText(prevHashPath) : "none";
             WriteAtomic(Path.Combine(outRoot, "system", "policy.lkg.txt"), policyText);
             WriteAtomic(Path.Combine(outRoot, "system", "policy.lkg.sha256"), hash);
+            var effectiveResult = new PolicyEffectiveResult(
+                Source: "FILE",
+                Hash: hash,
+                Snapshot: validationResult!.Snapshot!,
+                ActiveProfile: validationResult.Snapshot.Global.ActiveProfile,
+                ProfileMode: validationResult.Snapshot.Profiles.TryGetValue(validationResult.Snapshot.Global.ActiveProfile, out var profile) ? profile.Mode.ToUpperInvariant() : "UNKNOWN",
+                OperatingMode: validationResult.OperatingMode,
+                LiveStatus: validationResult.LiveStatus,
+                Reasons: validationResult.Reasons,
+                Diagnostics: ordered,
+                FileDiagnostics: Array.Empty<PolicyDiagnostic>(),
+                LkgDiagnostics: Array.Empty<PolicyDiagnostic>(),
+                RawText: NormalizeLineEndings(policyText));
+            var recorder = new PolicyApplyRecorder();
+            recorder.Record(outRoot, policyPath, effectiveResult, NormalizeLineEndings(policyText), prevText, prevHash);
             Console.WriteLine($"VALID hash={hash} activeProfile={activeProfile} mode={mode} liveStatus={liveStatus} diagCount={ordered.Count}");
             return 0;
         }

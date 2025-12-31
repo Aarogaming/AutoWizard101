@@ -12,6 +12,12 @@
 - Audit: AUDIT_TRAIL.md updated for milestones.
 - Handoff: copyable prompt for ChatGPT 5.2 Pro provided in outputs.
 
+## Policy apply history artifacts
+- ACCEPTED policies (validate/watch) write under `--out/policy/history/<hash>/`:
+  - `policy.txt`, `policy.sha256`
+  - `effective.txt`
+  - `eval.md`, `eval.json` (changed fields, risk level, notes)
+
 ## PR checklist
 - [ ] Scope limited to tooling/docs (or approved runtime scope).
 - [ ] aas.policy.txt validated; diagnostics written under `--out/system`.
