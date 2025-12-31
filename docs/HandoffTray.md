@@ -7,3 +7,4 @@
 - Artifacts/logs: `artifacts/handoff/**` (ignored).
 - Safety: no auto-posting; toggle + confirmation required. No secrets stored.
 - CLI dependency: `dotnet` available; runs `dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- handoff import --out artifacts/handoff/reports`.
+- Server status check: tray menu → “Check server status” (expects local API at `http://127.0.0.1:9411/api/status`).

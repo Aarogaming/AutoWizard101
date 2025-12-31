@@ -17,6 +17,7 @@ public class TrayForm : Form
     private readonly ToolStripMenuItem _modeFrom;
     private readonly ToolStripMenuItem _modeBoth;
     private readonly ToolStripMenuItem _toggleApi;
+    private readonly ToolStripMenuItem _statusItem;
 
     private readonly HandoffWatcher _watcher;
     private readonly ApiSender _apiSender = new();
@@ -47,6 +48,7 @@ public class TrayForm : Form
             Checked = false,
             CheckOnClick = true
         };
+        _statusItem = new ToolStripMenuItem("Status: (not checked)");
 
         _menu.Items.AddRange(new ToolStripItem[]
         {
@@ -58,6 +60,8 @@ public class TrayForm : Form
             new ToolStripMenuItem("Open reports folder", null, (_, _) => OpenReports()),
             new ToolStripSeparator(),
             _toggleApi,
+            new ToolStripMenuItem("Check server status", null, async (_, _) => await CheckStatusAsync()),
+            _statusItem,
             new ToolStripSeparator(),
             new ToolStripMenuItem("Exit", null, (_, _) => ExitApplication())
         });
@@ -233,6 +237,28 @@ public class TrayForm : Form
         _notifyIcon.BalloonTipText = _apiSendEnabled ? "API send ENABLED (default was off)." : "API send DISABLED.";
         _notifyIcon.ShowBalloonTip(2000);
         _log.Info($"API send enabled: {_apiSendEnabled}");
+    }
+
+    private async Task CheckStatusAsync()
+    {
+        try
+        {
+            var http = new HttpClient();
+            var uri = new Uri("http://127.0.0.1:9411/api/status");
+            var resp = await http.GetAsync(uri);
+            if (!resp.IsSuccessStatusCode)
+            {
+                _statusItem.Text = $"Status: {resp.StatusCode}";
+                return;
+            }
+            var json = await resp.Content.ReadAsStringAsync();
+            _statusItem.Text = $"Status: OK ({json})";
+        }
+        catch (Exception ex)
+        {
+            _statusItem.Text = $"Status error";
+            _log.Error($"Status check failed: {ex}");
+        }
     }
 
     protected override void Dispose(bool disposing)
