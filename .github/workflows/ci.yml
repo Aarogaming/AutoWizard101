@@ -25,6 +25,9 @@ jobs:
       - name: Build
         run: dotnet build ProjectMaelstrom/ProjectMaelstrom.sln -c Debug --no-restore
 
+      - name: Validate policy
+        run: dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- aas policy validate --file ./aas.policy.txt --out ./--out
+
       - name: Test
         run: dotnet test ProjectMaelstrom/ProjectMaelstrom.sln -c Debug --no-build --verbosity normal
 
