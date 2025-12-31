@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -5,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using MaelstromToolkit.Planning;
+using MaelstromToolkit.Packs;
 using MaelstromToolkit.Policy;
 
 namespace MaelstromToolkit;
@@ -80,6 +82,10 @@ internal static class Program
                     CopyTemplate(root, "STEWARDSHIP_CHECKLIST.md", options, summary, warnings);
                     CopyTemplate(root, "FEEDBACK_LOG.md", options, summary, warnings);
                     break;
+                case "packs" when options.Subcommand == "list":
+                    return RunPacksList(root, options);
+                case "packs" when options.Subcommand == "validate":
+                    return RunPacksValidate(root, options);
                 case "ux" when options.Subcommand == "init":
                     var framework = options.Args.TryGetValue("framework", out var fw) ? fw : "winforms";
                     CopyTemplate(root, "UX_MAINTENANCE.md", options, summary, warnings);
@@ -92,6 +98,8 @@ internal static class Program
                     var profile = options.Args.TryGetValue("profile", out var pr) ? pr : "tools-only";
                     CopyTemplate(root, $"{provider}_{profile}_workflow.yml", options, summary, warnings);
                     break;
+                case "handoff" when options.Subcommand == "generate":
+                    return RunHandoffGenerate(root, options);
                 case "handoff":
                     CopyTemplate(root, "README.md", options, summary, warnings);
                     break;
@@ -170,10 +178,13 @@ internal static class Program
         Console.WriteLine("  maelstromtoolkit policy validate --out ./out [--file ./aas.policy.txt]");
         Console.WriteLine("  maelstromtoolkit policy effective --out ./out [--file ./aas.policy.txt] [--pack default] [--scenario id]");
         Console.WriteLine("  maelstromtoolkit policy watch --out ./out [--file ./aas.policy.txt]");
+        Console.WriteLine("  maelstromtoolkit packs list --root ./packs --out ./out");
+        Console.WriteLine("  maelstromtoolkit packs validate --root ./packs --out ./out");
         Console.WriteLine("  maelstromtoolkit tags init --out ./out");
         Console.WriteLine("  maelstromtoolkit stewardship init --out ./out");
         Console.WriteLine("  maelstromtoolkit ux init --framework winforms --out ./out");
         Console.WriteLine("  maelstromtoolkit ci add --provider github --profile tools-only --out ./out");
+        Console.WriteLine("  maelstromtoolkit handoff generate --out ./out");
         Console.WriteLine("  maelstromtoolkit handoff --out ./out");
         Console.WriteLine("  maelstromtoolkit selftest");
         Console.WriteLine("Flags: --force (overwrite), --dry-run, --verbose, --help, --version, --out <dir>");
@@ -464,6 +475,177 @@ internal static class Program
     private static bool OutIsSafe(string outRoot) =>
         outRoot.IndexOf("--out", StringComparison.OrdinalIgnoreCase) >= 0;
 
+    private static int RunPacksList(string root, CommandOptions options)
+    {
+        var packsRoot = options.Args.TryGetValue("root", out var r) ? Path.GetFullPath(r) : Path.Combine(Directory.GetCurrentDirectory(), "packs");
+        var outRoot = options.Args.TryGetValue("out", out var o) ? Path.GetFullPath(o) : Path.Combine(Directory.GetCurrentDirectory(), "--out");
+        if (!OutIsSafe(outRoot))
+        {
+            Console.Error.WriteLine("ERROR: --out must contain \"--out\" segment (safety guard).");
+            return 1;
+        }
+
+        var service = new PackService();
+        var list = service.ListPacks(packsRoot);
+
+        foreach (var p in list.Packs)
+        {
+            Console.WriteLine($"{p.Id} | {p.Name} | {p.Version} | scenarios={p.Scenarios.Count}");
+        }
+        foreach (var d in list.Diagnostics)
+        {
+            Console.WriteLine($"DIAG {d.Code} {d.Severity} {d.PackId} {d.ScenarioId} {d.Message}");
+        }
+
+        var dir = Path.Combine(outRoot, "packs");
+        Directory.CreateDirectory(dir);
+        var path = Path.Combine(dir, "list.txt");
+        var sb = new StringBuilder();
+        sb.AppendLine($"Packs: {list.Packs.Count}");
+        foreach (var p in list.Packs)
+        {
+            sb.AppendLine($"{p.Id} | {p.Name} | {p.Version} | scenarios={p.Scenarios.Count}");
+        }
+        if (list.Diagnostics.Count > 0)
+        {
+            sb.AppendLine("Diagnostics:");
+            foreach (var d in list.Diagnostics)
+            {
+                sb.AppendLine($"{d.Code} | {d.Severity} | {d.PackId} | {d.ScenarioId} | {d.Message}");
+            }
+        }
+        WriteAtomic(path, sb.ToString());
+        return 0;
+    }
+
+    private static int RunPacksValidate(string root, CommandOptions options)
+    {
+        var packsRoot = options.Args.TryGetValue("root", out var r) ? Path.GetFullPath(r) : Path.Combine(Directory.GetCurrentDirectory(), "packs");
+        var outRoot = options.Args.TryGetValue("out", out var o) ? Path.GetFullPath(o) : Path.Combine(Directory.GetCurrentDirectory(), "--out");
+        if (!OutIsSafe(outRoot))
+        {
+            Console.Error.WriteLine("ERROR: --out must contain \"--out\" segment (safety guard).");
+            return 1;
+        }
+
+        var service = new PackService();
+        var validation = service.ValidatePacks(packsRoot);
+        var dir = Path.Combine(outRoot, "packs");
+        Directory.CreateDirectory(dir);
+        var path = Path.Combine(dir, "validate.txt");
+
+        var sb = new StringBuilder();
+        var status = validation.HasErrors ? "INVALID" : "VALID";
+        sb.AppendLine($"{status}");
+        sb.AppendLine($"Diagnostics: {validation.Diagnostics.Count}");
+        foreach (var d in validation.Diagnostics)
+        {
+            sb.AppendLine($"{d.Code} | {d.Severity} | {d.PackId} | {d.ScenarioId} | {d.Message}");
+        }
+        WriteAtomic(path, sb.ToString());
+
+        Console.WriteLine($"{status} diagCount={validation.Diagnostics.Count}");
+        return validation.HasErrors ? 1 : 0;
+    }
+
+    private static int RunHandoffGenerate(string root, CommandOptions options)
+    {
+        var outRoot = options.Args.TryGetValue("out", out var o) ? Path.GetFullPath(o) : Path.Combine(root, "--out");
+        if (!OutIsSafe(outRoot))
+        {
+            Console.Error.WriteLine("ERROR: --out must contain \"--out\" segment (safety guard).");
+            return 1;
+        }
+
+        var prompt = BuildHandoffPrompt(outRoot);
+        var handoffDir = Path.Combine(outRoot, "handoff");
+        Directory.CreateDirectory(handoffDir);
+        var path = Path.Combine(handoffDir, "HANDOFF_PROMPT_CHATGPT_5_2_PRO.txt");
+        WriteAtomic(path, prompt);
+
+        var artifactsCopy = Path.Combine(root, "artifacts", "handoff");
+        try
+        {
+            Directory.CreateDirectory(artifactsCopy);
+            File.Copy(path, Path.Combine(artifactsCopy, Path.GetFileName(path)), overwrite: true);
+        }
+        catch
+        {
+            // best-effort; no fail
+        }
+
+        Console.WriteLine($"Generated handoff prompt at {path}");
+        return 0;
+    }
+
+    private static string BuildHandoffPrompt(string outRoot)
+    {
+        var repo = "Aarogaming/aaroneous-automation-suite";
+        var branch = TryGit("git", "rev-parse --abbrev-ref HEAD") ?? "unknown";
+        var commit = TryGit("git", "rev-parse HEAD") ?? "unknown";
+        var sb = new StringBuilder();
+        sb.AppendLine("COPYABLE HANDOFF PROMPT FOR CHATGPT 5.2 PRO");
+        sb.AppendLine($"Repo: {repo}");
+        sb.AppendLine($"Branch: {branch}");
+        sb.AppendLine($"Latest commit: {commit}");
+        sb.AppendLine();
+        sb.AppendLine("Constraints:");
+        sb.AppendLine("- Tooling/docs only; no ProjectMaelstrom runtime changes.");
+        sb.AppendLine("- Single TXT policy (aas.policy.txt); non-bricking with LKG.");
+        sb.AppendLine("- LIVE means LIVE (no fallback), safe writes under --out, no new prod deps.");
+        sb.AppendLine();
+        sb.AppendLine("Continuity docs:");
+        sb.AppendLine("- docs/ROADMAP.md");
+        sb.AppendLine("- docs/GOALS.md");
+        sb.AppendLine("- docs/COOPERATIVE_EVALUATION.md");
+        sb.AppendLine("- docs/POLICY_TXT_SPEC.md");
+        sb.AppendLine("- docs/HandoffTray.md and COOP_WORKFLOW.md");
+        sb.AppendLine();
+        sb.AppendLine("Policy outputs:");
+        sb.AppendLine("- --out/system/: policy.validate.txt, policy.effective.txt/json, policy.watch.last.txt, policy.lkg.txt/.sha256, policy.rejected.txt");
+        sb.AppendLine("- --out/policy/history/<hash>/: policy.txt, policy.sha256, effective.txt, eval.md/json");
+        sb.AppendLine();
+        sb.AppendLine("How to verify:");
+        sb.AppendLine("- dotnet run --project MaelstromToolkit -- aas policy validate --file ./aas.policy.txt --out ./--out");
+        sb.AppendLine("- dotnet run --project MaelstromToolkit -- aas policy effective --file ./aas.policy.txt --out ./--out --format json");
+        sb.AppendLine("- dotnet run --project MaelstromToolkit -- aas policy watch --file ./aas.policy.txt --out ./--out");
+        sb.AppendLine();
+        sb.AppendLine("Next tasks:");
+        sb.AppendLine("- Packs scaffold + sample pack listing/validation (packs folder).");
+        sb.AppendLine("- AI provider scaffold (pluggable, policy-driven).");
+        sb.AppendLine();
+        sb.AppendLine("Copy this prompt into ChatGPT 5.2 Pro after restart.");
+        return sb.ToString();
+    }
+
+    private static string? TryGit(string fileName, string arguments)
+    {
+        try
+        {
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var proc = System.Diagnostics.Process.Start(psi);
+            if (proc == null) return null;
+            proc.WaitForExit(2000);
+            if (proc.ExitCode == 0)
+            {
+                return proc.StandardOutput.ReadToEnd().Trim();
+            }
+        }
+        catch
+        {
+            // ignore
+        }
+        return null;
+    }
+
     private static void WriteValidateFile(string outRoot, string policyPath, string hash, string activeProfile, string mode, string liveStatus, IReadOnlyList<PolicyDiagnostic> diagnostics, bool isValid)
     {
         var systemDir = Path.Combine(outRoot, "system");
@@ -607,7 +789,7 @@ internal static class Program
     }
 
     private static bool RequiresOut(string command) =>
-        command is "init" or "policy" or "tags" or "stewardship" or "ux" or "ci" or "handoff";
+        command is "init" or "policy" or "tags" or "stewardship" or "ux" or "ci" or "handoff" or "packs";
 
     private static bool ValidateOut(string outPath, CommandOptions options)
     {
