@@ -157,3 +157,13 @@ ProjectMaelstrom/
 
 
 
+
+### MaelstromBot localhost/tunnel mode
+- Default: single port (http://localhost:5000) for /webhooks and /bot endpoints.
+- Optional: dual-port mode (pure localhost) via env/config:
+  - MAELSTROM_PORT_MODE=dual
+  - MAELSTROM_WEBHOOKS_PORT=9410 (tunnel ONLY this port)
+  - MAELSTROM_ADMIN_PORT=9411 (local admin API + /bot/ui; do NOT tunnel)
+- Webhook URLs (dual): http://127.0.0.1:9410/webhooks/github and /webhooks/openai; admin UI/API: http://127.0.0.1:9411/bot/ui and /bot/api.
+- Tray can point to admin port (configurable base URL in tray Settings).
+
