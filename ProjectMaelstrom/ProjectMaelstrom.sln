@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maelstrom.TestProcess", "Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandoffTray", "..\HandoffTray\HandoffTray.csproj", "{A8923EFB-9897-4BA3-9A9D-B3C3FECDAC2D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaelstromBot.Server", "..\MaelstromBot.Server\MaelstromBot.Server.csproj", "{68B76A5D-9F76-48EE-B7FA-347F559E51B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{A8923EFB-9897-4BA3-9A9D-B3C3FECDAC2D}.Release|x64.Build.0 = Release|Any CPU
 		{A8923EFB-9897-4BA3-9A9D-B3C3FECDAC2D}.Release|x86.ActiveCfg = Release|Any CPU
 		{A8923EFB-9897-4BA3-9A9D-B3C3FECDAC2D}.Release|x86.Build.0 = Release|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Debug|x64.Build.0 = Debug|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Debug|x86.Build.0 = Debug|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Release|x64.ActiveCfg = Release|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Release|x64.Build.0 = Release|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Release|x86.ActiveCfg = Release|Any CPU
+		{68B76A5D-9F76-48EE-B7FA-347F559E51B0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
