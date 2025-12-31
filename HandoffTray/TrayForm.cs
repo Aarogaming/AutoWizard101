@@ -20,12 +20,14 @@ public class TrayForm : Form
 
     private readonly HandoffWatcher _watcher;
     private readonly ApiSender _apiSender = new();
+    private readonly LogHelper _log;
     private readonly string _root;
     private bool _apiSendEnabled;
 
     public TrayForm()
     {
         _root = Directory.GetCurrentDirectory();
+        _log = new LogHelper(_root);
         var toDir = Path.Combine(_root, "artifacts", "handoff", "to_codex");
         var fromDir = Path.Combine(_root, "artifacts", "handoff", "from_codex");
         Directory.CreateDirectory(toDir);
@@ -91,6 +93,7 @@ public class TrayForm : Form
         var watchFrom = mode is Mode.From or Mode.Both;
         _watcher.SetEnabled(watchTo, watchFrom);
         _notifyIcon.Text = $"HandoffTray ({mode})";
+        _log.Info($"Mode set to {mode}");
     }
 
     private void OnPromptDetected(object? sender, string path)
@@ -98,6 +101,7 @@ public class TrayForm : Form
         _notifyIcon.BalloonTipTitle = "HandoffTray";
         _notifyIcon.BalloonTipText = "New HANDOFF_TO_CODEX detected. Use tray menu to copy or send.";
         _notifyIcon.ShowBalloonTip(3000);
+        _log.Info($"Prompt detected: {path}");
     }
 
     private void OnResultDetected(object? sender, string path)
@@ -105,6 +109,7 @@ public class TrayForm : Form
         _notifyIcon.BalloonTipTitle = "HandoffTray";
         _notifyIcon.BalloonTipText = "New RESULT.md detected. Run handoff import from tray menu.";
         _notifyIcon.ShowBalloonTip(3000);
+        _log.Info($"Result detected: {path}");
     }
 
     private string ReportsDir => Path.Combine(_root, "artifacts", "handoff", "reports");
@@ -129,6 +134,7 @@ public class TrayForm : Form
         var text = File.ReadAllText(latest, Encoding.UTF8);
         Clipboard.SetText(text);
         MessageBox.Show("Copied latest HANDOFF_TO_CODEX to clipboard.", "HandoffTray", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        _log.Info($"Copied prompt: {latest}");
     }
 
     private async Task RunImportAsync()
@@ -150,6 +156,7 @@ public class TrayForm : Form
             if (proc == null)
             {
                 MessageBox.Show("Failed to start toolkit import.", "HandoffTray", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _log.Error("Toolkit import failed to start.");
                 return;
             }
             await proc.WaitForExitAsync();
@@ -158,13 +165,16 @@ public class TrayForm : Form
             if (proc.ExitCode != 0)
             {
                 MessageBox.Show($"Import failed (exit {proc.ExitCode}).\n{output}\n{err}", "HandoffTray", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _log.Error($"Import failed (exit {proc.ExitCode}). Output: {output} Err: {err}");
                 return;
             }
             MessageBox.Show("Import completed. Check CODEX_REPORT.md in reports.", "HandoffTray", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _log.Info("Import completed successfully.");
         }
         catch (Exception ex)
         {
             MessageBox.Show(ex.Message, "HandoffTray", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _log.Error($"Import exception: {ex}");
         }
     }
 
@@ -191,15 +201,18 @@ public class TrayForm : Form
             if (result.Success)
             {
                 MessageBox.Show(result.Message, "HandoffTray", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _log.Info($"API send success: {result.OutputPath}");
             }
             else
             {
                 MessageBox.Show(result.Message, "HandoffTray", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _log.Error($"API send failed: {result.Message}");
             }
         }
         catch (Exception ex)
         {
             MessageBox.Show(ex.Message, "HandoffTray", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _log.Error($"API send exception: {ex}");
         }
     }
 
@@ -219,6 +232,7 @@ public class TrayForm : Form
         _notifyIcon.BalloonTipTitle = "HandoffTray";
         _notifyIcon.BalloonTipText = _apiSendEnabled ? "API send ENABLED (default was off)." : "API send DISABLED.";
         _notifyIcon.ShowBalloonTip(2000);
+        _log.Info($"API send enabled: {_apiSendEnabled}");
     }
 
     protected override void Dispose(bool disposing)
