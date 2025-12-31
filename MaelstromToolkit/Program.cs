@@ -1,5 +1,8 @@
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using MaelstromToolkit.Planning;
+using MaelstromToolkit.Policy;
 
 namespace MaelstromToolkit;
 
@@ -60,6 +63,12 @@ internal static class Program
                     CopyTemplate(root, "POLICY_BOUNDARY.md", options, summary, warnings);
                     CopyTemplate(root, "policy.config.sample", options, summary, warnings);
                     break;
+                case "policy" when options.Subcommand == "validate":
+                    return RunPolicyValidate(root, options);
+                case "policy" when options.Subcommand == "effective":
+                    return RunPolicyEffective(root, options);
+                case "policy" when options.Subcommand == "watch":
+                    return RunPolicyWatch(root, options);
                 case "tags" when options.Subcommand == "init":
                     CopyTemplate(root, "TAG_POLICY.md", options, summary, warnings);
                     break;
@@ -155,6 +164,9 @@ internal static class Program
         Console.WriteLine("Usage (examples):");
         Console.WriteLine("  maelstromtoolkit init --out ./out");
         Console.WriteLine("  maelstromtoolkit policy init --out ./out");
+        Console.WriteLine("  maelstromtoolkit policy validate --out ./out [--file ./aas.policy.txt]");
+        Console.WriteLine("  maelstromtoolkit policy effective --out ./out [--file ./aas.policy.txt] [--pack default] [--scenario id]");
+        Console.WriteLine("  maelstromtoolkit policy watch --out ./out [--file ./aas.policy.txt]");
         Console.WriteLine("  maelstromtoolkit tags init --out ./out");
         Console.WriteLine("  maelstromtoolkit stewardship init --out ./out");
         Console.WriteLine("  maelstromtoolkit ux init --framework winforms --out ./out");
@@ -255,6 +267,122 @@ internal static class Program
 
         Console.WriteLine("SELFTEST PASS");
         return 0;
+    }
+
+    private static int RunPolicyValidate(string root, CommandOptions options)
+    {
+        var (policyPath, outRoot) = GetPolicyPaths(root, options);
+        var service = new PolicyService();
+        var result = service.Load(policyPath);
+        service.WriteDiagnostics(outRoot, result);
+
+        if (result.HasErrors || result.Document == null)
+        {
+            service.WriteRejected(outRoot, result);
+            Console.Error.WriteLine("Policy INVALID");
+            foreach (var d in result.SortedDiagnostics()) Console.Error.WriteLine($"{d.Code}: {d.Message} (section={d.Section} key={d.Key} line={d.Line?.ToString() ?? "-"})");
+            return 1;
+        }
+
+        var content = File.Exists(policyPath) ? File.ReadAllText(policyPath) : string.Empty;
+        var hash = service.WriteLkg(outRoot, content);
+        Console.WriteLine($"Policy VALID (hash={hash})");
+        foreach (var d in result.SortedDiagnostics().Where(d => d.Severity != DiagnosticSeverity.Info)) Console.WriteLine($"Note: {d.Code} {d.Message}");
+        return 0;
+    }
+
+    private static int RunPolicyEffective(string root, CommandOptions options)
+    {
+        var (policyPath, outRoot) = GetPolicyPaths(root, options);
+        var service = new PolicyService();
+        var resolver = new PolicyResolver(service);
+        var (effective, sourceResult, source) = resolver.Resolve(policyPath, outRoot);
+        service.WriteDiagnostics(outRoot, sourceResult);
+
+        if (source == "current" && sourceResult.HasErrors)
+        {
+            service.WriteRejected(outRoot, sourceResult);
+            Console.Error.WriteLine("Policy INVALID; using fallback if available.");
+        }
+
+        Console.WriteLine($"Source: {source}");
+        Console.WriteLine($"ActiveProfile: {effective.ActiveProfile}");
+        Console.WriteLine($"OperatingMode: {effective.OperatingMode}");
+        Console.WriteLine($"LiveStatus: {effective.LiveStatus}");
+        if (effective.Reasons.Any())
+        {
+            Console.WriteLine("Reasons:");
+            foreach (var r in effective.Reasons) Console.WriteLine($"- {r}");
+        }
+        Console.WriteLine($"AI: provider={effective.AiProvider}, model={effective.AiModel}, keyEnv={effective.AiKeyEnv}");
+        Console.WriteLine($"LiveMeansLive: {effective.LiveMeansLive}");
+        return 0;
+    }
+
+    private static int RunPolicyWatch(string root, CommandOptions options)
+    {
+        var (policyPath, outRoot) = GetPolicyPaths(root, options);
+        var service = new PolicyService();
+        var resolver = new PolicyResolver(service);
+
+        void EvaluateAndReport()
+        {
+            var (effective, sourceResult, source) = resolver.Resolve(policyPath, outRoot);
+            service.WriteDiagnostics(outRoot, sourceResult);
+            if (sourceResult.HasErrors || source == "default")
+            {
+                service.WriteRejected(outRoot, sourceResult);
+                Console.WriteLine($"REJECTED ({source})");
+                foreach (var d in sourceResult.SortedDiagnostics()) Console.WriteLine($"{d.Code}: {d.Message}");
+            }
+            else
+            {
+                var content = File.Exists(policyPath) ? File.ReadAllText(policyPath) : string.Empty;
+                var hash = service.WriteLkg(outRoot, content);
+                Console.WriteLine($"ACCEPTED ({source}) hash={hash}");
+            }
+
+            Console.WriteLine($"ActiveProfile={effective.ActiveProfile} OperatingMode={effective.OperatingMode} LiveStatus={effective.LiveStatus}");
+        }
+
+        EvaluateAndReport();
+
+        Console.WriteLine("Watching for changes (Ctrl+C to stop)...");
+        var exit = new ManualResetEventSlim(false);
+        Console.CancelKeyPress += (_, e) => { e.Cancel = true; exit.Set(); };
+
+        using var watcher = new FileSystemWatcher(Path.GetDirectoryName(policyPath) ?? ".", Path.GetFileName(policyPath))
+        {
+            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName | NotifyFilters.Attributes,
+            EnableRaisingEvents = true
+        };
+
+        Timer? debounce = null;
+        FileSystemEventHandler handler = (_, __) =>
+        {
+            debounce?.Dispose();
+            debounce = new Timer(_ =>
+            {
+                EvaluateAndReport();
+            }, null, 200, Timeout.Infinite);
+        };
+
+        watcher.Changed += handler;
+        watcher.Created += handler;
+        watcher.Renamed += (_, __) => EvaluateAndReport();
+
+        exit.Wait();
+        debounce?.Dispose();
+        return 0;
+    }
+
+    private static (string policyPath, string outRoot) GetPolicyPaths(string root, CommandOptions options)
+    {
+        var policyPath = options.Args.TryGetValue("file", out var path)
+            ? Path.GetFullPath(path)
+            : Path.Combine(root, "aas.policy.txt");
+        var outRoot = options.Args.TryGetValue("out", out var o) ? Path.GetFullPath(o) : root;
+        return (policyPath, outRoot);
     }
 
     private static void WriteFile(string path, string content, CommandOptions options, List<string> summary, bool existed)

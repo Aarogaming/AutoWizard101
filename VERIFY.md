@@ -10,10 +10,10 @@
   ```
   Compare against the stored checksum files above.
 
-## How to Run (Offline / Simulation-only)
+## How to Run
 1) Extract `artifacts/portable/`.
 2) Note: `execution_policy.conf` now writes `ALLOW_LIVE_AUTOMATION=true` by default (enforcement relaxed); profile = Public unless changed.
-3) Run `ProjectMaelstrom.exe` (no network required).
+3) Run `ProjectMaelstrom.exe`.
 4) DevTools are excluded; samples included only if previously built with `-IncludeSamples`.
 
 ## Reports
@@ -24,6 +24,6 @@
 - Checksums: see above
 
 ## Policy Boundary
-- Live automation currently allowed by default (`ALLOW_LIVE_AUTOMATION=true`); simulation-only mode can be re-enabled by setting the flag to false, but runtime enforcement is relaxed.
+- Live automation currently allowed by default (`ALLOW_LIVE_AUTOMATION=true`); set the flag to false to disable live runs when needed.
 - Portable build honors the same defaults.
 - Details: see POLICY_BOUNDARY.md.

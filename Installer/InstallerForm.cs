@@ -11,7 +11,7 @@ namespace Installer;
 
 public partial class InstallerForm : Form
 {
-    private const string DefaultFeedUrl = "https://raw.githubusercontent.com/aarog/AutoWizard101/main/update_manifest.json";
+    private const string DefaultFeedUrl = "https://raw.githubusercontent.com/Aarogaming/aaroneous-automation-suite/main/update_manifest.json";
     private readonly string? _feedUrlFromArgs;
     private string _defaultInstallPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjectMaelstrom");
     private string _logPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ProjectMaelstrom", "logs", "installer.log");

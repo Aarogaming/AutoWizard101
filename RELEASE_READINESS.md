@@ -1,7 +1,7 @@
 ﻿# Release Readiness (Aaroneous Automation Suite)
 
 ## 1) Overview
-Aaroneous Automation Suite is an offline-first, simulation-only trainer by default. Live automation is disabled by policy (ALLOW_LIVE_AUTOMATION=false) and the default profile is Public. **Gold Freeze: ACTIVE**.
+Aaroneous Automation Suite is policy-driven; live automation is governed by the `ALLOW_LIVE_AUTOMATION` flag. Default profile: Public. **Gold Freeze: ACTIVE**.
 
 ## 2) Build Commands
 - Debug: `dotnet build ProjectMaelstrom/ProjectMaelstrom.sln -c Debug`
@@ -34,4 +34,4 @@ Aaroneous Automation Suite is an offline-first, simulation-only trainer by defau
 - [ ] Secret scan returns 0 findings
 - [ ] Portable build (if needed) succeeds and excludes DevTools
 - [ ] GitHub secret alerts closed or none outstanding
-- [ ] Policy defaults intact (ALLOW_LIVE_AUTOMATION=false; Public profile)
+- [ ] Policy defaults recorded (e.g., current `ALLOW_LIVE_AUTOMATION` setting; Public profile)

@@ -17,7 +17,7 @@ Wizard101 automation toolkit with bots, OCR-driven utilities, and a script runne
 
 ## Version Support / Policy
 - Current target: net9.0-windows10.0.22621.0
-- Profiles: Public (default, simulation-only), Experimental (dev), live automation disabled by default (`ALLOW_LIVE_AUTOMATION=false`).
+- Profiles: Public and Experimental; live automation is controlled via the `ALLOW_LIVE_AUTOMATION` flag.
 - Portable builds exclude DevTools; sample plugins included only when explicitly requested.
 - Audit readiness: GOLD_FREEZE.md, AUDIT_TRAIL.md, MAINTENANCE.md capture policy, checks, and freeze state.
 

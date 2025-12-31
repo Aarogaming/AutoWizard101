@@ -1,12 +1,12 @@
 ﻿# Submission Guide (Aaroneous Automation Suite)
 
 ## Overview
-Aaroneous Automation Suite is an offline-first trainer. Live automation is currently allowed by default (`ALLOW_LIVE_AUTOMATION=true`; enforcement relaxed) and the standard profile is Public. Architecture is capability- and plugin-driven (overlay widgets, replay analyzers, minigame catalog), with DevTools excluded from portable builds.
+Aaroneous Automation Suite is policy-driven. Live automation is currently allowed by default (`ALLOW_LIVE_AUTOMATION=true`; enforcement relaxed) and the standard profile is Public. Architecture is capability- and plugin-driven (overlay widgets, replay analyzers, minigame catalog), with DevTools excluded from portable builds.
 
 ## Security Posture
 - No secrets in repo; secret scan tooling and redactions are in place.
 - GitHub secret scanning alerts addressed via redaction and SECURITY_NOTES.md guidance.
-- Execution policy defaults to live-allowed; `ALLOW_LIVE_AUTOMATION=true` is written to policy (see POLICY_BOUNDARY.md).
+- Execution policy reflects the current default (`ALLOW_LIVE_AUTOMATION=true` is written to policy; see POLICY_BOUNDARY.md).
 
 ## Repro / Verification (one command)
 - Run all gates:
