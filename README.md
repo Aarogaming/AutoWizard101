@@ -8,6 +8,13 @@ Wizard101 automation toolkit with bots, OCR-driven utilities, and a script runne
 - Tray + watcher helper (Windows only, default OFF): `docs/HandoffTray.md`.
 - Toolkit selftest: `dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- selftest`.
 
+### Docs
+- Project context and endpoints: `docs/ASSISTANT_CONTEXT.md`
+- Demo script: `docs/DEMO_SCRIPT.md`
+- Roadmap: `docs/ROADMAP.md`
+- Troubleshooting: `docs/TROUBLESHOOTING.md`
+- Session log: `docs/COOP_PACKET.md`
+
 ## Version Support / Policy
 - Current target: net9.0-windows10.0.22621.0
 - Profiles: Public (default, simulation-only), Experimental (dev), live automation disabled by default (`ALLOW_LIVE_AUTOMATION=false`).

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -84,51 +84,51 @@ if (isDualPort)
 // Initialize schema
 using (var conn = new SqliteConnection(connString))
 {
-    conn.Execute(@"""
-    CREATE TABLE IF NOT EXISTS jobs (
-        id TEXT PRIMARY KEY,
-        source_sha TEXT,
-        github_delivery TEXT,
-        openai_response_id TEXT,
-        openai_status TEXT,
-        openai_submitted_at_utc TEXT,
-        openai_completed_at_utc TEXT,
-        openai_raw_json TEXT,
-        result_text TEXT,
-        status TEXT,
-        created_utc TEXT,
-        updated_utc TEXT,
-        payload TEXT
-    );
-    """);
+    conn.Execute("""
+CREATE TABLE IF NOT EXISTS jobs (
+    id TEXT PRIMARY KEY,
+    source_sha TEXT,
+    github_delivery TEXT,
+    openai_response_id TEXT,
+    openai_status TEXT,
+    openai_submitted_at_utc TEXT,
+    openai_completed_at_utc TEXT,
+    openai_raw_json TEXT,
+    result_text TEXT,
+    status TEXT,
+    created_utc TEXT,
+    updated_utc TEXT,
+    payload TEXT
+);
+""");
 
-    conn.Execute(@"""
-    CREATE TABLE IF NOT EXISTS dedupe (
-        source TEXT,
-        key TEXT,
-        created_utc TEXT,
-        PRIMARY KEY (source, key)
-    );
-    """);
+    conn.Execute("""
+CREATE TABLE IF NOT EXISTS dedupe (
+    source TEXT,
+    key TEXT,
+    created_utc TEXT,
+    PRIMARY KEY (source, key)
+);
+""");
 
-    conn.Execute(@"""
-    CREATE TABLE IF NOT EXISTS api_keys (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        role TEXT,
-        salt BLOB,
-        hash BLOB,
-        created_utc TEXT,
-        revoked_utc TEXT
-    );
-    """);
+    conn.Execute("""
+CREATE TABLE IF NOT EXISTS api_keys (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    role TEXT,
+    salt BLOB,
+    hash BLOB,
+    created_utc TEXT,
+    revoked_utc TEXT
+);
+""");
 
-    conn.Execute(@"""
-    CREATE TABLE IF NOT EXISTS state (
-        key TEXT PRIMARY KEY,
-        value TEXT
-    );
-    """);
+    conn.Execute("""
+CREATE TABLE IF NOT EXISTS state (
+    key TEXT PRIMARY KEY,
+    value TEXT
+);
+""");
 
     EnsureColumn(conn, "api_keys", "name", "TEXT");
     EnsureColumn(conn, "api_keys", "salt", "BLOB");
@@ -141,14 +141,14 @@ using (var conn = new SqliteConnection(connString))
     EnsureColumn(conn, "jobs", "openai_raw_json", "TEXT");
     EnsureColumn(conn, "jobs", "result_text", "TEXT");
 
-    conn.Execute(@"""
-    CREATE TABLE IF NOT EXISTS automations (
-        id TEXT PRIMARY KEY,
-        enabled INTEGER NOT NULL,
-        description TEXT NOT NULL,
-        updated_utc TEXT NOT NULL
-    );
-    """);
+    conn.Execute("""
+CREATE TABLE IF NOT EXISTS automations (
+    id TEXT PRIMARY KEY,
+    enabled INTEGER NOT NULL,
+    description TEXT NOT NULL,
+    updated_utc TEXT NOT NULL
+);
+""");
     SeedAutomation(conn, "openai.analysis", true, "Run OpenAI background analysis");
     SeedAutomation(conn, "report.disk", true, "Write report JSON to disk");
     SeedAutomation(conn, "github.poller", false, "Fallback polling for missed webhooks");
@@ -180,11 +180,11 @@ static bool EnsureColumn(SqliteConnection conn, string table, string column, str
 
 static void SeedAutomation(SqliteConnection conn, string id, bool enabled, string description)
 {
-    conn.Execute(@"""
-    INSERT INTO automations(id, enabled, description, updated_utc)
-    VALUES (@i, @e, @d, @t)
-    ON CONFLICT(id) DO NOTHING;
-    """, new { i = id, e = enabled ? 1 : 0, d = description, t = DateTime.UtcNow.ToString("o") });
+    conn.Execute("""
+INSERT INTO automations(id, enabled, description, updated_utc)
+VALUES (@i, @e, @d, @t)
+ON CONFLICT(id) DO NOTHING;
+""", new { i = id, e = enabled ? 1 : 0, d = description, t = DateTime.UtcNow.ToString("o") });
 }
 
 byte[] GetPepper(IDbConnection conn)
@@ -210,7 +210,7 @@ string CreateApiKey(IDbConnection conn, string name, string role)
     var hash = Rfc2898DeriveBytes.Pbkdf2(secret, salt.Concat(pepper).ToArray(), 150_000, HashAlgorithmName.SHA256, 32);
 
     var now = DateTime.UtcNow.ToString("o");
-    conn.Execute(@"""
+    conn.Execute("""
         INSERT OR REPLACE INTO api_keys (id, name, role, salt, hash, created_utc)
         VALUES (@i, @n, @r, @s, @h, @c);
     """, new { i = keyId, n = name, r = role, s = salt, h = hash, c = now });
@@ -306,7 +306,7 @@ webhooks.MapPost("/github", async (HttpContext ctx) =>
     var sha = doc.RootElement.GetProperty("after").GetString();
     var jobId = Guid.NewGuid().ToString();
 
-    conn.Execute(@"""
+    conn.Execute("""
         INSERT INTO jobs (id, source_sha, github_delivery, status, created_utc, updated_utc, payload)
         VALUES (@i, @s, @g, 'submitted', @c, @c, @p);
     """, new { i = jobId, s = sha, g = delivery, c = DateTime.UtcNow.ToString("o"), p = payload });
@@ -350,7 +350,7 @@ webhooks.MapPost("/openai", async (HttpContext ctx) =>
     var jobId = metadata.TryGetProperty("job_id", out var jv) ? jv.GetString() : null;
     if (string.IsNullOrWhiteSpace(jobId)) return Results.Ok();
 
-    conn.Execute(@"""
+    conn.Execute("""
         UPDATE jobs
         SET status='completed_pending_fetch',
             openai_status='completed',
@@ -369,7 +369,7 @@ app.MapGet("/api/jobs", (HttpContext ctx) =>
 {
     using var conn = new SqliteConnection(connString);
     if (!RequireApiKey(ctx, conn, out _)) return Results.Unauthorized();
-    var jobs = conn.Query(@"""
+    var jobs = conn.Query("""
         SELECT id, source_sha, status, openai_response_id, created_utc, updated_utc
         FROM jobs
         ORDER BY updated_utc DESC
@@ -382,7 +382,7 @@ app.MapGet("/api/jobs/{id}", (HttpContext ctx, string id) =>
 {
     using var conn = new SqliteConnection(connString);
     if (!RequireApiKey(ctx, conn, out _)) return Results.Unauthorized();
-    var job = conn.Query(@"""
+    var job = conn.Query("""
         SELECT id, source_sha, status, openai_response_id, created_utc, updated_utc, payload
         FROM jobs
         WHERE id=@i;
@@ -416,7 +416,7 @@ botApi.MapGet("/status", (HttpContext ctx) =>
 {
     using var conn = new SqliteConnection(connString);
     if (!RequireApiKey(ctx, conn, out _)) return Results.Unauthorized();
-    var counts = conn.QuerySingle(@"""
+    var counts = conn.QuerySingle("""
         SELECT
         SUM(CASE WHEN status IN ('submitted','queued') THEN 1 ELSE 0 END) AS queued,
         SUM(CASE WHEN status='running' THEN 1 ELSE 0 END) AS running,
@@ -445,7 +445,7 @@ botApi.MapGet("/jobs", (HttpContext ctx, int? limit) =>
     using var conn = new SqliteConnection(connString);
     if (!RequireApiKey(ctx, conn, out _)) return Results.Unauthorized();
     var lim = Math.Clamp(limit ?? 50, 1, 200);
-    var rows = conn.Query(@"""
+    var rows = conn.Query("""
         SELECT id, source_sha, status, created_utc, updated_utc, openai_response_id, openai_status, github_delivery, error, result_text, openai_submitted_at_utc, openai_completed_at_utc
         FROM jobs
         ORDER BY updated_utc DESC
@@ -473,7 +473,7 @@ botApi.MapGet("/jobs/{id}", (HttpContext ctx, string id) =>
 {
     using var conn = new SqliteConnection(connString);
     if (!RequireApiKey(ctx, conn, out _)) return Results.Unauthorized();
-    var r = conn.QuerySingleOrDefault(@"""
+    var r = conn.QuerySingleOrDefault("""
         SELECT id, source_sha, status, created_utc, updated_utc, openai_response_id, openai_status, github_delivery, error, result_text, openai_raw_json, openai_completed_at_utc, openai_submitted_at_utc
         FROM jobs WHERE id=@i;
     """, new { i = id });
@@ -525,49 +525,50 @@ bot.MapGet("/ui", (HttpContext ctx) =>
 
     var html = """
 <!doctype html>
-<html><head><meta charset=\"utf-8\"><title>MaelstromBot</title></head>
+<html><head><meta charset="utf-8"><title>MaelstromBot</title></head>
 <body>
   <h2>MaelstromBot (local)</h2>
   <div>
     <label>API token:</label>
-    <input id=\"tok\" type=\"password\" style=\"width:320px\" />
-    <button onclick=\"save()\">Save</button>
-    <button onclick=\"refresh()\">Refresh</button>
+    <input id="tok" type="password" style="width:320px" />
+    <button onclick="save()">Save</button>
+    <button onclick="refresh()">Refresh</button>
   </div>
-  <pre id=\"status\"></pre>
+  <pre id="status"></pre>
   <h3>Automations</h3>
-  <div id=\"autos\"></div>
+  <div id="autos"></div>
   <h3>Jobs</h3>
-  <table id=\"jobs\" border=\"1\" cellpadding=\"4\" cellspacing=\"0\"></table>
+  <table id="jobs" border="1" cellpadding="4" cellspacing="0"></table>
 <script>
-const base = \"/bot/api\";
-function token(){ return localStorage.getItem(\"bot_token\")||\"\"; }
-function hdrs(){ return { \"Authorization\":\"Bearer \"+token() }; }
-function save(){ localStorage.setItem(\"bot_token\", document.getElementById(\"tok\").value.trim()); refresh(); }
+const base = "/bot/api";
+function token(){ return localStorage.getItem("bot_token")||""; }
+function hdrs(){ return { "Authorization":"Bearer "+token() }; }
+function save(){ localStorage.setItem("bot_token", document.getElementById("tok").value.trim()); refresh(); }
 
 async function refresh(){
-  document.getElementById(\"tok\").value = token();
-  const st = await fetch(base+\"/status\",{headers:hdrs()});
-  document.getElementById(\"status\").textContent = await st.text();
+  document.getElementById("tok").value = token();
+  const st = await fetch(base+"/status",{headers:hdrs()});
+  document.getElementById("status").textContent = await st.text();
 
-  const a = await fetch(base+\"/automations\",{headers:hdrs()});
+  const a = await fetch(base+"/automations",{headers:hdrs()});
   const autos = await a.json();
-  const div = document.getElementById(\"autos\");
-  div.innerHTML = \"\";
+  const div = document.getElementById("autos");
+  div.innerHTML = "";
   autos.forEach(x=>{
-    const c = document.createElement(\"input\"); c.type=\"checkbox\"; c.checked=x.enabled;
-    c.onchange=async()=>{await fetch(base+\"/automations/\"+encodeURIComponent(x.id),{method:\"PUT\",headers:{...hdrs(),\"Content-Type\":\"application/json\"},body:JSON.stringify({...x,enabled:c.checked})}); refresh();};
-    const label=document.createElement(\"label\"); label.textContent=\" \"+x.id+\" - \"+x.description;
-    const wrap=document.createElement(\"div\"); wrap.appendChild(c); wrap.appendChild(label); div.appendChild(wrap);
+    const c = document.createElement("input"); c.type="checkbox"; c.checked=x.enabled;
+    c.onchange=async()=>{await fetch(base+"/automations/"+encodeURIComponent(x.id),{method:"PUT",headers:{...hdrs(),"Content-Type":"application/json"},body:JSON.stringify({...x,enabled:c.checked})}); refresh();};
+    const label=document.createElement("label"); label.textContent=" "+x.id+" - "+x.description;
+    const wrap=document.createElement("div"); wrap.appendChild(c); wrap.appendChild(label); div.appendChild(wrap);
   });
 
-  const j = await fetch(base+\"/jobs?limit=20\",{headers:hdrs()});
+  const j = await fetch(base+"/jobs?limit=20",{headers:hdrs()});
   const jobs = await j.json();
-  const t = document.getElementById(\"jobs\");
-  t.innerHTML=\"<tr><th>Id</th><th>Status</th><th>OpenAI</th><th>SHA</th><th>Updated</th><th>Summary</th></tr>\";
+  const t = document.getElementById("jobs");
+  t.innerHTML="<tr><th>Id</th><th>Status</th><th>OpenAI</th><th>SHA</th><th>Updated</th><th>Summary</th></tr>";
   jobs.forEach(x=>{
-    const tr=document.createElement(\"tr\");
-    tr.innerHTML=<td></td><td></td><td></td><td></td><td></td><td></td>;
+    const tr=document.createElement("tr");
+    const summary = x.resultSnippet ?? "";
+    tr.innerHTML=`<td>${x.jobId}</td><td>${x.status}</td><td>${x.openaiStatus ?? ""}</td><td>${x.sha ?? ""}</td><td>${x.updatedAtUtc}</td><td>${summary}</td>`;
     t.appendChild(tr);
   });
 }
@@ -602,3 +603,6 @@ botApi.MapPost("/jobs/{id}/cancel", async (HttpContext ctx, string id) =>
 app.Run();
 
 public record DatabaseOptions(string ConnectionString);
+
+
+
