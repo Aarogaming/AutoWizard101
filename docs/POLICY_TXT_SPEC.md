@@ -15,6 +15,7 @@
 - denyUnknownCapabilities = true
 - denyUnknownKeys = false
 - liveMeansLive = true
+- safeWrites = outOnly
 
 [ethics]
 - purpose = educational_research
@@ -37,6 +38,8 @@
 - allowSendScreenshotsToModel = false
 - allowSendAudioToModel = false
 - endpoint = <url> (optional, recommended when provider=http)
+- allowedTools = (comma-separated; optional)
+- deniedTools = (comma-separated; optional)
 
 ## Validation rules
 - schemaVersion must be 1.

@@ -39,3 +39,4 @@ Provide a deterministic record of verification steps, policy boundaries, and cap
 
 ## Updates
 - 2025-12-31: Added continuity docs (ROADMAP, GOALS, COOPERATIVE_EVALUATION, POLICY_TXT_SPEC), prompt protocol in ASSISTANT_CONTEXT, and handoff continuity notes. Purpose: preserve no-swerving policy, live-means-live governance, and professor review continuity.
+- 2025-12-31: Added aas.policy.txt default policy (TXT) to keep governance in a single editable file.
