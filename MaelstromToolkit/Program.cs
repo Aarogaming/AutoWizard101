@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using MaelstromToolkit.Planning;
 using MaelstromToolkit.Policy;
@@ -9,6 +11,7 @@ namespace MaelstromToolkit;
 
 internal static class Program
 {
+    private static readonly string DefaultPolicyText = PolicyDefaults.DefaultPolicyText;
     private record CommandOptions(
         string Command,
         string Subcommand,
@@ -346,29 +349,41 @@ internal static class Program
 
     private static int RunPolicyEffective(string root, CommandOptions options)
     {
+        var format = options.Args.TryGetValue("format", out var fmt) ? fmt.ToLowerInvariant() : "text";
+        if (format is not ("text" or "json"))
+        {
+            Console.Error.WriteLine("ERROR: --format must be text|json");
+            return 1;
+        }
+
         var (policyPath, outRoot) = GetPolicyPaths(root, options);
-        var service = new PolicyService();
-        var resolver = new PolicyResolver(service);
-        var (effective, sourceResult, source) = resolver.Resolve(policyPath, outRoot);
-        service.WriteDiagnostics(outRoot, sourceResult);
-
-        if (source == "current" && sourceResult.HasErrors)
+        if (!OutIsSafe(outRoot))
         {
-            service.WriteRejected(outRoot, sourceResult);
-            Console.Error.WriteLine("Policy INVALID; using fallback if available.");
+            Console.Error.WriteLine("ERROR: --out must contain \"--out\" segment (safety guard).");
+            return 1;
         }
 
-        Console.WriteLine($"Source: {source}");
-        Console.WriteLine($"ActiveProfile: {effective.ActiveProfile}");
-        Console.WriteLine($"OperatingMode: {effective.OperatingMode}");
-        Console.WriteLine($"LiveStatus: {effective.LiveStatus}");
-        if (effective.Reasons.Any())
+        var fileText = File.Exists(policyPath) ? File.ReadAllText(policyPath) : string.Empty;
+        var lkgPath = Path.Combine(outRoot, "system", "policy.lkg.txt");
+        var lkgText = File.Exists(lkgPath) ? File.ReadAllText(lkgPath) : null;
+
+        var resolver = new PolicyEffectiveResolver(DefaultPolicyText);
+        var effective = resolver.Resolve(fileText, lkgText);
+
+        var fileTop = effective.FileDiagnostics.Select(d => d.Code).Distinct().Take(5).ToList();
+        var lkgTop = effective.LkgDiagnostics.Select(d => d.Code).Distinct().Take(3).ToList();
+        var reasons = effective.Reasons.Count > 0 ? string.Join(",", effective.Reasons) : "none";
+        var fileTopCodes = fileTop.Count > 0 ? string.Join(",", fileTop) : "none";
+        var lkgTopCodes = lkgTop.Count > 0 ? string.Join(",", lkgTop) : "none";
+
+        Console.WriteLine($"Source={effective.Source} hash={effective.Hash} activeProfile={effective.ActiveProfile} profileMode={effective.ProfileMode} operatingMode={effective.OperatingMode} liveStatus={effective.LiveStatus} reasons={reasons} diagCount={effective.Diagnostics.Count} fileTop={fileTopCodes} lkgTop={lkgTopCodes}");
+
+        WriteEffectiveText(outRoot, policyPath, effective, fileTopCodes, lkgTopCodes);
+        if (format == "json")
         {
-            Console.WriteLine("Reasons:");
-            foreach (var r in effective.Reasons) Console.WriteLine($"- {r}");
+            WriteEffectiveJson(outRoot, policyPath, effective, fileTop, lkgTop);
         }
-        Console.WriteLine($"AI: provider={effective.AiProvider}, model={effective.AiModel}, keyEnv={effective.AiKeyEnv}");
-        Console.WriteLine($"LiveMeansLive: {effective.LiveMeansLive}");
+
         return 0;
     }
 
@@ -433,7 +448,7 @@ internal static class Program
     {
         var policyPath = options.Args.TryGetValue("file", out var path)
             ? Path.GetFullPath(path)
-            : Path.Combine(root, "aas.policy.txt");
+            : Path.Combine(Directory.GetCurrentDirectory(), "aas.policy.txt");
         var outRoot = options.Args.TryGetValue("out", out var o) ? Path.GetFullPath(o) : root;
         return (policyPath, outRoot);
     }
@@ -508,6 +523,86 @@ internal static class Program
         var tmp = path + ".tmp_" + Guid.NewGuid().ToString("N");
         File.WriteAllText(tmp, NormalizeLineEndings(content), new UTF8Encoding(false));
         File.Move(tmp, path, overwrite: true);
+    }
+
+    private static void WriteEffectiveText(string outRoot, string policyPath, PolicyEffectiveResult effective, string fileTopCodes, string lkgTopCodes)
+    {
+        var systemDir = Path.Combine(outRoot, "system");
+        Directory.CreateDirectory(systemDir);
+        var path = Path.Combine(systemDir, "policy.effective.txt");
+        var sb = new StringBuilder();
+        sb.AppendLine($"Source: {effective.Source}");
+        sb.AppendLine($"File: {policyPath}");
+        sb.AppendLine($"Hash: {effective.Hash}");
+        sb.AppendLine($"ActiveProfile: {effective.ActiveProfile}");
+        sb.AppendLine($"ProfileMode: {effective.ProfileMode}");
+        sb.AppendLine($"OperatingMode: {effective.OperatingMode}");
+        sb.AppendLine($"LiveStatus: {effective.LiveStatus}");
+        sb.AppendLine($"LiveReasons: {(effective.Reasons.Count == 0 ? "none" : string.Join(",", effective.Reasons))}");
+        sb.AppendLine($"AI: enabled={(effective.Snapshot?.Ai.Enabled ?? false).ToString().ToLowerInvariant()} provider={effective.Snapshot?.Ai.Provider ?? "none"} model={effective.Snapshot?.Ai.Model ?? string.Empty} temperature={(effective.Snapshot?.Ai.Temperature ?? 0).ToString(CultureInfo.InvariantCulture)} apiKeyEnv={effective.Snapshot?.Ai.ApiKeyEnv ?? string.Empty} allowSendScreenshotsToModel={(effective.Snapshot?.Ai.AllowSendScreenshotsToModel ?? false).ToString().ToLowerInvariant()} allowSendAudioToModel={(effective.Snapshot?.Ai.AllowSendAudioToModel ?? false).ToString().ToLowerInvariant()}");
+        sb.AppendLine($"Ethics: purpose={effective.Snapshot?.Ethics.Purpose ?? string.Empty} requireConsentForEnvironmentControl={(effective.Snapshot?.Ethics.RequireConsentForEnvironmentControl ?? false).ToString().ToLowerInvariant()} prohibit={effective.Snapshot?.Ethics.Prohibit ?? string.Empty} privacy.storeScreenshots={(effective.Snapshot?.Ethics.PrivacyStoreScreenshots ?? false).ToString().ToLowerInvariant()} privacy.storeAudio={(effective.Snapshot?.Ethics.PrivacyStoreAudio ?? false).ToString().ToLowerInvariant()}");
+        sb.AppendLine($"Diagnostics: {effective.Diagnostics.Count}");
+        foreach (var d in effective.Diagnostics)
+        {
+            var line = d.LineNumber.HasValue ? d.LineNumber.Value.ToString() : "-";
+            sb.AppendLine($"{d.Code} | {d.Severity} | {d.Section}.{d.Key} | {line} | {d.Message}");
+        }
+        sb.AppendLine($"FileDiagnosticsTop: {fileTopCodes}");
+        sb.AppendLine($"LkgDiagnosticsTop: {lkgTopCodes}");
+        WriteAtomic(path, sb.ToString());
+    }
+
+    private static void WriteEffectiveJson(string outRoot, string policyPath, PolicyEffectiveResult effective, IReadOnlyList<string> fileTop, IReadOnlyList<string> lkgTop)
+    {
+        var systemDir = Path.Combine(outRoot, "system");
+        Directory.CreateDirectory(systemDir);
+        var dto = new
+        {
+            source = effective.Source,
+            file = policyPath,
+            hash = effective.Hash,
+            activeProfile = effective.ActiveProfile,
+            profileMode = effective.ProfileMode,
+            operatingMode = effective.OperatingMode,
+            liveStatus = effective.LiveStatus,
+            liveReasons = effective.Reasons.ToArray(),
+            ai = new
+            {
+                enabled = effective.Snapshot?.Ai.Enabled ?? false,
+                provider = effective.Snapshot?.Ai.Provider ?? "none",
+                model = effective.Snapshot?.Ai.Model ?? string.Empty,
+                temperature = effective.Snapshot?.Ai.Temperature ?? 0,
+                apiKeyEnv = effective.Snapshot?.Ai.ApiKeyEnv ?? string.Empty,
+                allowSendScreenshotsToModel = effective.Snapshot?.Ai.AllowSendScreenshotsToModel ?? false,
+                allowSendAudioToModel = effective.Snapshot?.Ai.AllowSendAudioToModel ?? false
+            },
+            ethics = new
+            {
+                purpose = effective.Snapshot?.Ethics.Purpose ?? string.Empty,
+                requireConsentForEnvironmentControl = effective.Snapshot?.Ethics.RequireConsentForEnvironmentControl ?? false,
+                prohibit = effective.Snapshot?.Ethics.Prohibit ?? string.Empty,
+                privacyStoreScreenshots = effective.Snapshot?.Ethics.PrivacyStoreScreenshots ?? false,
+                privacyStoreAudio = effective.Snapshot?.Ethics.PrivacyStoreAudio ?? false
+            },
+            diagnostics = effective.Diagnostics.Select(d => new
+            {
+                code = d.Code,
+                severity = d.Severity.ToString(),
+                section = d.Section,
+                key = d.Key,
+                line = d.LineNumber,
+                message = d.Message
+            }).ToArray(),
+            fileDiagnosticsTop = fileTop.ToArray(),
+            lkgDiagnosticsTop = lkgTop.ToArray()
+        };
+
+        var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+        var path = Path.Combine(systemDir, "policy.effective.json");
+        WriteAtomic(path, json);
     }
 
     private static string ComputeSha256(string text)

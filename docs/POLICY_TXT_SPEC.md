@@ -62,3 +62,12 @@
   - If valid: `policy.lkg.txt`, `policy.lkg.sha256`
   - If invalid: `policy.rejected.txt`
 - `--out` path must contain `--out` segment; no writes otherwise.
+
+## Toolkit command (effective with fallback)
+- Run: `dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- aas policy effective --file ./aas.policy.txt --out ./--out [--format text|json]`
+- Resolution order: FILE → LKG (`--out/system/policy.lkg.txt`) → built-in DEFAULT (tooling safe defaults).
+- Output always written under `--out/system/`:
+  - `policy.effective.txt`
+  - `policy.effective.json` (when `--format json`)
+- Summaries include: source, hash, activeProfile, profileMode, OperatingMode, LiveStatus, reasons, AI summary, ethics summary, diagnostics, and top rejection codes for FILE/LKG if fallbacks were used.
+- Invalid edits never brick: FILE errors are recorded, but LKG or DEFAULT keep the tool running.
