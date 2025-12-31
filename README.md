@@ -1,5 +1,5 @@
-# Project Maelstrom
-[![CI](https://github.com/Aarogaming/AutoWizard101/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Aarogaming/AutoWizard101/actions/workflows/ci.yml)
+# Aaroneous Automation Suite
+[![CI](https://github.com/Aarogaming/aaroneous-automation-suite/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Aarogaming/aaroneous-automation-suite/actions/workflows/ci.yml)
 
 Wizard101 automation toolkit with bots, OCR-driven utilities, and a script runner that can load community scripts from a shared library folder.
 
@@ -63,8 +63,8 @@ Wizard101 automation toolkit with bots, OCR-driven utilities, and a script runne
 
 ## Quickstart (Source)
 ```powershell
-git clone https://github.com/yourusername/AutoWizard101.git
-cd AutoWizard101/ProjectMaelstrom
+git clone https://github.com/yourusername/aaroneous-automation-suite.git
+cd aaroneous-automation-suite/ProjectMaelstrom
 dotnet restore
 dotnet build --configuration Release
 dotnet run --project ProjectMaelstrom

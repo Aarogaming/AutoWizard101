@@ -1,4 +1,4 @@
-# Project Maelstrom — Core vs Plugin Modularization
+# Aaroneous Automation Suite — Core vs Plugin Modularization
 
 ## Classification
 

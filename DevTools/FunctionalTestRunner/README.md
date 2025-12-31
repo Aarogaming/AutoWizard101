@@ -1,6 +1,6 @@
 # FunctionalTestRunner (Dev-only)
 
-Console tool to verify Project Maelstrom core behavior (policy enforcement, executor selection, plugin gating, failure safety) with no UI and no live execution.
+Console tool to verify Aaroneous Automation Suite core behavior (policy enforcement, executor selection, plugin gating, failure safety) with no UI and no live execution.
 
 ## Build
 ```pwsh

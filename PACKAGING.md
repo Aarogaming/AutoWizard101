@@ -1,4 +1,4 @@
-﻿# Project Maelstrom — Portable Packaging
+﻿# Aaroneous Automation Suite — Portable Packaging
 
 ## Goals
 - Ship a minimal, safe Core build.

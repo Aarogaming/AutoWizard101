@@ -1,4 +1,4 @@
-# Contributing to Project Maelstrom
+# Contributing to Aaroneous Automation Suite
 
 Thanks for helping improve the project! This quick guide covers the basics.
 
@@ -11,8 +11,8 @@ Thanks for helping improve the project! This quick guide covers the basics.
 
 ## Setup
 ```bash
-git clone https://github.com/yourusername/AutoWizard101.git
-cd AutoWizard101/ProjectMaelstrom
+git clone https://github.com/yourusername/aaroneous-automation-suite.git
+cd aaroneous-automation-suite/ProjectMaelstrom
 dotnet restore
 dotnet build -c Release
 ```

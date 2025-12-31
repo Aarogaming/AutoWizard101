@@ -1,4 +1,4 @@
-# Response Templates (Project Maelstrom)
+# Response Templates (Aaroneous Automation Suite)
 
 ## Acceptance (Docs-only)
 “Thanks for the feedback. We’ll update the requested documentation only. No code/UI/policy changes. We’ll rerun final_verify.ps1 and share updated artifacts.”

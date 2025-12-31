@@ -1,7 +1,7 @@
 # Security Notes
 
 - Third-party archived web assets (YouTube/Google embed files under `ProjectMaelstrom/Scripts/Library/WizWikiAPI-main/worlds_raw/`) contained Google embed keys.
-- These keys are not used by Project Maelstrom and have been redacted (`REDACTED_GOOGLE_API_KEY`) to satisfy secret scanning.
+- These keys are not used by Aaroneous Automation Suite and have been redacted (`REDACTED_GOOGLE_API_KEY`) to satisfy secret scanning.
 - No application secrets or runtime credentials are stored in this repository.
 
 ## Maintenance Mode

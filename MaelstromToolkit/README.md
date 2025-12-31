@@ -1,6 +1,6 @@
 # MaelstromToolkit
 
-Cross-platform .NET 8 CLI that codifies Project Maelstrom’s stewardship and UX discipline. Generates deterministic, safe scaffolds (docs/scripts/workflows/templates) without touching runtime code.
+Cross-platform .NET 8 CLI that codifies Aaroneous Automation Suiteï¿½s stewardship and UX discipline. Generates deterministic, safe scaffolds (docs/scripts/workflows/templates) without touching runtime code.
 
 ## Commands (Phase 1 scaffold)
 - init --out <dir> [--force]: seed core docs (policy, tags, stewardship, UX maintenance)

@@ -1,4 +1,4 @@
-# Co-op Workflow (Project Maelstrom)
+# Co-op Workflow (Aaroneous Automation Suite)
 
 ## Final Phase Checklist
 - UI polish locked: verify 150% / 175% captures via UiAuditSelfCapture.

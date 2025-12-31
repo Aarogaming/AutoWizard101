@@ -1,7 +1,7 @@
-# Project Maelstrom — Codex Working Agreement (AGENTS.md)
+# Aaroneous Automation Suite — Codex Working Agreement (AGENTS.md)
 
 ## Mission
-Project Maelstrom builds: <one sentence: what it is, who it serves, success criteria>.
+Aaroneous Automation Suite builds: <one sentence: what it is, who it serves, success criteria>.
 
 ## Golden rules
 - Make the smallest safe change that solves the task.

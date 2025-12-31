@@ -1,7 +1,7 @@
-# Project Maelstrom & DevTools Roadmap
+# Aaroneous Automation Suite & DevTools Roadmap
 
 ## Purpose
-Project Maelstrom is a Windows automation suite with safe-by-default runtime guards. DevTools provides a local-first server + tray + toolkit to ingest webhook-triggered jobs, run an OpenAI-backed pipeline, and hand results back to the operator.
+Aaroneous Automation Suite is a Windows automation suite with safe-by-default runtime guards. DevTools provides a local-first server + tray + toolkit to ingest webhook-triggered jobs, run an OpenAI-backed pipeline, and hand results back to the operator.
 
 ## Guiding principles
 - **Safe by default:** live automation stays off unless explicitly enabled (policy/guards).

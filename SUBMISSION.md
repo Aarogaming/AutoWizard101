@@ -1,7 +1,7 @@
-﻿# Submission Guide (Project Maelstrom)
+﻿# Submission Guide (Aaroneous Automation Suite)
 
 ## Overview
-Project Maelstrom is an offline-first trainer. Live automation is currently allowed by default (`ALLOW_LIVE_AUTOMATION=true`; enforcement relaxed) and the standard profile is Public. Architecture is capability- and plugin-driven (overlay widgets, replay analyzers, minigame catalog), with DevTools excluded from portable builds.
+Aaroneous Automation Suite is an offline-first trainer. Live automation is currently allowed by default (`ALLOW_LIVE_AUTOMATION=true`; enforcement relaxed) and the standard profile is Public. Architecture is capability- and plugin-driven (overlay widgets, replay analyzers, minigame catalog), with DevTools excluded from portable builds.
 
 ## Security Posture
 - No secrets in repo; secret scan tooling and redactions are in place.

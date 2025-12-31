@@ -1,4 +1,4 @@
-# Maintenance & Resilience (Project Maelstrom)
+# Maintenance & Resilience (Aaroneous Automation Suite)
 
 ## LTS Policy
 - Gold build is immutable; changes land on branches only.

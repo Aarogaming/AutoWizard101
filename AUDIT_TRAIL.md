@@ -1,4 +1,4 @@
-# Audit Trail (Project Maelstrom)
+# Audit Trail (Aaroneous Automation Suite)
 
 ## Purpose
 Provide a deterministic record of verification steps, policy boundaries, and capability status for audits.

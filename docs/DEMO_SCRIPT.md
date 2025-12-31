@@ -1,4 +1,4 @@
-# Demo Script — Project Maelstrom & DevTools (2–5 minutes)
+# Demo Script — Aaroneous Automation Suite & DevTools (2–5 minutes)
 
 ## Setup (one-time)
 - Ensure env vars are set:

@@ -1,4 +1,4 @@
-# Stewardship (Project Maelstrom)
+# Stewardship (Aaroneous Automation Suite)
 
 ## Role Responsibilities
 - Preserve gold build immutability and policy boundaries (Public profile, ALLOW_LIVE_AUTOMATION=false).

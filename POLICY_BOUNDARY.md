@@ -1,4 +1,4 @@
-# Policy Boundary (Project Maelstrom)
+# Policy Boundary (Aaroneous Automation Suite)
 
 ## What the app can do
 - Run as an offline-first trainer with capability-driven plugins (overlay widgets, replay analyzers, minigame catalog).

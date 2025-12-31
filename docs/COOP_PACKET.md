@@ -1,7 +1,7 @@
 # COOP_PACKET (session log)
 
 PROMPT_USED:
-prepare evaluation of Project Maelstrom and it's DevTool set for Co-Op with ChatGPT 5.2 Pro
+prepare evaluation of Aaroneous Automation Suite and it's DevTool set for Co-Op with ChatGPT 5.2 Pro
 dotnet build ProjectMaelstrom/ProjectMaelstrom.sln -c Debug
 dotnet build MaelstromBot.Server/MaelstromBot.Server.csproj -c Debug
 dotnet build HandoffTray/HandoffTray.csproj -c Debug

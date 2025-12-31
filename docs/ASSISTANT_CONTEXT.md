@@ -1,4 +1,4 @@
-## Assistant Context — Project Maelstrom
+## Assistant Context — Aaroneous Automation Suite
 
 ### Architecture (high level)
 - **ProjectMaelstrom**: WinForms automation app (offline-first; ALLOW_LIVE_AUTOMATION=false by default).

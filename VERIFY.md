@@ -1,4 +1,4 @@
-﻿# Verification Guide (Project Maelstrom)
+﻿# Verification Guide (Aaroneous Automation Suite)
 
 ## Checksums
 - Portable: `artifacts/submission/checksums_portable.txt`

@@ -1,7 +1,7 @@
-﻿# Release Readiness (Project Maelstrom)
+﻿# Release Readiness (Aaroneous Automation Suite)
 
 ## 1) Overview
-Project Maelstrom is an offline-first, simulation-only trainer by default. Live automation is disabled by policy (ALLOW_LIVE_AUTOMATION=false) and the default profile is Public. **Gold Freeze: ACTIVE**.
+Aaroneous Automation Suite is an offline-first, simulation-only trainer by default. Live automation is disabled by policy (ALLOW_LIVE_AUTOMATION=false) and the default profile is Public. **Gold Freeze: ACTIVE**.
 
 ## 2) Build Commands
 - Debug: `dotnet build ProjectMaelstrom/ProjectMaelstrom.sln -c Debug`
