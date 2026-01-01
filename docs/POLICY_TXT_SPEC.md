@@ -40,6 +40,11 @@
 - endpoint = <url> (optional, recommended when provider=http)
 - allowedTools = (comma-separated; optional)
 - deniedTools = (comma-separated; optional)
+- store = false (optional; OpenAI “store”)
+- reasoningEffort = none|medium|high|xhigh (optional)
+- timeoutSeconds = 1..600 (optional; default 60)
+- maxOutputTokens = 1..16384 (optional; default 1024)
+- userTag = optional string (OpenAI “user” field)
 
 ## Validation rules
 - schemaVersion must be 1.
@@ -47,6 +52,9 @@
 - Unknown capabilities denied when denyUnknownCapabilities=true.
 - Unknown keys error when denyUnknownKeys=true; warn otherwise.
 - AI provider must be openai|http|none; apiKeyEnv required for openai.
+- If provider=http, endpoint required.
+- reasoningEffort must be one of none|medium|high|xhigh; temperature only supported when reasoningEffort=none (warning otherwise).
+- timeoutSeconds/maxOutputTokens must be within bounds.
 - LIVE means LIVE: if active profile mode=live, OperatingMode stays LIVE; blocked/degraded is reported, no fallback.
 
 ## LKG and non-bricking edits

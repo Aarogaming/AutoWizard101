@@ -207,6 +207,25 @@ internal sealed class PolicyParser
             case "allowsendaudiotomodel":
                 AssignBool(entry, v => ai.AllowSendAudioToModel = v, result);
                 break;
+            case "store":
+                AssignBool(entry, v => ai.Store = v, result);
+                break;
+            case "reasoningeffort":
+                ai.ReasoningEffort = entry.Value;
+                break;
+            case "timeoutseconds":
+                if (int.TryParse(entry.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var tsec))
+                    ai.TimeoutSeconds = tsec;
+                else AddInvalid(result, entry, "AASPOL001", "timeoutSeconds must be integer.");
+                break;
+            case "maxoutputtokens":
+                if (int.TryParse(entry.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var tokens))
+                    ai.MaxOutputTokens = tokens;
+                else AddInvalid(result, entry, "AASPOL001", "maxOutputTokens must be integer.");
+                break;
+            case "usertag":
+                ai.UserTag = entry.Value;
+                break;
             case "allowedtools":
                 ai.AllowedTools = entry.Value;
                 break;

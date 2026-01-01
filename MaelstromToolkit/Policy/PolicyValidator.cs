@@ -92,7 +92,23 @@ internal sealed class PolicyValidator
         }
         if (provider.Equals("http", StringComparison.OrdinalIgnoreCase) && string.IsNullOrWhiteSpace(snapshot.Ai.Endpoint))
         {
-            diagnostics.Add(new PolicyDiagnostic("AASPOL011", DiagnosticSeverity.Warning, "ai", "endpoint", null, "endpoint should be set when provider=http."));
+            diagnostics.Add(new PolicyDiagnostic("AASPOL011", DiagnosticSeverity.Error, "ai", "endpoint", null, "endpoint is required when provider=http."));
+        }
+        if (!IsValidReasoningEffort(snapshot.Ai.ReasoningEffort))
+        {
+            diagnostics.Add(new PolicyDiagnostic("AASPOL020", DiagnosticSeverity.Error, "ai", "reasoningEffort", null, "reasoningEffort must be none|medium|high|xhigh."));
+        }
+        if (snapshot.Ai.TimeoutSeconds is < 1 or > 600)
+        {
+            diagnostics.Add(new PolicyDiagnostic("AASPOL020", DiagnosticSeverity.Error, "ai", "timeoutSeconds", null, "timeoutSeconds must be between 1 and 600."));
+        }
+        if (snapshot.Ai.MaxOutputTokens is < 1 or > 16384)
+        {
+            diagnostics.Add(new PolicyDiagnostic("AASPOL020", DiagnosticSeverity.Error, "ai", "maxOutputTokens", null, "maxOutputTokens must be between 1 and 16384."));
+        }
+        if (!snapshot.Ai.ReasoningEffort.Equals("none", StringComparison.OrdinalIgnoreCase) && snapshot.Ai.Temperature != 0)
+        {
+            diagnostics.Add(new PolicyDiagnostic("AASPOL020", DiagnosticSeverity.Warning, "ai", "temperature", null, "temperature is only supported when reasoningEffort=none."));
         }
     }
 
@@ -135,4 +151,10 @@ internal sealed class PolicyValidator
         provider != null && (provider.Equals("openai", StringComparison.OrdinalIgnoreCase)
                              || provider.Equals("http", StringComparison.OrdinalIgnoreCase)
                              || provider.Equals("none", StringComparison.OrdinalIgnoreCase));
+
+    private static bool IsValidReasoningEffort(string? value) =>
+        value != null && (value.Equals("none", StringComparison.OrdinalIgnoreCase)
+                          || value.Equals("medium", StringComparison.OrdinalIgnoreCase)
+                          || value.Equals("high", StringComparison.OrdinalIgnoreCase)
+                          || value.Equals("xhigh", StringComparison.OrdinalIgnoreCase));
 }

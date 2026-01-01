@@ -34,11 +34,16 @@ internal sealed class AiSettings
     public bool Enabled { get; set; } = true;
     public string Provider { get; set; } = "openai"; // openai|http|none
     public string ApiKeyEnv { get; set; } = "OPENAI_API_KEY";
-    public string? Endpoint { get; set; }
     public string Model { get; set; } = "gpt-5.2-pro";
     public double Temperature { get; set; } = 0;
     public bool AllowSendScreenshotsToModel { get; set; } = false;
     public bool AllowSendAudioToModel { get; set; } = false;
+    public bool Store { get; set; } = false;
+    public string ReasoningEffort { get; set; } = "none";
+    public string? Endpoint { get; set; }
+    public int TimeoutSeconds { get; set; } = 60;
+    public int MaxOutputTokens { get; set; } = 1024;
+    public string? UserTag { get; set; }
     public string? AllowedTools { get; set; }
     public string? DeniedTools { get; set; }
 }

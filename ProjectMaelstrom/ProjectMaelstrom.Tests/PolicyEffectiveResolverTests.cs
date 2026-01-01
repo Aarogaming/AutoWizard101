@@ -150,6 +150,54 @@ deniedTools = raw.shell
         Assert.Empty(eval.ChangedFields);
     }
 
+    [Fact]
+    public void OptionalAiKeysAreRecognized()
+    {
+        var text = """
+[global]
+schemaVersion = 1
+activeProfile = catalog
+requireAllProfilesValid = true
+denyUnknownCapabilities = true
+denyUnknownKeys = false
+liveMeansLive = true
+safeWrites = outOnly
+
+[ethics]
+purpose = educational_research
+requireConsentForEnvironmentControl = true
+
+[profile catalog]
+mode = catalog
+[profile simulation]
+mode = simulation
+[profile live_advisory]
+mode = live
+autonomy = advisory
+[profile live_pilot]
+mode = live
+autonomy = pilot
+
+[ai]
+enabled = true
+provider = openai
+apiKeyEnv = OPENAI_API_KEY
+reasoningEffort = none
+store = false
+timeoutSeconds = 60
+maxOutputTokens = 1024
+userTag = test-user
+""";
+
+        var parsed = new PolicyParser().Parse(text);
+        var snapshot = PolicySnapshot.FromDocument(parsed.Document!);
+        var validation = new PolicyValidator().Validate(snapshot);
+
+        var allCodes = parsed.SortedDiagnostics().Concat(validation.Diagnostics).Select(d => d.Code).ToArray();
+        Assert.DoesNotContain("AASPOL011", allCodes);
+        Assert.False(validation.HasErrors);
+    }
+
     private static PolicySnapshot BuildSnapshot(string prohibit = "unauthorized_access", bool aiEnabled = false)
     {
         var doc = new PolicyDocument();
