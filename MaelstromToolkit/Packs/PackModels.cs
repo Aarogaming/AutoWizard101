@@ -17,6 +17,7 @@ internal sealed class PackScenario
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string Entry { get; set; } = string.Empty;
+    public List<string>? RequiredCapabilities { get; set; }
 }
 
 internal sealed class PackDiagnostic

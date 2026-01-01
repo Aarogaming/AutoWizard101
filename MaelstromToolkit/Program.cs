@@ -89,6 +89,8 @@ internal static class Program
                     return RunPacksValidate(root, options);
                 case "ai" when options.Subcommand == "status":
                     return RunAiStatus(root, options);
+                case "catalog" when options.Subcommand == "export":
+                    return RunCatalogExport(root, options);
                 case "ux" when options.Subcommand == "init":
                     var framework = options.Args.TryGetValue("framework", out var fw) ? fw : "winforms";
                     CopyTemplate(root, "UX_MAINTENANCE.md", options, summary, warnings);
@@ -184,6 +186,7 @@ internal static class Program
         Console.WriteLine("  maelstromtoolkit packs list --root ./packs --out ./out");
         Console.WriteLine("  maelstromtoolkit packs validate --root ./packs --out ./out");
         Console.WriteLine("  maelstromtoolkit ai status --out ./out [--file ./aas.policy.txt]");
+        Console.WriteLine("  maelstromtoolkit catalog export --packs ./packs --out ./out [--file ./aas.policy.txt]");
         Console.WriteLine("  maelstromtoolkit tags init --out ./out");
         Console.WriteLine("  maelstromtoolkit stewardship init --out ./out");
         Console.WriteLine("  maelstromtoolkit ux init --framework winforms --out ./out");
@@ -624,6 +627,142 @@ internal static class Program
         return sb.ToString();
     }
 
+    private static string BuildCatalogText(string policyPath, PolicyEffectiveResult effective, EvalSummary? evalSummary, PackListResult packs)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Policy");
+        sb.AppendLine($"Source: {effective.Source}");
+        sb.AppendLine($"File: {policyPath}");
+        sb.AppendLine($"Hash: {effective.Hash}");
+        sb.AppendLine($"ActiveProfile: {effective.ActiveProfile}");
+        sb.AppendLine($"ProfileMode: {effective.ProfileMode}");
+        sb.AppendLine($"OperatingMode: {effective.OperatingMode}");
+        sb.AppendLine($"LiveStatus: {effective.LiveStatus}");
+        sb.AppendLine($"LiveReasons: {(effective.Reasons.Count == 0 ? "none" : string.Join(",", effective.Reasons))}");
+        sb.AppendLine($"AI: enabled={(effective.Snapshot?.Ai.Enabled ?? false).ToString().ToLowerInvariant()} provider={effective.Snapshot?.Ai.Provider ?? "none"} model={effective.Snapshot?.Ai.Model ?? string.Empty} reasoningEffort={effective.Snapshot?.Ai.ReasoningEffort ?? string.Empty} temperature={(effective.Snapshot?.Ai.Temperature ?? 0).ToString(CultureInfo.InvariantCulture)} store={(effective.Snapshot?.Ai.Store ?? false).ToString().ToLowerInvariant()} endpoint={effective.Snapshot?.Ai.Endpoint ?? string.Empty} timeoutSeconds={(effective.Snapshot?.Ai.TimeoutSeconds ?? 0)} maxOutputTokens={(effective.Snapshot?.Ai.MaxOutputTokens ?? 0)} userTag={effective.Snapshot?.Ai.UserTag ?? string.Empty}");
+        sb.AppendLine($"Ethics: purpose={effective.Snapshot?.Ethics.Purpose ?? string.Empty} requireConsentForEnvironmentControl={(effective.Snapshot?.Ethics.RequireConsentForEnvironmentControl ?? false).ToString().ToLowerInvariant()} prohibit={effective.Snapshot?.Ethics.Prohibit ?? string.Empty} privacy.storeScreenshots={(effective.Snapshot?.Ethics.PrivacyStoreScreenshots ?? false).ToString().ToLowerInvariant()} privacy.storeAudio={(effective.Snapshot?.Ethics.PrivacyStoreAudio ?? false).ToString().ToLowerInvariant()}");
+        if (evalSummary != null)
+        {
+            var changed = evalSummary.ChangedFields.Count == 0 ? "none" : string.Join(",", evalSummary.ChangedFields);
+            var notes = evalSummary.Notes.Count == 0 ? "none" : string.Join(",", evalSummary.Notes);
+            sb.AppendLine($"Evaluation: riskLevel={evalSummary.RiskLevel} changedFields={changed} notes={notes}");
+        }
+        else
+        {
+            sb.AppendLine("Evaluation: none");
+        }
+
+        sb.AppendLine();
+        sb.AppendLine("Packs");
+        foreach (var pack in packs.Packs.OrderBy(p => p.Id, StringComparer.Ordinal))
+        {
+            foreach (var scen in pack.Scenarios.OrderBy(s => s.Id, StringComparer.Ordinal))
+            {
+                var caps = scen.RequiredCapabilities != null && scen.RequiredCapabilities.Count > 0
+                    ? string.Join(",", scen.RequiredCapabilities.OrderBy(c => c, StringComparer.Ordinal))
+                    : "none";
+                sb.AppendLine($"{pack.Id} | {scen.Id} | requiredCapabilities={caps}");
+            }
+        }
+        if (packs.Diagnostics.Count > 0)
+        {
+            sb.AppendLine("Diagnostics:");
+            foreach (var d in packs.Diagnostics)
+            {
+                sb.AppendLine($"{d.Code} | {d.Severity} | {d.PackId} | {d.ScenarioId} | {d.Message}");
+            }
+        }
+        return sb.ToString();
+    }
+
+    private static string BuildCatalogJson(string policyPath, PolicyEffectiveResult effective, EvalSummary? evalSummary, PackListResult packs)
+    {
+        var dto = new
+        {
+            policy = new
+            {
+                source = effective.Source,
+                file = policyPath,
+                hash = effective.Hash,
+                activeProfile = effective.ActiveProfile,
+                profileMode = effective.ProfileMode,
+                operatingMode = effective.OperatingMode,
+                liveStatus = effective.LiveStatus,
+                liveReasons = effective.Reasons.ToArray(),
+                ai = new
+                {
+                    enabled = effective.Snapshot?.Ai.Enabled ?? false,
+                    provider = effective.Snapshot?.Ai.Provider ?? "none",
+                    model = effective.Snapshot?.Ai.Model ?? string.Empty,
+                    reasoningEffort = effective.Snapshot?.Ai.ReasoningEffort ?? string.Empty,
+                    temperature = effective.Snapshot?.Ai.Temperature ?? 0,
+                    store = effective.Snapshot?.Ai.Store ?? false,
+                    endpoint = effective.Snapshot?.Ai.Endpoint ?? string.Empty,
+                    timeoutSeconds = effective.Snapshot?.Ai.TimeoutSeconds ?? 0,
+                    maxOutputTokens = effective.Snapshot?.Ai.MaxOutputTokens ?? 0,
+                    userTag = effective.Snapshot?.Ai.UserTag ?? string.Empty
+                },
+                ethics = new
+                {
+                    purpose = effective.Snapshot?.Ethics.Purpose ?? string.Empty,
+                    requireConsentForEnvironmentControl = effective.Snapshot?.Ethics.RequireConsentForEnvironmentControl ?? false,
+                    prohibit = effective.Snapshot?.Ethics.Prohibit ?? string.Empty,
+                    privacyStoreScreenshots = effective.Snapshot?.Ethics.PrivacyStoreScreenshots ?? false,
+                    privacyStoreAudio = effective.Snapshot?.Ethics.PrivacyStoreAudio ?? false
+                }
+            },
+            evaluation = evalSummary == null ? null : new
+            {
+                riskLevel = evalSummary.RiskLevel,
+                changedFields = evalSummary.ChangedFields.ToArray(),
+                notes = evalSummary.Notes.ToArray()
+            },
+            packs = packs.Packs
+                .OrderBy(p => p.Id, StringComparer.Ordinal)
+                .Select(p => new
+                {
+                    id = p.Id,
+                    name = p.Name,
+                    version = p.Version,
+                    scenarios = p.Scenarios
+                        .OrderBy(s => s.Id, StringComparer.Ordinal)
+                        .Select(s => new
+                        {
+                            id = s.Id,
+                            name = s.Name,
+                            requiredCapabilities = (s.RequiredCapabilities ?? new List<string>())
+                                .OrderBy(c => c, StringComparer.Ordinal)
+                                .ToArray()
+                        }).ToArray()
+                }).ToArray(),
+            diagnostics = packs.Diagnostics.ToArray()
+        };
+
+        return JsonSerializer.Serialize(dto, new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    private static EvalSummary? LoadEvalSummary(string evalPath)
+    {
+        if (!File.Exists(evalPath)) return null;
+        try
+        {
+            var doc = JsonDocument.Parse(File.ReadAllText(evalPath));
+            var root = doc.RootElement;
+            var risk = root.TryGetProperty("riskLevel", out var r) ? r.GetString() ?? "unknown" : "unknown";
+            var changed = root.TryGetProperty("changedFields", out var cf) && cf.ValueKind == JsonValueKind.Array
+                ? cf.EnumerateArray().Select(e => e.GetString() ?? string.Empty).Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s, StringComparer.Ordinal).ToList()
+                : new List<string>();
+            var notes = root.TryGetProperty("notes", out var nf) && nf.ValueKind == JsonValueKind.Array
+                ? nf.EnumerateArray().Select(e => e.GetString() ?? string.Empty).Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s, StringComparer.Ordinal).ToList()
+                : new List<string>();
+            return new EvalSummary(risk, changed, notes);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private static void WriteValidateFile(string outRoot, string policyPath, string hash, string activeProfile, string mode, string liveStatus, IReadOnlyList<PolicyDiagnostic> diagnostics, bool isValid)
     {
         var systemDir = Path.Combine(outRoot, "system");
@@ -825,6 +964,37 @@ internal static class Program
         return configValid ? 0 : 1;
     }
 
+    private static int RunCatalogExport(string root, CommandOptions options)
+    {
+        var packsRoot = options.Args.TryGetValue("packs", out var r) ? Path.GetFullPath(r) : Path.Combine(Directory.GetCurrentDirectory(), "packs");
+        var (policyPath, outRoot) = GetPolicyPaths(root, options);
+        if (!OutIsSafe(outRoot))
+        {
+            Console.Error.WriteLine("ERROR: --out must contain \"--out\" segment (safety guard).");
+            return 1;
+        }
+
+        var fileText = File.Exists(policyPath) ? File.ReadAllText(policyPath) : string.Empty;
+        var lkgPath = Path.Combine(outRoot, "system", "policy.lkg.txt");
+        var lkgText = File.Exists(lkgPath) ? File.ReadAllText(lkgPath) : null;
+        var resolver = new PolicyEffectiveResolver(DefaultPolicyText);
+        var effective = resolver.Resolve(fileText, lkgText);
+
+        var evalPath = Path.Combine(outRoot, "policy", "history", effective.Hash, "eval.json");
+        var evalSummary = LoadEvalSummary(evalPath);
+
+        var packService = new PackService();
+        var packs = packService.ListPacks(packsRoot);
+
+        var catalogDir = Path.Combine(outRoot, "catalog");
+        Directory.CreateDirectory(catalogDir);
+        WriteAtomic(Path.Combine(catalogDir, "catalog.txt"), BuildCatalogText(policyPath, effective, evalSummary, packs));
+        WriteAtomic(Path.Combine(catalogDir, "catalog.json"), BuildCatalogJson(policyPath, effective, evalSummary, packs));
+
+        Console.WriteLine($"Catalog export written to {catalogDir}");
+        return 0;
+    }
+
     private static string ComputeSha256(string text)
     {
         using var sha = SHA256.Create();
@@ -845,7 +1015,7 @@ internal static class Program
     }
 
     private static bool RequiresOut(string command) =>
-        command is "init" or "policy" or "tags" or "stewardship" or "ux" or "ci" or "handoff" or "packs" or "ai";
+        command is "init" or "policy" or "tags" or "stewardship" or "ux" or "ci" or "handoff" or "packs" or "ai" or "catalog";
 
     private static bool ValidateOut(string outPath, CommandOptions options)
     {
