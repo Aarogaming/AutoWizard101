@@ -8,6 +8,7 @@ using System.Threading;
 using MaelstromToolkit.Planning;
 using MaelstromToolkit.Packs;
 using MaelstromToolkit.Policy;
+using MaelstromToolkit.Handoff;
 
 namespace MaelstromToolkit;
 
@@ -86,6 +87,8 @@ internal static class Program
                     return RunPacksList(root, options);
                 case "packs" when options.Subcommand == "validate":
                     return RunPacksValidate(root, options);
+                case "ai" when options.Subcommand == "status":
+                    return RunAiStatus(root, options);
                 case "ux" when options.Subcommand == "init":
                     var framework = options.Args.TryGetValue("framework", out var fw) ? fw : "winforms";
                     CopyTemplate(root, "UX_MAINTENANCE.md", options, summary, warnings);
@@ -180,6 +183,7 @@ internal static class Program
         Console.WriteLine("  maelstromtoolkit policy watch --out ./out [--file ./aas.policy.txt]");
         Console.WriteLine("  maelstromtoolkit packs list --root ./packs --out ./out");
         Console.WriteLine("  maelstromtoolkit packs validate --root ./packs --out ./out");
+        Console.WriteLine("  maelstromtoolkit ai status --out ./out [--file ./aas.policy.txt]");
         Console.WriteLine("  maelstromtoolkit tags init --out ./out");
         Console.WriteLine("  maelstromtoolkit stewardship init --out ./out");
         Console.WriteLine("  maelstromtoolkit ux init --framework winforms --out ./out");
@@ -557,7 +561,7 @@ internal static class Program
             return 1;
         }
 
-        var prompt = BuildHandoffPrompt(outRoot);
+        var prompt = BuildHandoffPrompt(outRoot, new GitInfoProvider());
         var handoffDir = Path.Combine(outRoot, "handoff");
         Directory.CreateDirectory(handoffDir);
         var path = Path.Combine(handoffDir, "HANDOFF_PROMPT_CHATGPT_5_2_PRO.txt");
@@ -578,16 +582,18 @@ internal static class Program
         return 0;
     }
 
-    private static string BuildHandoffPrompt(string outRoot)
+    internal static string BuildHandoffPrompt(string outRoot, IGitInfoProvider gitInfo)
     {
         var repo = "Aarogaming/aaroneous-automation-suite";
-        var branch = TryGit("git", "rev-parse --abbrev-ref HEAD") ?? "unknown";
-        var commit = TryGit("git", "rev-parse HEAD") ?? "unknown";
+        var branch = gitInfo.Branch;
+        var commit = gitInfo.Commit;
+        var dirty = gitInfo.IsDirty ? "true" : "false";
         var sb = new StringBuilder();
         sb.AppendLine("COPYABLE HANDOFF PROMPT FOR CHATGPT 5.2 PRO");
         sb.AppendLine($"Repo: {repo}");
         sb.AppendLine($"Branch: {branch}");
         sb.AppendLine($"Latest commit: {commit}");
+        sb.AppendLine($"Dirty: {dirty}");
         sb.AppendLine();
         sb.AppendLine("Constraints:");
         sb.AppendLine("- Tooling/docs only; no ProjectMaelstrom runtime changes.");
@@ -616,34 +622,6 @@ internal static class Program
         sb.AppendLine();
         sb.AppendLine("Copy this prompt into ChatGPT 5.2 Pro after restart.");
         return sb.ToString();
-    }
-
-    private static string? TryGit(string fileName, string arguments)
-    {
-        try
-        {
-            var psi = new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = fileName,
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-            using var proc = System.Diagnostics.Process.Start(psi);
-            if (proc == null) return null;
-            proc.WaitForExit(2000);
-            if (proc.ExitCode == 0)
-            {
-                return proc.StandardOutput.ReadToEnd().Trim();
-            }
-        }
-        catch
-        {
-            // ignore
-        }
-        return null;
     }
 
     private static void WriteValidateFile(string outRoot, string policyPath, string hash, string activeProfile, string mode, string liveStatus, IReadOnlyList<PolicyDiagnostic> diagnostics, bool isValid)
@@ -769,6 +747,84 @@ internal static class Program
         WriteAtomic(path, json);
     }
 
+    private static int RunAiStatus(string root, CommandOptions options)
+    {
+        var (policyPath, outRoot) = GetPolicyPaths(root, options);
+        if (!OutIsSafe(outRoot))
+        {
+            Console.Error.WriteLine("ERROR: --out must contain \"--out\" segment (safety guard).");
+            return 1;
+        }
+
+        var fileText = File.Exists(policyPath) ? File.ReadAllText(policyPath) : string.Empty;
+        var lkgPath = Path.Combine(outRoot, "system", "policy.lkg.txt");
+        var lkgText = File.Exists(lkgPath) ? File.ReadAllText(lkgPath) : null;
+        var resolver = new PolicyEffectiveResolver(DefaultPolicyText);
+        var effective = resolver.Resolve(fileText, lkgText);
+        var ai = effective.Snapshot?.Ai ?? new AiSettings();
+
+        var reasons = new List<string>();
+        if (!ai.Enabled) reasons.Add("AASAI001");
+        var provider = ai.Provider ?? "none";
+        if (provider.Equals("none", StringComparison.OrdinalIgnoreCase)) reasons.Add("AASAI005");
+        if (provider.Equals("openai", StringComparison.OrdinalIgnoreCase))
+        {
+            if (string.IsNullOrWhiteSpace(ai.ApiKeyEnv)) reasons.Add("AASAI002");
+            var present = !string.IsNullOrWhiteSpace(ai.ApiKeyEnv) && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(ai.ApiKeyEnv));
+            if (!present) reasons.Add("AASAI003");
+        }
+        if (provider.Equals("http", StringComparison.OrdinalIgnoreCase))
+        {
+            if (string.IsNullOrWhiteSpace(ai.Endpoint)) reasons.Add("AASAI004");
+        }
+
+        var configValid = reasons.Count == 0;
+        reasons = reasons.OrderBy(r => r, StringComparer.Ordinal).ToList();
+        var apiPresent = !string.IsNullOrWhiteSpace(ai.ApiKeyEnv) && !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(ai.ApiKeyEnv));
+
+        var aiDir = Path.Combine(outRoot, "ai");
+        Directory.CreateDirectory(aiDir);
+        var statusText = new StringBuilder();
+        statusText.AppendLine($"provider={provider}");
+        statusText.AppendLine($"enabled={ai.Enabled.ToString().ToLowerInvariant()}");
+        statusText.AppendLine($"model={ai.Model}");
+        statusText.AppendLine($"reasoningEffort={ai.ReasoningEffort}");
+        statusText.AppendLine($"temperature={ai.Temperature.ToString(CultureInfo.InvariantCulture)}");
+        statusText.AppendLine($"store={ai.Store.ToString().ToLowerInvariant()}");
+        statusText.AppendLine($"apiKeyEnv={ai.ApiKeyEnv}");
+        statusText.AppendLine($"apiKeyPresent={apiPresent.ToString().ToLowerInvariant()}");
+        statusText.AppendLine($"endpoint={ai.Endpoint ?? string.Empty}");
+        statusText.AppendLine($"timeoutSeconds={ai.TimeoutSeconds}");
+        statusText.AppendLine($"maxOutputTokens={ai.MaxOutputTokens}");
+        statusText.AppendLine($"userTag={ai.UserTag ?? string.Empty}");
+        statusText.AppendLine($"configValidForProvider={configValid.ToString().ToLowerInvariant()}");
+        statusText.AppendLine($"reasons={(reasons.Count == 0 ? "none" : string.Join(",", reasons))}");
+        WriteAtomic(Path.Combine(aiDir, "status.txt"), statusText.ToString());
+
+        var statusJson = new
+        {
+            provider,
+            enabled = ai.Enabled,
+            model = ai.Model,
+            reasoningEffort = ai.ReasoningEffort,
+            temperature = ai.Temperature,
+            store = ai.Store,
+            apiKeyEnv = ai.ApiKeyEnv,
+            apiKeyPresent = apiPresent,
+            endpoint = ai.Endpoint,
+            timeoutSeconds = ai.TimeoutSeconds,
+            maxOutputTokens = ai.MaxOutputTokens,
+            userTag = ai.UserTag,
+            configValidForProvider = configValid,
+            reasons = reasons.ToArray()
+        };
+        var json = JsonSerializer.Serialize(statusJson, new JsonSerializerOptions { WriteIndented = true });
+        WriteAtomic(Path.Combine(aiDir, "status.json"), json);
+
+        Console.WriteLine($"AI status: provider={provider} enabled={ai.Enabled.ToString().ToLowerInvariant()} configValid={configValid.ToString().ToLowerInvariant()} reasons={(reasons.Count == 0 ? "none" : string.Join(",", reasons))}");
+        return configValid ? 0 : 1;
+    }
+
     private static string ComputeSha256(string text)
     {
         using var sha = SHA256.Create();
@@ -789,7 +845,7 @@ internal static class Program
     }
 
     private static bool RequiresOut(string command) =>
-        command is "init" or "policy" or "tags" or "stewardship" or "ux" or "ci" or "handoff" or "packs";
+        command is "init" or "policy" or "tags" or "stewardship" or "ux" or "ci" or "handoff" or "packs" or "ai";
 
     private static bool ValidateOut(string outPath, CommandOptions options)
     {

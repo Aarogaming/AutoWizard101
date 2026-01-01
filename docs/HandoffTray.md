@@ -14,3 +14,4 @@
 - Keep continuity docs current: `docs/ROADMAP.md`, `docs/GOALS.md`, `docs/COOPERATIVE_EVALUATION.md`, `docs/POLICY_TXT_SPEC.md`.
 - Handoff artifacts live under `artifacts/handoff/**` (ignored by git).
 - Relevant scripts: `scripts/handoff_from_codex.ps1`, `scripts/handoff_to_codex.ps1`, `scripts/coop_loop.ps1`.
+- Latest commit/branch in generated prompts: prefers `GITHUB_SHA`, otherwise `git rev-parse`; dirty flag via `git status --porcelain`.
