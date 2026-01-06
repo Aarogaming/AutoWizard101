@@ -1,0 +1,24 @@
+# Build outputs
+bin/
+obj/
+dist/
+publish/
+artifacts/
+
+# IDE
+.vscode/
+.vs/
+*.user
+*.suo
+*.swp
+*.swo
+*.tmp
+*.log
+
+# Python/Node envs
+.venv/
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
