@@ -4,6 +4,7 @@ obj/
 dist/
 publish/
 artifacts/
+MaelstromBot.Server/artifacts/
 
 # IDE
 .vscode/
