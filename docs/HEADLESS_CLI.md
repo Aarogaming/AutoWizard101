@@ -347,3 +347,28 @@ These commands are bounded integration checks, not a qualified unattended Switch
 All currently use the existing explicit target identity, workspace, data root, new output path, `--enable-client-observation --enable-ui-tree --enable-module-actions` admission. Inspect/roster/enter/home additionally require `--selection <wizard-profile.json>`. Use `--stop-file` for cancellation. Action stages display the countdown and stop on takeover. Frame-only capture has no countdown because it sends no input. Qualification commands do not enable the deck card or install a build.
 
 See [the evidence and remaining gates](coordination/results/W101-CHARACTER-26.md). Level is mutable profile data; matching name plus school distinguishes the observed same-name wizards. House layout and routes remain per-wizard and explicitly unqualified until taught.
+
+
+### Guided house segments and Idle-only activation (source)
+
+`idle-cycle --cycle-mode idle --activate-when-quiet true` reuses the navigation
+quiet-window foreground admission and countdown. Default activation remains off;
+user takeover still stops input. This permits recovery without moving first.
+
+`navigation-visit --key W --pulse-ms 1..3000 --assisted-hold true --include-pose-context`
+is an explicitly guided forward segment. Turns and ordinary pulses remain capped
+at 300 ms. Key release and takeover checks remain active throughout the hold.
+After release, assisted segments sample the reviewed loading flag serially under
+the same owner, for at most 24 reads / 20 seconds, requiring two clear samples.
+The overall visit is capped at 125 seconds. No movement is replayed while waiting.
+A loading transition is saved as `navigation-transition.json`; it does not by
+itself verify which destination was reached. Very short loading events that finish
+before the first sample can be missed. Endpoint displacement across a transition
+must not be interpreted as travel speed or a continuous coordinate segment.
+
+Auto-mapping direction: retain wizard/house-specific landmark nodes and directed
+entrance edges backed by before/after area observations, loading evidence, poses,
+images and traversal outcomes. Observed edges remain candidates until destination
+identity is verified; a return edge needs its own traversal. Repeated runs can
+refine travel time, approach radius and obstruction rates without a large model.
+Current guided snapshots are evidence collection, not an autonomous map builder.

@@ -1851,6 +1851,36 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/LoadingTransitionGateTests.cs"
       ],
       "notes": "2425 native/59 reader tests; formatting/analyzers pass. Selection and loaded Fire106 evidence live; home was user-assisted; Idle independently observed. CLI qualification stages, profiles/loading gate source only; single-call deck/house qualification remains pending."
+    },
+    {
+      "task_id": "W101-CHARACTER-27",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterSwitch.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CharacterSwitchTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CharacterSwitchTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/coordination/results/W101-CHARACTER-27.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationProbe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationInputTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycleOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationTransition.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationTransitionTests.cs"
+      ],
+      "notes": "Panel/HUD repair and single-owner switching orchestration; bounded live authorized."
     }
   ]
 }

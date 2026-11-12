@@ -6,6 +6,27 @@ namespace ProjectMaelstrom.Tests;
 public sealed class MaelstromCliTests : IDisposable
 {
     [Fact]
+    public void LoadingWalkNeedsExplicitMeasuredForwardVisit()
+    {
+        var args = CheckArgs(); args[1] = "navigation-visit";
+        args = [.. args, "--enable-ui-tree", "--enable-module-actions", "--key", "W", "--pulse-ms", "15000", "--include-pose-context", "--assisted-hold", "true"];
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse(args, _root));
+        Assert.True(MaelstromCli.Parse([.. args, "--walk-until-loading", "true"], _root).WalkUntilLoading);
+        args[Array.IndexOf(args, "W")] = "A";
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args, "--walk-until-loading", "true"], _root));
+    }
+
+    [Fact]
+    public void IdleOnlyRecoveryCanOptIntoQuietActivation()
+    {
+        var args = CheckArgs(); args[1] = "idle-cycle";
+        args = [.. args, "--enable-ui-tree", "--enable-module-actions", "--cycle-mode", "idle"];
+        Assert.False(MaelstromCli.Parse(args, _root).VisitPolicy?.ActivateWhenQuiet ?? false);
+        Assert.True(MaelstromCli.Parse([.. args, "--activate-when-quiet", "true"], _root).VisitPolicy!.ActivateWhenQuiet);
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. CheckArgs(), "--activate-when-quiet", "true"], _root));
+    }
+
+    [Fact]
     public void NearbyWaypointNeedsMeasuredForwardVisitAndBoundedDistance()
     {
         var args = CheckArgs(); args[1] = "navigation-visit";

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "adapter": "w101-ui-tree-v1",
-  "workerSha256": "34eb86741a91471a7572773b4f2ee47c6a82cea1150c3e2b055101da76523c6f",
+  "workerSha256": "d23dd3cb2c16a1c7d0191fe9e3a939edd87c081e816911fc4893bd55b6a528c1",
   "commonHelperSha256": "70f38c0f875bce43d78f2b94e7933cf27a9051eaadad2a73f7743a3dd23f2d19",
   "sourceSha256": "99f0eec7e15da862893bcf6aa3d89c3d1538c0a022c04f198d490cf383cdb2d1",
   "scope": "Image-pinned RootWindowHook with verified restoration; optional bounded source-layout combat and read-only duel candidates, no input or automatic live qualification; timestamps preserve acquisition start. Optional serialized PlayerHook candidate after root restoration; preserved RCX/flags; five-byte entry; no coordinate writes or movement authority.",

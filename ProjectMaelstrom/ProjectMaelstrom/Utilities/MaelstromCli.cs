@@ -6,7 +6,7 @@ namespace ProjectMaelstrom.Utilities;
 internal sealed record MaelstromCliOptions(string Command, string Output, string DataRoot,
     string? Workspace = null, long Handle = 0, int ProcessId = 0, long StartedUtcTicks = 0, string? StopFile = null, int DurationSeconds = 15,
     bool IncludeQuestContext = false, string? SelectionPath = null, bool QuestActions = false, bool IncludeCombatContext = false,
-    bool ModuleActions = false, string? NavigationKey = null, int PulseMs = 0, string CycleMode = "round-trip", W101VisitPolicy? VisitPolicy = null, bool IncludePoseContext = false, int WaypointDistance = 0, bool FeedbackWaypoint = false);
+    bool ModuleActions = false, string? NavigationKey = null, int PulseMs = 0, string CycleMode = "round-trip", W101VisitPolicy? VisitPolicy = null, bool IncludePoseContext = false, int WaypointDistance = 0, bool FeedbackWaypoint = false, bool AssistedHold = false, bool WalkUntilLoading = false);
 internal sealed record MaelstromCliRuntime(Func<IReadOnlyList<GameWindow>> Windows,
     Func<MaelstromCliOptions, CancellationToken, Task<OperationReceipt>> Check);
 
@@ -63,7 +63,7 @@ internal static class MaelstromCli
                 if (enabled) throw new ArgumentException("Duplicate opt-in.");
                 enabled = true; continue;
             }
-            if (name is not ("--output" or "--data-root" or "--workspace" or "--window" or "--process-id" or "--started-utc-ticks" or "--stop-file" or "--duration-seconds" or "--selection" or "--key" or "--pulse-ms" or "--cycle-mode" or "--idle-retries" or "--resume-after-quiet" or "--quiet-seconds" or "--waypoint-distance" or "--activate-when-quiet" or "--feedback-waypoint") ||
+            if (name is not ("--output" or "--data-root" or "--workspace" or "--window" or "--process-id" or "--started-utc-ticks" or "--stop-file" or "--duration-seconds" or "--selection" or "--key" or "--pulse-ms" or "--cycle-mode" or "--idle-retries" or "--resume-after-quiet" or "--quiet-seconds" or "--waypoint-distance" or "--activate-when-quiet" or "--feedback-waypoint" or "--assisted-hold" or "--walk-until-loading") ||
                 i + 1 >= args.Length || args[i + 1].StartsWith("--", StringComparison.Ordinal) || !values.TryAdd(name, args[++i]))
                 throw new ArgumentException("Unknown, duplicate or incomplete command option.");
         }
@@ -82,12 +82,18 @@ internal static class MaelstromCli
             throw new ArgumentException("UI-tree and selected conversation commands require --enable-ui-tree.");
         if ((command is "character-home" or "character-frame" or "character-verify" or "character-enter" or "character-roster" or "character-inspect" or "idle-cycle" or "navigation-probe" or "navigation-visit") != moduleActions)
             throw new ArgumentException("Only idle-cycle, navigation-probe and navigation-visit require and accept --enable-module-actions.");
+        var walkUntilLoading = values.ContainsKey("--walk-until-loading");
+        if (walkUntilLoading && (command != "navigation-visit" || values["--walk-until-loading"] != "true" || !values.ContainsKey("--assisted-hold")))
+            throw new ArgumentException("Loading walk requires an explicitly assisted navigation visit.");
+        var assistedHold = values.ContainsKey("--assisted-hold");
+        if (assistedHold && (command != "navigation-visit" || values["--assisted-hold"] != "true" || !poseContext))
+            throw new ArgumentException("Assisted holds require navigation-visit, pose measurement and --assisted-hold true.");
         string? navigationKey = null; int pulseMs = 0;
         if (command is "navigation-probe" or "navigation-visit")
         {
             navigationKey = Required("--key");
             if (navigationKey is not ("W" or "A" or "D") ||
-                !int.TryParse(Required("--pulse-ms"), NumberStyles.None, CultureInfo.InvariantCulture, out pulseMs) || pulseMs is < 1 or > 300)
+                !int.TryParse(Required("--pulse-ms"), NumberStyles.None, CultureInfo.InvariantCulture, out pulseMs) || pulseMs < 1 || pulseMs > (walkUntilLoading ? 15000 : assistedHold ? 3000 : 300) || assistedHold && navigationKey != "W")
                 throw new ArgumentException("Navigation teaching requires W, A or D and a 1â€“300 millisecond pulse.");
         }
         else if (values.ContainsKey("--key") || values.ContainsKey("--pulse-ms"))
@@ -138,8 +144,8 @@ internal static class MaelstromCli
             throw new ArgumentException("Selection, output and stop paths must be distinct.");
         if (values.TryGetValue("--activate-when-quiet", out var activateText))
         {
-            if (command != "navigation-visit" || activateText is not ("true" or "false"))
-                throw new ArgumentException("Only navigation-visit accepts --activate-when-quiet true|false.");
+            if (command is not ("navigation-visit" or "idle-cycle") || activateText is not ("true" or "false"))
+                throw new ArgumentException("Only navigation-visit and idle-cycle accept --activate-when-quiet true|false.");
             visitPolicy = (visitPolicy ?? new()) with { ActivateWhenQuiet = activateText == "true" };
         }
         var waypointDistance = 0;
@@ -158,7 +164,7 @@ internal static class MaelstromCli
             if (feedbackWaypoint && (waypointDistance == 0 || pulseMs is < 20 or > 100))
                 throw new ArgumentException("Feedback requires a measured waypoint and maximum pulse of 20-100 ms.");
         }
-        return new(command, output, root, workspace, handle, pid, ticks, stop, duration, questContext, selection, questActions, combatContext, moduleActions, navigationKey, pulseMs, cycleMode, visitPolicy, poseContext, waypointDistance, feedbackWaypoint);
+        return new(command, output, root, workspace, handle, pid, ticks, stop, duration, questContext, selection, questActions, combatContext, moduleActions, navigationKey, pulseMs, cycleMode, visitPolicy, poseContext, waypointDistance, feedbackWaypoint, assistedHold, walkUntilLoading);
     }
 
     internal static async Task<int> RunAsync(string[] args, TextWriter error, CancellationToken token = default,
@@ -255,8 +261,8 @@ internal static class MaelstromCli
                 "character-enter" => W101CharacterOperation.PrepareRoster(new(target, true), moduleLaunch, options.ModuleActions, options.SelectionPath!, true),
                 "character-roster" => W101CharacterOperation.PrepareRoster(new(target, true), moduleLaunch, options.ModuleActions, options.SelectionPath!),
                 "character-inspect" => W101CharacterOperation.Prepare(new(target, true), moduleLaunch, options.ModuleActions, options.SelectionPath!),
-                "idle-cycle" => W101IdleCycleOperation.Prepare(new(target, true), moduleLaunch, options.ModuleActions, mode: options.CycleMode),
-                "navigation-visit" => W101NavigationVisit.Prepare(new(target, true), moduleLaunch, options.ModuleActions, options.NavigationKey!, options.PulseMs, policy: options.VisitPolicy, measurePose: options.IncludePoseContext, waypointDistance: options.WaypointDistance, feedbackWaypoint: options.FeedbackWaypoint),
+                "idle-cycle" => W101IdleCycleOperation.Prepare(new(target, true), moduleLaunch, options.ModuleActions, mode: options.CycleMode, activateWhenQuiet: options.VisitPolicy?.ActivateWhenQuiet == true),
+                "navigation-visit" => W101NavigationVisit.Prepare(new(target, true), moduleLaunch, options.ModuleActions, options.NavigationKey!, options.PulseMs, policy: options.VisitPolicy, measurePose: options.IncludePoseContext, waypointDistance: options.WaypointDistance, feedbackWaypoint: options.FeedbackWaypoint, assistedHold: options.AssistedHold, walkUntilLoading: options.WalkUntilLoading),
                 _ => W101NavigationProbe.Prepare(new(target, true), moduleLaunch, options.ModuleActions, options.NavigationKey!, options.PulseMs)
             };
             var cycle = scheduler.Submit(prepared.Request, prepared.Execute);

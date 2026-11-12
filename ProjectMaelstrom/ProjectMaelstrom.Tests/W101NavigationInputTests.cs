@@ -4,6 +4,25 @@ namespace ProjectMaelstrom.Tests;
 
 public sealed class W101NavigationInputTests : IDisposable
 {
+    [Fact]
+    public async Task AssistedHoldStillReleasesImmediatelyOnTakeover()
+    {
+        using var lease = GameInputLease.Acquire("test", _root);
+        using var owner = GameInputLease.EnterScope(lease);
+        var context = Context(lease);
+        context = context with { Request = context.Request with { Operation = W101NavigationVisit.Id } };
+        var proposal = Proposal(duration: 3000);
+        proposal = proposal with { Action = proposal.Action! with { ControlId = "w101.assisted-navigation" } };
+        var calls = new List<bool>(); var checks = 0;
+        var result = await W101NavigationInput.DispatchAsync(proposal, context, Target, () => true,
+            (_, up) => { calls.Add(up); return true; }, () => 1, default, () => ++checks < 3);
+        Assert.False(result.Accepted); Assert.True(result.InputReleased);
+        Assert.Equal(new[] { false, true }, calls);
+        calls.Clear();
+        await W101NavigationInput.DispatchAsync(proposal, Context(lease), Target, () => true,
+            (_, up) => { calls.Add(up); return true; }, () => 1, default);
+        Assert.Empty(calls);
+    }
     private const string Target = "pid-123-start-456";
     private readonly string _root = Path.Combine(Path.GetTempPath(), "navigation-input-" + Guid.NewGuid().ToString("N"));
     private static ModuleDecision Proposal(string key = "W", int duration = 20)

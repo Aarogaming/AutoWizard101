@@ -40,7 +40,7 @@ internal static class W101UiTreeOperation
     internal const string Id = "w101.ui-tree-observe";
     internal const string Version = "w101-ui-tree-v1";
     internal const int MaximumResultBytes = 262144;
-    internal const string WorkerSha256 = "34eb86741a91471a7572773b4f2ee47c6a82cea1150c3e2b055101da76523c6f";
+    internal const string WorkerSha256 = "d23dd3cb2c16a1c7d0191fe9e3a939edd87c081e816911fc4893bd55b6a528c1";
     internal const string PoseReaderSha256 = "a6c9957f9aa209f6a14f1c24df0ca81e6035e7d400037416427f1ccc45baab77";
     private static readonly string[] StateNames = ["interactionPrompt", "dialogue", "menu", "nativeIdle"];
     private static readonly W101UiTreeRuntime Runtime = new(target => target.IsCurrent(), (launch, request, context, token) =>

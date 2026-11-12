@@ -16,7 +16,7 @@ internal static class W101NavigationProbe
     internal const string Version = "w101-navigation-probe-v1";
 
     internal static PreparedDeckJob Prepare(WizwalkerSession session, WizwalkerLaunch launch, bool enabled,
-        string key, int durationMs, W101NavigationProbeRuntime? runtime = null, WizwalkerRuntime? validation = null)
+        string key, int durationMs, W101NavigationProbeRuntime? runtime = null, WizwalkerRuntime? validation = null, bool assistedHold = false)
     {
         if (!enabled) throw new InvalidOperationException("Enable this explicitly selected teaching pulse.");
         var actionId = key switch
@@ -24,7 +24,7 @@ internal static class W101NavigationProbe
             "W" => "game.move-forward", "A" => "game.turn-left", "D" => "game.turn-right",
             _ => throw new InvalidDataException("Choose W, A or D for one teaching pulse.")
         };
-        if (durationMs is < 1 or > 300) throw new InvalidDataException("Teaching pulses must last 1–300 ms.");
+        if (durationMs < 1 || durationMs > (assistedHold && key == "W" ? 3000 : 300)) throw new InvalidDataException("Teaching pulses must last 1–300 ms.");
         var helper = Path.Combine(Path.GetDirectoryName(launch.Worker)!, "wizwalker_adapter.py");
         if (validation is null && !GameExperiments.Digest(helper).Equals(WizwalkerOperation.WorkerSha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Reviewed UI helper changed.");
@@ -51,8 +51,40 @@ internal static class W101NavigationProbe
     {
             return new W101NavigationProbeRuntime(scope.Ready, geometry,
                 (owner, index, binding, cancellation) => W101ModuleObserver.ReadAsync(owner, target, launch, index, binding, geometry, scope.Ready, cancellation, recognize: false),
-                (owner, proposal, ready, cancellation) => W101NavigationInput.DispatchAsync(proposal, owner, owner.Request.Target, ready,
-                    (pressed, release) => W101NavigationInput.Send(target, pressed, release), FrameTimeline.TimestampMs, cancellation, scope.Ready),
+                async (owner, proposal, ready, cancellation) =>
+                {
+                    var untilLoading = proposal.Action?.ControlId == "w101.walk-until-loading";
+                    var assisted = proposal.Action?.ControlId == "w101.assisted-navigation" || untilLoading;
+                    var index = 0;
+                    var loadingLaunch = launch with { Worker = Path.Combine(Path.GetDirectoryName(launch.Worker)!, "wizwalker_adapter.py") };
+                    async Task<bool?> ReadLoading(CancellationToken ct)
+                    {
+                        var directory = Path.Combine(owner.Directory, "transition-" + (index++).ToString("D2"));
+                        Directory.CreateDirectory(directory);
+                        var outcome = await WizwalkerOperation.ReadOwnedAsync(owner with { Directory = directory }, target, loadingLaunch, null, ct).ConfigureAwait(false);
+                        if (outcome.State != OperationState.Completed) return null;
+                        var result = System.Text.Json.JsonSerializer.Deserialize<WizwalkerResult>(GameExperiments.BoundedBytes(Path.Combine(directory, "adapter-result.json"), 16384));
+                        return result?.Loading;
+                    }
+                    Task<RoutineReceipt> Move(Func<bool> continuing) => W101NavigationInput.DispatchAsync(proposal, owner, owner.Request.Target, ready,
+                        (pressed, release) => W101NavigationInput.Send(target, pressed, release), FrameTimeline.TimestampMs, cancellation, continuing);
+                    W101NavigationTransition.WalkResult? walk = null;
+                    RoutineReceipt receipt;
+                    if (untilLoading)
+                    {
+                        walk = await W101NavigationTransition.WalkAsync(ReadLoading, Move, scope.Ready, FrameTimeline.TimestampMs, cancellation).ConfigureAwait(false);
+                        receipt = walk.Receipt;
+                        GameExperiments.WriteAtomic(Path.Combine(owner.Directory, "loading-walk.json"), walk);
+                        if (!walk.SawLoading || !receipt.InputReleased || !scope.Ready()) return receipt with { Accepted = false };
+                    }
+                    else receipt = await Move(scope.Ready).ConfigureAwait(false);
+                    if ((!untilLoading && !receipt.Accepted) || !receipt.InputReleased || !assisted) return receipt;
+                    var transition = await W101NavigationTransition.WaitAsync(ReadLoading, scope.Ready, FrameTimeline.TimestampMs, cancellation).ConfigureAwait(false);
+                    if (walk?.SawLoading == true) transition = transition with { SawLoading = true };
+                    GameExperiments.WriteAtomic(Path.Combine(owner.Directory, "navigation-transition.json"), transition);
+                    return receipt with { Accepted = transition.Ready };
+
+                },
                 FrameTimeline.TimestampMs, () => DateTime.UtcNow.Ticks);
     }
 
@@ -94,7 +126,7 @@ internal static class W101NavigationProbe
         var state = OperationState.Failed; var reason = "unqualified-before-observation";
         bool Ready() => !token.IsCancellationRequested && context.Input is { CanDispatch: true } &&
             ReferenceEquals(context.Input, GameInputLease.Current) && runtime.Ready() &&
-            double.IsFinite(runtime.Clock()) && runtime.Clock() >= started && runtime.Clock() - started < 26000;
+            double.IsFinite(runtime.Clock()) && runtime.Clock() >= started && runtime.Clock() - started < (action.ControlId is "w101.assisted-navigation" or "w101.walk-until-loading" ? 60000 : 26000);
         bool Clean(W101ModuleObservation sample)
         {
             if (sample.Sample.Reading.CleanupConfirmed && sample.Sample.Reading.HookRestored) return true;

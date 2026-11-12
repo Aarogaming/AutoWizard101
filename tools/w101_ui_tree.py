@@ -619,8 +619,19 @@ async def snapshot(
             p[: len(path)] == path for p in QUEST_PATHS
         )
         inside_quest_branch = ancestors[:3] in (QUEST_OBJECTIVE[:3], QUEST_DIALOGUE[:3])
-        if (name in STRUCTURAL_LEAVES and not quest_branch) or (
-            inside_quest_branch and not quest_branch
+        hud_root = (current_layout or archived_profile) and path == (
+            "Root",
+            "WorldView",
+            "windowHUD",
+        )
+        hud_child = ancestors == ("Root", "WorldView", "windowHUD")
+        if (
+            (name in STRUCTURAL_LEAVES and not quest_branch and not hud_root)
+            or (
+                (hud_child or ancestors == ("Root", "WorldView", "DeckConfiguration"))
+                and not quest_branch
+            )
+            or (inside_quest_branch and not quest_branch)
         ):
             # Retain the control itself for path matching; its decorative/content
             # descendants cannot establish any of this observer's four states.

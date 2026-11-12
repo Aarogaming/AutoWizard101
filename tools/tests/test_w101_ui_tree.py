@@ -578,6 +578,25 @@ class InteractionTitleTests(unittest.IsolatedAsyncioTestCase):
 
 
 class TreeTests(unittest.IsolatedAsyncioTestCase):
+    async def test_shallow_house_controls_and_character_panel_remain_bounded(self):
+        m = Memory()
+        hidden = m.node("unneeded", text="must not read")
+        home = m.node("OpenObjectPlacement", [hidden])
+        deck = m.node(
+            "DeckConfiguration",
+            [m.node("StatsPage", [m.node("card") for _ in range(400)])],
+        )
+        root = m.node(
+            "Root", [m.node("WorldView", [m.node("windowHUD", [home]), deck])]
+        )
+        tree = await ui.snapshot(m.read, root, archived_profile=True)
+        names = [n["name"] for n in tree["nodes"]]
+        self.assertIn("OpenObjectPlacement", names)
+        self.assertIn("DeckConfiguration", names)
+        self.assertNotIn("unneeded", names)
+        self.assertNotIn("card", names)
+        self.assertTrue(tree["complete"])
+
     async def test_selection_banner_text_is_path_scoped(self):
         m, _, name, _, _, _ = quest_memory(dialogue="Luke SkyWalker")
         m.put(name + 80, b"txtName")

@@ -19,8 +19,11 @@ internal static class W101NavigationVisit
 
     internal static PreparedDeckJob Prepare(WizwalkerSession session, WizwalkerLaunch launch, bool enabled,
         string key, int durationMs, W101NavigationVisitRuntime? runtime = null, WizwalkerRuntime? validation = null, W101VisitPolicy? policy = null,
-        bool measurePose = false, int waypointDistance = 0, bool feedbackWaypoint = false)
+        bool measurePose = false, int waypointDistance = 0, bool feedbackWaypoint = false, bool assistedHold = false, bool walkUntilLoading = false)
     {
+        if (walkUntilLoading && !assistedHold) throw new InvalidDataException("Loading walk requires assisted measured movement.");
+        if (assistedHold && (!measurePose || key != "W" || waypointDistance != 0 || feedbackWaypoint || durationMs < 1 || durationMs > (walkUntilLoading ? 15000 : 3000)))
+            throw new InvalidDataException("Assisted holds require a measured forward visit, maximum three seconds, without feedback replay.");
         policy ??= new();
         policy.Validate();
         if (feedbackWaypoint && (!measurePose || waypointDistance is < 20 or > 100 || key != "W" || durationMs is < 20 or > 100))
@@ -29,8 +32,8 @@ internal static class W101NavigationVisit
             throw new InvalidDataException("Waypoint trials require measured forward movement and a 20â€“100 unit target.");
         // Reuse exactly the same selection validation, reviewed hashes and pins.
         // Preparing does not execute or create another scheduler/control owner.
-        var admitted = W101NavigationProbe.Prepare(session, launch, enabled, key, durationMs, validation: validation).Request;
-        var request = admitted with { Operation = Id, Version = Version, TimeoutSeconds = feedbackWaypoint ? 125 : 85 };
+        var admitted = W101NavigationProbe.Prepare(session, launch, enabled, key, Math.Min(durationMs, 3000), validation: validation, assistedHold: assistedHold).Request;
+        var request = admitted with { Operation = Id, Version = Version, TimeoutSeconds = feedbackWaypoint || assistedHold ? 125 : 85 };
         if (measurePose)
         {
             var pins = request.Pins.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -43,7 +46,7 @@ internal static class W101NavigationVisit
             request = request with { Pins = pins };
         }
         var actionId = key switch { "W" => "game.move-forward", "A" => "game.turn-left", _ => "game.turn-right" };
-        var action = new ModuleAction(actionId, "keyboard-pulse", key, durationMs, "w101.navigation");
+        var action = new ModuleAction(actionId, "keyboard-pulse", key, durationMs, walkUntilLoading ? "w101.walk-until-loading" : assistedHold ? "w101.assisted-navigation" : "w101.navigation");
         return new(request, async (context, token) =>
         {
             if (runtime is not null) return await RunOwnedAsync(context, runtime, policy, token).ConfigureAwait(false);
@@ -59,7 +62,7 @@ internal static class W101NavigationVisit
                     ct => W101NavigationProbe.RunOwnedAsync(owner, target, action, pulse, ct), cancellation, waypointDistance) :
                     W101NavigationProbe.RunOwnedAsync(owner, target, action, pulse, cancellation),
                 scope.ResumeAfterQuietAsync);
-            return await RunOwnedAsync(context, live, policy, token, feedbackWaypoint ? 60 : measurePose ? 24 : 12).ConfigureAwait(false);
+            return await RunOwnedAsync(context, live, policy, token, feedbackWaypoint || assistedHold ? 60 : measurePose ? 24 : 12).ConfigureAwait(false);
         });
     }
 
@@ -88,13 +91,15 @@ internal static class W101NavigationVisit
         var after = await read(25, token).ConfigureAwait(false);
         var valid = Usable(after) && before.Target == after.Target &&
             after.PoseCandidate!.ObservedUtcTicks > before.PoseCandidate!.ObservedUtcTicks;
+        var transitionPath = Path.Combine(context.Directory, "navigation-transition.json");
+        var crossed = File.Exists(transitionPath) && System.Text.Json.JsonSerializer.Deserialize<W101NavigationTransition.Result>(GameExperiments.BoundedBytes(transitionPath, 16384), new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })?.SawLoading == true;
         var a = before.PoseCandidate!.Position!; var b = after.PoseCandidate?.Position;
-        double? distance = valid ? Math.Sqrt(Math.Pow(b!.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2)) : null;
+        double? distance = valid && !crossed ? Math.Sqrt(Math.Pow(b!.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2)) : null;
         double? remaining = valid && waypoint is not null ? Math.Sqrt(Math.Pow(b!.X - waypoint.X, 2) + Math.Pow(b.Y - waypoint.Y, 2)) : null;
         var arrived = remaining is <= 10;
         var report = Path.Combine(context.Directory, "movement-measurement.json");
         GameExperiments.WriteAtomic(report, new { before = before.PoseCandidate, after = after.PoseCandidate,
-            measurementsValid = valid, planarDistance = distance, waypoint, distanceToWaypoint = remaining,
+            measurementsValid = valid, coordinateSpaceChanged = crossed, planarDistance = distance, waypoint, distanceToWaypoint = remaining,
             waypointCandidateReached = arrived, arrivalVerified = false, routeQualified = false });
         return new(valid && (waypoint is null || arrived) ? outcome.State : OperationState.Failed,
             !valid ? "movement-end-pose-unavailable" : waypoint is null ? "movement-measured-arrival-not-inferred" :

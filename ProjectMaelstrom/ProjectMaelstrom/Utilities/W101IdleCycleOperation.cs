@@ -15,7 +15,7 @@ internal static class W101IdleCycleOperation
     internal const string Version = "w101-idle-cycle-v1";
 
     internal static PreparedDeckJob Prepare(WizwalkerSession session, WizwalkerLaunch launch, bool enabled,
-        W101IdleCycleRuntime? runtime = null, WizwalkerRuntime? validation = null, string mode = "round-trip")
+        W101IdleCycleRuntime? runtime = null, WizwalkerRuntime? validation = null, string mode = "round-trip", bool activateWhenQuiet = false)
     {
         if (!enabled) throw new InvalidOperationException("Enable this bounded module action check explicitly.");
         _ = W101IdleCycle.Graph(mode);
@@ -31,7 +31,7 @@ internal static class W101IdleCycleOperation
         {
             if (runtime != null) return await RunOwnedAsync(context, session.Target, runtime, token, mode).ConfigureAwait(false);
             var target = session.Target;
-            await using var scope = await W101ControlScope.CreateAsync(context, target.Window, GameWindows.ClientSize(target.Window), token).ConfigureAwait(false);
+            await using var scope = await W101ControlScope.CreateAsync(context, target.Window, GameWindows.ClientSize(target.Window), token, activateWhenQuiet).ConfigureAwait(false);
             var geometry = WindowObserver.GetCaptureSize(target.Window);
             var live = CreateRuntime(target, launch, scope, geometry);
             return await RunOwnedAsync(context, target, live, token, mode).ConfigureAwait(false);

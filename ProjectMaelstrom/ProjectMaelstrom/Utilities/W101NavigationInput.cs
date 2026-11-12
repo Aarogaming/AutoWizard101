@@ -21,12 +21,14 @@ internal static class W101NavigationInput
         {
             "W" => "game.move-forward", "A" => "game.turn-left", "D" => "game.turn-right", _ => null
         };
+        var assisted = context.Request.Operation == W101NavigationVisit.Id && action?.Key == "W" && action.ControlId == "w101.assisted-navigation";
+        var untilLoading = context.Request.Operation == W101NavigationVisit.Id && action?.Key == "W" && action.ControlId == "w101.walk-until-loading";
         bool attempted = false, accepted = false, released = true;
         try
         {
             if (!proposal.IsProposal || proposal.Stopped || proposal.Completed || action is null || expected is null ||
                 action.ActionId != expected || proposal.ActionId != expected || action.Kind != "keyboard-pulse" ||
-                action.ControlId != "w101.navigation" || action.DurationMs is < 1 or > 300 || !Owned())
+                (!assisted && !untilLoading && action.ControlId != "w101.navigation") || action.DurationMs < 1 || action.DurationMs > (untilLoading ? 15000 : assisted ? 3000 : 300) || !Owned())
                 return new(proposal.ProposalId ?? "invalid", proposal.ActionId ?? "invalid", clock(), false, true);
             if (Owned())
             {
