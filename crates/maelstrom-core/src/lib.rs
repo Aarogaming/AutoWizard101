@@ -5,8 +5,6 @@
 
 extern crate alloc;
 
-use alloc::format;
-use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -225,7 +223,6 @@ impl Arbiter {
         } else {
             self.default_threshold
         };
-
         if confidence >= threshold {
             ArbiterDecision {
                 source: ControlSource::ReflexModel { confidence },
@@ -248,6 +245,7 @@ impl Arbiter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use uuid::Uuid;
 
     struct MockPolicy {
         confidence: f32,
@@ -272,8 +270,8 @@ mod tests {
         };
         let obs = ObservationFrame::default();
         let mut policy = MockPolicy { confidence: 0.92 };
-
-        let decision = arbiter.decide(
+        let decision = Arbiter::decide(
+            &arbiter,
             &intent,
             &obs,
             &mut policy,
@@ -282,7 +280,6 @@ mod tests {
                 step_index: 0,
             },
         );
-
         match decision.source {
             ControlSource::ReflexModel { confidence } => assert_eq!(confidence, 0.92),
             _ => panic!("Expected ReflexModel source"),
@@ -302,8 +299,8 @@ mod tests {
         };
         let obs = ObservationFrame::default();
         let mut policy = MockPolicy { confidence: 0.72 };
-
-        let decision = arbiter.decide(
+        let decision = Arbiter::decide(
+            &arbiter,
             &intent,
             &obs,
             &mut policy,
@@ -312,7 +309,6 @@ mod tests {
                 step_index: 0,
             },
         );
-
         match decision.source {
             ControlSource::MechanicalFallback { card_id, .. } => assert_eq!(card_id, intent.card_id),
             _ => panic!("Expected MechanicalFallback source"),
@@ -344,7 +340,6 @@ mod tests {
                 on_fail: FailPolicy::JumpToRelative(-1),
             },
         };
-
         let json = serde_json::to_string(&card).expect("Serialization failed");
         let decoded: MacroCard = serde_json::from_str(&json).expect("Deserialization failed");
         assert_eq!(card, decoded);

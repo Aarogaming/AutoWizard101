@@ -110,25 +110,17 @@ impl PetDanceSequence {
         })
     }
 
-    fn reject(&self, reason: impl Into<String>) -> DanceDecision {
-        DanceDecision {
-            cues: self.cues.clone(),
-            proposals: Vec::new(),
-            reason: reason.into(),
-            rejected: true,
-        }
+    fn reject(&mut self, reason: impl Into<String>) -> DanceDecision {
+        let fault = self.fault.get_or_insert_with(|| reason.into()).clone();
+        self.decision(fault)
     }
 
     fn decision(&self, reason: impl Into<String>) -> DanceDecision {
         DanceDecision {
             cues: self.cues.clone(),
-            proposals: if self.phase == DancePhase::Go && self.armed && self.cues.len() == self.expected {
-                self.cues.clone()
-            } else {
-                Vec::new()
-            },
+            proposals: Vec::new(),
             reason: reason.into(),
-            rejected: false,
+            rejected: self.fault.is_some(),
         }
     }
 
@@ -141,7 +133,9 @@ impl PetDanceSequence {
         fade_of: DanceCue,
         opacity: f64,
     ) -> DanceDecision {
-        let time_valid = time_ms.is_finite() && time_ms >= 0.0 && (self.last_time < 0.0 || time_ms > self.last_time);
+        let time_valid = time_ms.is_finite()
+            && time_ms >= 0.0
+            && (self.last_time < 0.0 || time_ms > self.last_time);
         if !time_valid {
             return self.reject("Missing or non-increasing timestamp; round discarded.");
         }
@@ -154,7 +148,8 @@ impl PetDanceSequence {
         }
         if let Some(prev_size) = self.size {
             if prev_size != size {
-                return self.reject("Window geometry changed; recalibrate and restart the teacher.");
+                return self
+                    .reject("Window geometry changed; recalibrate and restart the teacher.");
             }
         }
         self.size = Some(size);
@@ -176,7 +171,10 @@ impl PetDanceSequence {
             return self.decision("Loading: gameplay paused; waiting for a fresh Watch sequence.");
         }
 
-        if matches!(phase, DancePhase::Ready | DancePhase::Success | DancePhase::Failure) {
+        if matches!(
+            phase,
+            DancePhase::Ready | DancePhase::Success | DancePhase::Failure
+        ) {
             if !self.outcome_applied {
                 if phase == DancePhase::Success && self.emitted {
                     self.expected = (self.expected + 1).min(7);
@@ -200,7 +198,9 @@ impl PetDanceSequence {
 
         if phase == DancePhase::Resolving {
             self.phase = phase;
-            return self.decision("Inputs finished; waiting for independently recognized success or failure.");
+            return self.decision(
+                "Inputs finished; waiting for independently recognized success or failure.",
+            );
         }
 
         if phase == DancePhase::Unknown {
@@ -214,7 +214,8 @@ impl PetDanceSequence {
 
         if phase == DancePhase::Watch {
             if self.emitted || matches!(self.phase, DancePhase::Go | DancePhase::Resolving) {
-                return self.reject("A result or Ready boundary is required before the next round.");
+                return self
+                    .reject("A result or Ready boundary is required before the next round.");
             }
             if !self.active {
                 self.active = true;
@@ -224,7 +225,8 @@ impl PetDanceSequence {
                 self.boundary_seen = false;
                 self.outcome_applied = false;
             } else if gap && self.fault.is_none() {
-                self.fault = Some("Observation gap exceeds 150 ms; a cue may have been missed.".to_string());
+                self.fault =
+                    Some("Observation gap exceeds 150 ms; a cue may have been missed.".to_string());
             }
 
             self.phase = phase;
@@ -238,7 +240,10 @@ impl PetDanceSequence {
 
             if cue == DanceCue::Fading {
                 if self.cues.is_empty()
-                    || !matches!(fade_of, DanceCue::Up | DanceCue::Down | DanceCue::Left | DanceCue::Right)
+                    || !matches!(
+                        fade_of,
+                        DanceCue::Up | DanceCue::Down | DanceCue::Left | DanceCue::Right
+                    )
                     || fade_of.as_str() != self.cues.last().unwrap()
                     || !opacity.is_finite()
                     || !(0.0..0.7).contains(&opacity)
@@ -252,7 +257,8 @@ impl PetDanceSequence {
                 }
 
                 if time_ms - self.fade_since > 350.0 || opacity > self.last_opacity + 0.12 {
-                    return self.reject("Fade lasted too long or brightened without a new clear cue.");
+                    return self
+                        .reject("Fade lasted too long or brightened without a new clear cue.");
                 }
 
                 self.last_opacity = self.last_opacity.min(opacity);
@@ -263,59 +269,393 @@ impl PetDanceSequence {
                     if self.low_since < 0.0 {
                         self.low_since = time_ms;
                     }
+                    if time_ms - self.low_since >= 16.0 {
+                        self.armed = true;
+                    }
                 } else {
                     self.low_since = -1.0;
+                    self.armed = false;
                 }
 
-                return self.decision("Observing fade transition.");
+                return self.decision(if self.armed {
+                    "Known arrow faded to a confirmed trough."
+                } else {
+                    "Following the confirmed arrow fade; no new cue counted."
+                });
             }
 
-            // Arrow cue (Up, Down, Left, Right, Neutral)
-            if matches!(cue, DanceCue::Up | DanceCue::Down | DanceCue::Left | DanceCue::Right) {
-                if self.candidate != cue {
-                    self.candidate = cue;
-                    self.since = time_ms;
-                } else if self.since >= 0.0 && (time_ms - self.since >= self.stable_ms) {
-                    let cue_name = cue.as_str().to_string();
-                    if self.cues.last() != Some(&cue_name) || self.fade_since >= 0.0 {
-                        self.cues.push(cue_name);
-                        self.fade_since = -1.0;
-                        self.low_since = -1.0;
-                        self.last_opacity = 1.0;
-                    }
+            // A low fade followed by a neutral frame is one continuous trough.
+            if cue == DanceCue::Neutral && self.fade_since >= 0.0 {
+                if self.low_since < 0.0 {
+                    self.low_since = time_ms;
                 }
-            } else if cue == DanceCue::Neutral {
-                self.candidate = DanceCue::Neutral;
+                if time_ms - self.low_since >= 16.0 {
+                    self.armed = true;
+                }
+            }
+            if cue != DanceCue::Neutral {
+                self.fade_since = -1.0;
+                self.low_since = -1.0;
+                self.last_opacity = 1.0;
+            }
+            if cue != self.candidate {
+                self.candidate = cue;
                 self.since = time_ms;
             }
-
-            return self.decision("Observing watch phase.");
-        }
-
-        if phase == DancePhase::Go {
-            self.phase = phase;
+            if time_ms - self.since < self.stable_ms {
+                return self.decision("Waiting for a stable cue or neutral gap.");
+            }
+            if cue == DanceCue::Neutral {
+                self.armed = true;
+                return self.decision("Neutral gap confirmed.");
+            }
+            let direction = cue.as_str().to_string();
             if !self.armed {
-                return self.reject("Round started without seeing a full Ready boundary.");
+                if self.cues.is_empty() {
+                    return self.reject("Recording began inside a cue; its beginning is missing.");
+                }
+                if self.cues.last() != Some(&direction) {
+                    return self.reject("Cue changed without a confirmed neutral gap.");
+                }
+                return self.decision("Held cue already counted.");
             }
-            if self.cues.len() != self.expected {
-                return self.reject(format!(
-                    "Incomplete observation: expected {} cues, saw {}.",
-                    self.expected,
-                    self.cues.len()
-                ));
-            }
-            self.emitted = true;
-            return self.decision("Go phase confirmed; proposals ready.");
+            self.armed = false;
+            self.cues.push(direction);
+            return if self.cues.len() > self.expected {
+                self.reject("Too many cues for the selected round.")
+            } else {
+                self.decision(format!(
+                    "Remembered {}/{} cues.",
+                    self.cues.len(),
+                    self.expected
+                ))
+            };
         }
 
         self.phase = phase;
-        self.decision("Status updated.")
+        if self.emitted {
+            return self.decision("Go already handled; no duplicate proposal.");
+        }
+        if !self.active {
+            return self.decision("Go without a complete observed Watch sequence.");
+        }
+        if gap && self.fault.is_none() {
+            self.fault = Some("Observation gap before Go; round discarded.".to_string());
+        }
+        if let Some(fault) = &self.fault {
+            return self.decision(fault.clone());
+        }
+        if self.cues.len() != self.expected
+            || !self.armed
+            || !matches!(self.candidate, DanceCue::Neutral | DanceCue::Fading)
+        {
+            return self.reject("Go arrived without a complete, separated cue sequence.");
+        }
+        self.emitted = true;
+        DanceDecision {
+            cues: self.cues.clone(),
+            proposals: self.cues.iter().map(|cue| format!("dance-{cue}")).collect(),
+            reason: "Verified sequence proposal at Go; no input sent.".to_string(),
+            rejected: false,
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // Same 50 ms observation cadence and cue/Go helpers as the native
+    // PetDanceTeacherTests and PetDanceFadeTests. These are synthetic observations.
+    struct Round {
+        sequence: PetDanceSequence,
+        time: f64,
+    }
+    impl Round {
+        fn new(expected: usize) -> Self {
+            Self {
+                sequence: PetDanceSequence::new(expected).unwrap(),
+                time: 0.0,
+            }
+        }
+        fn sample(&mut self, phase: DancePhase, cue: DanceCue, count: usize) -> DanceDecision {
+            self.fade(phase, cue, count, DanceCue::Unknown, f64::NAN)
+        }
+        fn fade(
+            &mut self,
+            phase: DancePhase,
+            cue: DanceCue,
+            count: usize,
+            fade_of: DanceCue,
+            opacity: f64,
+        ) -> DanceDecision {
+            let mut result = None;
+            for _ in 0..count {
+                self.time += 50.0;
+                result = Some(self.sequence.observe(
+                    self.time,
+                    (1280, 720),
+                    phase,
+                    cue,
+                    fade_of,
+                    opacity,
+                ));
+            }
+            result.unwrap()
+        }
+        fn cue(&mut self, cue: DanceCue) {
+            self.sample(DancePhase::Watch, DanceCue::Neutral, 3);
+            self.sample(DancePhase::Watch, cue, 5);
+        }
+        fn arrow(&mut self, cue: DanceCue) {
+            self.sample(DancePhase::Watch, cue, 3);
+            self.fade(DancePhase::Watch, DanceCue::Fading, 1, cue, 0.5);
+            self.fade(DancePhase::Watch, DanceCue::Fading, 2, cue, 0.2);
+        }
+        fn go(&mut self) -> DanceDecision {
+            self.sample(DancePhase::Watch, DanceCue::Neutral, 3);
+            self.sample(DancePhase::Go, DanceCue::Unknown, 1)
+        }
+    }
+
+    #[test]
+    fn native_varied_held_and_repeated_cues_emit_registered_actions_once() {
+        let directions = [
+            DanceCue::Up,
+            DanceCue::Down,
+            DanceCue::Left,
+            DanceCue::Right,
+        ];
+        // Exhaust all three-cue words; cover longer rounds with all repeated cues.
+        for word in 0..64 {
+            let cues = [
+                directions[word % 4],
+                directions[word / 4 % 4],
+                directions[word / 16],
+            ];
+            let mut round = Round::new(3);
+            for cue in cues {
+                round.cue(cue);
+            }
+            let result = round.go();
+            assert!(!result.rejected, "{}", result.reason);
+            assert_eq!(
+                result.proposals,
+                cues.iter()
+                    .map(|c| format!("dance-{}", c.as_str()))
+                    .collect::<Vec<_>>()
+            );
+            assert!(round
+                .sample(DancePhase::Go, DanceCue::Unknown, 3)
+                .proposals
+                .is_empty());
+        }
+        for length in 4..=7 {
+            let mut round = Round::new(length);
+            for _ in 0..length {
+                round.cue(DanceCue::Left);
+            }
+            assert_eq!(round.go().proposals, vec!["dance-left"; length]);
+        }
+    }
+
+    #[test]
+    fn native_broken_evidence_latches_until_boundary() {
+        for fault in [
+            "gap",
+            "backwards",
+            "duplicate",
+            "cue",
+            "phase",
+            "geometry",
+            "neutral",
+            "extra",
+        ] {
+            let mut round = Round::new(3);
+            round.cue(DanceCue::Up);
+            match fault {
+                "gap" => {
+                    round.time += 200.0;
+                    round.sample(DancePhase::Watch, DanceCue::Neutral, 3);
+                }
+                "backwards" | "duplicate" => {
+                    let time = round.time - if fault == "backwards" { 1.0 } else { 0.0 };
+                    round.sequence.observe(
+                        time,
+                        (1280, 720),
+                        DancePhase::Watch,
+                        DanceCue::Neutral,
+                        DanceCue::Unknown,
+                        f64::NAN,
+                    );
+                }
+                "cue" => {
+                    round.sample(DancePhase::Watch, DanceCue::Unknown, 3);
+                }
+                "phase" => {
+                    round.sample(DancePhase::Unknown, DanceCue::Neutral, 3);
+                }
+                "geometry" => {
+                    round.sequence.observe(
+                        round.time + 1.0,
+                        (1024, 768),
+                        DancePhase::Watch,
+                        DanceCue::Neutral,
+                        DanceCue::Unknown,
+                        f64::NAN,
+                    );
+                }
+                "neutral" => {
+                    round.sample(DancePhase::Watch, DanceCue::Left, 3);
+                }
+                _ => round.cue(DanceCue::Left),
+            }
+            round.cue(DanceCue::Down);
+            round.cue(DanceCue::Right);
+            let result = round.go();
+            assert!(result.rejected, "{fault}");
+            assert!(result.proposals.is_empty(), "{fault}");
+            round.sample(DancePhase::Failure, DanceCue::Unknown, 3);
+            for _ in 0..3 {
+                round.cue(DanceCue::Up);
+            }
+            assert_eq!(round.go().proposals.len(), 3, "{fault}");
+        }
+    }
+
+    #[test]
+    fn native_fade_and_short_neutral_troughs_rearm_repeated_arrows() {
+        for trough in ["fade", "low-neutral", "two-neutral"] {
+            let mut round = Round::new(3);
+            round.sample(DancePhase::Watch, DanceCue::Neutral, 3);
+            for cue in [DanceCue::Right, DanceCue::Right, DanceCue::Up] {
+                if trough == "fade" {
+                    round.arrow(cue);
+                } else {
+                    round.sample(DancePhase::Watch, cue, 3);
+                    let (opacity, count) = if trough == "low-neutral" {
+                        (0.2, 1)
+                    } else {
+                        (0.31, 2)
+                    };
+                    round.fade(DancePhase::Watch, DanceCue::Fading, 1, cue, opacity);
+                    round.sample(DancePhase::Watch, DanceCue::Neutral, count);
+                }
+            }
+            let result = round.sample(DancePhase::Go, DanceCue::Neutral, 1);
+            assert_eq!(
+                result.proposals,
+                ["dance-right", "dance-right", "dance-up"],
+                "{trough}: {}",
+                result.reason
+            );
+        }
+    }
+
+    #[test]
+    fn native_invalid_fades_never_emit() {
+        for problem in ["direction", "brightening", "overlong", "unknown", "nan"] {
+            let mut round = Round::new(3);
+            round.cue(DanceCue::Up);
+            round.fade(DancePhase::Watch, DanceCue::Fading, 1, DanceCue::Up, 0.4);
+            let result = match problem {
+                "direction" => {
+                    round.fade(DancePhase::Watch, DanceCue::Fading, 1, DanceCue::Left, 0.2)
+                }
+                "brightening" => {
+                    round.fade(DancePhase::Watch, DanceCue::Fading, 1, DanceCue::Up, 0.6)
+                }
+                "overlong" => round.fade(DancePhase::Watch, DanceCue::Fading, 8, DanceCue::Up, 0.4),
+                "nan" => round.fade(
+                    DancePhase::Watch,
+                    DanceCue::Fading,
+                    1,
+                    DanceCue::Up,
+                    f64::NAN,
+                ),
+                _ => round.sample(DancePhase::Watch, DanceCue::Unknown, 3),
+            };
+            assert!(result.rejected, "{problem}");
+            assert!(round.go().proposals.is_empty());
+        }
+    }
+
+    #[test]
+    fn native_success_once_failure_and_loading_preserve_expected_length() {
+        let mut round = Round::new(3);
+        for _ in 0..3 {
+            round.cue(DanceCue::Up);
+        }
+        assert_eq!(round.go().proposals.len(), 3);
+        round.sample(DancePhase::Success, DanceCue::Neutral, 3);
+        round.sample(DancePhase::Resolving, DanceCue::Neutral, 3);
+        round.sample(DancePhase::Success, DanceCue::Neutral, 3);
+        for _ in 0..4 {
+            round.arrow(DanceCue::Down);
+        }
+        assert_eq!(
+            round
+                .sample(DancePhase::Go, DanceCue::Neutral, 1)
+                .proposals
+                .len(),
+            4
+        );
+        round.sample(DancePhase::Failure, DanceCue::Unknown, 3);
+        let loading = round.sample(DancePhase::Loading, DanceCue::Unknown, 400);
+        assert!(!loading.rejected);
+        assert!(loading.cues.is_empty());
+        assert!(round
+            .sample(DancePhase::Go, DanceCue::Unknown, 1)
+            .proposals
+            .is_empty());
+        round.sample(DancePhase::Loading, DanceCue::Unknown, 1);
+        for _ in 0..4 {
+            round.cue(DanceCue::Right);
+        }
+        assert_eq!(round.go().proposals.len(), 4);
+    }
+
+    #[test]
+    fn native_missing_start_premature_go_partial_fade_and_go_gap_fail_closed() {
+        let mut missing = Round::new(3);
+        missing.sample(DancePhase::Watch, DanceCue::Up, 3);
+        missing.cue(DanceCue::Down);
+        missing.cue(DanceCue::Right);
+        assert!(missing.go().proposals.is_empty());
+        let mut short = Round::new(3);
+        short.cue(DanceCue::Up);
+        assert!(short.go().proposals.is_empty());
+        assert!(Round::new(3)
+            .sample(DancePhase::Go, DanceCue::Unknown, 1)
+            .proposals
+            .is_empty());
+        for gap in [false, true] {
+            let mut round = Round::new(3);
+            round.sample(DancePhase::Watch, DanceCue::Neutral, 3);
+            round.arrow(DanceCue::Down);
+            round.arrow(DanceCue::Left);
+            round.sample(DancePhase::Watch, DanceCue::Up, 3);
+            round.fade(
+                DancePhase::Watch,
+                DanceCue::Fading,
+                2,
+                DanceCue::Up,
+                if gap { 0.2 } else { 0.5 },
+            );
+            if gap {
+                round.time += 200.0;
+            }
+            let result = round.sample(DancePhase::Go, DanceCue::Fading, 1);
+            assert!(result.rejected);
+            assert!(result.proposals.is_empty());
+            round.sample(DancePhase::Resolving, DanceCue::Neutral, 3);
+            assert!(
+                round
+                    .sample(DancePhase::Watch, DanceCue::Neutral, 3)
+                    .rejected
+            );
+        }
+    }
 
     #[test]
     fn test_dance_sequence_initialization() {
@@ -331,15 +671,43 @@ mod tests {
         let size = (800, 600);
 
         // Ready boundary
-        let dec = seq.observe(10.0, size, DancePhase::Ready, DanceCue::Neutral, DanceCue::Unknown, 1.0);
+        let dec = seq.observe(
+            10.0,
+            size,
+            DancePhase::Ready,
+            DanceCue::Neutral,
+            DanceCue::Unknown,
+            1.0,
+        );
         assert!(!dec.rejected);
 
         // Watch phase
-        let _ = seq.observe(20.0, size, DancePhase::Watch, DanceCue::Neutral, DanceCue::Unknown, 1.0);
+        let _ = seq.observe(
+            20.0,
+            size,
+            DancePhase::Watch,
+            DanceCue::Neutral,
+            DanceCue::Unknown,
+            1.0,
+        );
 
         // Cue 1: Up
-        let _ = seq.observe(30.0, size, DancePhase::Watch, DanceCue::Up, DanceCue::Unknown, 1.0);
-        let dec_up = seq.observe(110.0, size, DancePhase::Watch, DanceCue::Up, DanceCue::Unknown, 1.0);
+        let _ = seq.observe(
+            30.0,
+            size,
+            DancePhase::Watch,
+            DanceCue::Up,
+            DanceCue::Unknown,
+            1.0,
+        );
+        let dec_up = seq.observe(
+            110.0,
+            size,
+            DancePhase::Watch,
+            DanceCue::Up,
+            DanceCue::Unknown,
+            1.0,
+        );
         assert_eq!(dec_up.cues, vec!["up"]);
     }
 }
