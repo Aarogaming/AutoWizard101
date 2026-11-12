@@ -67,6 +67,9 @@ internal static class LiveBackendProvider
 
     private static ILiveIntegrationBackend LoadBackendSafe()
     {
+        // An arbitrary DLL cannot establish UI-only behavior by implementing an interface.
+        if (W101InteractionPolicy.BlockReason(W101InteractionMethod.UnreviewedCode) != null)
+            return new NullLiveBackend();
         try
         {
             var baseDir = AppDomain.CurrentDomain.BaseDirectory;

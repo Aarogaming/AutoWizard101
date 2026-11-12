@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "kind": "maelstrom-conjuration-collection-plan",
+  "executable": false,
+  "starts_recorder": false,
+  "sends_game_input": false,
+  "status": "offline-preparation-only",
+  "goal": "Curate actual card-state and transition evidence before calibrating a current-client recognizer.",
+  "existing_evidence": {
+    "recording_ids": ["20261108-175042-fd787863", "20261108-175243-79c9bad5"],
+    "frames": 17,
+    "unique_png_hashes": 1,
+    "sha256": "c738f117bf34363a32e1652164796ed13397b1e6c658d99e4e54a3813768175d",
+    "known_content": "Instructions page 1; its decorative card strip is not a playable board.",
+    "sufficiency": "Insufficient for card-state calibration, transitions, input/outcome pairing or held-out evaluation."
+  },
+  "limits": {
+    "explicit_recordings": 8,
+    "listed_png_frames": 64,
+    "per_png_bytes": 8388608,
+    "total_image_read_bytes": 67108864,
+    "per_recording_json_bytes": 1048576,
+    "per_image_pixels": 4194304,
+    "video_decode": false,
+    "directory_video_scan": false
+  },
+  "episode_split": {
+    "unit": "whole independently recorded episode",
+    "default": "unassigned",
+    "minimum_review_set": "At least one calibration and one fresh held-out episode, with distinct source pixels for each required stage.",
+    "forbidden": "Splitting adjacent frames of the same playthrough or reusing one PNG in both calibration and held-out coverage.",
+    "limitation": "Byte hashes detect exact duplicates, not visually identical re-encodings or undocumented related captures. Human review must preserve true episode independence."
+  },
+  "metadata_to_preserve": [
+    "Original recording.json bytes and digest, episode ID, declared provenance, start date and completion state",
+    "Original PNG bytes and digest, original filename/index, exact dimensions, PNG alpha presence",
+    "Client versus outer-window surface, explicit client rectangle, actual UI scale and game resolution when known",
+    "Original TimeMs values and whether their origin is source capture, callback or unqualified",
+    "Supplied input receipts, uncertainty, original proposal IDs if any, and links to subsequent image observations",
+    "Manual labels versus recognizer candidates, whole-episode calibration/held-out assignment"
+  ],
+  "steps": [
+    {"stage": "instructions", "collect": "Read every available instructions page and visible level/rules text before selecting a game.", "do_not_infer": "Decorative sample cards are not board slots or face references."},
+    {"stage": "preview", "collect": "The full actual exposed board, its boundary, all card centers and two temporally distinct stable frames.", "do_not_infer": "A complete preview does not qualify later group sizes or shuffled layouts."},
+    {"stage": "hidden", "collect": "The same board after cards turn over, retaining the whole window and identical geometry.", "do_not_infer": "Unknown pixels or missing cards never default to hidden."},
+    {"stage": "flip", "collect": "Before input, the supplied click/key receipt, transition/animation, then the stable revealed identity.", "do_not_infer": "A proposal or click receipt is not a successful reveal."},
+    {"stage": "mismatch", "collect": "A visibly nonmatching selection and its observed return state, keeping input evidence and intervening uncertain frames.", "do_not_infer": "Do not label an intermediate animation as a finished mismatch."},
+    {"stage": "match", "collect": "A visibly matching selection followed through its actual completed outcome.", "do_not_infer": "Do not assume matching requires two cards on every board or that the cards disappear."},
+    {"stage": "removed", "conditional": true, "collect": "Only if current rules and observed outcomes establish an inactive/removed display: capture its positive visual marker.", "do_not_infer": "Empty background is not proof of a matched or removed card. Record not_used only with reviewed rule evidence."},
+    {"stage": "result", "collect": "Actual result/timeout/reward text with any incomplete board state preserved.", "do_not_infer": "A cleared board alone does not prove a game win or reward."},
+    {"stage": "new_board", "collect": "A fresh shuffle/level/board transition with a new local board ID, new geometry qualification and explicit group size.", "do_not_infer": "Never carry card positions or identities blindly into another board."}
+  ],
+  "unknown_rules": [
+    "Current instructions beyond the saved page 1",
+    "Matching group size for each board/level",
+    "Actual inactive/matched-card representation",
+    "Bonus-card behavior and scoring",
+    "Preview duration, flip/resolve animation and timeout behavior",
+    "Current UI scale/layout invariants and source-capture clock alignment"
+  ],
+  "promotion_gates": [
+    "Prepare a new draft; inspect unique-source counts before any annotation.",
+    "Manually annotate current-client frames; do not count synthetic or recognizer labels as manual ground truth.",
+    "Keep a fresh episode held out from reference construction and threshold tuning.",
+    "Resolve geometry, alpha and timing qualifications; preserve original bytes when deriving normalized images.",
+    "Export reviewed Board/Card observations to the existing label replay; supply real receipts rather than inventing them.",
+    "Build reviewed references and use the existing saved-image recognizer/replay. Report unknowns and confusion by state/identity.",
+    "Live controls, recorder launch, game navigation and installation remain separate explicitly authorized tasks."
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "kind": "game-research-ledger",
+  "game_id": "wizard101",
+  "topic": "observation-and-process-memory-boundaries",
+  "research_date": "2026-11-09",
+  "research_timezone": "UTC",
+  "research_started_at_utc": "2026-11-09T04:58:37Z",
+  "report": "docs/W101_MEMORY_OBSERVATION_RESEARCH.md",
+  "executable": false,
+  "automatic_runtime_import": false,
+  "process_memory_observation_enabled": false,
+  "process_memory_authorization": "not-granted-for-this-workstream; pending-explicit-user-decision",
+  "performed": {
+    "web_research": true,
+    "documentation_changes": true,
+    "installed_game_file_access": false,
+    "game_process_inspection": false,
+    "process_memory_read": false,
+    "process_memory_write": false,
+    "injection": false,
+    "hooks": false,
+    "network_control": false,
+    "desktop_control": false,
+    "protection_test": false
+  },
+  "source_policy": [
+    "Primary OS documentation establishes Windows capability, not W101 implementation.",
+    "Publisher policy can describe general processing without naming a current detector.",
+    "Forum participant assertions are not publisher technical findings.",
+    "Source update, retrieval, region, platform and client build are independent.",
+    "A negative bounded search result is not proof of absence."
+  ],
+  "sources": [
+    {
+      "id": "windows-process-rights",
+      "kind": "primary-os-documentation",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights",
+      "last_updated_on": "2025-07-14",
+      "retrieved_on": "2026-11-09",
+      "scope": "Windows process access controls",
+      "limitation": "No claim that W101 has protected-process status."
+    },
+    {
+      "id": "windows-read-memory",
+      "kind": "primary-api-documentation",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-readprocessmemory",
+      "last_updated_on": "2022-05-14",
+      "retrieved_on": "2026-11-09",
+      "scope": "ReadProcessMemory contract",
+      "limitation": "No local invocation or W101 accessibility check."
+    },
+    {
+      "id": "windows-handle-callback",
+      "kind": "primary-driver-interface-documentation",
+      "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ns-wdm-_ob_pre_create_handle_information",
+      "last_updated_on": "2022-02-25",
+      "retrieved_on": "2026-11-09",
+      "scope": "Handle creation information and listed modifiable rights",
+      "limitation": "Published modifiable list omits PROCESS_VM_READ; not per-read auditing or W101 driver evidence."
+    },
+    {
+      "id": "publisher-privacy",
+      "kind": "publisher-policy",
+      "url": "https://www.wizard101.com/patchClient/privacypolicy",
+      "last_updated_on": null,
+      "retrieved_on": "2026-11-09",
+      "scope": "Publisher services; cited section A covers EU/EEA/UK/Brazil, with service-specific applicability caveat",
+      "limitation": "General logs/protection processing; no specific W101 memory detector disclosed."
+    },
+    {
+      "id": "publisher-terms",
+      "kind": "publisher-policy",
+      "url": "https://www.wizard101.com/patchClient/termsofuse",
+      "last_updated_on": null,
+      "retrieved_on": "2026-11-09",
+      "scope": "Site terms; definition can include games/software",
+      "limitation": "Not technical protection documentation or a definitive use-specific permission ruling."
+    },
+    {
+      "id": "publisher-account-warning",
+      "kind": "publisher-announcement",
+      "url": "https://www.wizard101.com/forum/headmasters-announcements/warning-protecting-your-account-8ad6a42b6cb33647016cd4968f4b461e",
+      "last_updated_on": "2023-02-23",
+      "retrieved_on": "2026-11-09",
+      "scope": "Account-security warning",
+      "limitation": "No current memory-protection implementation described."
+    }
+  ],
+  "additional_searches": [
+    {
+      "query": "site:wizard101.com (\"anti-cheat\" OR \"anticheat\") (security OR detection OR software)",
+      "result": "Policy/security announcements and historical forum discussions; no official technical memory detector identified."
+    },
+    {
+      "query": "site:wizard101.com (\"read memory\" OR \"memory reading\" OR \"process memory\" OR \"memory scanner\")",
+      "result": "No official current technical implementation description identified."
+    }
+  ],
+  "claims": [
+    {
+      "id": "separate-rights",
+      "evidence": "documented",
+      "sources": [
+        "windows-process-rights"
+      ],
+      "statement": "Memory-read permission is distinct from memory write and address-space operation rights.",
+      "w101_runtime_qualified": false
+    },
+    {
+      "id": "restricted-reads",
+      "evidence": "documented",
+      "sources": [
+        "windows-process-rights",
+        "windows-read-memory"
+      ],
+      "statement": "Access controls, protected-process rules and inaccessible ranges can restrict reads; W101 status is unknown.",
+      "w101_runtime_qualified": false
+    },
+    {
+      "id": "handle-visibility",
+      "evidence": "documented-with-limits",
+      "sources": [
+        "windows-handle-callback"
+      ],
+      "statement": "Callbacks receive handle-open/request information and can restrict listed rights; this does not establish per-read logging.",
+      "w101_runtime_qualified": false
+    },
+    {
+      "id": "read-not-invisible",
+      "evidence": "inference-from-os-documentation",
+      "sources": [
+        "windows-process-rights",
+        "windows-handle-callback"
+      ],
+      "statement": "Read-only external access cannot be promised unrestricted or inherently invisible.",
+      "w101_runtime_qualified": false
+    },
+    {
+      "id": "general-protection-processing",
+      "evidence": "publisher-policy",
+      "sources": [
+        "publisher-privacy"
+      ],
+      "statement": "Publisher describes log/gameplay processing and protection programs, with game/service applicability limits.",
+      "w101_runtime_qualified": false
+    },
+    {
+      "id": "w101-detector-unknown",
+      "evidence": "bounded-research-result",
+      "sources": [
+        "publisher-privacy",
+        "publisher-terms",
+        "publisher-account-warning"
+      ],
+      "statement": "Reviewed sources do not identify this W101 client's memory-reading detector, driver, protected status or response.",
+      "w101_runtime_qualified": false
+    }
+  ],
+  "capability_taxonomy": [
+    {
+      "id": "installed-file-read",
+      "role": "read-only resource/configuration observation",
+      "distinct_from": "runtime process memory",
+      "enabled_by_this_work": false
+    },
+    {
+      "id": "screen-ui-observe",
+      "role": "rendered or supported exposed UI observations",
+      "distinct_from": "UI action and hidden process state",
+      "enabled_by_this_work": false
+    },
+    {
+      "id": "external-process-memory-read",
+      "role": "another process address-space data observation",
+      "distinct_from": "pixels, installed files, injection and writes",
+      "enabled_by_this_work": false
+    },
+    {
+      "id": "injection-hooks-writes-network-control",
+      "role": "instrumentation/control with separate side effects",
+      "distinct_from": "pure external read-only observation",
+      "enabled_by_this_work": false
+    }
+  ],
+  "proposed_review_fields": [
+    "observation/control class",
+    "startup and cleanup side effects",
+    "transitive backend requirements",
+    "data-field scope",
+    "provenance",
+    "version and freshness evidence",
+    "explicit enablement status"
+  ],
+  "unresolved": [
+    "Current W101 process access restrictions.",
+    "Whether/how the specific client build observes external readers.",
+    "Publisher guidance for the intended observation use.",
+    "Whether each candidate legacy adapter remains read-only throughout startup, observation and cleanup."
+  ],
+  "prohibited_in_this_work": [
+    "process attachment",
+    "memory probes or dumps",
+    "access escalation",
+    "protection bypass",
+    "hidden observation-backend fallback",
+    "injection/hooks/writes",
+    "network control"
+  ],
+  "validation": {
+    "json_parsed": true,
+    "claim_source_references_checked": true,
+    "local_document_links_checked": true
+  }
+}

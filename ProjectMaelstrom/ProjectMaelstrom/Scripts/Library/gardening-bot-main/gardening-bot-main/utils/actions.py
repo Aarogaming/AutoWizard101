@@ -8,8 +8,10 @@ class Actions:
 
     def press_key(self, key, duration=0.1):
         pyautogui.keyDown(key)
-        time.sleep(duration)
-        pyautogui.keyUp(key)
+        try:
+            time.sleep(duration)
+        finally:
+            pyautogui.keyUp(key)
 
     def hold_key(self, key):
         pyautogui.keyDown(key)

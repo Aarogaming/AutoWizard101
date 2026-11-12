@@ -1,0 +1,1429 @@
+{
+  "schema_version": 1,
+  "fixture_id": "synthetic-triples",
+  "clock_origin": "synthetic-monotonic-ms",
+  "synthetic": true,
+  "board_id": "synthetic-triples-board",
+  "group_size": 3,
+  "notes": "Synthetic observations and simulated supplied receipts; not W101 screenshot or current-client qualification.",
+  "events": [
+    {
+      "kind": "observation",
+      "time_ms": 100,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 1,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": "0",
+        "outcome": null
+      }
+    },
+    {
+      "kind": "action_receipt",
+      "time_ms": 120,
+      "proposal_id": "synthetic-triples-board:1",
+      "status": "dispatched"
+    },
+    {
+      "kind": "observation",
+      "time_ms": 220,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 2,
+        "phase": "animation",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 320,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 3,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": "1",
+        "outcome": null
+      }
+    },
+    {
+      "kind": "action_receipt",
+      "time_ms": 340,
+      "proposal_id": "synthetic-triples-board:2",
+      "status": "dispatched"
+    },
+    {
+      "kind": "observation",
+      "time_ms": 440,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 4,
+        "phase": "animation",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 540,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 5,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": "2",
+        "outcome": null
+      }
+    },
+    {
+      "kind": "action_receipt",
+      "time_ms": 560,
+      "proposal_id": "synthetic-triples-board:3",
+      "status": "dispatched"
+    },
+    {
+      "kind": "observation",
+      "time_ms": 660,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 6,
+        "phase": "animation",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 760,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 7,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 860,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 8,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": "3",
+        "outcome": "mismatch_observed"
+      }
+    },
+    {
+      "kind": "action_receipt",
+      "time_ms": 880,
+      "proposal_id": "synthetic-triples-board:4",
+      "status": "dispatched"
+    },
+    {
+      "kind": "observation",
+      "time_ms": 980,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 9,
+        "phase": "animation",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 1080,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 10,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": "1",
+        "outcome": null
+      }
+    },
+    {
+      "kind": "action_receipt",
+      "time_ms": 1100,
+      "proposal_id": "synthetic-triples-board:5",
+      "status": "dispatched"
+    },
+    {
+      "kind": "observation",
+      "time_ms": 1200,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 11,
+        "phase": "animation",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 1300,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 12,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": "4",
+        "outcome": null
+      }
+    },
+    {
+      "kind": "action_receipt",
+      "time_ms": 1320,
+      "proposal_id": "synthetic-triples-board:6",
+      "status": "dispatched"
+    },
+    {
+      "kind": "observation",
+      "time_ms": 1420,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 13,
+        "phase": "animation",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 1520,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 14,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "face_up",
+            "identity": "B"
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 1620,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 15,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "hidden",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": "5",
+        "outcome": "match_observed"
+      }
+    },
+    {
+      "kind": "action_receipt",
+      "time_ms": 1640,
+      "proposal_id": "synthetic-triples-board:7",
+      "status": "dispatched"
+    },
+    {
+      "kind": "observation",
+      "time_ms": 1740,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 16,
+        "phase": "animation",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "face_up",
+            "identity": "A"
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 1840,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 17,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "face_up",
+            "identity": "A"
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": "0",
+        "outcome": null
+      }
+    },
+    {
+      "kind": "action_receipt",
+      "time_ms": 1860,
+      "proposal_id": "synthetic-triples-board:8",
+      "status": "dispatched"
+    },
+    {
+      "kind": "observation",
+      "time_ms": 1960,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 18,
+        "phase": "animation",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "face_up",
+            "identity": "A"
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 2060,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 19,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "hidden",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "face_up",
+            "identity": "A"
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": "2",
+        "outcome": null
+      }
+    },
+    {
+      "kind": "action_receipt",
+      "time_ms": 2080,
+      "proposal_id": "synthetic-triples-board:9",
+      "status": "dispatched"
+    },
+    {
+      "kind": "observation",
+      "time_ms": 2180,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 20,
+        "phase": "animation",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "face_up",
+            "identity": "A"
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 2280,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 21,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "face_up",
+            "identity": "A"
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "face_up",
+            "identity": "A"
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": null
+      }
+    },
+    {
+      "kind": "observation",
+      "time_ms": 2380,
+      "board": {
+        "board_id": "synthetic-triples-board",
+        "revision": 22,
+        "phase": "active",
+        "cards": [
+          {
+            "slot": "0",
+            "x": 30,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "1",
+            "x": 90,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "2",
+            "x": 150,
+            "y": 30,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "3",
+            "x": 30,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "4",
+            "x": 90,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          },
+          {
+            "slot": "5",
+            "x": 150,
+            "y": 110,
+            "state": "removed",
+            "identity": null
+          }
+        ]
+      },
+      "source": {
+        "annotation_origin": "synthetic",
+        "image": null,
+        "sha256": null
+      },
+      "expected": {
+        "proposal_slot": null,
+        "outcome": "match_observed"
+      }
+    }
+  ]
+}

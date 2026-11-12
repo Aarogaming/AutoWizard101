@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.IO;
 using Microsoft.Win32;
 using ProjectMaelstrom.Utilities;
 
@@ -23,7 +21,7 @@ public class PetDanceBot : Form
 
         _launchButton = new Button
         {
-            Text = "Launch Wizard101 DanceBot",
+            Text = "Open pet training tools",
             Size = new Size(320, 40),
             Location = new Point(20, 20),
             Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
@@ -34,7 +32,7 @@ public class PetDanceBot : Form
         {
             AutoSize = true,
             Location = new Point(20, 80),
-            Text = "Ready"
+            Text = "Choose Pet training in the Tools window."
         };
 
         Controls.Add(_launchButton);
@@ -47,37 +45,8 @@ public class PetDanceBot : Form
 
     private void LaunchButton_Click(object? sender, EventArgs e)
     {
-        string scriptPath = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "Scripts",
-            "Wizard101_DanceBot",
-            "dist",
-            "petdance",
-            "petdance.exe");
-
-        if (!File.Exists(scriptPath))
-        {
-            _statusLabel.Text = "DanceBot not found";
-            return;
-        }
-
-        try
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = scriptPath,
-                UseShellExecute = true,
-                WorkingDirectory = Path.GetDirectoryName(scriptPath)
-            });
-
-            _statusLabel.Text = "Launched";
-            Logger.Log("Wizard101 DanceBot launched successfully.");
-        }
-        catch (Exception ex)
-        {
-            _statusLabel.Text = "Launch failed";
-            Logger.Log($"Error launching Wizard101 DanceBot: {ex.Message}");
-        }
+        using var tools = new ToolCenterForm();
+        tools.ShowDialog(this);
     }
 
     private void OnUserPreferenceChanged(object? sender, UserPreferenceChangedEventArgs e)

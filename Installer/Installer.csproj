@@ -9,9 +9,14 @@
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <AssemblyName>MaelstromSetup</AssemblyName>
+    <Version>0.2.0-preview</Version>
+    <ApplicationIcon>..\ProjectMaelstrom\ProjectMaelstrom\Resources\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\\ProjectMaelstrom\\ProjectMaelstrom\\publish\\win-x64\\ProjectMaelstrom-win-x64.zip" />
+    <Compile Remove="InstallerForm.cs;InstallerForm.Designer.cs" />
+    <EmbeddedResource Remove="InstallerForm.resx" />
+    <EmbeddedResource Include="$(InstallerPayload)" LogicalName="Maelstrom.Payload.zip" Condition="'$(InstallerPayload)' != ''" />
   </ItemGroup>
 </Project>

@@ -6,28 +6,30 @@ namespace KursovaLibrary
     {
         public double MaxDamage { get; set; }
         public override double BaseDamage { get; set; }
+
         public override string CalculateDamage(List<DamageModificator> _dm, Wizard wizard, Boss boss, double Enchant, double Critical)
         {
-            _dm.Reverse();
+            var modifiers = new List<DamageModificator>(_dm ?? []);
+            modifiers.Reverse();
 
-            var _dm2 = new List<DamageModificator>(_dm);
+            modifiers = CheckPierce(wizard?.Pierce ?? 0, boss?.Resist ?? 0, modifiers);
 
-            _dm2 = CheckPierce(wizard.Pierce, boss.Resist, _dm2);
+            double minDamage = BaseDamage + Enchant;
+            double maxDamage = MaxDamage + Enchant;
 
-            foreach (DamageModificator d in _dm2)
+            foreach (DamageModificator d in modifiers)
             {
-                MaxDamage *= d.Damage;
-                BaseDamage *= d.Damage;
+                minDamage *= d.Damage;
+                maxDamage *= d.Damage;
             }
 
-            MaxDamage *= CheckStats(wizard, boss);
+            minDamage *= CheckStats(wizard, boss);
+            maxDamage *= CheckStats(wizard, boss);
 
-            BaseDamage += wizard.FlatDamage;
-            MaxDamage += wizard.FlatDamage;
+            minDamage += wizard?.FlatDamage ?? 0;
+            maxDamage += wizard?.FlatDamage ?? 0;
 
-            _dm.Reverse();
-
-            return $"Your Damage will be between: {(int)BaseDamage} and {(int)MaxDamage}. And between {(int)(BaseDamage * Critical)} and {(int)(MaxDamage * Critical)} if it Crits.";
+            return $"Your Damage will be between: {(int)minDamage} and {(int)maxDamage}. And between {(int)(minDamage * Critical)} and {(int)(maxDamage * Critical)} if it Crits.";
         }
     }
 }

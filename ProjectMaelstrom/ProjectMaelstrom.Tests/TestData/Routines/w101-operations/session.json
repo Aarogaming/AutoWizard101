@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "session_id": "w101-operations-modules-synthetic",
+  "clock_origin": "synthetic-monotonic-ms",
+  "events_file": "events.jsonl",
+  "routine_binding": {
+    "target_id": "offline-window",
+    "geometry_id": "1280x720",
+    "context_id": "wizard101.route.synthetic.wizard-city.commons.pet-pavilion.dance.visit.fixture"
+  }
+}

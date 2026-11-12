@@ -39,12 +39,18 @@ class Wad:
 
         self._file_map: dict[str, WadFileInfo] = {}
         self._file_pointer = open(self.file_path, "rb")
-        self._mmap = mmap(self._file_pointer.fileno(), 0, access=ACCESS_READ)
+        try:
+            self._mmap = mmap(self._file_pointer.fileno(), 0, access=ACCESS_READ)
+            if len(self._mmap) < 5 or self._mmap[:5] != b"KIWAD":
+                raise ValueError("Invalid KIWAD signature")
 
-        self._size: None | int = None
-        self._refreshed_once = False
+            self._size: None | int = None
+            self._refreshed_once = False
 
-        self._refresh_journal()
+            self._refresh_journal()
+        except Exception:
+            self._file_pointer.close()
+            raise
 
     @property
     def closed(self) -> bool:

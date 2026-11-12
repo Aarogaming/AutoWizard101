@@ -1,0 +1,124 @@
+# Documentation map
+
+- [Current roadmap](ROADMAP.md) — ordered integration work, current installed/source distinction and acceptance gates.
+- [W101 automation readiness](W101_AUTOMATION_READINESS.md) — task-by-task progress, remaining gates and dependency order; live demonstrations distinguished from complete unattended routines.
+- [Cards, routines and decks](ROUTINE_EXECUTION_MODEL.md) — Action Cards, Routine Cards and the Routine Deck; shared constraints, verified results and controlled interruption in game-player terms.
+- [Architecture audit](ARCHITECTURE_AUDIT_20261111.md) — callable operations, card constraints, layered contracts, knowledge accuracy and concrete gaps.
+- [Capability inventory](../research/maelstrom-capabilities.json) — checked, non-executable map of selected workflow families; not a complete runtime registry.
+- [Card collection and Routine Deck](JOB_DECK.md) — configurable cards, front/back editor, quotas, generic quest auto-fill, shared scheduler and local API/MCP; installed checkpoint is recorded separately from later source changes.
+- [Installed deck release](coordination/results/CORE-DECK-RELEASE-02.md) and [later source checkpoint](coordination/results/W101-COMBAT-CONNECT-06.md) — distribution and newer implementation evidence; neither is complete auto-questing.
+- [Deck integration review](coordination/results/CORE-DECK-01.md) — Gemini prototype review, repairs, tests and remaining delivery/navigation gates.
+
+## Direction and implementation
+
+- [Wizard101 working reference](WIZARD101_GAME_KNOWLEDGE.md) — representative sourced controls/mechanics and explicit unknowns; not exhaustive or automatically qualified for execution.
+- [Knowledge accuracy audit](coordination/results/W101-KNOWLEDGE-AUDIT-01.md) — primary-source checks, calculator/geometry assumptions and the actual eight-source/nine-claim database slice.
+- [Card and callable-surface audit](coordination/results/CORE-CARD-AUDIT-01.md) and [imported-source/Aaroneous audit](coordination/results/CORE-REUSE-AUDIT-01.md) — current source boundaries and prioritized reuse.
+- [Earlier W101 workflow checkpoint](W101_WORKFLOW_STATUS_20261110.md) — November 10 routines/UI and conditional-switching gaps; use the current readiness map above for later progress.
+- [Selected quest conversation](W101_QUEST_STEP_20261110.md) — optional quest text, reusable repeated menus, bounded conversation pilot and evidence.
+
+- [Project organization](PROJECT_ORGANIZATION.md) — current sources of truth, parallel lanes and evidence rules.
+- [Game workstreams](GAME_WORKSTREAMS.md) and [structured board](coordination/workstreams.json) — task inventory, ownership, dependencies and next actions.
+- [External-agent guide](coordination/EXTERNAL_AGENT_GUIDE.md) — bounded task briefs and shared-checkout coordination for Codex, Claude or Gemini.
+- [Shared routine graphs](ROUTINE_GRAPHS.md) — reusable transition runner, registered actions and offline rehearsal.
+- [Reusable modules](REUSABLE_MODULES.md) — versioned navigation, sigil, menu and Auto-Idle contracts, composition and saved bundle replay.
+- [Screen/scheduler integration](MODULE_SCREEN_INTEGRATION_20261110.md) — actual saved pixels through OCR, module decisions, ordinary job receipts and the existing Dance cleanup source.
+- [Current scheduler reuse checkpoint](SCHEDULER_REUSE_INTEGRATION_20261110.md) — refreshed Devtools, immutable admission/history, cancellation repair, 1,379 passing tests and compiled offline workflow evidence.
+- [Verified recovery flow](INPUT_RECOVERY_FLOW_20261110.md) — explicit Stop, Check and Restore UI, shared worker drain, fresh release checks and preserved recovery evidence; source-only, with offline verification recorded separately from live qualification.
+- [Installed recovery workflow](INPUT_RECOVERY_LIVE_20261110.md) — real Stop/Check/Restore pass from a clean guard, saved quiet-verification evidence, unchanged settings and no gameplay; desktop control ended.
+- [Recovery update installation](INPUT_RECOVERY_INSTALL_20261110.md) — package installed, binary hashes and data preservation checked; records the earlier interrupted UI attempt separately from the completed check above.
+- [First wizwalker adapter](WIZWALKER_ADAPTER_20261110.md) — optional one-shot client loading observation, source-pinned Python worker, shared native scheduler/control owner, fake-client tests and remaining live gates.
+- [Loading transitions and shared routines](W101_LOADING_TRANSITION_20261110.md) — six demonstrated zone loading periods, bounded CLI watch, optional shared loading conditions, offline integration and remaining live gates.
+- [Optional W101 UI tree](W101_UI_TREE_20261110.md) — bounded root-hook observer, staggered loading/UI reads, candidate screen states, restoration checks and qualification status.
+- [Headless commands](HEADLESS_CLI.md) — window discovery, saved run status and bounded opt-in checks without desktop input.
+- [Wizwalker live qualification](WIZWALKER_LIVE_20261110.md) — dependency repair, two successful idle-state reads and clean disconnect; positive loading-transition qualification remains open.
+- [W101 client-side exception](W101_CLIENT_SIDE_EXCEPTION_20261110.md) — owner-approved functional reuse of reviewed client-side hooks, injection and memory reads/writes; network manipulation excluded; source dispositions and next integration gates.
+- [Earlier W101 telemetry review](W101_TELEMETRY_REVIEW_20261110.md) — historical read-only interpretation, independently tested skeleton and unresolved provider issues; the expanded decision above supersedes its scope.
+- [Input recovery guard](INPUT_RECOVERY_GUARD_20261110.md) — preceding failed-warning-save checkpoint: native/Python gameplay stays blocked; same-owner checks, continued offline work and 1,410 passing native tests.
+- [Refreshed Guild and Steward review](GUILD_STEWARD_LATEST_REUSE_20261110.md) — current pinned Devtools contracts, implemented/proposed boundaries, selected native reuse and deferred gaps.
+- [Earlier cached Guild and Steward review](GUILD_STEWARD_SCHEDULER_REUSE_20261110.md) — historical local source contracts and initial scheduler recovery repair.
+- [Module standardization checkpoint](MODULE_STANDARDIZATION_20261110.md) — W101 migration, independent-game fixtures, tests and remaining live/editor integration.
+- [Shared W101 operations](W101_SHARED_OPERATIONS.md) — navigation, sigils, menus and Auto-Idle compiled through the common runner.
+- [Macro demonstration pipeline](coordination/results/MACRO-PIPELINE-01.md) — RDP waypoint simplification, dual-stream pairing, deterministic compiler and C# parser; live recording UI and in-game qualification remain open.
+- [Dance selection qualification](PET_DANCE_SELECTION_QUALIFICATION.md) — pinned saved-footage comparisons and remaining layout/hover limits.
+- [Conjuration card collection](CONJURATION_CARD_COLLECTION.md) — bounded preparation, duplicate-aware curation and the next recording plan.
+- [Offline qualification checkpoint](W101_OFFLINE_QUALIFICATION_20261110.md) — saved-image review, shared-operation and collection validation.
+- [Build retention inventory](BUILD_ARTIFACT_RETENTION.md) — measured build/package categories, stale target-path finding and preservation rules; no cleanup performed.
+- [Routine foundation validation](ROUTINE_FOUNDATION_VALIDATION_20261109.md) — integrated tests, replay receipts, reviewed repairs and remaining live gates.
+- [Conjuration offline helper](CONJURATION_OFFLINE.md) — memory-match decisions and shuffled-board tests; live perception remains separate.
+- [Dance entry transitions](PET_DANCE_ENTRY_TRANSITIONS.md) — saved OCR, enabled/disabled Play pixels and receipt-aware full-visit rehearsal.
+- [Conjuration recognition](CONJURATION_RECOGNITION.md) and [image-replay result](coordination/results/CONJ-PERCEPTION-01.md) — bounded card matching into the memory helper, with explicit evidence limits.
+- [Parallel recognition checkpoint](PARALLEL_RECOGNITION_VALIDATION_20261109.md) — integrated tests and the remaining live-readiness gates.
+- [Product charter](PRODUCT.md) — authoritative scope.
+- [Dodge workspace](DODGE_GAME_WORKSPACE.md) — dedicated game entry and shared Observe/test/pack routes.
+- [Pet Dance native Idle](PET_DANCE_POSTGAME_OPERATION.md) — postgame UI operation and offline evidence.
+- [Installed Dance/Idle trial](PET_DANCE_IDLE_LIVE_20261109.md) — PERFECT gameplay, interrupted attempt, postgame frame-admission failure, and supervised cleanup.
+- [Pet arenas and snacks](PET_TRAINING_LEVELS_AND_SNACKS.md) — sourced research, qualification and preferences.
+- [Native resolution plan](PET_DANCE_RESOLUTION_PLAN.md) — grid/client/ROI mapping and qualification gates.
+- [Workspace release checkpoint](WORKSPACE_RELEASE_20261109.md) — staged package, tests and remaining live gates.
+- [Game workspaces](GAME_WORKSPACES.md) — explicit game selection and session ownership.
+- [Roadmap](ROADMAP.md) — implementation order and gates.
+- [Earlier delivery course](DELIVERY_COURSE.md) — historical priorities and evidence; the current roadmap supersedes its work order.
+- [Earlier game-player gap analysis](GAME_PLAYER_GAP_ANALYSIS.md) — historical findings; use the current architecture audit for reconciled priorities.
+- [Language-free player learning](PLAYER_LEARNING_COMPARISON.md) — related systems and the offline-to-frozen-policy design.
+- [Aaroneous and Devtools reuse review](AARONEOUS_MAELSTROM_REUSE_REVIEW.md) — candidate components, compatibility gaps and shared testing opportunities.
+- [Research protocol and experiment index](RESEARCH_PROTOCOL.md) — study design, evidence standards and current results.
+- [Experiment workbench](EXPERIMENT_WORKBENCH.md) — in-app comparisons, frozen evidence, gameplay footage and the W101 home-session prerequisite.
+- [Wizard101 routines](W101_ROUTINES.md) — one game workspace, shared actions, categories and event-driven chaining.
+- [W101 Auto-Idle](HOME_MOVEMENT.md) — persistent choices, explicit session controls, desktop takeover, limits and live qualification gaps.
+- [W101 keep-active reuse check](W101_KEEP_ACTIVE_REUSE.md) — root ZIP references, native Idle, and the compact-HUD correction.
+- [Legacy W101 teachers](W101_LEGACY_TEACHERS.md) — archive inventory, source reuse, offline Pet Dance rehearsal and demonstration-learning boundaries.
+- [Pet Dance teacher](PET_DANCE_TEACHER.md) — repaired native adapter, local asset import, scale calibration, recording review and proposal packs.
+- [Pet Dance fade validation](PET_DANCE_FADE_VALIDATION_20261108.md) — complete recorded sequence review, loading-aware trials and remaining live gates.
+- [Pet Dance delivery tracker](PET_DANCE_DELIVERY_TRACKER_20261108.md) — evidence-based work status, live acceptance gates and parallel research tasks.
+- [Gameplay scene gates](GAMEPLAY_SCENE_GATES.md) — loading pauses, separate time budgets, fresh sequence resumption and the corrected live-trial interpretation.
+- [Pixel geometry diagnostic](PET_DANCE_CALIBRATION_DIAGNOSTIC.md) — exact GDI regression fixtures; encoded dimensions alone do not establish a capture transform.
+- [Complete Dance visit](PET_DANCE_LIFECYCLE.md) — tested proposal planner from approach through results and native Idle; detectors and dispatcher remain separate.
+- [Fresh full-visit observation](PET_DANCE_LIFECYCLE_OBSERVATION_20261109.md) — supervised menus, user demonstration arrows, frozen-profile evaluation and observed native Idle return; no audio or autonomous play.
+- [Session settings](GAME_SESSION_SETTINGS.md) — capture originals, propose changes and verify restoration without overwriting user changes; UI execution pending.
+- [W101 UI-only boundary](W101_UI_ONLY_BOUNDARY.md) — application admission checks for legacy launch paths and the separate, disabled memory-observation capability.
+- [Memory-observation research](W101_MEMORY_OBSERVATION_RESEARCH.md) and [desktop input options](DESKTOP_INPUT_OPTIONS.md) — sourced limits; no driver or protection changes.
+- [Legacy work packages](W101_LEGACY_WORK_PACKAGES.md) — dependencies, owners, reuse alternatives and acceptance gates across all 25 root archives.
+- [Pet snack research](W101_PET_SNACK_RESEARCH_20261108.md) and [configuration proposal](W101_PET_SNACK_CONFIGURATION.md) — separate training/Happiness choices, inventory reserves and proposed transaction rules.
+- [Read-only snack planner](PET_SNACK_PLANNER.md) — deterministic suggestions from supplied observations, with separate goals, reserves and budgets; no feeding.
+- [Game knowledge database](GAME_KNOWLEDGE_DATABASE.md) — tested local schema, source chronology, conflicting claims and staged domain imports; application integration pending.
+- [First knowledge importer](W101_KNOWLEDGE_IMPORT.md) — bounded pet-snack ledger to a new SQLite bundle with provenance and commit/hash receipt; no runtime enablement.
+- [Game audio cues](GAME_AUDIO_CUES.md) — current recorder limits, repaired legacy audio path and proposed opt-in process-specific capture and cue learning.
+- [Capture cancellation review](WINDOW_CAPTURE_CANCELLATION_REVIEW.md) — pending native-copy lifetime repair and tests needed for bounded caller cancellation.
+- [Installed W101 sources](W101_LOCAL_INSTALLATION_SOURCES.md) — bounded archive inventory, candidate pet/spell/minigame/navigation data and read-only import plan.
+- [Legacy qualification matrix](W101_LEGACY_QUALIFICATION.md) — all 25 supplied archives, independent alternatives, component tests, reproduced defects and build blockers.
+- [Legacy review validation](W101_LEGACY_VALIDATION_20261108.md) — measured results, concrete Maelstrom binding points, installed release and remaining runtime gaps.
+- [W101 capability integration map](W101_CAPABILITY_INTEGRATION_MAP.md) — all archive/tool roles, teacher-to-native paths, proposed operations, scheduler repairs and dependency-gated acceptance criteria.
+- [Shared operations](SHARED_OPERATIONS.md) — implemented bounded queue, native/Python input ownership, run history, scheduled Pet Dance review and remaining live gates.
+- [Shared operations validation](SHARED_OPERATIONS_VALIDATION_20261108.md) — installed release, tests, preserved user data and the brief native Idle return check.
+- [Destination navigation](W101_DESTINATION_NAVIGATION.md) — intended route/port planning, enemy avoidance, outcome checks and native Idle restoration.
+- [W101 route demonstration](W101_ROUTE_DEMONSTRATION.md) — passive video and navigation-key recording, human-ready coordination, measured capture limits and route-learning boundaries.
+- [Recorded Commons route and Tiny UI study](W101_DEMONSTRATION_20261108.md) — human route and Dance footage, synchronized input evidence, native arrow calibration and fade-transition gap.
+- [W101 operating knowledge and version history](W101_GAME_RESEARCH_20261108.md) — sourced travel mechanics, chronological changes, Tiny UI requirements, current observations and the first Pavilion route.
+- [Desktop player architecture](DESKTOP_GAME_PLAYER_PLAN.md) — shared foundation.
+- [Game Pack Workshop](GAME_PACK_WORKSHOP.md) — authoring and persistence design.
+- [Workshop quick guide](WORKSHOP_USER_GUIDE.md) — current offline window.
+- [Standalone profile](MAELSTROM_STANDALONE_PROFILE.md) — implemented baseline.
+- [Tools guide](TOOLS_USER_GUIDE.md), [activities](GUIDED_ACTIVITIES.md),
+  [observer](DIEGO_OBSERVER.md), [integrations](WIZARD101_INTEGRATION_GUIDE.md).
+
+## Evidence and recovery
+
+- [Gaming model trials](GAMING_MODEL_TRIALS.md) — local NitroGen and Generalist-IDM experiments and limits.
+- [MaaFramework and Airtest review](VISUAL_AUTOMATION_REUSE_REVIEW.md) — source-pinned decisions, offline probe and sampler/pack integration.
+
+- [Repository review](REPOSITORY_REUSE_REVIEW.md) and [local sources](LOCAL_REFERENCE_SOURCES.md).
+- [Recovery appendix](MAELSTROM_2_RECONSTRUCTION_PLAN.md) — source paths and repairs.
+- [Minigame research](MINIGAME_RESEARCH.md).
+- [Dodge offline learning research](DODGE_OFFLINE_LEARNING.md) — recorded-data models, evaluation limits, and isolated testing.
+- [Dueling Diego standalone reference](DUELING_DIEGO_REFERENCE_GAME.md) — local archive provenance and test limitations.
+- [Independence decision](ADR_MAELSTROM_INDEPENDENT.md).
+
+## History
+
+Earlier Aaroneous handoffs and server/toolkit documents remain reference material.
+The existing AARONEOUS_COMPATIBILITY.md also documents the current offline report
+shape; preserve compatibility despite its historical filename. The old README,
+server roadmap and assistant context are preserved in history/. Relative links in
+those snapshots retain their original locations and may need resolution from the
+repository root or original docs directory. They are not current setup instructions.

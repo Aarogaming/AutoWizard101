@@ -46,94 +46,22 @@ public class RunnerLogicTests
         Assert.Equal(url, result);
     }
 
-    [Fact]
-    public void LaunchProcess_RunsBatchInWorkingDirectory()
+    [Theory]
+    [InlineData("@echo %cd%>wd.txt\r\nexit /b 0", "")]
+    [InlineData("@echo %1 %2>args.txt\r\nexit /b 0", "\"argument with spaces\" arg2")]
+    [InlineData("@for /l %%i in (1,1,400) do @echo LINE%%i>>out.txt\r\nexit /b 0", "")]
+    [InlineData("@echo ERR_MSG 1>&2\r\n@echo ERR_MSG>err.txt\r\nexit /b 0", "")]
+    [InlineData("@exit /b 7", "")]
+    [InlineData("@echo OUTLINE>out.txt\r\n@echo ERRLINE 1>&2\r\n@echo ERRLINE>err.txt\r\nexit /b 0", "")]
+    public void LaunchProcess_RejectsLegacyCodeBeforeAnyBatchOrOutputSideEffect(string content, string arguments)
     {
         using var temp = new TempFolder();
-        var script = temp.WriteScript("@echo %cd%>wd.txt\r\nexit /b 0");
-
-        var process = InvokeLaunchProcess(script, arguments: string.Empty, temp.Path);
-        Assert.True(process.WaitForExit(5000));
-        Assert.Equal(0, process.ExitCode);
-
-        var wdText = File.ReadAllText(Path.Combine(temp.Path, "wd.txt")).Trim();
-        Assert.Equal(temp.Path, wdText, ignoreCase: true);
-    }
-
-    [Fact]
-    public void LaunchProcess_PassesArgumentsWithSpaces()
-    {
-        using var temp = new TempFolder();
-        var argsPath = Path.Combine(temp.Path, "args.txt");
-        var script = temp.WriteScript($"""
-@echo off
-setlocal
-echo %1 %2>"{argsPath}"
-exit /b 0
-""");
-
-        var process = InvokeLaunchProcess(script, "arg1 arg2", temp.Path);
-        Assert.True(process.WaitForExit(5000));
-        Assert.Equal(0, process.ExitCode);
-
-        Assert.True(File.Exists(argsPath), $"args file was not created; exit {process.ExitCode}");
-
-        var args = File.ReadAllText(argsPath).Trim();
-        Assert.Contains("arg1", args, StringComparison.Ordinal);
-        Assert.Contains("arg2", args, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void LaunchProcess_HandlesLargeStdoutViaFile()
-    {
-        using var temp = new TempFolder();
-        var script = temp.WriteScript("@for /l %%i in (1,1,400) do @echo LINE%%i>>out.txt\r\nexit /b 0");
-
-        var process = InvokeLaunchProcess(script, string.Empty, temp.Path);
-        Assert.True(process.WaitForExit(10000));
-        Assert.Equal(0, process.ExitCode);
-
-        var lines = File.ReadAllLines(Path.Combine(temp.Path, "out.txt"));
-        Assert.True(lines.Length >= 400, "expected at least 400 lines of output");
-    }
-
-    [Fact]
-    public void LaunchProcess_CanWriteStdErrToFile()
-    {
-        using var temp = new TempFolder();
-        var script = temp.WriteScript("@echo ERR_MSG 1>&2\r\n@echo ERR_MSG>err.txt\r\nexit /b 0");
-
-        var process = InvokeLaunchProcess(script, string.Empty, temp.Path);
-        Assert.True(process.WaitForExit(5000));
-        Assert.Equal(0, process.ExitCode);
-
-        var err = File.ReadAllText(Path.Combine(temp.Path, "err.txt")).Trim();
-        Assert.Equal("ERR_MSG", err);
-    }
-
-    [Fact]
-    public void LaunchProcess_PreservesNonZeroExitCodes()
-    {
-        using var temp = new TempFolder();
-        var script = temp.WriteScript("@exit /b 7");
-
-        var process = InvokeLaunchProcess(script, string.Empty, temp.Path);
-        Assert.True(process.WaitForExit(3000));
-        Assert.Equal(7, process.ExitCode);
-    }
-
-    [Fact]
-    public void LaunchProcess_WritesOutAndErrSeparately()
-    {
-        using var temp = new TempFolder();
-        var script = temp.WriteScript("@echo OUTLINE>out.txt\r\n@echo ERRLINE 1>&2\r\n@echo ERRLINE>err.txt\r\nexit /b 0");
-
-        var process = InvokeLaunchProcess(script, string.Empty, temp.Path);
-        Assert.True(process.WaitForExit(3000));
-        Assert.Equal(0, process.ExitCode);
-
-        Assert.Equal("OUTLINE", File.ReadAllText(Path.Combine(temp.Path, "out.txt")).Trim());
-        Assert.Equal("ERRLINE", File.ReadAllText(Path.Combine(temp.Path, "err.txt")).Trim());
+        var script = temp.WriteScript(content);
+        var invocation = Assert.Throws<TargetInvocationException>(() => InvokeLaunchProcess(script, arguments, temp.Path));
+        var error = Assert.IsType<InvalidOperationException>(invocation.InnerException);
+        Assert.Contains("UI-only mode", error.Message);
+        Assert.Equal(content, File.ReadAllText(script));
+        Assert.Equal(new[] { script }, Directory.GetFiles(temp.Path));
     }
 
     private static Process InvokeLaunchProcess(string entryFullPath, string arguments, string workingDirectory)

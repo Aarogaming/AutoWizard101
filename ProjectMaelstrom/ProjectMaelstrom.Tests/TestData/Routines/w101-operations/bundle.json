@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "w101-route-synthetic",
+  "game_id": "wizard101",
+  "context_id": "wizard101.route.synthetic.wizard-city.commons.pet-pavilion.dance",
+  "timeout_ms": 60000,
+  "max_actions": 40,
+  "modules": [
+    {
+      "schema_version": 1,
+      "id": "w101-synthetic.navigation",
+      "version": "1.0.0",
+      "kind": "navigation",
+      "game_id": "wizard101",
+      "required_facts": [
+        "wizard101.world.wizard-city",
+        "wizard101.route.synthetic",
+        "wizard101.movement-bindings"
+      ],
+      "configuration": {
+        "segments": [
+          {
+            "id": "first",
+            "from_scene": "Landmark.start",
+            "to_scene": "Landmark.junction",
+            "progress_scene": "Progress.first",
+            "action_id": "step-forward"
+          },
+          {
+            "id": "second",
+            "from_scene": "Landmark.junction",
+            "to_scene": "Landmark.sigil",
+            "progress_scene": "Progress.second",
+            "action_id": "turn-left"
+          }
+        ],
+        "actions": [
+          {
+            "action_id": "step-forward",
+            "kind": "keyboard-pulse",
+            "key": "W",
+            "duration_ms": 60,
+            "control_id": "verified-movement-area"
+          },
+          {
+            "action_id": "turn-left",
+            "kind": "keyboard-pulse",
+            "key": "A",
+            "duration_ms": 60,
+            "control_id": "verified-movement-area"
+          }
+        ],
+        "max_actions": 36,
+        "timeout_ms": 60000,
+        "transition_timeout_ms": 10000
+      }
+    },
+    {
+      "schema_version": 1,
+      "id": "w101-synthetic.sigil",
+      "version": "1.0.0",
+      "kind": "sigil",
+      "game_id": "wizard101",
+      "required_facts": [
+        "wizard101.world.wizard-city"
+      ],
+      "configuration": {
+        "entry_scene": "Landmark.sigil",
+        "menu_scene": "SigilMenu.dance",
+        "interaction": {
+          "action_id": "game.interact",
+          "kind": "keyboard-pulse",
+          "key": "X",
+          "duration_ms": 40,
+          "control_id": "sigil.dance"
+        },
+        "timeout_ms": 15000
+      }
+    },
+    {
+      "schema_version": 1,
+      "id": "w101-synthetic.cancel-menu",
+      "version": "1.0.0",
+      "kind": "menu",
+      "game_id": "wizard101",
+      "required_facts": [
+        "wizard101.world.wizard-city"
+      ],
+      "configuration": {
+        "steps": [
+          {
+            "id": "cancel",
+            "from_scene": "SigilMenu.dance",
+            "to_scene": "OutsideReady",
+            "action": {
+              "action_id": "game.cancel-menu",
+              "kind": "verified-control-click",
+              "key": null,
+              "duration_ms": 40,
+              "control_id": "sigil.dance.cancel"
+            }
+          }
+        ],
+        "allow_intermediate_entry": false,
+        "allow_already_complete": false,
+        "timeout_ms": 15000,
+        "transition_timeout_ms": 10000
+      }
+    },
+    {
+      "schema_version": 1,
+      "id": "w101-synthetic.native-idle",
+      "version": "1.0.0",
+      "kind": "auto-idle",
+      "game_id": "wizard101",
+      "required_facts": [
+        "wizard101.world.wizard-city"
+      ],
+      "configuration": {
+        "mode": "native",
+        "pulses": [],
+        "entry_scene": "IdleAreaReady",
+        "outcome_scenes": null,
+        "native_menu": {
+          "steps": [
+            {
+              "id": "open-menu",
+              "from_scene": "OutsideReady",
+              "to_scene": "MenuObserved",
+              "action": {
+                "action_id": "game.open-menu",
+                "kind": "keyboard-pulse",
+                "key": "ESCAPE",
+                "duration_ms": 40,
+                "control_id": "outside-menu-command"
+              }
+            },
+            {
+              "id": "select-idle",
+              "from_scene": "MenuObserved",
+              "to_scene": "NativeIdle",
+              "action": {
+                "action_id": "wizard101.native-idle",
+                "kind": "verified-control-click",
+                "key": null,
+                "duration_ms": 40,
+                "control_id": "game-menu.idle"
+              }
+            }
+          ],
+          "allow_intermediate_entry": true,
+          "allow_already_complete": true,
+          "timeout_ms": 15000,
+          "transition_timeout_ms": 10000
+        },
+        "timeout_ms": 15000,
+        "native_idle_scene": "NativeIdle"
+      }
+    }
+  ]
+}

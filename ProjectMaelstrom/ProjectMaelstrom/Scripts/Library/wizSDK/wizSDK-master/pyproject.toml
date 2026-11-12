@@ -11,7 +11,7 @@ asyncio = "^3.4.3"
 numpy = "^1.19.1"
 opencv-python = "^4.4.0"
 asyncchain = "^0.1.0"
-wizwalker = "^1.x.x"
+wizwalker = ">=1.8.1,<2"
 Sphinx = "^3.4.3"
 
 [tool.poetry.dev-dependencies]

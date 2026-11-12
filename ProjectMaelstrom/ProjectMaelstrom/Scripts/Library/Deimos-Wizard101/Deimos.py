@@ -1,3 +1,4 @@
+# AutoWizard101 guided activity hooks added 2026-10-30; upstream license retained.
 import asyncio
 import traceback
 import requests
@@ -21,6 +22,7 @@ import datetime
 from configparser import ConfigParser
 import statistics
 import re
+maelstrom_run = globals().get("maelstrom_run")
 # import pypresence
 from pypresence import AioPresence
 from src.command_parser import execute_flythrough, parse_command
@@ -48,7 +50,7 @@ from src.deimosgui import GUIKeys
 from src.tokenizer import tokenize
 from src.deimoslang import vm
 
-gui.set_global_icon("..\\Deimos-logo.ico")
+gui.set_global_icon(os.path.join(os.path.dirname(__file__), "Deimos-logo.ico"))
 gui.PySimpleGUI.SUPPRESS_ERROR_POPUPS = True
 gui.PySimpleGUI.SUPPRESS_RAISE_KEY_ERRORS = True
 
@@ -211,12 +213,13 @@ def read_config(config_name : str):
 
 
 while True:
-	if not os.path.exists(f'{tool_name}-config.ini'):
+	config_path = os.environ.get('MAELSTROM_DEIMOS_CONFIG', f'{tool_name}-config.ini')
+	if not os.path.exists(config_path):
 		# download_file(f'https://raw.githubusercontent.com/{tool_author}/{repo_name}/{branch}/{tool_name}-config.ini', f'{tool_name}-config.ini')
 		download_file(f'{repo_path_raw}/{tool_name}-config.ini', f'{tool_name}-config.ini')
 	time.sleep(0.1)
 
-	read_config(f'{tool_name}-config.ini')
+	read_config(config_path)
 	break
 
 while True:
@@ -1272,6 +1275,15 @@ async def main():
 		global recv_queue
 		gui_send_queue = queue.Queue()
 		recv_queue = queue.Queue()
+		if maelstrom_run is not None:
+			# The trainer owns guided controls and progress; no second setup window.
+			while True:
+				try:
+					while True:
+						gui_send_queue.get_nowait()
+				except queue.Empty:
+					pass
+				await asyncio.sleep(0.2)
 		# swap queue order because sending from window means receiving from here
 		gui_thread = threading.Thread(
 			target=deimosgui.manage_gui,
@@ -1986,6 +1998,8 @@ async def main():
 				await asyncio.gather(*[p.activate_hooks() for p in walker.clients])
 			except wizwalker.errors.PatternFailed as e:
 				logger.critical(f"Error occured in the hooking process. {e}")
+				if maelstrom_run is not None:
+					raise RuntimeError("Game connection setup failed; check compatibility with the current game build.") from e
 
 				clients_check = walker.clients
 				async def refresh_clients(delay: float = 0.5):
@@ -2115,6 +2129,13 @@ async def main():
 		anti_afk_questing_loop_task = asyncio.create_task(anti_afk_questing_loop())
 		ban_watcher_task = asyncio.create_task(ban_watcher())
 		tool_active_task = asyncio.create_task(tool_active())
+		if maelstrom_run is not None:
+			await maelstrom_run.start_deimos(walker.clients, {
+				'combat': toggle_combat_hotkey,
+				'dialogue': toggle_dialogue_hotkey,
+				'questing': toggle_questing_hotkey,
+				'farming': toggle_sigil_hotkey,
+			})
 
 		# while True:
 		# await asyncio.wait([foreground_client_switching_task, speed_switching_task, combat_loop_task, assign_foreground_clients_task, dialogue_loop_task, anti_afk_loop_task, sigil_loop_task, in_combat_loop_task, questing_leader_combat_detection_task, gui_task, potion_usage_loop_task, rpc_loop_task, drop_logging_loop_task, zone_check_loop_task])
@@ -2207,7 +2228,7 @@ if __name__ == "__main__":
 	# handle_tool_updating()
 
 	current_log = logger.add(f"logs/{tool_name} - {generate_timestamp()}.log", encoding='utf-8', enqueue=True, backtrace=True)
-	asyncio.run(main())
+	asyncio.run(maelstrom_run.run_deimos(main) if maelstrom_run is not None else main())
 	# global gui_send_queue
 	# gui_send_queue.put(deimosgui.GUICommand(deimosgui.GUICommandType.Close))
 	# gui_task.cancel()

@@ -58,7 +58,7 @@ class wizAPI:
         # Read the images from the file
         small_image = cv2.imread(smallImg)
         large_image = cv2.imread(largeImg)
-        w, h = small_image.shape[:-1]
+        h, w = small_image.shape[:2]
 
         result = cv2.matchTemplate(small_image, large_image, method)
 

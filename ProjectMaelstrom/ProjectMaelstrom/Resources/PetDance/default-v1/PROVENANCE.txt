@@ -1,0 +1,7 @@
+Maelstrom Pet Dance preset default-v1
+Source: local user-authorized Wizard101 Dance demonstrations and audio calibration, 2026-11-09.
+Original visual profile SHA256: 4054E4E1BDCA825D2A69386ACD44E9CFB6B52292727229DE60FF8BC8974105A0
+Original audio comparison SHA256: AEA53362D10F6131725AD8C582F33B4285B9E5EC76BB8B2256F1364D7DB6D37E
+The eleven image files and audio comparison are copied unchanged. Visual profile Source metadata was replaced to remove machine-specific paths; geometry, thresholds, image hashes and scale candidates are unchanged.
+Qualified live: 1280x720 windowed, Large UI, Windows display scaling125%, whole-window captures1282x759. Tiny has prior live/replay evidence; other sizes/resolutions require separate qualification.
+This is the bundled default preset, not user training history. User recordings, packs and reports remain in their existing Data folder and are not included here.

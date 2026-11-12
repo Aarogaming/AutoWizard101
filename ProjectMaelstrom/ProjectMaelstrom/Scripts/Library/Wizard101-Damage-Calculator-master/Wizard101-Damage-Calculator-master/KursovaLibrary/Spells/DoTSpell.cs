@@ -10,27 +10,36 @@ namespace KursovaLibrary
 
         public override string CalculateDamage(List<DamageModificator> _dm, Wizard wizard, Boss boss, double Enchant, double Critical)
         {
-            _dm.Reverse();
+            var modifiers = new List<DamageModificator>(_dm ?? []);
+            modifiers.Reverse();
 
-            var _dm2 = new List<DamageModificator>(_dm);
+            modifiers = CheckPierce(wizard?.Pierce ?? 0, boss?.Resist ?? 0, modifiers);
 
-            _dm2 = CheckPierce(wizard.Pierce, boss.Resist, _dm2);
+            double baseDamage = BaseDamage;
+            double dot = DoT;
 
-            foreach (DamageModificator d in _dm2)
+            if (baseDamage > 0)
             {
-                BaseDamage *= d.Damage;
-                DoT *= d.Damage;
+                baseDamage += Enchant;
+            }
+            else
+            {
+                dot += Enchant;
             }
 
-            BaseDamage *= CheckStats(wizard, boss);
-            DoT *= CheckStats(wizard, boss);
+            foreach (DamageModificator d in modifiers)
+            {
+                baseDamage *= d.Damage;
+                dot *= d.Damage;
+            }
 
-            BaseDamage += wizard.FlatDamage;
-            DoT += wizard.FlatDamage;
+            baseDamage *= CheckStats(wizard, boss);
+            dot *= CheckStats(wizard, boss);
 
-            _dm.Reverse();
+            baseDamage += wizard?.FlatDamage ?? 0;
+            dot += wizard?.FlatDamage ?? 0;
 
-            return $"Your Damage will be: {(int)BaseDamage} + {(int)DoT} overtime. And {(int)(BaseDamage*Critical)} + {(int)(DoT*Critical)} overtime if it Crits.";
+            return $"Your Damage will be: {(int)baseDamage} + {(int)dot} overtime. And {(int)(baseDamage * Critical)} + {(int)(dot * Critical)} overtime if it Crits.";
         }
     }
 }

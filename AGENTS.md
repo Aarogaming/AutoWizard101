@@ -1,7 +1,7 @@
 # Aaroneous Automation Suite — Codex Working Agreement (AGENTS.md)
 
 ## Mission
-Aaroneous Automation Suite builds: <one sentence: what it is, who it serves, success criteria>.
+Maelstrom is a lightweight desktop game-player and experiment workbench: users select a game workspace, record and teach reusable game packs, and run bounded routines whose outcomes are verified from observations. A game pack supplies game-specific knowledge; shared capture, action ownership, transitions and replay remain reusable across games.
 
 ## Golden rules
 - Make the smallest safe change that solves the task.
@@ -14,13 +14,32 @@ Aaroneous Automation Suite builds: <one sentence: what it is, who it serves, suc
 - Commit style: conventional commits (feat:, fix:, refactor:, test:, docs:)
 - Before finalizing: run format + lint + tests.
 
-## How to run the project (fill these in)
-- Install: <e.g., pnpm i / npm ci / poetry install>
-- Lint: <command>
-- Format: <command>
-- Unit tests: <command>
-- Integration/e2e: <command>
-- Typecheck/build: <command>
+## Start here
+- Read `docs/PROJECT_ORGANIZATION.md`, `docs/PRODUCT.md`, `docs/ROADMAP.md` and the relevant workstream in `docs/coordination/workstreams.json`.
+- `docs/INDEX.md` is the documentation map. Dated reports are historical evidence, not the current project status.
+- Before edits, claim a bounded task and declare owned paths using `docs/coordination/EXTERNAL_AGENT_GUIDE.md`. All agents share this checkout. Existing modified/untracked files belong to ongoing work: never reset, clean, discard, mass-format or commit them without explicit direction.
+- Keep research, implementation, offline verification, installation and live qualification separate. A successful proposal/dispatch is not proof of a game outcome.
+- Do not start a second controller, capture job, model, installer or build concurrently. The coordinator owns integration and the build slot. Offline pure tests for disjoint Python tasks may run in parallel.
+- Report the workstream status and evidence when completing a task. The coordinator updates the central board and `docs/coordination/claims.json` unless that file is explicitly assigned to another agent. Do not mark a whole game complete because one component passes.
+
+## How to run the project
+Run from this repository root in PowerShell. No new production dependencies without approval.
+
+- Native build: `$env:DOTNET_PROCESSOR_COUNT='2'; dotnet build ProjectMaelstrom/ProjectMaelstrom/ProjectMaelstrom.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -warnaserror`
+- Native tests: `$env:DOTNET_PROCESSOR_COUNT='2'; dotnet test ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -warnaserror` (use a relevant `--filter` during implementation; the coordinator runs the complete suite).
+- Native formatting: `dotnet format whitespace ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj --no-restore --include <owned changed C# paths>`; repeat with `--verify-no-changes`.
+- Native lint: `dotnet format analyzers ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj --no-restore --verify-no-changes --include <owned changed C# paths>` plus the warnings-as-errors build above.
+- Python tests: `python -m unittest discover -s tools/tests -p test_<component>.py` (stdlib tests; optional vision tools use existing isolated environments).
+- Python formatting: `python -m black --check <owned changed Python paths>`; syntax: `python -m compileall -q <owned changed Python paths>`. Run any component-specific lint/checker too; do not claim a linter ran if it was unavailable.
+- Project-board check: `python tools/check_project_board.py`.
+- Offline routine replay: native executable `--replay-routine <routine.json> <session.json> <new-report.json>`; no desktop input is available in this mode. See `docs/ROUTINE_GRAPHS.md`.
+- Packaging/installation: follow `PACKAGING.md` only when assigned. An offline task does not authorize live gameplay or installation.
+
+## Runtime boundaries
+- Keep resource use bounded, default to local rules and offline replay, and preserve one shared input owner, cancellation and user takeover.
+- Default game interaction is UI-only. The owner's 2026-11-10 W101-specific exception authorizes reviewed client-side functionality, including necessary process reads, hooks, injection and memory writes; it supersedes the earlier read-only interpretation. Keep this optional and disabled by default, retain independently usable visual operation, and qualify each adapter through the shared scheduler/control owner with target validation, cancellation, cleanup and evidence. Network manipulation remains excluded (live interception, crafted/replayed/injected packets or traffic rewriting); installed game files remain read-only. Do not re-ask the settled architectural approval, and do not equate authorization with a working integration or activate tools in unrelated tasks. See `docs/W101_CLIENT_SIDE_EXCEPTION_20261110.md`.
+- Do not touch volume, feed snacks, spend Crowns, restart the client, or take desktop control as part of a background task.
+- Live tests require the coordinator's explicit scope and current user authorization. Restore/verify native Idle only within that authorized control window; never evade user takeover to perform cleanup.
 
 ## Coding standards
 - Follow existing patterns in this repo (naming, folder structure, error handling).

@@ -58,6 +58,11 @@ public partial class BazaarReagentBot : Form
 
     private void startButton_Click(object sender, EventArgs e)
     {
+        if (!_botStarted && GameInputLease.Current == null)
+        {
+            MessageBox.Show("This historical purchasing routine has not been converted to the shared scheduler. Use Wizard101's routine workspace and Legacy library to review its current readiness.", "Routine needs qualification");
+            return;
+        }
         if (!_botStarted)
         {
             _runTimer.Start();
@@ -110,7 +115,7 @@ public partial class BazaarReagentBot : Form
         if (item.HasValue)
         {
             label1.Text = "Found item";
-            WinAPI.click(item.Value);
+            _playerController.Click(item.Value);
             BuyReagent();
         }
         else
@@ -125,7 +130,7 @@ public partial class BazaarReagentBot : Form
 
         if (buyMoreBtn.HasValue)
         {
-            WinAPI.click(buyMoreBtn.Value);
+            _playerController.Click(buyMoreBtn.Value);
 
             Point? buyCount = WaitForImage($"{StorageUtils.GetAppPath()}/Bazaar/buyCount.png", TimeSpan.FromSeconds(10));
 
@@ -133,7 +138,7 @@ public partial class BazaarReagentBot : Form
             {
                 Point test = buyCount.Value;
                 test.X += 10;
-                WinAPI.click(test);
+                _playerController.Click(test);
                 _playerController.PressNumber9();
                 _playerController.PressNumber9();
                 _playerController.PressNumber9();
@@ -143,14 +148,14 @@ public partial class BazaarReagentBot : Form
 
             if (buyBtn.HasValue)
             {
-                WinAPI.click(buyBtn.Value);
+                _playerController.Click(buyBtn.Value);
             }
 
             Point? okBtn = WaitForImage($"{StorageUtils.GetAppPath()}/Bazaar/okBtn.png", TimeSpan.FromSeconds(10));
 
             if (okBtn.HasValue)
             {
-                WinAPI.click(okBtn.Value);
+                _playerController.Click(okBtn.Value);
             }
         }
     }
@@ -161,7 +166,7 @@ public partial class BazaarReagentBot : Form
 
         if (refreshBtn.HasValue)
         {
-            WinAPI.click(refreshBtn.Value);
+            _playerController.Click(refreshBtn.Value);
         }
     }
 

@@ -50,6 +50,16 @@ internal sealed class WizWikiDataService
         LoadObservedSpawns();
     }
 
+    internal static IReadOnlyList<WikiMob> MergeMobSources(IEnumerable<WikiMob> primary, IEnumerable<WikiMob> companion)
+    {
+        // Preserve primary entries, matching names and locations without case differences.
+        var keys = new HashSet<(string, string)>();
+        return primary.Concat(companion)
+            .Where(mob => !string.IsNullOrWhiteSpace(mob.Name))
+            .Where(mob => keys.Add((mob.Name.Trim().ToUpperInvariant(), (mob.Zone ?? string.Empty).Trim().ToUpperInvariant())))
+            .ToList();
+    }
+
     private void TryLoad()
     {
         try
@@ -58,7 +68,8 @@ internal sealed class WizWikiDataService
             var candidates = new[]
             {
                 Path.Combine(scriptsRoot, "Library", "WizWikiAPI-main", "wizwiki_cache.json"),
-                Path.Combine(scriptsRoot, "Library", "WizWikiAPI-main", "wizwiki_data.json")
+                Path.Combine(scriptsRoot, "Library", "WizWikiAPI-main", "wizwiki_data.json"),
+                Path.Combine(scriptsRoot, "Library", "WizWikiAPI-main", "wizwiki_companion.json")
             };
 
             var path = candidates.FirstOrDefault(File.Exists);
@@ -77,6 +88,23 @@ internal sealed class WizWikiDataService
                 HasData = true;
                 DevTelemetry.Log("WizWikiData", $"Loaded {_mobs.Count} mobs from {Path.GetFileName(path)}");
             }
+
+            var companionPath = Path.Combine(Path.GetDirectoryName(path)!, "wizwiki_companion.json");
+            if (!string.Equals(path, companionPath, StringComparison.OrdinalIgnoreCase) && File.Exists(companionPath))
+            {
+                try
+                {
+                    var companion = JsonSerializer.Deserialize<List<WikiMob>>(File.ReadAllText(companionPath), _jsonOptions);
+                    var merged = MergeMobSources(_mobs, companion ?? new List<WikiMob>());
+                    _mobs.Clear();
+                    _mobs.AddRange(merged);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("[WizWikiData] Could not read Companion cache; keeping existing data", ex);
+                }
+            }
+            HasData = _mobs.Count > 0;
 
             // Optional crafting recipes
             var recipePath = Path.Combine(Path.GetDirectoryName(path) ?? scriptsRoot, "wizwiki_crafting.json");

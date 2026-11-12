@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "id": "combat-turn-decision",
+  "game_id": "wizard101",
+  "start_node": "combat_start",
+  "timeout_ms": 60000,
+  "max_actions": 10,
+  "pause_scenes": [
+    "Loading",
+    "Unknown"
+  ],
+  "nodes": [
+    {
+      "id": "combat_start",
+      "edges": [
+        {
+          "id": "detect_hand",
+          "scene": "CombatEntered",
+          "action_id": "combat.detect-hand",
+          "expected_scenes": [
+            "HandObserved"
+          ],
+          "next_node": "eval_turn",
+          "timeout_ms": 10000,
+          "requires_control": false
+        }
+      ]
+    },
+    {
+      "id": "eval_turn",
+      "edges": [
+        {
+          "id": "plan_turn",
+          "scene": "HandObserved",
+          "action_id": "combat.evaluate-turn",
+          "expected_scenes": [
+            "TurnPlanReady"
+          ],
+          "next_node": "execute_decision",
+          "timeout_ms": 10000,
+          "requires_control": false
+        }
+      ]
+    },
+    {
+      "id": "execute_decision",
+      "edges": [
+        {
+          "id": "dispatch_action",
+          "scene": "TurnPlanReady",
+          "action_id": "combat.dispatch-card",
+          "expected_scenes": [
+            "ActionDispatched"
+          ],
+          "next_node": "round_resolving",
+          "timeout_ms": 15000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "round_resolving",
+      "edges": [
+        {
+          "id": "observe_round",
+          "scene": "ActionDispatched",
+          "action_id": "combat.observe-round",
+          "expected_scenes": [
+            "RoundComplete",
+            "CombatVictory"
+          ],
+          "next_node": "combat_loop",
+          "timeout_ms": 30000,
+          "requires_control": false
+        }
+      ]
+    },
+    {
+      "id": "combat_loop",
+      "edges": [
+        {
+          "id": "continue_rounds",
+          "scene": "RoundComplete",
+          "action_id": "combat.prepare-round",
+          "expected_scenes": [
+            "CombatEntered"
+          ],
+          "next_node": "combat_start",
+          "timeout_ms": 10000,
+          "requires_control": false
+        },
+        {
+          "id": "finish_combat",
+          "scene": "CombatVictory",
+          "action_id": "combat.collect-rewards",
+          "expected_scenes": [
+            "CombatFinished"
+          ],
+          "next_node": "done",
+          "timeout_ms": 15000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "edges": [],
+      "complete_scene": "CombatFinished"
+    }
+  ]
+}

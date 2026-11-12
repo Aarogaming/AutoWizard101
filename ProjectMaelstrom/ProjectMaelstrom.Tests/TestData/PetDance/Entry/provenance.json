@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "fixture": "entry-ocr.json",
+  "fixture_sha256": "22dd94a7b92d5c5a2e86b5e01c389080b3061c25a3e41abdfd63d15116b614b4",
+  "ocr_report": ".local/dance-menu-review-6.json",
+  "ocr_report_sha256": "880427e0dbaa01aa875d519d9ab00f2149aaf51300f8a756a5b6478502befa45",
+  "evidence_mode": "saved-game-pixel OCR, extracted without rerunning OCR",
+  "capture_geometry": "1282x760 outer window; not a 1282x760 client or native-resolution qualification",
+  "actual_capture_times": null,
+  "test_timebase": "Tests supply independent synthetic monotonic times; image timestamps are not reconstructed.",
+  "manual_annotations": [
+    {
+      "frame_id": "instructions-hovered",
+      "level": "WizardCity",
+      "bounds": {
+        "x": 452,
+        "y": 485,
+        "width": 59,
+        "height": 58
+      },
+      "identity_basis": "Manually read Wizard City hover tooltip adjacent to this icon.",
+      "selection_verified": false,
+      "selection_limit": "Hover, tooltip and selected-looking highlight coincide; there is no hover-only negative or selected-without-hover control.",
+      "play_enabled_visually_observed": true
+    },
+    {
+      "frame_id": "sigil-title-unread",
+      "sigil_title_bounds": {
+        "x": 525,
+        "y": 642,
+        "width": 75,
+        "height": 15
+      },
+      "basis": "Conservative manual title bounds from saved image; not an automatic title detector."
+    },
+    {
+      "frame_id": "loading-artwork",
+      "loading_visually_observed": true,
+      "basis": "Saved loading artwork review; empty OCR alone remains Unknown."
+    }
+  ],
+  "limits": [
+    "OCR recognizes PLAY on disabled and enabled controls; text is not enabled-state proof.",
+    "The requested arena is not inferred from unrelated quest text or a tooltip alone.",
+    "No live capture/input, new OCR, model, network request or game interaction was used.",
+    "No saved fixture qualifies automatic selected-level detection."
+  ],
+  "play_button_references": [
+    {
+      "state": "disabled",
+      "file": "play-disabled.png",
+      "sha256": "bd6d2c7e35f571e0ee8399fe053e571f038e6257404cb974bc7b41c0a2f92950",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-006.png",
+      "source_sha256": "78c7e1cd3482a0bc0130ee180f559875751d23c4a023353ac74062428b5f0de1",
+      "source_bounds": {
+        "x": 754,
+        "y": 568,
+        "width": 90,
+        "height": 25
+      },
+      "ocr_play_bounds": {
+        "x": 778,
+        "y": 574,
+        "width": 42,
+        "height": 11
+      },
+      "label_basis": "Manual visual review of actual disabled gray / enabled yellow PLAY control. Same recorded visit; not a holdout."
+    },
+    {
+      "state": "enabled",
+      "file": "play-enabled.png",
+      "sha256": "e3e400358d7338883210e6b792d77bb5150d1c0447689fedc6e736e487875b8f",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-013.png",
+      "source_sha256": "7004d579dd1234ea3a0af71b997b851fb58a1e5543ee34127839c307f0776c40",
+      "source_bounds": {
+        "x": 754,
+        "y": 568,
+        "width": 90,
+        "height": 25
+      },
+      "ocr_play_bounds": {
+        "x": 778,
+        "y": 574,
+        "width": 42,
+        "height": 12
+      },
+      "label_basis": "Manual visual review of actual disabled gray / enabled yellow PLAY control. Same recorded visit; not a holdout."
+    }
+  ],
+  "play_button_limits": [
+    "Only enabled/disabled appearance is labeled; selected arena is still unqualified.",
+    "The crop formula expands the OCR text box using its width; no screen click coordinates are generated.",
+    "Both references come from the same recorded visit and UI configuration. Independent UI-scale/capture examples remain required."
+  ]
+}

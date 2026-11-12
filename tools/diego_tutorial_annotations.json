@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "source": "https://www.youtube.com/watch?v=fFNtf3KcLms",
+  "credit": "Wizard101 Dueling Diego Walkthrough — MegaBigbud11",
+  "sourceSize": [648, 400],
+  "playArea": [0, 45, 648, 355],
+  "captureNote": "Manually reviewed game-area screenshots; source video is historical. No enemy order or timing model is learned.",
+  "examples": [
+    {"frame": "frame-0042.jpg", "label": "Diego", "box": [134, 142, 97, 115]},
+    {"frame": "frame-0042.jpg", "label": "Barrel", "box": [193, 301, 65, 65]},
+    {"frame": "frame-0084.jpg", "label": "Diego", "box": [114, 220, 115, 129]},
+    {"frame": "frame-0084.jpg", "label": "Pirate", "box": [258, 202, 150, 151]},
+    {"frame": "frame-0109.jpg", "label": "Diego", "box": [110, 220, 121, 130]},
+    {"frame": "frame-0109.jpg", "label": "Gobbler", "box": [332, 201, 96, 148]},
+    {"frame": "frame-0126.jpg", "label": "Diego", "box": [130, 141, 105, 112]},
+    {"frame": "frame-0126.jpg", "label": "Fire Elf", "box": [432, 282, 59, 70]},
+    {"frame": "frame-0126.jpg", "label": "Projectile", "box": [40, 311, 44, 20]},
+    {"frame": "frame-0226.jpg", "label": "Diego", "box": [134, 157, 113, 116]},
+    {"frame": "frame-0226.jpg", "label": "Nose Goblin", "box": [397, 250, 106, 106]},
+    {"frame": "frame-0226.jpg", "label": "Projectile", "box": [240, 281, 128, 27]},
+    {"frame": "frame-0253.jpg", "label": "Diego", "box": [123, 217, 120, 133]},
+    {"frame": "frame-0253.jpg", "label": "Nose Goblin", "box": [329, 233, 106, 121]},
+    {"frame": "frame-0337.jpg", "label": "Diego", "box": [120, 218, 123, 132]},
+    {"frame": "frame-0337.jpg", "label": "Skeleton", "box": [513, 217, 125, 136]},
+    {"frame": "frame-0409.jpg", "label": "Diego", "box": [110, 218, 120, 131]},
+    {"frame": "frame-0409.jpg", "label": "Roberto", "box": [392, 210, 176, 143]},
+    {"frame": "frame-0409.jpg", "label": "Falling stalactite", "box": [267, 225, 25, 78]}
+  ],
+  "heldOut": [
+    {"frame": "frame-0043.jpg", "expectedLabels": ["Diego", "Barrel"]}
+  ]
+}

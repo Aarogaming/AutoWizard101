@@ -21,6 +21,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
+    <InternalsVisibleTo Include="ProjectMaelstrom.Tests" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,7 +43,16 @@
 
   <ItemGroup>
     <None Include="Resources\AppIcon.ico" />
+    <None Update="Resources\PetDance\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <EmbeddedResource Include="Resources\LegacyW101Catalog.json" LogicalName="Maelstrom.LegacyW101Catalog.json" />
+    <EmbeddedResource Include="Resources\Routines\*.json" LogicalName="Maelstrom.Routines.%(Filename)%(Extension)" />
     <Compile Remove="Scripts\**" />
+    <!-- Unintegrated peer scan-cycle experiment is retained and tested offline,
+         but must not ship as a second execution/controller path. -->
+    <Compile Remove="Utilities\GenericMacroDeck.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -277,4 +287,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(OfflineWorkshopPackage)' == 'true'">
+    <Content Remove="Scripts\**" />
+    <None Remove="Scripts\**" />
+  </ItemGroup>
 </Project>

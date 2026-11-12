@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "horizontal-line-3",
+      "description": "Simple horizontal line of three red potions",
+      "grid": [
+        ["red", "red", "red", "blue"],
+        ["green", "yellow", "purple", "blue"],
+        ["blue", "green", "yellow", "red"],
+        ["purple", "blue", "green", "yellow"]
+      ],
+      "expected_groups": [
+        [[0, 0], [0, 1], [0, 2]]
+      ],
+      "expected_min_score": 30
+    },
+    {
+      "id": "bent-l-shape-4",
+      "description": "Bent L-shape connected group of four yellow potions",
+      "grid": [
+        ["yellow", "blue", "green", "purple"],
+        ["yellow", "blue", "red", "green"],
+        ["yellow", "yellow", "blue", "red"],
+        ["purple", "green", "red", "blue"]
+      ],
+      "expected_groups": [
+        [[0, 0], [1, 0], [2, 0], [2, 1]]
+      ],
+      "expected_min_score": 45
+    },
+    {
+      "id": "diagonal-contact-no-match",
+      "description": "Three potions touching diagonally do NOT form a match",
+      "grid": [
+        ["red", "blue", "green", "purple"],
+        ["blue", "red", "yellow", "green"],
+        ["green", "blue", "red", "purple"],
+        ["purple", "yellow", "green", "blue"]
+      ],
+      "expected_groups": [],
+      "expected_min_score": 0
+    },
+    {
+      "id": "wrapping-row-shift-match",
+      "description": "Row shift that creates a match only when wrapping is allowed",
+      "grid": [
+        ["red", "blue", "green", "red"],
+        ["purple", "red", "yellow", "blue"],
+        ["green", "blue", "yellow", "purple"],
+        ["yellow", "green", "purple", "blue"]
+      ],
+      "requires_wrapping": true
+    }
+  ]
+}

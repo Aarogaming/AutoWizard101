@@ -1,0 +1,2 @@
+{"event_id":"obs-1","kind":"observation","sequence":1,"time_ms":0,"payload":{"state":"arrow-right"}}
+{"event_id":"obs-2","kind":"observation","sequence":2,"time_ms":50,"payload":{"state":"match-column"}}

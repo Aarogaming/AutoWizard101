@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "id": "pet-dance-visit-draft",
+  "game_id": "wizard101",
+  "start_node": "sigil",
+  "timeout_ms": 180000,
+  "max_actions": 8,
+  "pause_scenes": [
+    "Loading",
+    "Unknown"
+  ],
+  "nodes": [
+    {
+      "id": "sigil",
+      "edges": [
+        {
+          "id": "interact",
+          "scene": "DanceSigil",
+          "action_id": "game.interact",
+          "expected_scenes": [
+            "InstructionsUnselected"
+          ],
+          "next_node": "select",
+          "timeout_ms": 15000,
+          "requires_control": false
+        }
+      ]
+    },
+    {
+      "id": "select",
+      "edges": [
+        {
+          "id": "choose-level",
+          "scene": "InstructionsUnselected",
+          "action_id": "pet-dance.choose-level",
+          "expected_scenes": [
+            "InstructionsReady"
+          ],
+          "next_node": "start",
+          "timeout_ms": 15000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "start",
+      "edges": [
+        {
+          "id": "play",
+          "scene": "InstructionsReady",
+          "action_id": "game.play",
+          "expected_scenes": [
+            "Watch"
+          ],
+          "next_node": "teacher",
+          "timeout_ms": 60000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "teacher",
+      "edges": [
+        {
+          "id": "teach",
+          "scene": "Watch",
+          "action_id": "pet-dance.teacher",
+          "expected_scenes": [
+            "GameResult"
+          ],
+          "next_node": "reward",
+          "timeout_ms": 90000,
+          "requires_control": false
+        }
+      ]
+    },
+    {
+      "id": "reward",
+      "edges": [
+        {
+          "id": "next",
+          "scene": "GameResult",
+          "action_id": "pet-dance.next",
+          "expected_scenes": [
+            "SnackOffer"
+          ],
+          "next_node": "snack",
+          "timeout_ms": 45000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "snack",
+      "edges": [
+        {
+          "id": "finish",
+          "scene": "SnackOffer",
+          "action_id": "pet-dance.finish-without-snack",
+          "expected_scenes": [
+            "OutsideAfterGame"
+          ],
+          "next_node": "outside",
+          "timeout_ms": 45000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "outside",
+      "edges": [
+        {
+          "id": "menu",
+          "scene": "OutsideAfterGame",
+          "action_id": "game.open-menu",
+          "expected_scenes": [
+            "MenuObserved"
+          ],
+          "next_node": "menu",
+          "timeout_ms": 45000,
+          "requires_control": false
+        }
+      ]
+    },
+    {
+      "id": "menu",
+      "edges": [
+        {
+          "id": "idle",
+          "scene": "MenuObserved",
+          "action_id": "wizard101.native-idle",
+          "expected_scenes": [
+            "NativeIdle"
+          ],
+          "next_node": "done",
+          "timeout_ms": 45000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "edges": [],
+      "complete_scene": "NativeIdle"
+    }
+  ]
+}

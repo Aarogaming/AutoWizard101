@@ -1,0 +1,62 @@
+{
+  "kind": "saved-pixel-regression-fixtures",
+  "evidence": "Unscaled crops from existing decoded video frames. Later client-resolution transforms in tests are synthetic, not native-resolution capture qualification.",
+  "entries": [
+    {
+      "fixture": "recorded-watch-down-grid.png",
+      "sha256": "650C8DEA22500CE5D3C32DCFA0FD0E6D81795D10480928C2A789C3EB9E574A49",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-064.png",
+      "source_sha256": "B407AA9E205B4F9A43B4CE8D1AD06F8C68CBBCFE28F327EF2521A8355A8BD8D8",
+      "source_width": 1282,
+      "source_height": 760,
+      "crop": [
+        427,
+        379,
+        427,
+        379
+      ]
+    },
+    {
+      "fixture": "recorded-watch-down-top.png",
+      "sha256": "9BCFDB2ABB2E2A14E4FC5E38FDB52FE0D8E75D9EE3A329062550060949F10C13",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-064.png",
+      "source_sha256": "B407AA9E205B4F9A43B4CE8D1AD06F8C68CBBCFE28F327EF2521A8355A8BD8D8",
+      "source_width": 1282,
+      "source_height": 760,
+      "crop": [
+        512,
+        100,
+        256,
+        40
+      ]
+    },
+    {
+      "fixture": "recorded-go-grid.png",
+      "sha256": "72B1493C5A246D1BDC7220B43C0E4B4B90C035FF5849BDD4EF722E4D9510A854",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-036.png",
+      "source_sha256": "03B71C2460AB37AC02180904062B53045208F767E756A8AA86365F9EF9C7F0F4",
+      "source_width": 1282,
+      "source_height": 760,
+      "crop": [
+        427,
+        379,
+        427,
+        379
+      ]
+    },
+    {
+      "fixture": "recorded-go-top.png",
+      "sha256": "E6463144CBBDA82788DB570BE833357EF7A984E4BEC4EE55E83F7B2EED2C3FB1",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-036.png",
+      "source_sha256": "03B71C2460AB37AC02180904062B53045208F767E756A8AA86365F9EF9C7F0F4",
+      "source_width": 1282,
+      "source_height": 760,
+      "crop": [
+        512,
+        100,
+        256,
+        40
+      ]
+    }
+  ]
+}

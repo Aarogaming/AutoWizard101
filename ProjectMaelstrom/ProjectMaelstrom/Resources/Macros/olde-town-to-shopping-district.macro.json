@@ -1,0 +1,48 @@
+{
+  "schema": "maelstrom.route-preview.v1",
+  "executable": false,
+  "qualification": "unqualified-example-coordinates",
+  "coordinate_source": null,
+  "live_qualified": false,
+  "route_id": "olde-town-to-shopping-district",
+  "title": "olde-town-to-shopping-district",
+  "from_zone": "Olde Town",
+  "to_zone": "Shopping District",
+  "tags": [
+    "hub",
+    "shops",
+    "bazaar"
+  ],
+  "example_waypoints": [
+    {
+      "example_x": 50.0,
+      "example_y": 1780.0,
+      "example_z": 20.0,
+      "name": "Olde Town Central Plaza"
+    },
+    {
+      "example_x": -320.0,
+      "example_y": 1850.0,
+      "example_z": 20.0,
+      "name": "Shopping District Archway Approach"
+    },
+    {
+      "example_x": -680.0,
+      "example_y": 1920.0,
+      "example_z": 25.0,
+      "name": "Shopping District Portal Transition"
+    },
+    {
+      "example_x": -980.0,
+      "example_y": 1980.0,
+      "example_z": 25.0,
+      "name": "Shopping District Main Street"
+    }
+  ],
+  "warning": "Legacy filename retained; this is not a macro. Do not use these coordinates for movement or arrival checks.",
+  "quarantined_macro_sha256": "4f69ec59374977772f699a4fc98bc218d72ed629d44b872338c5c71ee36638b4",
+  "unqualified_reference": {
+    "former_tolerance": 45.0,
+    "former_timeout_seconds": 32.0
+  }
+}

@@ -517,6 +517,37 @@ botApi.MapPut("/automations/{id}", (HttpContext ctx, string id, AutomationDto bo
     return Results.Ok(new AutomationDto((string)row.id, ((long)row.enabled) != 0, (string)row.description));
 });
 
+// -------------------------------------------------------------
+// Deck commands are a proxy to the active native application owner, never a second controller.
+async Task<IResult> DeckProxy(HttpContext ctx, string command, System.Text.Json.JsonElement? body = null)
+{
+    using var conn = new SqliteConnection(connString);
+    conn.Open();
+    if (!RequireApiKey(ctx, conn, out var principal)) return Results.Unauthorized();
+    if (command is not ("snapshot" or "state" or "catalog" or "preview") && !principal!.IsInRole("admin")) return Results.StatusCode(StatusCodes.Status403Forbidden);
+    var dataRoot = GetCfg("MAELSTROM_DATA_ROOT", "MaelstromBot:DataRoot",
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Maelstrom"));
+    var arguments = body ?? System.Text.Json.JsonSerializer.SerializeToElement(new { });
+    var requestId = ctx.Request.Headers["Idempotency-Key"].FirstOrDefault();
+    try
+    {
+        var request = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new { command, arguments, requestId });
+        var result = await Maelstrom.DeckApi.JobDeckWire.CallAsync(dataRoot, request, ctx.RequestAborted);
+        return Results.Json(result, statusCode: result.GetProperty("ok").GetBoolean() ? 200 : 409);
+    }
+    catch (Exception ex) when (ex is IOException or TimeoutException or OperationCanceledException)
+    {
+        return Results.Json(new { ok = false, error = "The local Maelstrom deck owner is unavailable. Open the Card Deck or start its headless host. No action was reported as completed." }, statusCode: 503);
+    }
+}
+botApi.MapGet("/session/snapshot", (Func<HttpContext, Task<IResult>>)(ctx => DeckProxy(ctx, "snapshot")));
+botApi.MapGet("/deck", (Func<HttpContext, Task<IResult>>)(ctx => DeckProxy(ctx, "state")));
+botApi.MapGet("/deck/catalog", (Func<HttpContext, Task<IResult>>)(ctx => DeckProxy(ctx, "catalog")));
+foreach (var command in new[] { "replace", "deal", "preview", "step", "start", "pause", "stop", "reset" })
+{
+    var captured = command;
+    botApi.MapPost("/deck/" + captured, (HttpContext ctx, System.Text.Json.JsonElement body) => DeckProxy(ctx, captured, body));
+}
 // minimal local UI
 bot.MapGet("/ui", (HttpContext ctx) =>
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace KursovaLibrary
 {
@@ -10,29 +6,26 @@ namespace KursovaLibrary
     {
         public double Pips { get; set; }
         public override double BaseDamage { get; set; }
+
         public override string CalculateDamage(List<DamageModificator> _dm, Wizard wizard, Boss boss, double Enchant, double Critical)
         {
-            _dm.Reverse();
+            var modifiers = new List<DamageModificator>(_dm ?? []);
+            modifiers.Reverse();
 
-            var _dm2 = new List<DamageModificator>(_dm);
+            modifiers = CheckPierce(wizard?.Pierce ?? 0, boss?.Resist ?? 0, modifiers);
 
-            _dm2 = CheckPierce(wizard.Pierce,boss.Resist, _dm2);
+            double damage = (BaseDamage + Enchant) * Pips;
 
-            BaseDamage += Enchant;
-            BaseDamage *= Pips;
-
-            foreach (DamageModificator d in _dm2)
+            foreach (DamageModificator d in modifiers)
             {
-                BaseDamage *= d.Damage;
+                damage *= d.Damage;
             }
 
-            BaseDamage *= CheckStats(wizard, boss);
+            damage *= CheckStats(wizard, boss);
 
-            BaseDamage += wizard.FlatDamage;
+            damage += wizard?.FlatDamage ?? 0;
 
-            _dm.Reverse();
-
-            return $"Your Damage will be: {(int)BaseDamage}. And {(int)(BaseDamage * Critical)} if it Crits.";
+            return $"Your Damage will be: {(int)damage}. And {(int)(damage * Critical)} if it Crits.";
         }
     }
 }

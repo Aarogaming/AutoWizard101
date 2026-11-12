@@ -1,0 +1,121 @@
+{
+  "Version": 1,
+  "Width": 1282,
+  "Height": 759,
+  "Top": [
+    512,
+    100,
+    256,
+    40
+  ],
+  "Bottom": [
+    512,
+    647,
+    256,
+    100
+  ],
+  "Cue": [
+    98,
+    74,
+    64,
+    64
+  ],
+  "Phase": [
+    13,
+    51,
+    232,
+    28
+  ],
+  "Feedback": [
+    38,
+    0,
+    180,
+    40
+  ],
+  "Mask": [
+    31,
+    30,
+    19
+  ],
+  "References": [
+    {
+      "Label": "Neutral",
+      "File": "Neutral.png",
+      "Sha256": "3A236E8E18A4CDB4B2527AF751CF0FF9B77279F57392305301420083CC7CDDAD",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Right",
+      "File": "Right.png",
+      "Sha256": "CCF2481671440293317EFBE7C22BE6891074FF556FB7F02D383B4365088FF2F2",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Left",
+      "File": "Left.png",
+      "Sha256": "29C8E3460843FDFDBB4404DCB6F7C9D7FE0AAC397436A77A5AC372A65C55E3AB",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Up",
+      "File": "Up.png",
+      "Sha256": "00914F927E7E1E54DBA1F2F8C9343BC9BEC692F0428E43943E7D1AF8D64BE350",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Down",
+      "File": "Down.png",
+      "Sha256": "ECD75EA4EBE0C93641A8884F98A6AA1E4FF3747034AF7079E0358C6C8ADC869D",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Watch",
+      "File": "Watch.png",
+      "Sha256": "52FA906F7BE7383784EDD96CDDFE17E1021225B125F568BCDC40F645720B53B5",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Go",
+      "File": "Go.png",
+      "Sha256": "CB337B628B3FC18FEC88095047A8B1CBD83CCB380CB0666A2983A2ED1E991367",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Resolving",
+      "File": "Resolving.png",
+      "Sha256": "F4FC59C6FB1C5CCAB4B7B4B6B7B5518147FEA6B433779C3325ED7E216901357E",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Success",
+      "File": "Success.png",
+      "Sha256": "28A46042C295AC25F2FA337E91C10F5AD55EA5A94777E248956139584C619659",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Failure",
+      "File": "Failure.png",
+      "Sha256": "F4FC59C6FB1C5CCAB4B7B4B6B7B5518147FEA6B433779C3325ED7E216901357E",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    },
+    {
+      "Label": "Loading",
+      "File": "Loading.png",
+      "Sha256": "DCA64C125A841E950ED10603DB1C6479F5E13ECB35BE4D1C1D6C4095802141C0",
+      "Source": "Local Pet Dance calibration; see PROVENANCE.txt"
+    }
+  ],
+  "SourceVideoSha256": "07B52BE94A5C1471E817F84B09C37AFF2C15958460950404119880FC265321EF",
+  "UiLayout": {
+    "Scales": [
+      1.0,
+      1.1666666666666667,
+      1.3333333333333333,
+      1.5,
+      1.6666666666666667
+    ],
+    "Columns": 3,
+    "Rows": 4,
+    "AllowSixthFallback": true
+  }
+}

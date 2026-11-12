@@ -185,6 +185,11 @@ public partial class HalfangFarmingBot : Form
 
     private void button1_Click(object sender, EventArgs e)
     {
+        if (!_botStarted && GameInputLease.Current == null)
+        {
+            MessageBox.Show("This historical routine has not been converted to the shared scheduler. Use Wizard101's routine workspace and Legacy library to review its current readiness.", "Routine needs qualification");
+            return;
+        }
         if (!_botStarted)
         {
             _runTimer.Start();

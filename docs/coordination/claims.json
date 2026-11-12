@@ -1,0 +1,1856 @@
+{
+  "schema_version": 1,
+  "kind": "maelstrom-task-claims",
+  "executable": false,
+  "maintained_by": "coordinator",
+  "note": "2026-11-11 architecture audit and canonical validation repair complete; scoped claims released. Gemini OBS-02 reservation remains active. Roadmap distinguishes installed deck from source-only combat/sign-in/validation changes.",
+  "claims": [
+    {
+      "task_id": "W101-MODULE-BIND-04",
+      "state": "released",
+      "owner": "w101_binding",
+      "notes": "W101 bindings offlinefirst; no live access. Rootserializedbuilds. Integratedoffline;2127native tests pass. Productiontransport/livequalification pending.",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleBindings.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleBindingsTests.cs",
+        "docs/coordination/results/W101-MODULE-BIND-04.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-MODULE-RUNTIME-04",
+      "state": "released",
+      "owner": "w101_runtime",
+      "notes": "W101 bindings offlinefirst; no live access. Rootserializedbuilds. Integratedoffline;2127native tests pass. Productiontransport/livequalification pending.",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleOperationTests.cs",
+        "docs/coordination/results/W101-MODULE-RUNTIME-04.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-MODULE-CARDS-04",
+      "state": "released",
+      "owner": "w101_module_cards",
+      "notes": "W101 bindings offlinefirst; no live access. Rootserializedbuilds. Integratedoffline;2127native tests pass. Productiontransport/livequalification pending.",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleCardTests.cs",
+        "docs/JOB_DECK.md",
+        "docs/coordination/results/W101-MODULE-CARDS-04.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-MODULE-INTEGRATION-04",
+      "state": "released",
+      "owner": "root",
+      "notes": "W101 bindings offlinefirst; no live access. Rootserializedbuilds. Integratedoffline;2127native tests pass. Productiontransport/livequalification pending.",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/ROADMAP.md",
+        "docs/coordination/results/W101-MODULE-INTEGRATION-04.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "CORE-MODULE-ADAPTER-03",
+      "owner": "module_adapter",
+      "workstream_id": "CORE-TRANSITIONS",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleJobAdapter.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleJobAdapterTests.cs",
+        "docs/coordination/results/CORE-MODULE-ADAPTER-03.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleReplay.cs"
+      ],
+      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install."
+    },
+    {
+      "task_id": "CORE-MODULE-CARDS-03",
+      "owner": "module_cards",
+      "workstream_id": "CORE-TRANSITIONS",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleJobCardTests.cs",
+        "docs/JOB_DECK.md",
+        "docs/coordination/results/CORE-MODULE-CARDS-03.md",
+        "ProjectMaelstrom/ProjectMaelstrom/JobDeckForm.cs"
+      ],
+      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install."
+    },
+    {
+      "task_id": "CORE-MODULE-REVIEW-03",
+      "owner": "module_review",
+      "workstream_id": "CORE-TRANSITIONS",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/CORE-MODULE-REVIEW-03.md"
+      ],
+      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install."
+    },
+    {
+      "task_id": "CORE-MODULE-INTEGRATION-03",
+      "owner": "root",
+      "workstream_id": "CORE-TRANSITIONS",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/ROADMAP.md",
+        "docs/coordination/results/CORE-MODULE-INTEGRATION-03.md"
+      ],
+      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install."
+    },
+    {
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/ROADMAP.md",
+        "docs/coordination/results/CORE-CATALOG-INTEGRATION-02.md"
+      ],
+      "owner": "root",
+      "notes": "Offline integration validation and board updates Integrated offline;2075native/15MCP tests pass. Source-only.",
+      "task_id": "CORE-CATALOG-INTEGRATION-02",
+      "workstream_id": "CORE-DELIVERY"
+    },
+    {
+      "task_id": "CORE-OBSERVATION-02",
+      "workstream_id": "CORE-DELIVERY",
+      "state": "released",
+      "owner": "refresh_build",
+      "notes": "Bounded offline refresh implementation Integrated offline;2075native/15MCP tests pass. Source-only.",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/DeckObservationRefresh.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/DeckObservationRefreshTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
+        "docs/coordination/results/CORE-OBSERVATION-02.md"
+      ]
+    },
+    {
+      "workstream_id": "CORE-DELIVERY",
+      "notes": "Parallel offline implementation; root owns build/integration slot. No gameplay. Integrated offline;2075native/15MCP tests pass. Source-only.",
+      "owner": "catalog_build",
+      "task_id": "CORE-CAPABILITY-02",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobFactCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeck.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobFactCatalogTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckTests.cs",
+        "docs/coordination/results/CORE-CAPABILITY-02.md"
+      ]
+    },
+    {
+      "workstream_id": "CORE-DELIVERY",
+      "notes": "Parallel offline implementation; root owns build/integration slot. No gameplay. Integrated offline;2075native/15MCP tests pass. Source-only.",
+      "owner": "catalog_surface",
+      "task_id": "CORE-CATALOG-SURFACE-02",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/JobDeckForm.cs",
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "docs/JOB_DECK.md",
+        "docs/coordination/results/CORE-CATALOG-SURFACE-02.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs"
+      ]
+    },
+    {
+      "task_id": "CORE-CONTRACT-REPAIR-01",
+      "workstream_id": "CORE-DELIVERY",
+      "state": "released",
+      "owner": "card_audit",
+      "notes": "Remove divergent MCP graph validator; reuse canonical native pure validation through existing bounded owner API. No game input, desktop, dependencies, installation or native builds by agent. Completed and integrated by root;2059native/31Python checks and actual headless validation bridge pass. No new installation or gameplay qualification.",
+      "owned_paths": [
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
+        "docs/JOB_DECK.md",
+        "docs/coordination/results/CORE-CONTRACT-REPAIR-01.md"
+      ]
+    },
+    {
+      "task_id": "CORE-CAPABILITY-MAP-01",
+      "workstream_id": "CORE-DELIVERY",
+      "state": "released",
+      "owner": "reuse_audit",
+      "notes": "Non-executable audited workflow inventory and bounded stdlib integrity checker/tests; not a second runtime registry. Completed and integrated by root;2059native/31Python checks and actual headless validation bridge pass. No new installation or gameplay qualification.",
+      "owned_paths": [
+        "research/maelstrom-capabilities.json",
+        "tools/check_capability_inventory.py",
+        "tools/tests/test_check_capability_inventory.py"
+      ]
+    },
+    {
+      "task_id": "CORE-ARCH-AUDIT-01",
+      "workstream_id": "CORE-DELIVERY",
+      "state": "released",
+      "owner": "root",
+      "notes": "Read-only architecture/integration audit, explicit capability inventory and roadmap reconciliation. No live gameplay, installer or credentials. Completed and integrated by root;2059native/31Python checks and actual headless validation bridge pass. No new installation or gameplay qualification.",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md",
+        "docs/ARCHITECTURE_AUDIT_20261111.md",
+        "docs/WIZARD101_GAME_KNOWLEDGE.md",
+        "docs/ROUTINE_EXECUTION_MODEL.md"
+      ]
+    },
+    {
+      "task_id": "CORE-CARD-AUDIT-01",
+      "workstream_id": "CORE-DELIVERY",
+      "state": "released",
+      "owner": "card_audit",
+      "notes": "Read-only code audit; report only. No builds or gameplay. Completed and integrated by root;2059native/31Python checks and actual headless validation bridge pass. No new installation or gameplay qualification.",
+      "owned_paths": [
+        "docs/coordination/results/CORE-CARD-AUDIT-01.md"
+      ]
+    },
+    {
+      "task_id": "CORE-REUSE-AUDIT-01",
+      "workstream_id": "CORE-DELIVERY",
+      "state": "released",
+      "owner": "reuse_audit",
+      "notes": "Read-only Aaroneous/Devtools and imported repository review; report only. Completed and integrated by root;2059native/31Python checks and actual headless validation bridge pass. No new installation or gameplay qualification.",
+      "owned_paths": [
+        "docs/coordination/results/CORE-REUSE-AUDIT-01.md"
+      ]
+    },
+    {
+      "task_id": "W101-KNOWLEDGE-AUDIT-01",
+      "workstream_id": "CORE-KNOWLEDGE",
+      "state": "released",
+      "owner": "knowledge_audit",
+      "notes": "Audit game reference accuracy/provenance against current primary sources; report only, no game input. Completed and integrated by root;2059native/31Python checks and actual headless validation bridge pass. No new installation or gameplay qualification.",
+      "owned_paths": [
+        "docs/coordination/results/W101-KNOWLEDGE-AUDIT-01.md"
+      ]
+    },
+    {
+      "task_id": "W101-COMBAT-DUEL-10",
+      "workstream_id": "W101-COMBAT",
+      "state": "released",
+      "owner": "combat_reader",
+      "notes": "Read-only bounded duel manager correlation; no added hook, scan or live access. Root verifies signature/image and qualifies fields. Integrated and offline tested by coordinator; live battle/login qualification remains pending.",
+      "owned_paths": [
+        "tools/w101_duel_reader.py",
+        "tools/tests/test_w101_duel_reader.py",
+        "docs/coordination/results/W101-COMBAT-DUEL-10.md"
+      ]
+    },
+    {
+      "task_id": "W101-SIGNIN-01",
+      "workstream_id": "CORE-DELIVERY",
+      "state": "released",
+      "owner": "combat_input",
+      "notes": "Optional Windows Credential Manager sign-in settings and bounded login design; no credentials read, live login, new dependency or competing builds. Integrated and offline tested by coordinator; live battle/login qualification remains pending.",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameCredentialStore.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/GameSignInForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/GameCredentialStoreTests.cs",
+        "docs/W101_SIGN_IN.md",
+        "docs/coordination/results/W101-SIGNIN-01.md"
+      ]
+    },
+    {
+      "task_id": "W101-COMBAT-CONNECT-06",
+      "workstream_id": "W101-COMBAT",
+      "state": "released",
+      "notes": "Integrated source-only rooted combat/duel observations, bounded input/battle components, secure sign-in storage, timestamp and worker-cap repairs. 2047 native /72 Python pass; corrected three-second live Idle observer clean, failed prelaunch cap check preserved and native recovery verified. No battle input/login or new installation; remaining live qualification and Gemini bridge documented.",
+      "owner": "root",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/results/W101-COMBAT-CONNECT-06.md",
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CombatRuntime.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CombatRuntimeTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/JOB_DECK.md",
+        "ProjectMaelstrom/ProjectMaelstrom/ResearchSettingsForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerWorker.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerWorkerTests.cs"
+      ]
+    },
+    {
+      "task_id": "W101-COMBAT-INPUT-07",
+      "workstream_id": "W101-COMBAT",
+      "state": "released",
+      "notes": "Bounded target-bound click implementation and synthetic tests, no focus changes/live game access. Root qualifies actual response. Integrated and offline tested by coordinator; live battle/login qualification remains pending.",
+      "owner": "combat_input",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CombatInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CombatInputTests.cs",
+        "docs/coordination/results/W101-COMBAT-INPUT-07.md"
+      ]
+    },
+    {
+      "task_id": "W101-COMBAT-READ-08",
+      "workstream_id": "W101-COMBAT",
+      "state": "released",
+      "notes": "Bounded rooted combat field reader from existing root hook, no additional hooks or live access. Source/layout audit and synthetic tests, coordinate root worker integration. Integrated and offline tested by coordinator; live battle/login qualification remains pending.",
+      "owner": "combat_reader",
+      "owned_paths": [
+        "tools/w101_combat_reader.py",
+        "tools/tests/test_w101_combat_reader.py",
+        "docs/coordination/results/W101-COMBAT-READ-08.md"
+      ]
+    },
+    {
+      "task_id": "W101-COMBAT-BATTLE-09",
+      "workstream_id": "W101-COMBAT",
+      "state": "released",
+      "notes": "One bounded battle over shared one-turn adapter; no second scheduler or live bindings. Synthetic sequence/outcome tests and parent ownership. Integrated and offline tested by coordinator; live battle/login qualification remains pending.",
+      "owner": "combat_battle",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CombatBattleOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CombatBattleOperationTests.cs",
+        "docs/coordination/results/W101-COMBAT-BATTLE-09.md"
+      ]
+    },
+    {
+      "owned_paths": [
+        "scripts/build_desktop.ps1",
+        "scripts/build_installer.ps1",
+        "docs/coordination/results/CORE-DECK-RELEASE-02.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/JOB_DECK.md",
+        "docs/HEADLESS_CLI.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "tools/combat_turn_planner.py",
+        "tools/tests/test_combat_turn_planner.py",
+        "docs/coordination/results/W101-COMBAT-PLAN-03.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CombatTurnOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CombatTurnOperationTests.cs",
+        "docs/coordination/results/W101-COMBAT-LOOP-04.md",
+        "docs/coordination/results/W101-COMBAT-SOURCE-05.md",
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py",
+        "docs/coordination/tasks/W101-COMBAT-OBS-02.md"
+      ],
+      "notes": "Installed final Setup-20261111-021218-8d09f3.1905 native,94 Python and14 installer tests; lifecycle/data preservation, installed deck replay/MCP, bundled synthetic planner and hidden card rendering verified. One3-second W101 observer: native Idle,3trees/12loading samples,zero failures,clean restoration/disconnect. No game inputs or remaining task processes. Strict planner and bounded turn executor integrated offline; Gemini bridge and live combat facts/input remain pending. See result report.",
+      "task_id": "CORE-DECK-RELEASE-02",
+      "state": "released",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root"
+    },
+    {
+      "owned_paths": [
+        "tools/combat_turn_planner.py",
+        "tools/tests/test_combat_turn_planner.py",
+        "docs/coordination/results/W101-COMBAT-PLAN-03.md"
+      ],
+      "notes": "Review and repair existing pure planner correctness and unknown handling; coordinate public contract with root/Gemini. No live access, dependencies or builds. Frozen source accepted for coordinator integration; combined native/Python checks passed.",
+      "task_id": "W101-COMBAT-PLAN-03",
+      "state": "released",
+      "workstream_id": "W101-COMBAT",
+      "owner": "combat_planner"
+    },
+    {
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CombatTurnOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CombatTurnOperationTests.cs",
+        "docs/coordination/results/W101-COMBAT-LOOP-04.md"
+      ],
+      "notes": "Propose then implement bounded shared-owner observation/plan/action/outcome orchestration with injectable offline seams. No game access or builds; root reviews contracts. Frozen source accepted for coordinator integration; combined native/Python checks passed.",
+      "task_id": "W101-COMBAT-LOOP-04",
+      "state": "released",
+      "workstream_id": "W101-COMBAT",
+      "owner": "combat_loop"
+    },
+    {
+      "owned_paths": [
+        "docs/coordination/results/W101-COMBAT-SOURCE-05.md",
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py"
+      ],
+      "notes": "Read-only source audit of actual UI/legacy combat fields and smallest next observation extension. No code, process or game access. Coordinator extends scope to separately opted-in bounded combat structural observation with existing root hook/header bytes only; no input, extra hooks, generic text or unqualified spell/participant dereferences. Delivered frozen source and tests; root integrates pins and CLI. Peer audit completed. Frozen source accepted for coordinator integration; combined native/Python checks passed.",
+      "task_id": "W101-COMBAT-SOURCE-05",
+      "state": "released",
+      "workstream_id": "W101-COMBAT",
+      "owner": "combat_sources"
+    },
+    {
+      "task_id": "W101-COMBAT-OBS-02",
+      "workstream_id": "W101-COMBAT",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "tools/w101_combat_snapshot.py",
+        "tools/tests/test_w101_combat_snapshot.py",
+        "tools/fixtures/combat/observation-contract-v1.json",
+        "docs/coordination/results/W101-COMBAT-OBS-02.md"
+      ],
+      "notes": "User requested more Gemini work. Reserved combat observation/validation bridge, pure offline only; no second scheduler/controller. Brief docs/coordination/tasks/W101-COMBAT-OBS-02.md."
+    },
+    {
+      "task_id": "DECK-API-TESTS-01",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "deck_api_tests",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
+        "tools/tests/test_maelstrom_deck_client.py",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckRecoveryTests.cs"
+      ],
+      "notes": "Subagent writes bounded native transport/MCP bridge tests only; coordinator runs build/tests. Source handed back to root for integration and serial checks."
+    },
+    {
+      "task_id": "W101-DESTINATION-PREFLIGHT-01",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "navigation_preflight",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/W101-DESTINATION-PREFLIGHT-01.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestIntent.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101QuestIntentTests.cs"
+      ],
+      "notes": "Read-only source and saved-evidence audit for destination pilot. No game/process/desktop access or builds. Source handed back to root for integration and serial checks."
+    },
+    {
+      "task_id": "CARD-ART-01",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "gemini",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CardArtwork.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/JobCards/artwork-provenance.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CardArtworkTests.cs",
+        "docs/coordination/results/CARD-ART-01.md"
+      ],
+      "notes": "User requested a Gemini assignment. Reserved disjoint artwork helper, provenance and tests; no builds or live access. Brief docs/coordination/tasks/CARD-ART-01.md. Deliverable report says ready for coordinator integration; root accepts source for review and integration."
+    },
+    {
+      "task_id": "CORE-DECK-01",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobCardSystem.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/StandardJobCards.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeck.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckWire.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestConversationOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/JobDeckForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/MaelstromHomeForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/NativeSuppliedIntegrationsTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckTests.cs",
+        "MaelstromBot.Server/ApiDtos.cs",
+        "MaelstromBot.Server/Program.cs",
+        "MaelstromBot.Server/MaelstromBot.Server.csproj",
+        "tools/maelstrom_mcp_server.py",
+        "tools/maelstrom_deck_client.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "docs/JOB_DECK.md",
+        "docs/coordination/results/CORE-DECK-01.md",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/claims.json",
+        "docs/HEADLESS_CLI.md",
+        "docs/W101_WORKFLOW_STATUS_20261110.md",
+        "docs/INDEX.md",
+        "docs/coordination/tasks/CARD-ART-01.md",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
+        "tools/tests/test_maelstrom_deck_client.py",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckRecoveryTests.cs",
+        "docs/coordination/results/W101-DESTINATION-PREFLIGHT-01.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestIntent.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101QuestIntentTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101QuestConversationOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "docs/PRODUCT.md",
+        "docs/ROADMAP.md",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/DodgeInputPulseTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GenericMacroDeck.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/GenericMacroDeckTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/ProjectMaelstrom.csproj",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CardArtwork.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/JobCards/artwork-provenance.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CardArtworkTests.cs",
+        "docs/coordination/results/CARD-ART-01.md",
+        "docs/coordination/tasks/W101-COMBAT-OBS-02.md",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerOperationTests.cs",
+        "tools/fixtures/wizwalker_fake_worker.py"
+      ],
+      "notes": "Source checkpoint integrated: generic deck and native front/back cards, same scheduler/owner, real API/MCP, generic quest intent and configurable conversation adapter. 1859 native and 24 Python tests pass; scoped format/analyzers and board checks pass. Actual built-app offline replay completed once with duplicate suppression and clean host shutdown. No game inputs, live attachment, installation or task-owned controller left running. See docs/coordination/results/CORE-DECK-01.md. Combat bridge is separately assigned to Gemini."
+    },
+    {
+      "task_id": "W101-QUEST-STEP-18",
+      "workstream_id": "W101-QUESTS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "tools/fixtures/w101_quest_context_live_20261110.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestStep.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestConversation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestConversationOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101DialogueInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/MenuModule.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101QuestStepTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101QuestConversationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/QuestConversation/quinn-offer.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101QuestConversationOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101DialogueInputTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "docs/W101_QUEST_STEP_20261110.md",
+        "docs/W101_WORKFLOW_STATUS_20261110.md",
+        "docs/HEADLESS_CLI.md",
+        "docs/ROADMAP.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/INDEX.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Completed optional quest context and shared repeated-menu conversation. First live action turned in talk objective then exposed mid-dialogue objective changes; repaired and preserved partial evidence. Follow-up9a0c596712694b969822305e1a19afdb completed offer in12.9s with3 released advances and Fireglobe Theatre objective; all4 observers restored/disconnected,guard clean,zero remaining task processes.1688 full native/31 Python tests pass;10 conversation tests include successful live sequence replay. Scoped format/analyzers/syntax/board/diff checks pass. Workflow readiness and Dealer/deck/API/MCP architecture documented; those broader features remain planned. Source not installed. Myst was an accidental macro; no future-game entry added."
+    },
+    {
+      "task_id": "ROUTINE-FOUNDATION-20261109",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/PROJECT_ORGANIZATION.md",
+        "docs/ROUTINE_GRAPHS.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md",
+        "docs/DELIVERY_COURSE.md",
+        "docs/history/ROADMAP_20261109_BEFORE_WORKSTREAMS.md",
+        "docs/coordination/claims.json",
+        "docs/ROUTINE_FOUNDATION_VALIDATION_20261109.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineGraph.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDancePostGame.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceNativeIdle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/ProjectMaelstrom.csproj",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/Routines/pet-dance-postgame.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/Routines/pet-dance-visit-draft.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/Routines/dodge-movement-draft.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/RoutineGraphTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/RoutineReplayTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/dance/session.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/dance/events.jsonl",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/dodge/session.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/dodge/events.jsonl",
+        "docs/PET_DANCE_POSTGAME_OPERATION.md",
+        "docs/PET_DANCE_LIFECYCLE.md",
+        "docs/ASSISTANT_CONTEXT.md"
+      ],
+      "release_note": "Returned and integrated at the offline validation checkpoint; no active worker or desktop reservation remains. Reclaim a bounded task before further edits."
+    },
+    {
+      "task_id": "WORKSTREAM-BOARD-20261109",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "dance_levels_snacks_research",
+      "state": "released",
+      "owned_paths": [
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/coordination/workstreams.json",
+        "tools/check_project_board.py",
+        "tools/tests/test_project_board.py"
+      ],
+      "release_note": "Returned and integrated at the offline validation checkpoint; no active worker or desktop reservation remains. Reclaim a bounded task before further edits."
+    },
+    {
+      "task_id": "CONJURATION-AND-BRIEFS-20261109",
+      "workstream_id": "W101-CONJURATION",
+      "owner": "dance_integration_review",
+      "state": "released",
+      "owned_paths": [
+        "tools/conjuration_memory.py",
+        "tools/tests/test_conjuration_memory.py",
+        "docs/CONJURATION_OFFLINE.md",
+        "docs/coordination/EXTERNAL_AGENT_GUIDE.md",
+        "docs/coordination/tasks/TEMPLATE.md",
+        "docs/coordination/tasks/CONJ-PERCEPTION-01.md",
+        "docs/coordination/tasks/POTION-PLANNER-01.md",
+        "docs/coordination/tasks/W101-NAV-LANDMARKS-01.md",
+        "docs/coordination/tasks/W101-SNACK-DATA-01.md",
+        "docs/coordination/tasks/ROUTINE-EDITOR-DESIGN-01.md"
+      ],
+      "release_note": "Returned and integrated at the offline validation checkpoint; no active worker or desktop reservation remains. Reclaim a bounded task before further edits."
+    },
+    {
+      "task_id": "CAPTURE-CLEANUP-20261109",
+      "workstream_id": "CORE-CLEANUP",
+      "owner": "pet_training_preferences",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/VisualTransitionCadence.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/BoundedWindowCapture.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/HomeMovementRun.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/VisualTransitionCadenceTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/BoundedWindowCaptureTests.cs",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/PET_DANCE_IDLE_LIVE_20261109.md",
+        "docs/WORKSPACE_RELEASE_20261109.md"
+      ],
+      "release_note": "Returned and integrated at the offline validation checkpoint; no active worker or desktop reservation remains. Reclaim a bounded task before further edits."
+    },
+    {
+      "task_id": "DANCE-ENTRY-02",
+      "workstream_id": "W101-DANCE",
+      "owner": "pet_training_preferences",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceEntryVision.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceEntryVisionTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceVisitTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Entry/entry-ocr.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Entry/provenance.json",
+        "docs/PET_DANCE_ENTRY_TRANSITIONS.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/Routines/pet-dance-visit.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDancePlayButtonVision.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDancePlayButtonVisionTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Entry/play-disabled.png",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Entry/play-enabled.png"
+      ],
+      "release_note": "Integrated and reviewed offline; 1,063 native tests and 60 Conjuration tests passed. No active worker or desktop reservation remains. Reclaim a bounded task before edits; current-client/live evidence gates remain on the board."
+    },
+    {
+      "task_id": "CONJ-VISION-02",
+      "workstream_id": "W101-CONJURATION",
+      "owner": "dance_integration_review",
+      "state": "released",
+      "owned_paths": [
+        "tools/conjuration_vision.py",
+        "tools/tests/test_conjuration_vision.py",
+        "tools/fixtures/conjuration_vision/synthetic-profile.json",
+        "tools/fixtures/conjuration_vision/provenance.json",
+        "docs/CONJURATION_RECOGNITION.md"
+      ],
+      "release_note": "Integrated and reviewed offline; 1,063 native tests and 60 Conjuration tests passed. No active worker or desktop reservation remains. Reclaim a bounded task before edits; current-client/live evidence gates remain on the board."
+    },
+    {
+      "task_id": "VISION-EVIDENCE-02",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "dance_levels_snacks_research",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/PARALLEL-TRANSITIONS-RECOGNITION-20261109.md"
+      ],
+      "release_note": "Integrated and reviewed offline; 1,063 native tests and 60 Conjuration tests passed. No active worker or desktop reservation remains. Reclaim a bounded task before edits; current-client/live evidence gates remain on the board."
+    },
+    {
+      "task_id": "PARALLEL-INTEGRATION-02",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/ROUTINE_GRAPHS.md",
+        "docs/PARALLEL_RECOGNITION_VALIDATION_20261109.md",
+        "tools/conjuration_observation_fixtures.py",
+        "tools/tests/test_conjuration_observation_fixtures.py",
+        "tools/fixtures/conjuration_observations/schema-v1.json",
+        "tools/fixtures/conjuration_observations/synthetic-pairs.json",
+        "tools/fixtures/conjuration_observations/synthetic-triples.json",
+        "docs/coordination/results/CONJ-PERCEPTION-01.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceVisitReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceVisitReplayTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineGraph.cs",
+        "tools/conjuration_recognition_replay.py",
+        "tools/tests/test_conjuration_recognition_replay.py",
+        "docs/coordination/tasks/CONJ-PERCEPTION-01.md",
+        "docs/CONJURATION_OFFLINE.md",
+        "docs/PET_DANCE_LIFECYCLE.md",
+        "docs/coordination/EXTERNAL_AGENT_GUIDE.md"
+      ],
+      "release_note": "Integrated and reviewed offline; 1,063 native tests and 60 Conjuration tests passed. No active worker or desktop reservation remains. Reclaim a bounded task before edits; current-client/live evidence gates remain on the board."
+    },
+    {
+      "task_id": "DANCE-SELECTION-03",
+      "workstream_id": "W101-DANCE",
+      "owner": "pet_training_preferences",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLevelSelectionVision.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceLevelSelectionVisionTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Selection/manifest.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Selection/unselected.png",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Selection/selected-hover.png",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Selection/selected-away.png",
+        "docs/PET_DANCE_SELECTION_QUALIFICATION.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuOcr.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceMenuOcrRescueTests.cs"
+      ],
+      "release_note": "Integrated offline checkpoint: 1127 native and 80 Conjuration tests pass; saved-image OCR review succeeds. Workers finished, no desktop reservation. Reclaim exact paths before edits; live/data gates remain open."
+    },
+    {
+      "task_id": "CONJ-COLLECTION-03",
+      "workstream_id": "W101-CONJURATION",
+      "owner": "dance_integration_review",
+      "state": "released",
+      "owned_paths": [
+        "tools/conjuration_collection.py",
+        "tools/tests/test_conjuration_collection.py",
+        "tools/fixtures/conjuration_collection/plan-v1.json",
+        "docs/CONJURATION_CARD_COLLECTION.md"
+      ],
+      "release_note": "Integrated offline checkpoint: 1127 native and 80 Conjuration tests pass; saved-image OCR review succeeds. Workers finished, no desktop reservation. Reclaim exact paths before edits; live/data gates remain open."
+    },
+    {
+      "task_id": "W101-OPERATIONS-03",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "dance_levels_snacks_research",
+      "state": "released",
+      "owned_paths": [
+        "docs/W101_SHARED_OPERATIONS.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101SharedOperations.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101SharedOperationsTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/w101-operations/session.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/w101-operations/events.jsonl",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/w101-operations/README.md"
+      ],
+      "release_note": "Integrated offline checkpoint: 1127 native and 80 Conjuration tests pass; saved-image OCR review succeeds. Workers finished, no desktop reservation. Reclaim exact paths before edits; live/data gates remain open."
+    },
+    {
+      "task_id": "W101-QUALIFICATION-INTEGRATION-03",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/W101_OFFLINE_QUALIFICATION_20261110.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceEntryImageReview.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceEntryImageReviewTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "docs/PET_DANCE_ENTRY_TRANSITIONS.md",
+        "docs/CONJURATION_RECOGNITION.md",
+        "docs/ROUTINE_GRAPHS.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDancePlayButtonVision.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Review/play-enabled-hover.png",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Review/provenance.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineGraph.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/RoutineGraphTests.cs",
+        "docs/BUILD_ARTIFACT_RETENTION.md",
+        "docs/PET_DANCE_SELECTION_QUALIFICATION.md",
+        "docs/W101_SHARED_OPERATIONS.md"
+      ],
+      "release_note": "Integrated offline checkpoint: 1127 native and 80 Conjuration tests pass; saved-image OCR review succeeds. Workers finished, no desktop reservation. Reclaim exact paths before edits; live/data gates remain open."
+    },
+    {
+      "task_id": "MODULE-NAVIGATION-04",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "dance_levels_snacks_research",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/NavigationModule.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationModuleTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101SharedOperations.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101SharedOperationsTests.cs",
+        "docs/modules/NAVIGATION.md",
+        "docs/W101_SHARED_OPERATIONS.md",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/w101-operations/session.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/w101-operations/events.jsonl",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/w101-operations/README.md",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Routines/w101-operations/bundle.json"
+      ],
+      "release_note": "Integrated module checkpoint:1230 native tests pass, scoped formatting/analyzers pass, saved four-module CLI replay deterministic with zero desktop dispatch. No live/editor qualification or installation. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "MODULE-MENUS-04",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "pet_training_preferences",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/SigilModule.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/MenuModule.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/SigilModuleTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MenuModuleTests.cs",
+        "docs/modules/SIGILS_AND_MENUS.md"
+      ],
+      "release_note": "Integrated module checkpoint:1230 native tests pass, scoped formatting/analyzers pass, saved four-module CLI replay deterministic with zero desktop dispatch. No live/editor qualification or installation. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "MODULE-IDLE-04",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "dance_integration_review",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/AutoIdleModule.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/AutoIdleModuleTests.cs",
+        "docs/modules/AUTO_IDLE.md"
+      ],
+      "release_note": "Integrated module checkpoint:1230 native tests pass, scoped formatting/analyzers pass, saved four-module CLI replay deterministic with zero desktop dispatch. No live/editor qualification or installation. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "MODULE-CORE-04",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/OperationModule.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleRunner.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationModuleTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleRunnerTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleReplayTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "docs/REUSABLE_MODULES.md",
+        "docs/MODULE_STANDARDIZATION_20261110.md",
+        "docs/INDEX.md",
+        "docs/ROADMAP.md",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/ROUTINE_GRAPHS.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineReplay.cs"
+      ],
+      "release_note": "Integrated module checkpoint:1230 native tests pass, scoped formatting/analyzers pass, saved four-module CLI replay deterministic with zero desktop dispatch. No live/editor qualification or installation. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "MODULE-VISION-05",
+      "workstream_id": "CORE-VISION",
+      "owner": "pet_training_preferences",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleRecognition.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101MenuRecognition.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleRecognitionTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101MenuRecognitionTests.cs",
+        "docs/modules/SCREEN_RECOGNITION.md"
+      ],
+      "release_note": "Integrated source:1316 native tests, scoped format/analyzers and scheduled actual-PNG OCR review pass. Four supplied rehearsal receipts,zero OS input. Existing Dance cleanup source uses shared modules; no installation/live qualification. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "MODULE-EXECUTION-05",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "dance_integration_review",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleOperationTests.cs",
+        "docs/modules/MODULE_OPERATIONS.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceNativeIdle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs"
+      ],
+      "release_note": "Integrated source:1316 native tests, scoped format/analyzers and scheduled actual-PNG OCR review pass. Four supplied rehearsal receipts,zero OS input. Existing Dance cleanup source uses shared modules; no installation/live qualification. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "MODULE-EVIDENCE-05",
+      "workstream_id": "CORE-VISION",
+      "owner": "dance_levels_snacks_research",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Modules/W101Menus/recognition-cases.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Modules/W101Menus/provenance.json",
+        "docs/MODULE_SCREEN_EVIDENCE_20261110.md",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Modules/W101Menus/reward.png",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Modules/W101Menus/snack.png",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Modules/W101Menus/outside.png",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Modules/W101Menus/graphics-menu.png",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Modules/W101Menus/native-idle.png",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/Modules/W101Menus/loading.png"
+      ],
+      "release_note": "Integrated source:1316 native tests, scoped format/analyzers and scheduled actual-PNG OCR review pass. Four supplied rehearsal receipts,zero OS input. Existing Dance cleanup source uses shared modules; no installation/live qualification. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "MODULE-INTEGRATION-05",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleScreenSession.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleOwnedInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleScreenReview.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModulePrograms.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleScreenSessionTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleOwnedInputTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleScreenReviewTests.cs",
+        "docs/MODULE_SCREEN_INTEGRATION_20261110.md",
+        "docs/REUSABLE_MODULES.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "release_note": "Integrated source:1316 native tests, scoped format/analyzers and scheduled actual-PNG OCR review pass. Four supplied rehearsal receipts,zero OS input. Existing Dance cleanup source uses shared modules; no installation/live qualification. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "SCHEDULER-REUSE-05",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "dance_levels_snacks_research",
+      "state": "released",
+      "owned_paths": [
+        "docs/GUILD_STEWARD_SCHEDULER_REUSE_20261110.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationSchedulerRecoveryTests.cs"
+      ],
+      "release_note": "Integrated source:1316 native tests, scoped format/analyzers and scheduled actual-PNG OCR review pass. Four supplied rehearsal receipts,zero OS input. Existing Dance cleanup source uses shared modules; no installation/live qualification. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "DEVTOOLS-REFRESH-06",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/SCHEDULER_REUSE_INTEGRATION_20261110.md",
+        "docs/INDEX.md",
+        "docs/ROADMAP.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/SHARED_OPERATIONS.md"
+      ],
+      "release_note": "Integrated source: 1379 native tests, scoped format/analyzers, 22 board tests and the compiled saved-screen scheduler workflow pass. Devtools 7e7a3d3; immutable admission/lifecycle and async cancellation barrier. Zero desktop inputs; no installation or live qualification. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "SCHEDULER-ADMISSION-06",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "dance_levels_snacks_research",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationRequestSnapshot.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationRequestSnapshotTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationJournalTests.cs"
+      ],
+      "release_note": "Integrated source: 1379 native tests, scoped format/analyzers, 22 board tests and the compiled saved-screen scheduler workflow pass. Devtools 7e7a3d3; immutable admission/lifecycle and async cancellation barrier. Zero desktop inputs; no installation or live qualification. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "SCHEDULER-JOURNAL-06",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "dance_integration_review",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationJournal.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationSchedulerJournalTests.cs"
+      ],
+      "release_note": "Integrated source: 1379 native tests, scoped format/analyzers, 22 board tests and the compiled saved-screen scheduler workflow pass. Devtools 7e7a3d3; immutable admission/lifecycle and async cancellation barrier. Zero desktop inputs; no installation or live qualification. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "SCHEDULER-AUDIT-06",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "pet_training_preferences",
+      "state": "released",
+      "owned_paths": [
+        "docs/GUILD_STEWARD_LATEST_REUSE_20261110.md",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationSchedulerCancellationTests.cs"
+      ],
+      "release_note": "Integrated source: 1379 native tests, scoped format/analyzers, 22 board tests and the compiled saved-screen scheduler workflow pass. Devtools 7e7a3d3; immutable admission/lifecycle and async cancellation barrier. Zero desktop inputs; no installation or live qualification. Reclaim exact paths before edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-NATIVE-07",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "dance_integration_review",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputLease.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/GameInputRecoveryTests.cs"
+      ],
+      "release_note": "Integrated source: 1410 native tests and 62 Python/board checks pass, including input-free cross-process failed-warning/crash tests; scoped format/analyzers and Python style/syntax pass. No game/desktop/model/install, no normal user lock touched. Shared recovery guard fixes selected gap; verified reset UI and late-report limits documented. Reclaim paths before edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-PYTHON-07",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "dance_levels_snacks_research",
+      "state": "released",
+      "owned_paths": [
+        "tools/wizard101_hub.py",
+        "tools/tests/test_shared_input_lease.py",
+        "tools/tests/test_input_recovery.py",
+        "ProjectMaelstrom/Maelstrom.TestProcess/Program.cs"
+      ],
+      "release_note": "Integrated source: 1410 native tests and 62 Python/board checks pass, including input-free cross-process failed-warning/crash tests; scoped format/analyzers and Python style/syntax pass. No game/desktop/model/install, no normal user lock touched. Shared recovery guard fixes selected gap; verified reset UI and late-report limits documented. Reclaim paths before edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-INTEGRATION-07",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "pet_training_preferences",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationRecoveryFailureTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/PlayerController.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/LegacyInputOwnershipTests.cs"
+      ],
+      "release_note": "Integrated source: 1410 native tests and 62 Python/board checks pass, including input-free cross-process failed-warning/crash tests; scoped format/analyzers and Python style/syntax pass. No game/desktop/model/install, no normal user lock touched. Shared recovery guard fixes selected gap; verified reset UI and late-report limits documented. Reclaim paths before edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-COORD-07",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleOwnedInput.cs",
+        "docs/INPUT_RECOVERY_GUARD_20261110.md",
+        "docs/SHARED_OPERATIONS.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "release_note": "Integrated source: 1410 native tests and 62 Python/board checks pass, including input-free cross-process failed-warning/crash tests; scoped format/analyzers and Python style/syntax pass. No game/desktop/model/install, no normal user lock touched. Shared recovery guard fixes selected gap; verified reset UI and late-report limits documented. Reclaim paths before edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-TXN-08",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "dance_integration_review",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputLease.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputRecovery.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/GameInputRecoveryTransactionTests.cs"
+      ],
+      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-UI-08",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "dance_levels_snacks_research",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/InputRecoveryForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/OperationRunsView.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/ResearchSettingsForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/InputRecoveryPresentation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/InputRecoveryPresentationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/InputRecoveryUiTests.cs"
+      ],
+      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-DRAIN-08",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "pet_training_preferences",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationRecoveryDrainTests.cs"
+      ],
+      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-FLOW-08",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/InputRecoveryOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WindowsInputRecoveryProbe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/InputRecoveryOperationTests.cs",
+        "docs/INPUT_RECOVERY_FLOW_20261110.md",
+        "docs/SHARED_OPERATIONS.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-INSTALL-09",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/INPUT_RECOVERY_INSTALL_20261110.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md"
+      ],
+      "notes": "Package/install completed;14 installer tests and isolated lifecycle pass. Installed binaries match;972 original files pass bounded preservation checks. User takeover stopped desktop before recovery dialog; verification incomplete. See docs/INPUT_RECOVERY_INSTALL_20261110.md. Reclaim before further edits."
+    },
+    {
+      "task_id": "INPUT-RECOVERY-LIVE-10",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/INPUT_RECOVERY_LIVE_20261110.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md"
+      ],
+      "notes": "Installed recovery UI and real quiet verifier passed once from a legacy-clean guard;15 saved-evidence consistency checks pass. No routines or settings changed; no gameplay. All Maelstrom windows closed by17:45:03 UTC. See docs/INPUT_RECOVERY_LIVE_20261110.md. Reclaim before further edits."
+    },
+    {
+      "task_id": "W101-TELEMETRY-REVIEW-11",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/W101_TELEMETRY_REVIEW_20261110.md",
+        "AGENTS.md",
+        "docs/PRODUCT.md",
+        "docs/W101_UI_ONLY_BOUNDARY.md",
+        "docs/W101_MEMORY_OBSERVATION_RESEARCH.md"
+      ],
+      "notes": "Read-only code review complete;14 native/8 Python tests pass with mocks only. Architectural exception explicitly approved by owner and recorded in AGENTS/product/boundary docs; no production/provider edits or live memory access. Concrete gaps tracked in review."
+    },
+    {
+      "task_id": "W101-CLIENT-EXCEPTION-12",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "AGENTS.md",
+        "docs/W101_CLIENT_SIDE_EXCEPTION_20261110.md",
+        "docs/W101_TELEMETRY_REVIEW_20261110.md",
+        "docs/W101_UI_ONLY_BOUNDARY.md",
+        "docs/W101_MEMORY_OBSERVATION_RESEARCH.md",
+        "docs/PRODUCT.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md",
+        "docs/W101_CAPABILITY_INTEGRATION_MAP.md",
+        "docs/W101_LEGACY_WORK_PACKAGES.md",
+        "docs/coordination/EXTERNAL_AGENT_GUIDE.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Expanded owner-approved W101 client-side functionality recorded across working agreement, product, current context, roadmap and legacy maps. Network manipulation excluded. Documentation/plan only; no executable guards changed or tools activated.30 Python/board tests and plan checks pass; native rerun interrupted without result, unchanged source hashes preserve earlier14-test evidence. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-WIZWALKER-13",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerWorker.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/WizwalkerConnectionForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/HomeMovementForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerOperationTests.cs",
+        "tools/wizwalker_adapter.py",
+        "tools/tests/test_wizwalker_adapter.py",
+        "tools/fixtures/wizwalker_review.json",
+        "tools/fixtures/wizwalker_fake_worker.py",
+        "docs/WIZWALKER_ADAPTER_20261110.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/GAME_WORKSTREAMS.md",
+        "docs/ROADMAP.md",
+        "docs/INDEX.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Optional source-pinned loading observation integrated through existing native scheduler/control owner and one supervised Python worker. W101 workspace opt-in/Stop entry added.1535 native tests incl23 adapter cases and79 Python checks pass; scoped formatting/analyzers pass. Actual fake-child transport, cooperative stop and forced cleanup guard tested. No live game/desktop/model/package/install. See docs/WIZWALKER_ADAPTER_20261110.md. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-WIZWALKER-LIVE-14",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/WIZWALKER_LIVE_20261110.md",
+        "docs/WIZWALKER_ADAPTER_20261110.md",
+        "docs/ROADMAP.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/INDEX.md",
+        "PACKAGING.md",
+        "tools/wizwalker_adapter.py",
+        "tools/tests/test_wizwalker_adapter.py",
+        "tools/fixtures/wizwalker_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "scripts/build_desktop.ps1"
+      ],
+      "notes": "Integrated strict headless CLI and dependency preflight. Two live W101 nonloading snapshots completed in643/641ms with verified disconnect and clean shared guard; no gameplay or desktop input during CLI checks.1562 native,80 Python,14 installer tests pass. Portable and installer built; packaged help and isolated install/update/uninstall pass. Actual installation awaits user action-time confirmation for Setup-20261110-193143-7250d6. Positive loading transition remains unqualified. Reclaim paths before further edits."
+    },
+    {
+      "task_id": "W101-WIZWALKER-INSTALL-15",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/WIZWALKER_LIVE_20261110.md",
+        "docs/WIZWALKER_ADAPTER_20261110.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/ROADMAP.md"
+      ],
+      "notes": "Confirmed tested installer installed as11d29e86169b472ab46b3a4f2f64de02; binaries match payload.1163 data files preserved,341 small hashes match. Installed CLI help/windows/status/default user data passed; one W101 nonloading read709ms, cleanup confirmed, guard clean, worker exited. W101 visibly native Idle before headless read; no inputs sent. Desktop work ended and test/installer windows closed. Positive loading transition remains unqualified. Evidence: .local/wizwalker-installed-20261110 and docs/WIZWALKER_LIVE_20261110.md."
+    },
+    {
+      "task_id": "W101-LOADING-16",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerLoadingWatch.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleLoadingGate.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleScreenSession.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerLoadingWatchTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleLoadingGateTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/REUSABLE_MODULES.md",
+        "docs/W101_LOADING_TRANSITION_20261110.md",
+        "docs/ROADMAP.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/INDEX.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleOwnedInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerModuleLoading.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceNativeIdle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceTrialOptions.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerModuleLoadingTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceTrialOptionsTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleRunner.cs"
+      ],
+      "notes": "Loading watch and optional shared routine condition complete in source.1601 native tests and scoped formatting/analyzers pass. Real Dance loading and six user-demonstrated zone loading periods verified;105 zone readings all clean disconnects. Final native Idle visually confirmed; guard clean; worker exited. Combined opt-in postgame path is offline-only; new source not packaged/installed. No updater added. See docs/W101_LOADING_TRANSITION_20261110.md.16 Python adapter tests and board validation also pass. All task-owned test processes stopped."
+    },
+    {
+      "task_id": "W101-UI-TREE-17",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerWorker.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "docs/W101_UI_TREE_20261110.md",
+        "docs/HEADLESS_CLI.md",
+        "docs/ROADMAP.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/INDEX.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerLoadingWatchTests.cs",
+        "tools/fixtures/w101_ui_tree_live_20261110.json"
+      ],
+      "notes": "Implemented optional bounded UI observer and exact-build maintained Deimos hook subset; initial legacy rejection preserved. Four live UI checks:130 trees,518 scheduled loading reads,zero failures,clean restoration/disconnect/guard,zero remaining task processes. User clarified quest dialogue close advances quest: final Quinn conversation left open. Seven replay fixtures;1629 native/25 Python tests. No desktop control or installation; final scoped format/analyzers/syntax,25 Python tests and30-workstream board checks pass. Source observer slice complete; shared routine consumption and installation are separate follow-ups. Reclaim paths before further edits."
+    },
+    {
+      "task_id": "W101-MODULE-INPUT-05",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "module_input",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleInputTests.cs"
+      ],
+      "notes": "Bounded addressed X/Escape input under existing owner; offline only; root owns builds. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+    },
+    {
+      "task_id": "W101-MODULE-ADMISSION-05",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleAdmission.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleAdmissionTests.cs",
+        "docs/coordination/results/W101-MODULE-INTEGRATION-05.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/ROADMAP.md",
+        "docs/W101_AUTOMATION_READINESS.md",
+        "docs/INDEX.md"
+      ],
+      "notes": "Reviewed reader pin admission; offline verification; no live actions. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+    },
+    {
+      "task_id": "W101-PROMPT-EVIDENCE-05",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "runtime_review",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py"
+      ],
+      "notes": "Bounded optional exact-path current/stable interaction title evidence; no live or build. Root updates C# DTO and worker hash. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+    },
+    {
+      "task_id": "W101-MODULE-OBSERVER-05",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "module_input",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs"
+      ],
+      "notes": "Concrete bounded UI-tree plus current capture OCR provider under existing owner; source/offline only. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+    },
+    {
+      "task_id": "W101-MODULE-PROBE-05",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "module_input",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleProbe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleProbeTests.cs"
+      ],
+      "notes": "CLI-ready observation-only real provider admission; no input/live; root owns CLI. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+    },
+    {
+      "task_id": "W101-IDLE-CYCLE-06",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101IdleCycleTests.cs"
+      ],
+      "notes": "Receipt-bound idle/wake/options cycle using shared RoutineRunner; offline only, root builds. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-CONTROL-SCOPE-06",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "route_review",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ControlScopeTests.cs"
+      ],
+      "notes": "Bounded CLI foreground/activity scope using existing monitor and input owner; no live execution, root builds. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-CYCLE-INTEGRATION-06",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycleOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101IdleCycleOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleInputTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/ROADMAP.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/results/W101-CYCLE-INTEGRATION-06.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerWorker.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleRecognition.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleRecognitionTests.cs"
+      ],
+      "notes": "Concrete cycle/provider/input/CLI; bounded live through Maelstrom after offline tests, no purchases/quest advancement. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-ROUTE-PROVENANCE-06",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "route_review",
+      "state": "released",
+      "owned_paths": [
+        "tools/zone_routes.py",
+        "tools/tests/test_zone_routes.py",
+        "docs/coordination/results/W101-ROUTE-PROVENANCE-06.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/Macros/commons-to-golem-court.macro.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/Macros/commons-to-olde-town.macro.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/Macros/commons-to-pet-pavilion.macro.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/Macros/olde-town-to-shopping-district.macro.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/Macros/pet-pavilion-to-commons.macro.json"
+      ],
+      "notes": "Remove false verified-route claims; prevent unqualified example coordinates becoming executable route; document actual demonstration anchors. Offline only. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-MENU-RECOGNITION-06",
+      "workstream_id": "CORE-VISION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101MenuRecognition.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuOcr.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDancePostGame.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101MenuRecognitionTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDancePostGameTests.cs"
+      ],
+      "notes": "Review/fix scale-aware Options Idle recognition from current savedpixels whenavailable; no live/build. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-NAV-INPUT-07",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "route_review",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationInputTests.cs"
+      ],
+      "notes": "Bounded W/A/D transport for navigation, shared control owner, offline tests; root owns build/live. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-NAV-PROBE-07",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationProbe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationProbeTests.cs"
+      ],
+      "notes": "One explicit short movement for route teaching under shared owner with before/after evidence; not arrival qualification. Offline implementation, root live/build. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-OWNED-READ-07",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "route_review",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py"
+      ],
+      "notes": "Optional two-tree owned snapshot, preserves watch behavior and cleanup; lightweight offline tests only. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-MENU-TIMING-07",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "cycle_audit",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceMenuInputTests.cs"
+      ],
+      "notes": "Bounded cursor-settle and click sequence, preserve user takeover and release. Offline implementation, root live/build. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+    },
+    {
+      "task_id": "W101-VISIT-08",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycleOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationProbe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationVisitTests.cs"
+      ],
+      "notes": "Agent implementation frozen; coordinator owns integration fixes, scoped formatting and tests. Integrated:2315native tests; scoped format/analyzers pass; two CLI motion/Idle visits independently confirmed by user. No installation or route-arrival claim."
+    },
+    {
+      "task_id": "W101-VISIT-INTEGRATION-08",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/ROADMAP.md",
+        "docs/coordination/results/W101-CYCLE-INTEGRATION-06.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "CLI visit integration, build/tests/live and evidence updates. Integrated:2315native tests; scoped format/analyzers pass; two CLI motion/Idle visits independently confirmed by user. No installation or route-arrival claim."
+    },
+    {
+      "task_id": "W101-NAV-FEEDBACK-09",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/NavigationModule.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationModuleTests.cs",
+        "docs/W101_DESTINATION_NAVIGATION.md",
+        "docs/coordination/results/W101-NAV-FEEDBACK-09.md",
+        "docs/ROADMAP.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Add optional observed corrective steering to existing navigation graph; deterministic offline tests, no new runtime or live recognition claims. Source integration complete;2341native tests and scoped checks pass. Live retry qualification deferred by user; no installation."
+    },
+    {
+      "task_id": "W101-IDLE-RETRY-10",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101VisitPolicy.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationVisitTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101VisitPolicyTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/coordination/results/W101-IDLE-RETRY-10.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleFailsafe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101IdleFailsafeTests.cs"
+      ],
+      "notes": "Bounded native-Idle finalization retries and explicit quiet-resume policy through current owner; gameplay is never replayed on uncertain receipt. Root owns sequential tests/live. Source integration complete;2341native tests and scoped checks pass. Live retry qualification deferred by user; no installation."
+    },
+    {
+      "task_id": "W101-IDLE-INTEGRATION-11",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RoutineIdle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestConversationOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceNativeIdle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDancePlayerLauncher.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceTrialOptions.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RoutineIdleTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDancePlayerLauncherTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceTrialOptionsTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/ROADMAP.md",
+        "docs/coordination/results/W101-IDLE-INTEGRATION-11.md",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/claims.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleAdmission.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleAdmissionTests.cs"
+      ],
+      "notes": "Offline integration of shared finalizer into quest CLI/deck and Dance postgame; audit primitives/unsupported bindings separately. No live or installation. Integrated offline:2349tests and scoped formatting/analyzers pass. Coverage and remaining HomeMovementLease migration documented. No live or install."
+    },
+    {
+      "task_id": "W101-HOME-IDLE-12",
+      "workstream_id": "CORE-TRANSITIONS",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/HomeMovementOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/HomeMovementRun.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/HomeMovement.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/HomeMovementForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/HomeMovementOperationTests.cs",
+        "docs/coordination/results/W101-HOME-IDLE-12.md",
+        "docs/ROADMAP.md",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/claims.json"
+      ],
+      "notes": "Shared-owner runtime bridge and visual Idle finalization for home movement. Offline only; no capture/input/install. Offline integration complete:2366native tests, scoped checks and whitespace pass. Original scheduler owner retained, UI lease disposal removed. Live and install remain pending."
+    },
+    {
+      "task_id": "W101-ROUTE-LANDMARKS-13",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/route_landmarks.py",
+        "tools/tests/test_route_landmarks.py",
+        "docs/coordination/results/W101-ROUTE-LANDMARKS-13.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Bounded offline visual route landmark prototype on saved demonstration and notified current-frame evidence. No direct input, no prototype dispatcher activation. Observation-only prototype and report complete;4tests/Black/syntax pass. Live alignment test requires pending user Ready; no autonomous route qualification. Reopened for notified D300 evidence and bounded SIFT comparison; no more live actions. D300 notified check completed; final saved Idle verified, user could not verify. SIFT comparison recognizes post-turn anchor;5tests/Black/syntax pass. Route still unqualified."
+    },
+    {
+      "task_id": "W101-ROUTE-GEOMETRY-14",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/route_landmarks.py",
+        "tools/tests/test_route_landmarks.py",
+        "docs/coordination/results/W101-ROUTE-GEOMETRY-14.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycleOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101IdleCycleOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ClientOperationsCalibrator.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationsCalibrationTests.cs",
+        "tools/w101_pose_reader.py",
+        "tools/tests/test_w101_pose_reader.py"
+      ],
+      "notes": "Offline spatial support and reference-relative alignment diagnostics; saved footage validation. No input or new dependencies. Live calibration stopped before input with generic readiness error; add bounded scope diagnostics to Idle report, offline tests. User explicitly authorized repair/integration of broken external calibration contribution. Completed offline geometry, bounded pose decoder and diagnostics repair;2369 native/15 Python tests pass. Notified turn retry user-confirmed; no forward movement, live pose or route qualification."
+    },
+    {
+      "task_id": "W101-POSE-CONNECT-15",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_ui_tree.py",
+        "tools/w101_pose_reader.py",
+        "tools/tests/test_w101_ui_tree.py",
+        "tools/tests/test_w101_pose_reader.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/coordination/results/W101-POSE-CONNECT-15.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationVisitTests.cs"
+      ],
+      "notes": "Optional serialized player-pose observation through existing CLI owner, offline first, notified live checks only; no automatic coordinate movement until qualified. Source integrated and2378native/62Python tests pass; live pose and deflected forward movement observed. Dorm waypoint trial blocked before input by foreground. No input active; no arrival qualification."
+    },
+    {
+      "task_id": "W101-FOREGROUND-16",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101VisitPolicy.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ForegroundAdmissionTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/coordination/results/W101-FOREGROUND-16.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerOperation.cs",
+        "docs/ROADMAP.md"
+      ],
+      "notes": "Explicit user-authorized quiet foreground admission; retain takeover guard, fresh restarted target, bounded dorm test. Source integrated;2385native checks pass. Live restarted client changed root register/scratch profile; hook withheld,0inputs. Fixed false recovery classification and added pre-admission build check. Existing recovery not cleared; waypoint/Idle pending compatible profile and recovery."
+    },
+    {
+      "task_id": "W101-PROFILE-RECOVERY-17",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CliInputRecovery.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ForegroundAdmissionTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/coordination/results/W101-PROFILE-RECOVERY-17.md",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/claims.json"
+      ],
+      "notes": "Offline profile and explicit verified CLI recovery implemented. 2386 native/56 UI tests pass. Live recovery blocked by unavailable desktop; W101 absent. No movement or verified Idle; see result report."
+    },
+    {
+      "task_id": "W101-LIVE-RECOVERY-18",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CliInputRecovery.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ForegroundAdmissionTests.cs",
+        "docs/coordination/results/W101-LIVE-RECOVERY-18.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "CLI diagnostics isolate rejected verifier foreground. No game input; recovery retained. W101 confirmed in elevated context; earlier absence inference corrected. Live profile/waypoint/Idle pending."
+    },
+    {
+      "task_id": "CONTROL-COUNTDOWN-19",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ActionStartNotice.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/AppPreferences.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/ResearchSettingsForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ActionStartNoticeTests.cs",
+        "docs/coordination/results/CONTROL-COUNTDOWN-19.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CliInputRecovery.cs"
+      ],
+      "notes": "Source integrated;2392native tests and scoped formatting/analyzers pass. Five-second shared W101 action overlay, optional sound, ten-second recovery foreground fallback. Not installed/live-qualified; see result report."
+    },
+    {
+      "task_id": "RELEASE-COUNTDOWN-20",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "Installer/Program.cs",
+        "PACKAGING.md",
+        "docs/coordination/results/RELEASE-COUNTDOWN-20.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Installed via tested CLI installer; installed recovery rejected foreground and timed out. No gameplay. Countdown/sound/live adapter/waypoint/Idle unverified."
+    },
+    {
+      "task_id": "RECOVERY-DESKTOP-21",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WindowsInputRecoveryProbe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CliInputRecovery.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/BackgroundRecoveryProbeTests.cs",
+        "docs/coordination/results/RECOVERY-DESKTOP-21.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/HEADLESS_CLI.md"
+      ],
+      "notes": "Fixed/installed windowless recovery; live source recovery and new-profile UI/pose restoration passed.2394tests. Installed recheck honored activity cancellation. Native Idle text unresolved, no movement."
+    },
+    {
+      "task_id": "W101-IDLE-PROFILE-22",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "docs/coordination/results/W101-IDLE-PROFILE-22.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Source Idle text profile repair;58Python/2394native tests pass. Live awake recognition/restoration passes; positiveIdle/countdown/waypoint blocked before input by rejected foreground. Architecture review recorded."
+    },
+    {
+      "task_id": "W101-WAKE-IDEMPOTENT-23",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101IdleCycleTests.cs",
+        "docs/coordination/results/W101-WAKE-IDEMPOTENT-23.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ActionStartNotice.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ActionStartNoticeTests.cs"
+      ],
+      "notes": "Wake idempotence and wide no-activation banner installed.2398native tests. Live60ms36unit waypoint candidate within4units, returnIdle verified; installed observation passes. User missed banner; remote visibility/sound not confirmed."
+    },
+    {
+      "task_id": "W101-FEEDBACK-24",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WaypointFeedback.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FeedbackVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WaypointFeedbackTests.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/coordination/results/W101-FEEDBACK-24.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "2405native tests pass. Two varied feedback arrivals confirmed twice with Idle returns; integration failure and takeover interruption retained. Explicit Idle-only cleanup passed; game left Idle. Source only; turn/route gates remain."
+    },
+    {
+      "task_id": "W101-CHARACTER-25",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CharacterSwitch.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CharacterSwitchTests.cs",
+        "docs/coordination/results/W101-CHARACTER-25.md",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Offline foundation only;2412 tests. Live selection/identity, persisted profiles and CLI binding pending."
+    },
+    {
+      "task_id": "W101-CHARACTER-26",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CharacterSwitch.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizardProfileStore.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLifecycle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CharacterSwitchTests.cs",
+        "docs/coordination/results/W101-CHARACTER-26.md",
+        "docs/HEADLESS_CLI.md",
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/LoadingTransitionGate.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/LoadingTransitionGateTests.cs"
+      ],
+      "notes": "2425 native/59 reader tests; formatting/analyzers pass. Selection and loaded Fire106 evidence live; home was user-assisted; Idle independently observed. CLI qualification stages, profiles/loading gate source only; single-call deck/house qualification remains pending."
+    }
+  ]
+}

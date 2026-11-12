@@ -126,7 +126,7 @@ def calc_PointOn3DLine(xyz_1 : XYZ, xyz_2 : XYZ, additional_distance):
 
 def are_xyzs_within_threshold(xyz_1 : XYZ, xyz_2 : XYZ, threshold : int = 200):
     # checks if 2 xyz's are within a rough distance threshold of each other. Not actual distance checking, but precision isn't needed for this, this exists to eliminate tiny variations in XYZ when being sent back from a failed port.
-    threshold_check = [abs(abs(xyz_1.x) - abs(xyz_2.x)) < threshold, abs(abs(xyz_1.y) - abs(xyz_2.y)) < threshold, abs(abs(xyz_1.z) - abs(xyz_2.z)) < threshold]
+    threshold_check = [abs(xyz_1.x - xyz_2.x) < threshold, abs(xyz_1.y - xyz_2.y) < threshold, abs(xyz_1.z - xyz_2.z) < threshold]
     return all(threshold_check)
 
 

@@ -1,0 +1,59 @@
+{
+  "schema": "maelstrom.route-preview.v1",
+  "executable": false,
+  "qualification": "unqualified-example-coordinates",
+  "coordinate_source": null,
+  "live_qualified": false,
+  "route_id": "pet-pavilion-to-commons",
+  "title": "pet-pavilion-to-commons",
+  "from_zone": "Pet Pavilion",
+  "to_zone": "The Commons",
+  "tags": [
+    "hub",
+    "return"
+  ],
+  "example_waypoints": [
+    {
+      "example_x": 515.0,
+      "example_y": -1960.0,
+      "example_z": 20.0,
+      "name": "Pet Dance Game Sigil"
+    },
+    {
+      "example_x": 430.0,
+      "example_y": -1620.0,
+      "example_z": 15.0,
+      "name": "Pavilion Inner Courtyard"
+    },
+    {
+      "example_x": 390.0,
+      "example_y": -1260.0,
+      "example_z": 15.0,
+      "name": "Pavilion Tunnel Gate Archway"
+    },
+    {
+      "example_x": 285.0,
+      "example_y": -840.0,
+      "example_z": 10.0,
+      "name": "Pet Pavilion Canal Bridge"
+    },
+    {
+      "example_x": 145.0,
+      "example_y": -420.0,
+      "example_z": 0.0,
+      "name": "Pet Pavilion Bridge Approach"
+    },
+    {
+      "example_x": 0.0,
+      "example_y": 0.0,
+      "example_z": 0.0,
+      "name": "Commons World Gate Center"
+    }
+  ],
+  "warning": "Legacy filename retained; this is not a macro. Do not use these coordinates for movement or arrival checks.",
+  "quarantined_macro_sha256": "ca02817dc6a853bfb39bf487b3d9de84f66e8b0513de1194991553664982bbc4",
+  "unqualified_reference": {
+    "former_tolerance": 45.0,
+    "former_timeout_seconds": 48.0
+  }
+}

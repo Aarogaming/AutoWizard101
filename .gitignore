@@ -311,6 +311,8 @@ paket-files/
 .cr/personal
 
 # Python Tools for Visual Studio (PTVS)
+.local/
+wizwiki_companion.json
 __pycache__/
 *.pyc
 

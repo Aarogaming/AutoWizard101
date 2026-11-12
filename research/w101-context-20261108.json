@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "kind": "game-research-ledger",
+  "game_id": "wizard101",
+  "research_date": "2026-11-08",
+  "research_timezone": "America/New_York",
+  "executable": false,
+  "automatic_runtime_import": false,
+  "live_teacher_qualified": false,
+  "report": "docs/W101_GAME_RESEARCH_20261108.md",
+  "scope": ["navigation", "native-idle", "pet-training", "fairground-games", "quest-context", "combat-context", "home-gardening", "legacy-reuse"],
+  "evidence_policy": {
+    "crawl_date_is_publication_date": false,
+    "omission_in_older_page_is_conflict": false,
+    "test_realm_implies_live_availability": false,
+    "source_axes": ["publication-date", "feature-effective-date", "region", "platform", "live-or-test-realm", "client-observation-date"],
+    "unknown_dates": "Remain null; do not infer chronology from crawl recency alone.",
+    "promotion": "Documentation becomes a candidate rule; current-client qualification is separate."
+  },
+  "sources": [
+    {"id": "movement", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/getting-around1", "published_on": null},
+    {"id": "transport", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/getting-around2", "published_on": null},
+    {"id": "map", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/getting-around3", "published_on": null},
+    {"id": "devices", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/getting-around4", "published_on": null},
+    {"id": "keys", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/keyboardshortcuts", "published_on": null},
+    {"id": "quest-direction", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/questing3", "published_on": null},
+    {"id": "pets-intro", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/pet-games2", "published_on": null},
+    {"id": "pets-training", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/pet-games7", "published_on": null},
+    {"id": "pets-rules", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/pet-games8", "published_on": null},
+    {"id": "derby", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/pet-games9", "published_on": null},
+    {"id": "minigames", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/mini-games1", "published_on": null},
+    {"id": "resources", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/how-to-play2", "published_on": null},
+    {"id": "encounters", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/how-to-play4", "published_on": null},
+    {"id": "world-travel", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/how-to-play6", "published_on": null},
+    {"id": "quests", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/questing", "published_on": null},
+    {"id": "instances", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/questing2", "published_on": null},
+    {"id": "deck", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/spell-cards2", "published_on": null},
+    {"id": "casting", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/spell-cards3", "published_on": null},
+    {"id": "garden", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/gardening", "published_on": null},
+    {"id": "plant-care", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/gardening2", "published_on": null},
+    {"id": "fishing", "kind": "official-guide", "url": "https://www.wizard101.com/w101playersguide/fishing", "published_on": null},
+    {"id": "idle-news", "kind": "secondary-news", "url": "https://www.mmorpg.com/news/wizard101s-summer-update-the-blighted-veil-raid-update-is-live-2000138231", "published_on": "2026-06-06", "limitation": "Historical reporting; local client observation is the availability evidence here."},
+    {"id": "regional-rollout", "kind": "publisher-announcement", "url": "https://www.play.wizard101.com/news/Ahmarra-Arrives-on-North-American-and-European-Servers", "published_on": "2026-11-05", "release_state": "forward-looking", "limitation": "Does not establish completion of the announced regional rollout."},
+    {"id": "keybinding-preview", "kind": "publisher-test-realm-notes", "url": "https://www.ravenwoodacademygame.com/news/ahmarra-update-notes", "published_on": "2026-10-21", "release_state": "test-realm", "limitation": "Retrieved on another KingsIsle game domain; page explicitly headed Test Realm. Not proof of live client availability."}
+  ],
+  "claims": [
+    {"id": "map-reference", "evidence": ["documented", "user-confirmed", "observed-local"], "sources": ["map"], "statement": "Ordinary map labels are location references, not arbitrary travel commands.", "client_observations": ["map-label-check"], "runtime_qualified": false},
+    {"id": "turn-semantics", "evidence": ["documented"], "sources": ["movement"], "statement": "A/D and Left/Right turn during world navigation; do not model them as strafe.", "runtime_qualified": false},
+    {"id": "travel-edges", "evidence": ["documented"], "sources": ["map", "keys", "devices", "transport", "world-travel"], "statement": "Home, world commons, mark recall, devices, friends and world doors have distinct preconditions.", "runtime_qualified": false},
+    {"id": "quest-guidance", "evidence": ["documented"], "sources": ["quest-direction"], "statement": "Quest direction is partial guidance, not arbitrary-destination pathfinding or obstacle clearance.", "runtime_qualified": false},
+    {"id": "pavilion-entrance", "evidence": ["documented"], "sources": ["pets-intro"], "statement": "Pavilion access is through a Commons tunnel near Prospector Zeke.", "runtime_qualified": false},
+    {"id": "dance-rules", "evidence": ["documented"], "sources": ["pets-rules"], "statement": "Repeat increasing arrow sequences; guide endpoint is five rounds or three failures.", "runtime_qualified": false},
+    {"id": "pet-resources", "evidence": ["documented"], "sources": ["pets-training"], "statement": "Pet training uses Energy; exact costs and regeneration remain client checks.", "runtime_qualified": false},
+    {"id": "pet-game-evolution", "evidence": ["documented"], "sources": ["pets-intro", "pets-training"], "statement": "Four-game introduction and six-game overview suggest expansion; introduction dates are not established.", "runtime_qualified": false},
+    {"id": "native-idle", "evidence": ["observed-local", "documented"], "sources": ["idle-news", "regional-rollout"], "statement": "The selected client has native Idle; regional rollout dates must remain separate.", "client_observations": ["idle-restored"], "runtime_qualified": false},
+    {"id": "binding-evolution", "evidence": ["documented"], "sources": ["keys", "keybinding-preview"], "statement": "Store defaults separately from observed bindings and Test Realm customization.", "runtime_qualified": false},
+    {"id": "instance-context", "evidence": ["documented"], "sources": ["instances"], "statement": "Travel and minigame detours can affect instance progress; confirm current instance rules.", "runtime_qualified": false},
+    {"id": "encounter-risk", "evidence": ["documented"], "sources": ["encounters"], "statement": "Approaching creatures can initiate duels; exact avoidance margins require measurement.", "runtime_qualified": false},
+    {"id": "resource-outcomes", "evidence": ["documented"], "sources": ["minigames", "resources", "garden", "plant-care"], "statement": "Score, replenishment, Energy use and harvest are separate outcomes.", "runtime_qualified": false}
+  ],
+  "local_observations": [
+    {"id": "settings", "observed_on": "2026-11-08", "mode": "supervised-window-ui", "facts": {"game_resolution": [1280, 720], "fullscreen": false, "ui_size": "Tiny", "zone_label": "The Commons", "location": "Fairgrounds mana-minigame sigil"}, "not_measured": ["WGC pixel geometry", "Windows DPI", "client build", "region"]},
+    {"id": "map-label-check", "observed_on": "2026-11-08", "mode": "supervised-window-ui", "fact": "Clicking the Pet Pavilion label left the Commons map open; no travel was observed."},
+    {"id": "idle-restored", "observed_on": "2026-11-08", "mode": "supervised-window-ui", "fact": "Pet book dismissed, Options opened, Idle clicked, YOU ARE IDLE banner observed; desktop helper reset.", "duration_qualification": false, "autonomous_cleanup_qualification": false},
+    {"id": "no-live-dance", "observed_on": "2026-11-08", "mode": "session-audit", "fact": "No Pavilion arrival, Pet Dance round, live cue calibration or teacher input trial completed."}
+  ],
+  "legacy_sources": [
+    {"path": ".local/upstream/Wizard101_DanceBot/README.md", "sha256": "2a683b27b8ee3ff9495d70b4e78dbfcd021151020403f7d6e1777c8baccd8cb9", "use": "Huge UI setup constraint", "executed": false},
+    {"path": ".local/upstream/Wizard101_DanceBot/dance_game.py", "sha256": "249e70e7492e7e52dc47d6e8054216f4c1cc851738eea924a41bffd96bb04487", "use": "Sequence assumptions and fixed-layout input audit", "executed": false},
+    {"path": ".local/legacy-validation/sources/Automatus-v2-master-e87cca6a6b/Automatus-v2-master/lib/map.py", "sha256": "ad31523a06ea97afa9810a849f2463f30d732578fb108755d1d5ff7d760e1048", "use": "Route data concepts", "executed": false},
+    {"path": ".local/legacy-validation/sources/Automatus-v2-master-e87cca6a6b/Automatus-v2-master/func/locomotion.py", "sha256": "e0caad040b0c67206b69eca456c29f647b34ccf91fc65ac2398e7ac010a3dae0", "use": "Traversal concepts and command/coordinate ambiguity", "executed": false},
+    {"path": ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/teleport_math.py", "sha256": "27cff8188489a118462b3e9c7887af8930a9aff0b0b5f9bcdf548007df8fc68d", "use": "Graph/geometry candidate; memory teleport is not normal transport", "executed": false}
+  ],
+  "route_draft": {
+    "id": "commons-fairgrounds-to-pet-dance",
+    "status": "proposed-landmarks-only",
+    "executable": false,
+    "sources": ["pets-intro", "movement", "map"],
+    "nodes": ["fairgrounds-sigil", "commons-open-path", "pavilion-tunnel", "zone-transition", "pet-pavilion", "dance-sigil", "dance-instructions"],
+    "positions": null,
+    "timed_input_sequence": null,
+    "arrival_qualified": false,
+    "missing": ["current landmark exemplars", "heading calibration", "progress detection", "stuck recovery", "zone arrival evidence", "Dance sigil identity"]
+  },
+  "next_gates": [
+    {"id": "context", "acceptance": "Known zone, screen, bindings, geometry and travel/resource constraints."},
+    {"id": "short-route", "acceptance": "Observed Pavilion and Dance-sigil arrival from varied starting headings."},
+    {"id": "cue-capture", "acceptance": "Current-client phase/cue examples with measured timing and explicit missed coverage."},
+    {"id": "tiny-calibration", "acceptance": "All directions, empty gaps and repeated arrows checked on independent footage."},
+    {"id": "live-teacher", "acceptance": "Bounded shared-owner key receipts, independently observed results and native Idle return."}
+  ],
+  "retrieval_failures": [
+    {"url": "https://www.wizard101.com/game/testrealm/updatenotes", "result": "Redirected to registration landing page", "used_as_mechanics_evidence": false},
+    {"url": "https://www.wizard101.com/game/community/updatenotes/blightedveil", "result": "Inaccessible via research tool", "used_as_mechanics_evidence": false},
+    {"url": "https://www.play.wizard101.com/news/ahmarra-update-notes", "result": "Inaccessible via research tool", "used_as_mechanics_evidence": false}
+  ],
+  "open_questions": [
+    "Exact build, region, DPI and active keybindings",
+    "Current Pavilion entrance and Dance sigil visual exemplars",
+    "Tiny UI arrow dimensions, fade/neutral behavior and cue timing",
+    "Round length and retry behavior after failure in the current client",
+    "Actual Energy cost and game-result/experience transitions",
+    "Native Idle duration and autonomous screen-menu cleanup",
+    "Which historical guide details need superseding evidence after future patches"
+  ]
+}

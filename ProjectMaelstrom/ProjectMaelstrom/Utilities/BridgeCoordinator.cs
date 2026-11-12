@@ -44,8 +44,8 @@ internal sealed class BridgeCoordinator
 
         try
         {
-            _scripts.StartScript(script);
-            OnStatus?.Invoke($"Started {script.Manifest.Name}");
+            _scripts.ScheduleScript(script);
+            OnStatus?.Invoke($"Queued {script.Manifest.Name}");
             return true;
         }
         catch (Exception ex)

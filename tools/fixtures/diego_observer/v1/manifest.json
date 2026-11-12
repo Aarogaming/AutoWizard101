@@ -1,0 +1,188 @@
+{
+  "fixtureSetVersion": 1,
+  "kind": "autowizard101-offline-observer-fixtures",
+  "syntheticOnly": true,
+  "payloadVersionField": null,
+  "authority": "AutoWizard101 producer evidence; Aaroneous contract adoption pending",
+  "cases": [
+    {
+      "path": "valid/frame-0000.json",
+      "expect": "accept",
+      "sourceFrame": "frames/frame-0000.png",
+      "case": "synthetic consecutive-frame observation"
+    },
+    {
+      "path": "valid/frame-0001.json",
+      "expect": "accept",
+      "sourceFrame": "frames/frame-0001.png",
+      "case": "synthetic consecutive-frame observation"
+    },
+    {
+      "path": "valid/frame-0002.json",
+      "expect": "accept",
+      "sourceFrame": "frames/frame-0002.png",
+      "case": "synthetic consecutive-frame observation"
+    },
+    {
+      "path": "valid/single-frame.json",
+      "expect": "accept",
+      "sourceFrame": "frames/frame-0000.png",
+      "case": "headless CLI shape; no temporal confirmation"
+    },
+    {
+      "path": "valid/unknown.json",
+      "expect": "accept",
+      "sourceFrame": "frames/negative.png",
+      "case": "no detections; explicit unknown, not safe-to-act"
+    },
+    {
+      "path": "valid/additional-field.json",
+      "expect": "accept",
+      "case": "retain additional fields"
+    },
+    {
+      "path": "invalid/input-enabled.json",
+      "expect": "reject",
+      "case": "input-enabled"
+    },
+    {
+      "path": "invalid/wrong-mode.json",
+      "expect": "reject",
+      "case": "wrong-mode"
+    },
+    {
+      "path": "invalid/missing-field.json",
+      "expect": "reject",
+      "case": "missing-field"
+    },
+    {
+      "path": "invalid/bad-dimensions.json",
+      "expect": "reject",
+      "case": "bad-dimensions"
+    },
+    {
+      "path": "invalid/outside-roi.json",
+      "expect": "reject",
+      "case": "outside-roi"
+    },
+    {
+      "path": "invalid/bad-similarity.json",
+      "expect": "reject",
+      "case": "bad-similarity"
+    },
+    {
+      "path": "invalid/bad-track.json",
+      "expect": "reject",
+      "case": "bad-track"
+    },
+    {
+      "path": "invalid/malformed.json",
+      "expect": "reject",
+      "case": "malformed"
+    },
+    {
+      "path": "invalid/duplicate-key.json",
+      "expect": "reject",
+      "case": "duplicate-key"
+    },
+    {
+      "path": "invalid/non-finite.json",
+      "expect": "reject",
+      "case": "non-finite"
+    }
+  ],
+  "files": {
+    "frames/frame-0000.png": {
+      "sha256": "f4031662f08c7d816fa8e50464b17f3fffd2622e56a8b03833c6494f2ecef27a",
+      "bytes": 22817
+    },
+    "frames/frame-0001.png": {
+      "sha256": "b6bdaec15292f680a6e5b46034dfbed452b513b3425484b1974af33e7f403082",
+      "bytes": 22838
+    },
+    "frames/frame-0002.png": {
+      "sha256": "53847c4e886b3faf024e7d2c0766a3083beadcf6b06f9ae9a9cbe047957c0370",
+      "bytes": 22843
+    },
+    "frames/negative.png": {
+      "sha256": "844e9c66020ba48f0884347c6a38553019da614c07dd9fcda200b2da013d2e84",
+      "bytes": 1008
+    },
+    "invalid/bad-dimensions.json": {
+      "sha256": "78e6bc572c0f4a73942f21dd431d3086b1bbcfe853a92b1eadec4a3a0238b9d4",
+      "bytes": 1202
+    },
+    "invalid/bad-similarity.json": {
+      "sha256": "2021191b00a5a7230bb44e18afa237edf9e85e02487172d2de90156010548389",
+      "bytes": 1201
+    },
+    "invalid/bad-track.json": {
+      "sha256": "b390bee5dcf51ae3ac7ec901ecc5f965b9264f8359bfe2974ab5c2137034d749",
+      "bytes": 1201
+    },
+    "invalid/duplicate-key.json": {
+      "sha256": "83717720d3c23f88d2ff57760807af5c97efa701b47afb39620ee7730375d091",
+      "bytes": 49
+    },
+    "invalid/input-enabled.json": {
+      "sha256": "b8c5150a4d675dc27ba7a81416ac7e894cd57354910f17b25169abdee22e4beb",
+      "bytes": 1200
+    },
+    "invalid/malformed.json": {
+      "sha256": "ebc3d23e7c788c4fdcf960aa4844183d5439299a1d5d3de9a26f060c1c7afce0",
+      "bytes": 8
+    },
+    "invalid/missing-field.json": {
+      "sha256": "4596a77d18b28dad4b428a9e974afab763d28eedadff281a6fee9b6cd2a4b188",
+      "bytes": 1087
+    },
+    "invalid/non-finite.json": {
+      "sha256": "e46dad07b84645765cbd56a2643b02765af31054c181f01055f4576b32808e3b",
+      "bytes": 863
+    },
+    "invalid/outside-roi.json": {
+      "sha256": "562d54ad4097a50075800a5262aa63ae4da3fac43c4232a12f6ec21126e60fcb",
+      "bytes": 1197
+    },
+    "invalid/wrong-mode.json": {
+      "sha256": "ec547222a2bd85be2ecc0b72de620a0247334a3b16585502a665b5e258ac70ac",
+      "bytes": 1197
+    },
+    "pack/barrel.png": {
+      "sha256": "12031c570b830fc1ad830cb2ed4e9cc48f6e3c0b3e3f35d45cc67280ce324386",
+      "bytes": 6188
+    },
+    "pack/diego.png": {
+      "sha256": "6b026550db13fa3040a71fa4f2979917fa5282f9439e6d480c5441fa21a32b0f",
+      "bytes": 12684
+    },
+    "pack/examples.json": {
+      "sha256": "2a60cf798dd60864990ccbe8a66513d13a97eb406ee02b5739b8430f6455c2fa",
+      "bytes": 273
+    },
+    "valid/additional-field.json": {
+      "sha256": "1237efdee69b0fff524312eb2f5b19f0b0eae211f876b0e6e626850760763347",
+      "bytes": 1297
+    },
+    "valid/frame-0000.json": {
+      "sha256": "e8bf517427207f90eadae292324f857a0877397b2d9fec7584dc8483f8103b91",
+      "bytes": 1201
+    },
+    "valid/frame-0001.json": {
+      "sha256": "ab48c4305f3306d91ba021bd1cbe5d49815963e4651003b35e95d8e599e818e4",
+      "bytes": 1199
+    },
+    "valid/frame-0002.json": {
+      "sha256": "f367b8279feb0ef804a415e4b36727e1044d1ad7a431706af67a180ea5ccd507",
+      "bytes": 1244
+    },
+    "valid/single-frame.json": {
+      "sha256": "cd09523d99bc7a42526cbef02a6ee95f27ab437890990cfaa0ac2568609ee4ed",
+      "bytes": 863
+    },
+    "valid/unknown.json": {
+      "sha256": "21a136ef214335cc3d273d97dafc2cc573d991109414e414fe12f21292cf3e26",
+      "bytes": 527
+    }
+  }
+}

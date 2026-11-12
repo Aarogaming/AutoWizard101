@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "pet-dance-postgame",
+  "game_id": "wizard101",
+  "start_node": "reward",
+  "timeout_ms": 45000,
+  "max_actions": 4,
+  "pause_scenes": [
+    "Loading",
+    "Unknown"
+  ],
+  "nodes": [
+    {
+      "id": "reward",
+      "edges": [
+        {
+          "id": "next",
+          "scene": "GameResult",
+          "action_id": "pet-dance.next",
+          "expected_scenes": [
+            "SnackOffer"
+          ],
+          "next_node": "snack",
+          "timeout_ms": 45000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "snack",
+      "edges": [
+        {
+          "id": "finish",
+          "scene": "SnackOffer",
+          "action_id": "pet-dance.finish-without-snack",
+          "expected_scenes": [
+            "OutsideAfterGame"
+          ],
+          "next_node": "outside",
+          "timeout_ms": 45000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "outside",
+      "edges": [
+        {
+          "id": "menu",
+          "scene": "OutsideAfterGame",
+          "action_id": "game.open-menu",
+          "expected_scenes": [
+            "MenuObserved"
+          ],
+          "next_node": "menu",
+          "timeout_ms": 45000,
+          "requires_control": false
+        }
+      ]
+    },
+    {
+      "id": "menu",
+      "edges": [
+        {
+          "id": "idle",
+          "scene": "MenuObserved",
+          "action_id": "wizard101.native-idle",
+          "expected_scenes": [
+            "NativeIdle"
+          ],
+          "next_node": "done",
+          "timeout_ms": 45000,
+          "requires_control": true
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "edges": [],
+      "complete_scene": "NativeIdle"
+    }
+  ]
+}

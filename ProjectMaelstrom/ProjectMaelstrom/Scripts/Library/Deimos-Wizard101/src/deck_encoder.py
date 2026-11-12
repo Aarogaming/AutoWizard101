@@ -59,18 +59,20 @@ class DeckEncoderDecoder:
         Decode the deck back into its original dictionary format.
         """
         if not self.token:
-            raise Exception('No token found.')
+            raise ValueError('No token found.')
         try:
             deck_final = base64.b64decode(self.token.encode("utf-8"))
             deck_final = zlib.decompress(deck_final).decode()
             sections = deck_final.split(self._DELIMITER3)
+            if len(sections) != 3:
+                raise ValueError(f"Expected 3 sections in deck token, got {len(sections)}")
+            self.deck = {
+                "normal": self._deserialize_section(sections[0]),
+                "tc": self._deserialize_section(sections[1]),
+                "item": self._deserialize_section(sections[2]),
+            }
         except (zlib.error, ValueError, IndexError) as e:
             raise ValueError("Invalid token format or corrupted data.") from e
-        self.deck = {
-            "normal": self._deserialize_section(sections[0]),
-            "tc": self._deserialize_section(sections[1]),
-            "item": self._deserialize_section(sections[2]),
-        }
         return self.deck
 
 

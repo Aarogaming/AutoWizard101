@@ -77,6 +77,8 @@ internal static class PluginGate
     {
         if (info == null) return (PluginStatus.Failed, "Plugin info missing");
         if (policy == null) return (PluginStatus.Blocked, "Policy unavailable");
+        if (!string.IsNullOrWhiteSpace(info.AssemblyPath))
+            return (PluginStatus.Blocked, W101InteractionPolicy.BlockReason(W101InteractionMethod.UnreviewedCode)!);
 
         if (info.Capabilities.Contains(PluginCapability.LiveIntegration) && !policy.AllowLiveAutomation)
         {
