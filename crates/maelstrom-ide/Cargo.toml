@@ -1,0 +1,10 @@
+[package]
+name = "maelstrom-ide"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+maelstrom-core = { path = "../maelstrom-core" }
+maelstrom-fallback = { path = "../maelstrom-fallback" }
+maelstrom-platform = { path = "../maelstrom-platform" }
+maelstrom-reflex = { path = "../maelstrom-reflex" }

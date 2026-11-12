@@ -1,0 +1,8 @@
+[package]
+name = "maelstrom-reflex"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+maelstrom-core = { path = "../maelstrom-core" }
+uuid = { version = "1.10", features = ["v4"] }

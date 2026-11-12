@@ -1,0 +1,9 @@
+[package]
+name = "maelstrom-platform"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+maelstrom-core = { path = "../maelstrom-core" }
+chrono = "0.4"
+thiserror = "2.0"
