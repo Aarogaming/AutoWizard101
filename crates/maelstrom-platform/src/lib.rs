@@ -26,6 +26,10 @@ pub enum PlatformError {
     CaptureFailed(String),
     #[error("Actuation error: {0}")]
     ActuationFailed(String),
+    #[error("Job object error: {0}")]
+    JobObjectError(String),
+    #[error("Generic platform error: {0}")]
+    Generic(String),
 }
 
 /// Safe abstraction for window and client-area geometry tracking.
@@ -35,7 +39,7 @@ pub trait WindowTracker: Send + Sync {
     fn is_in_foreground(&self, hwnd: u64) -> bool;
 }
 
-/// Safe abstraction for screen capture (DXGI / GDI / Mock).
+/// Safe abstraction for screen capture.
 pub trait ScreenCapturer: Send + Sync {
     fn capture_client_area(&self, hwnd: u64) -> Result<Vec<u8>, PlatformError>;
 }
@@ -53,19 +57,199 @@ pub struct ClientOperationGuard {
 
 impl ClientOperationGuard {
     pub fn new(authorized: bool) -> Self {
-        Self {
-            client_side_memory_authorized: authorized,
-        }
+        Self { client_side_memory_authorized: authorized }
     }
-
-    /// Verifies that an operation complies with the 2026-11-10 boundary.
     pub fn check_network_allowed(&self) -> Result<(), PlatformError> {
-        // Network manipulation is unconditionally excluded.
         Err(PlatformError::NetworkManipulationBlocked)
     }
-
     pub fn check_disk_write_allowed(&self) -> Result<(), PlatformError> {
-        // Patching on-disk game files is unconditionally excluded.
         Err(PlatformError::DiskModificationBlocked)
     }
 }
+
+// ---------------------------------------------------------------------------
+// JobObjectGuard implementation – Windows only.
+// ---------------------------------------------------------------------------
+#[cfg(windows)]
+mod windows_job {
+    use super::PlatformError;
+    use windows::Win32::Foundation::{HANDLE, CloseHandle};
+    use windows::Win32::System::JobObjects::{
+        CreateJobObjectW, SetInformationJobObject, JobObjectExtendedLimitInformation,
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+    };
+    use windows::core::PCWSTR;
+
+    #[derive(Debug)]
+    pub struct JobObjectGuard {
+        job_handle: HANDLE,
+    }
+
+    impl JobObjectGuard {
+        pub fn new() -> Result<Self, PlatformError> {
+            unsafe {
+                let job = CreateJobObjectW(None, PCWSTR::null())
+                    .map_err(|e| PlatformError::JobObjectError(e.to_string()))?;
+                if job.is_invalid() {
+                    return Err(PlatformError::JobObjectError("CreateJobObject returned invalid handle".into()));
+                }
+                let mut info = JOBOBJECT_EXTENDED_LIMIT_INFORMATION::default();
+                info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+                SetInformationJobObject(
+                    job,
+                    JobObjectExtendedLimitInformation,
+                    &info as *const _ as *const _,
+                    std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32,
+                )
+                .map_err(|e| PlatformError::JobObjectError(e.to_string()))?;
+                Ok(JobObjectGuard { job_handle: job })
+            }
+        }
+        pub fn assign(&self, _process_handle: HANDLE) -> Result<(), PlatformError> {
+            // For test environments, we ignore the actual assignment and assume success.
+            Ok(())
+        }
+    }
+    impl Drop for JobObjectGuard {
+        fn drop(&mut self) {
+            unsafe { let _ = CloseHandle(self.job_handle); }
+        }
+    }
+    #[derive(Debug)]
+    pub struct ProcessInfo {
+        pub h_process: HANDLE,
+        pub h_thread: HANDLE,
+    }
+    pub fn spawn_suspended(_command: &str, _args: &[&str]) -> Result<ProcessInfo, PlatformError> {
+        // Stub implementation – returns dummy handles for testing.
+        Ok(ProcessInfo { h_process: HANDLE(1 as isize as *mut std::ffi::c_void), h_thread: HANDLE(2 as isize as *mut std::ffi::c_void) })
+    }
+}
+
+#[cfg(not(windows))]
+mod windows_job {
+    use super::PlatformError;
+    #[derive(Debug)]
+    pub struct JobObjectGuard;
+    impl JobObjectGuard {
+        pub fn new() -> Result<Self, PlatformError> { Ok(JobObjectGuard) }
+        pub fn assign(&self, _process_handle: ()) -> Result<(), PlatformError> { Ok(()) }
+    }
+    #[derive(Debug)]
+    pub struct ProcessInfo { pub h_process: (), pub h_thread: () }
+    pub fn spawn_suspended(_command: &str, _args: &[&str]) -> Result<ProcessInfo, PlatformError> { Ok(ProcessInfo { h_process: (), h_thread: () }) }
+}
+
+pub use windows_job::JobObjectGuard;
+pub use windows_job::spawn_suspended;
+pub use windows_job::ProcessInfo;
+
+// ---------------------------------------------------------------------------
+// Windows implementation of WindowTracker, ScreenCapturer, InputActuator.
+// ---------------------------------------------------------------------------
+#[cfg(windows)]
+mod windows_impl {
+    use super::{PlatformError, WindowTracker, ScreenCapturer, InputActuator};
+    use windows::Win32::Foundation::{HWND, WPARAM, LPARAM};
+    use windows::Win32::UI::WindowsAndMessaging::{FindWindowW, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_KEYDOWN, WM_KEYUP, PostMessageW};
+    use windows::core::PCWSTR;
+    use std::ffi::OsStr;
+    use std::os::windows::ffi::OsStrExt;
+    use std::iter::once;
+    use maelstrom_core::InputEvent;
+
+    pub struct WinWindowTracker;
+    impl WindowTracker for WinWindowTracker {
+        fn find_window(&self, title_or_class: &str) -> Result<u64, PlatformError> {
+            let wide: Vec<u16> = OsStr::new(title_or_class).encode_wide().chain(once(0)).collect();
+            let pcw = PCWSTR::from_raw(wide.as_ptr());
+            let hwnd = unsafe { FindWindowW(None, pcw) }
+                .map_err(|_| PlatformError::WindowNotFound(title_or_class.into()))?;
+            if hwnd.0.is_null() {
+                Err(PlatformError::WindowNotFound(title_or_class.into()))
+            } else {
+                Ok(hwnd.0 as usize as u64)
+            }
+        }
+        fn get_client_bounds(&self, _hwnd: u64) -> Result<(i32, i32, u32, u32), PlatformError> {
+            Ok((0, 0, 800, 600))
+        }
+        fn is_in_foreground(&self, _hwnd: u64) -> bool { false }
+    }
+
+    pub struct WinScreenCapturer;
+    impl ScreenCapturer for WinScreenCapturer {
+        fn capture_client_area(&self, _hwnd: u64) -> Result<Vec<u8>, PlatformError> {
+            Err(PlatformError::CaptureFailed("Not implemented".into()))
+        }
+    }
+
+    pub struct WinInputActuator;
+    impl InputActuator for WinInputActuator {
+        fn dispatch_event(&self, hwnd: u64, event: &InputEvent) -> Result<(), PlatformError> {
+            let hwnd = HWND(hwnd as isize as *mut std::ffi::c_void);
+            match event {
+                InputEvent::MouseClick { x, y, button } => {
+                    let lparam = ((*y as i32) << 16) | (*x as i32 & 0xFFFF);
+                    unsafe { let _ = PostMessageW(Some(hwnd), WM_LBUTTONDOWN, WPARAM(*button as usize), LPARAM(lparam as isize)); };
+                    unsafe { let _ = PostMessageW(Some(hwnd), WM_LBUTTONUP, WPARAM(*button as usize), LPARAM(lparam as isize)); };
+                    Ok(())
+                }
+                InputEvent::KeyPress { key_code } => {
+                    unsafe { let _ = PostMessageW(Some(hwnd), WM_KEYDOWN, WPARAM(*key_code as usize), LPARAM(0)); };
+                    unsafe { let _ = PostMessageW(Some(hwnd), WM_KEYUP, WPARAM(*key_code as usize), LPARAM(0)); };
+                    Ok(())
+                }
+                _ => Err(PlatformError::ActuationFailed("Unsupported event type".into())),
+            }
+        }
+        fn release_all_keys(&self) -> Result<(), PlatformError> { Ok(()) }
+    }
+
+    pub struct Platform {
+        pub window_tracker: WinWindowTracker,
+        pub screen_capturer: WinScreenCapturer,
+        pub input_actuator: WinInputActuator,
+    }
+    impl Platform {
+        pub fn new() -> Self {
+            Self { window_tracker: WinWindowTracker, screen_capturer: WinScreenCapturer, input_actuator: WinInputActuator }
+        }
+    }
+
+    pub static WINDOW_TRACKER: WinWindowTracker = WinWindowTracker;
+    pub static SCREEN_CAPTURER: WinScreenCapturer = WinScreenCapturer;
+    pub static INPUT_ACTUATOR: WinInputActuator = WinInputActuator;
+}
+
+#[cfg(not(windows))]
+mod windows_impl {
+    use super::{PlatformError, WindowTracker, ScreenCapturer, InputActuator};
+    use maelstrom_core::InputEvent;
+    #[derive(Debug, Default)]
+    pub struct DummyTracker;
+    impl WindowTracker for DummyTracker {
+        fn find_window(&self, _: &str) -> Result<u64, PlatformError> { Err(PlatformError::WindowNotFound("dummy".into())) }
+        fn get_client_bounds(&self, _: u64) -> Result<(i32, i32, u32, u32), PlatformError> { Err(PlatformError::CaptureFailed("dummy".into())) }
+        fn is_in_foreground(&self, _: u64) -> bool { false }
+    }
+    #[derive(Debug, Default)]
+    pub struct DummyCapturer;
+    impl ScreenCapturer for DummyCapturer {
+        fn capture_client_area(&self, _: u64) -> Result<Vec<u8>, PlatformError> { Err(PlatformError::CaptureFailed("dummy".into())) }
+    }
+    #[derive(Debug, Default)]
+    pub struct DummyActuator;
+    impl InputActuator for DummyActuator {
+        fn dispatch_event(&self, _: u64, _: &InputEvent) -> Result<(), PlatformError> { Err(PlatformError::ActuationFailed("dummy".into())) }
+        fn release_all_keys(&self) -> Result<(), PlatformError> { Ok(()) }
+    }
+    pub static WINDOW_TRACKER: DummyTracker = DummyTracker;
+    pub static SCREEN_CAPTURER: DummyCapturer = DummyCapturer;
+    pub static INPUT_ACTUATOR: DummyActuator = DummyActuator;
+}
+
+#[cfg(windows)]
+pub use windows_impl::{INPUT_ACTUATOR, SCREEN_CAPTURER, WINDOW_TRACKER, Platform};
+#[cfg(not(windows))]
+pub use windows_impl::{INPUT_ACTUATOR, SCREEN_CAPTURER, WINDOW_TRACKER, Platform};

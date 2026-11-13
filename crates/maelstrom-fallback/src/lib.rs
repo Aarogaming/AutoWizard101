@@ -38,13 +38,6 @@ pub struct RunnerState {
 #[derive(Debug)]
 pub struct TelemetryEvent; // placeholder
 
-// Stub JobObjectGuard used for both production and tests (no Windows API).
-#[allow(dead_code)]
-struct JobObjectGuard;
-impl JobObjectGuard {
-    fn new() -> Result<Self, RunnerError> { Ok(JobObjectGuard) }
-    fn assign(&self, _process: ()) -> Result<(), RunnerError> { Ok(()) }
-}
 
 /// Background watcher for Continuous Aura cards.
 async fn continuous_aura_watcher(interval_ms: u64, cmd_tx: mpsc::Sender<RunnerCommand>) {
