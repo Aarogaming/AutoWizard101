@@ -1850,6 +1850,9 @@ dependencies = [
  "eframe",
  "egui",
  "egui_tiles",
+ "maelstrom-core",
+ "maelstrom-platform",
+ "uuid",
 ]
 
 [[package]]

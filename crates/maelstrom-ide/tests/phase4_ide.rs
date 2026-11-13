@@ -1,10 +1,11 @@
 //! Phase 4 integration tests for the Maelstrom IDE.
 
-use maelstrom_ide::{initialize_workspace, MaelstromIdeApp, IdePane};
+use maelstrom_core::{AutomationSchool, MacroCard, CardPayload, CardEnchantment, ExecutionMode};
+use maelstrom_ide::{initialize_workspace, MaelstromIdeApp, IdePane, SpiralTheme};
+use uuid::Uuid;
 
 #[test]
 fn test_phase4_ide_initialization() {
-    // Initialize configuration.
     let config = initialize_workspace();
     assert_eq!(config.theme, "spiral_spellbook");
     assert_eq!(config.profile, "Wizard101.toml");
@@ -13,7 +14,6 @@ fn test_phase4_ide_initialization() {
 #[test]
 fn test_phase4_ide_app_structure() {
     let app = MaelstromIdeApp::new();
-    // Verify that the tree contains exactly 5 leaf panes.
     let leaf_count = app
         .tree
         .tiles
@@ -21,7 +21,7 @@ fn test_phase4_ide_app_structure() {
         .filter(|(_, tile)| matches!(tile, egui_tiles::Tile::Pane(_)))
         .count();
     assert_eq!(leaf_count, 5);
-    // Verify that each pane appears at least once.
+
     let panes = [
         IdePane::GameSwitcher,
         IdePane::DuelCircle,
@@ -30,7 +30,6 @@ fn test_phase4_ide_app_structure() {
         IdePane::ArbiterTelemetry,
     ];
     for pane in &panes {
-        // Ensure the pane exists in the tree (simple existence check).
         let mut found = false;
         for (_, tile) in app.tree.tiles.iter() {
             if let egui_tiles::Tile::Pane(p) = tile {
@@ -42,4 +41,38 @@ fn test_phase4_ide_app_structure() {
         }
         assert!(found, "pane {:?} missing", pane);
     }
+}
+
+#[test]
+fn test_phase4_card_deck_and_inspector_manipulation() {
+    let mut app = MaelstromIdeApp::new();
+    assert_eq!(app.state.active_deck.cards.len(), 4);
+
+    // Add a new card to the deck
+    let new_card = MacroCard {
+        id: Uuid::new_v4(),
+        name: "Colossal Enchant".to_string(),
+        school: AutomationSchool::Combat,
+        pip_cost: 0,
+        description: "+275 damage to single spell".to_string(),
+        mode: ExecutionMode::SequentialStep,
+        payload: CardPayload::InputSequence(vec![]),
+        default_enchantment: CardEnchantment::default(),
+    };
+    let new_id = new_card.id;
+    app.state.active_deck.cards.push(new_card);
+    assert_eq!(app.state.active_deck.cards.len(), 5);
+
+    // Select the newly added card for enchantment inspection
+    app.state.selected_card_id = Some(new_id);
+    let inspected = app.state.active_deck.cards.iter_mut().find(|c| c.id == new_id).unwrap();
+    inspected.default_enchantment.repeat_count = 3;
+    inspected.default_enchantment.pre_delay_ms = 250;
+
+    assert_eq!(inspected.default_enchantment.repeat_count, 3);
+    assert_eq!(inspected.default_enchantment.pre_delay_ms, 250);
+
+    // Test school colors
+    let fire_color = SpiralTheme::school_color(AutomationSchool::Combat);
+    assert_eq!(fire_color, SpiralTheme::COMBAT_CRIMSON);
 }

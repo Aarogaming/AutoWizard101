@@ -1,13 +1,15 @@
-//! `maelstrom-ide`: Dockable card IDE workspace implementation using egui_tiles.
+//! `maelstrom-ide`: Dockable Wizard101 Arcane Spellbook IDE workspace using egui_tiles.
 
-use egui::{self, CentralPanel, Context, TopBottomPanel, Visuals, WidgetText};
+use egui::{self, CentralPanel, Context, TopBottomPanel, Visuals, WidgetText, Color32, Stroke};
 use egui_tiles::{Behavior, Tree, TileId, UiResponse};
-use eframe::{self, App, epaint::Color32};
+use eframe::{self, App};
+use maelstrom_core::{AutomationSchool, CardEnchantment, CardPayload, Deck, ExecutionMode, MacroCard};
+use uuid::Uuid;
 
 /// Configuration for the IDE workspace.
 #[derive(Debug, Clone)]
 pub struct IdeWorkspaceConfig {
-    /// Theme identifier, currently only "spiral_spellbook".
+    /// Theme identifier ("spiral_spellbook").
     pub theme: String,
     /// Profile configuration file name.
     pub profile: String,
@@ -35,22 +37,221 @@ pub enum IdePane {
 impl std::fmt::Display for IdePane {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let s = match self {
-            IdePane::GameSwitcher => "Game Switcher",
-            IdePane::DuelCircle => "Duel Circle",
-            IdePane::SpellbookLibrary => "Spellbook Library",
-            IdePane::EnchantmentInspector => "Enchantment Inspector",
-            IdePane::ArbiterTelemetry => "Arbiter Telemetry",
+            IdePane::GameSwitcher => "Activity Bar & Client Switcher",
+            IdePane::DuelCircle => "Duel Circle (Execution Queue)",
+            IdePane::SpellbookLibrary => "Spellbook Library (Available Cards)",
+            IdePane::EnchantmentInspector => "Enchantment Inspector (Properties)",
+            IdePane::ArbiterTelemetry => "Arbiter Telemetry & Confidence",
         };
         write!(f, "{}", s)
     }
 }
 
-/// Simple Behavior implementation for IdePane.
-pub struct IdeBehavior;
+/// Theme palette for Wizard101 Spiral Spellbook.
+pub struct SpiralTheme;
 
-impl Behavior<IdePane> for IdeBehavior {
+impl SpiralTheme {
+    pub const DARK_ARCANE_BG: Color32 = Color32::from_rgb(0x1A, 0x16, 0x2B);
+    pub const GOLD_FILIGREE: Color32 = Color32::from_rgb(0xD4, 0xAF, 0x37);
+    pub const COMBAT_CRIMSON: Color32 = Color32::from_rgb(0xC0, 0x39, 0x2B);
+    pub const NAVIGATION_SAND: Color32 = Color32::from_rgb(0xD4, 0xAC, 0x0D);
+    pub const ECONOMY_GOLD: Color32 = Color32::from_rgb(0xE6, 0x7E, 0x22);
+    pub const MAINTENANCE_EMERALD: Color32 = Color32::from_rgb(0x27, 0xAE, 0x60);
+    pub const METALOGIC_ASTRAL: Color32 = Color32::from_rgb(0x8E, 0x44, 0xAD);
+
+    pub fn school_color(school: AutomationSchool) -> Color32 {
+        match school {
+            AutomationSchool::Combat => Self::COMBAT_CRIMSON,
+            AutomationSchool::Navigation => Self::NAVIGATION_SAND,
+            AutomationSchool::Economy => Self::ECONOMY_GOLD,
+            AutomationSchool::Maintenance => Self::MAINTENANCE_EMERALD,
+            AutomationSchool::MetaLogic => Self::METALOGIC_ASTRAL,
+        }
+    }
+
+    pub fn apply(ctx: &Context) {
+        let mut visuals = Visuals::dark();
+        visuals.window_fill = Self::DARK_ARCANE_BG;
+        visuals.panel_fill = Self::DARK_ARCANE_BG;
+        visuals.widgets.noninteractive.bg_fill = Color32::from_rgb(0x23, 0x1E, 0x38);
+        visuals.widgets.noninteractive.bg_stroke = Stroke::new(1.0_f32, Self::GOLD_FILIGREE);
+        visuals.widgets.inactive.bg_fill = Color32::from_rgb(0x2C, 0x25, 0x44);
+        visuals.widgets.hovered.bg_fill = Color32::from_rgb(0x3B, 0x32, 0x5C);
+        visuals.widgets.active.bg_fill = Color32::from_rgb(0x4A, 0x3E, 0x73);
+        ctx.set_visuals(visuals);
+    }
+}
+
+/// In-memory state of the Spellbook IDE.
+pub struct IdeState {
+    pub active_deck: Deck,
+    pub card_library: Vec<MacroCard>,
+    pub selected_card_id: Option<Uuid>,
+    pub attached_client_title: String,
+    pub is_running: bool,
+    pub confidence_score: f32,
+    pub arbitration_mode: String,
+}
+
+impl Default for IdeState {
+    fn default() -> Self {
+        let sample_cards = vec![
+            MacroCard {
+                id: Uuid::new_v4(),
+                name: "Cast Meteor Strike".to_string(),
+                school: AutomationSchool::Combat,
+                pip_cost: 4,
+                description: "Deal 305-345 Fire damage to all enemies".to_string(),
+                mode: ExecutionMode::SequentialStep,
+                payload: CardPayload::InputSequence(vec![]),
+                default_enchantment: CardEnchantment::default(),
+            },
+            MacroCard {
+                id: Uuid::new_v4(),
+                name: "Mark Teleport Location".to_string(),
+                school: AutomationSchool::Navigation,
+                pip_cost: 0,
+                description: "Save current coordinates for instant recall".to_string(),
+                mode: ExecutionMode::OneShot,
+                payload: CardPayload::InputSequence(vec![]),
+                default_enchantment: CardEnchantment::default(),
+            },
+            MacroCard {
+                id: Uuid::new_v4(),
+                name: "Potion Refill Loop".to_string(),
+                school: AutomationSchool::Maintenance,
+                pip_cost: 0,
+                description: "Purchase potions at nearest vendor if mana is empty".to_string(),
+                mode: ExecutionMode::ContinuousAura { interval_ms: 1000 },
+                payload: CardPayload::InputSequence(vec![]),
+                default_enchantment: CardEnchantment::default(),
+            },
+            MacroCard {
+                id: Uuid::new_v4(),
+                name: "Halfang Cave Enter".to_string(),
+                school: AutomationSchool::Economy,
+                pip_cost: 0,
+                description: "Walk into cave sigil and await battle circle".to_string(),
+                mode: ExecutionMode::SequentialStep,
+                payload: CardPayload::InputSequence(vec![]),
+                default_enchantment: CardEnchantment::default(),
+            },
+        ];
+
+        let active_deck = Deck {
+            id: Uuid::new_v4(),
+            name: "Halfang Farming Deck".to_string(),
+            description: "High-yield gold farming loop in Vestrilund".to_string(),
+            cards: sample_cards.clone(),
+            loop_count: Some(50),
+        };
+
+        Self {
+            active_deck,
+            card_library: sample_cards,
+            selected_card_id: None,
+            attached_client_title: "WizardGraphicalClient.exe (HWND: Active)".to_string(),
+            is_running: false,
+            confidence_score: 0.94,
+            arbitration_mode: "Fast Reflex (Local)".to_string(),
+        }
+    }
+}
+
+/// Behavior implementation rendering the 5 Spellbook IDE panes.
+pub struct IdeBehavior<'a> {
+    pub state: &'a mut IdeState,
+}
+
+impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
     fn pane_ui(&mut self, ui: &mut egui::Ui, _tile_id: TileId, pane: &mut IdePane) -> UiResponse {
-        ui.label(format!("Pane: {}", pane));
+        match pane {
+            IdePane::GameSwitcher => {
+                ui.heading("Activity & Client Workspace");
+                ui.separator();
+                ui.label(format!("Attached Client: {}", self.state.attached_client_title));
+                ui.label("Workspace Profile: Wizard101.toml");
+                ui.separator();
+                if ui.button("Attach to WizardGraphicalClient.exe").clicked() {
+                    self.state.attached_client_title = "WizardGraphicalClient.exe (HWND: 0x001A02F4)".to_string();
+                }
+            }
+            IdePane::DuelCircle => {
+                ui.heading(format!("Duel Circle: {}", self.state.active_deck.name));
+                ui.label(format!("Loop Count: {:?}", self.state.active_deck.loop_count));
+                ui.separator();
+                ui.label("Active Deck Queue:");
+                let mut card_to_select = None;
+                for (idx, card) in self.state.active_deck.cards.iter().enumerate() {
+                    let color = SpiralTheme::school_color(card.school);
+                    let card_btn = ui.colored_label(color, format!("{}. [{:?}] {} (Pip: {})", idx + 1, card.school, card.name, card.pip_cost));
+                    if card_btn.clicked() {
+                        card_to_select = Some(card.id);
+                    }
+                }
+                if let Some(id) = card_to_select {
+                    self.state.selected_card_id = Some(id);
+                }
+            }
+            IdePane::SpellbookLibrary => {
+                ui.heading("Spellbook Library");
+                ui.separator();
+                ui.label("Available Macro Cards:");
+                let mut card_to_add = None;
+                for card in &self.state.card_library {
+                    let color = SpiralTheme::school_color(card.school);
+                    ui.horizontal(|ui| {
+                        ui.colored_label(color, format!("[{:?}] {}", card.school, card.name));
+                        if ui.button("+ Add to Deck").clicked() {
+                            card_to_add = Some(card.clone());
+                        }
+                    });
+                }
+                if let Some(new_card) = card_to_add {
+                    self.state.active_deck.cards.push(new_card);
+                }
+            }
+            IdePane::EnchantmentInspector => {
+                ui.heading("Enchantment Inspector");
+                ui.separator();
+                if let Some(selected_id) = self.state.selected_card_id {
+                    if let Some(card) = self.state.active_deck.cards.iter_mut().find(|c| c.id == selected_id) {
+                        ui.label(format!("Card Name: {}", card.name));
+                        ui.label(format!("School: {:?}", card.school));
+                        ui.label(format!("Mode: {:?}", card.mode));
+                        ui.label(format!("Pip Cost: {}", card.pip_cost));
+                        ui.separator();
+                        ui.label("Enchantment Modifiers:");
+                        ui.add(egui::Slider::new(&mut card.default_enchantment.repeat_count, 1..=10).text("Repeat Count"));
+                        ui.add(egui::Slider::new(&mut card.default_enchantment.pre_delay_ms, 0..=5000).text("Pre-delay (ms)"));
+                        ui.add(egui::Slider::new(&mut card.default_enchantment.post_delay_ms, 0..=5000).text("Post-delay (ms)"));
+                        ui.add(egui::Slider::new(&mut card.default_enchantment.jitter_px, 0..=20).text("Click Jitter (px)"));
+                    } else {
+                        ui.label("Selected card not found in active deck.");
+                    }
+                } else {
+                    ui.label("Click any card in the Duel Circle to inspect or enchant its properties.");
+                }
+            }
+            IdePane::ArbiterTelemetry => {
+                ui.heading("Arbiter Telemetry & Panic Controls");
+                ui.separator();
+                ui.label(format!("Active Engine: {}", self.state.arbitration_mode));
+                ui.label(format!("Vision Confidence: {:.2}", self.state.confidence_score));
+                ui.separator();
+                if self.state.is_running {
+                    ui.colored_label(Color32::GREEN, "STATUS: RUNNING");
+                    if ui.button("PANIC STOP (F12)").clicked() {
+                        self.state.is_running = false;
+                    }
+                } else {
+                    ui.colored_label(Color32::YELLOW, "STATUS: IDLE");
+                    if ui.button("Engage Deck Runner").clicked() {
+                        self.state.is_running = true;
+                    }
+                }
+            }
+        }
         UiResponse::None
     }
 
@@ -61,7 +262,8 @@ impl Behavior<IdePane> for IdeBehavior {
 
 /// The main application structure implementing eframe::App.
 pub struct MaelstromIdeApp {
-    config: IdeWorkspaceConfig,
+    pub config: IdeWorkspaceConfig,
+    pub state: IdeState,
     pub tree: Tree<IdePane>,
 }
 
@@ -69,7 +271,7 @@ impl MaelstromIdeApp {
     /// Create a new instance with default configuration and UI layout.
     pub fn new() -> Self {
         let config = IdeWorkspaceConfig::default();
-        // Build a simple tabbed layout containing the five panes.
+        let state = IdeState::default();
         let panes = vec![
             IdePane::GameSwitcher,
             IdePane::DuelCircle,
@@ -78,14 +280,25 @@ impl MaelstromIdeApp {
             IdePane::ArbiterTelemetry,
         ];
         let tree = Tree::new_tabs(egui::Id::new("ide_tree"), panes);
-        Self { config, tree }
+        Self { config, state, tree }
     }
 
     /// Apply the Spiral Spellbook visual theme.
     pub fn apply_theme(ctx: &Context) {
-        let mut visuals = Visuals::dark();
-        visuals.window_fill = Color32::from_rgb(0x1A, 0x16, 0x2B);
-        ctx.set_visuals(visuals);
+        SpiralTheme::apply(ctx);
+    }
+
+    /// Wire cross-crate runners and controllers into the UI state
+    pub fn wire_runtime(&mut self, window_tracker: &dyn maelstrom_platform::WindowTracker) {
+        if let Ok(hwnd) = window_tracker.find_window("WizardGraphicalClient") {
+            self.state.attached_client_title = format!("WizardGraphicalClient.exe (HWND: 0x{:08X})", hwnd);
+        }
+    }
+}
+
+impl Default for MaelstromIdeApp {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -93,10 +306,14 @@ impl App for MaelstromIdeApp {
     fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
         Self::apply_theme(ctx);
         TopBottomPanel::top("top_bar").show(ctx, |ui| {
-            ui.label(format!("[Maelstrom IDE] Profile: {}", self.config.profile));
+            ui.horizontal(|ui| {
+                ui.label(format!("[Maelstrom Arcane IDE] Profile: {}", self.config.profile));
+                ui.separator();
+                ui.label(format!("Active Deck: {}", self.state.active_deck.name));
+            });
         });
         CentralPanel::default().show(ctx, |ui| {
-            let mut behavior = IdeBehavior;
+            let mut behavior = IdeBehavior { state: &mut self.state };
             self.tree.ui(&mut behavior, ui);
         });
     }
@@ -111,6 +328,7 @@ pub fn initialize_workspace() -> IdeWorkspaceConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test_ide_workspace_initialization() {
         let config = initialize_workspace();
@@ -121,7 +339,6 @@ mod tests {
     #[test]
     fn test_ide_app_construction() {
         let app = MaelstromIdeApp::new();
-        // Count leaf tiles via the public `tiles` field iterator.
         let leaf_count = app
             .tree
             .tiles
@@ -130,5 +347,7 @@ mod tests {
             .count();
         assert_eq!(leaf_count, 5);
         assert_eq!(app.config.theme, "spiral_spellbook");
+        assert_eq!(app.state.active_deck.name, "Halfang Farming Deck");
+        assert_eq!(app.state.active_deck.cards.len(), 4);
     }
 }
