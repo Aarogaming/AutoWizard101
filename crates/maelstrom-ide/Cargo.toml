@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-maelstrom-core = { path = "../maelstrom-core" }
-maelstrom-fallback = { path = "../maelstrom-fallback" }
-maelstrom-platform = { path = "../maelstrom-platform" }
-maelstrom-reflex = { path = "../maelstrom-reflex" }
+# UI and async dependencies (only UI needed for IDE)
+eframe = "0.29"
+egui = "0.29"
+egui_tiles = "0.10"
