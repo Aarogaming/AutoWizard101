@@ -110,4 +110,11 @@ publish and run from the installed application directory.
 
 ## Explicit CLI installation
 
+### Optional Rust tools
+
+Pass `-IncludeRustPreview` to `build_desktop.ps1` to include the read-only
+`maelstrom-bridge.exe` diagnostic and `maelstrom-rust-preview.exe` prototype UI.
+They reuse the native host; neither starts gameplay. Rust builds run offline with
+two workers. `rust-tools.json` records payload hashes. See [the guide](docs/RUST_BRIDGE.md).
+
 `MaelstromSetup.exe --install-cli <new-report.json>` runs the same per-user transaction as the setup window, preserving the existing desktop-shortcut preference. It reserves a new JSON report before mutation, refuses an open app, and reports success/failure with exit 0/1. It does not launch Maelstrom or gameplay. Use only for an explicitly requested installation/update. Existing reports are never overwritten.

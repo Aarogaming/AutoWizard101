@@ -1,14 +1,28 @@
 # Gemini channel status
 
-Last checked: 2026-11-13T22:27:40-05:00
-Last inbound/ACK: GEM-0005 acknowledged source/build freeze, ownership transfer and released build slot. LIA-0009 optional read-only review remains pending; no later inbound was established by this final evidence-only update.
+Last updated: 2026-11-13T23:13:33-05:00
+Last established inbound: GEM-0007 ACKs prior review/decision, confirms standing down source/build/host/game activity. LIA-0017 is a new task awaiting ACK; no acceptance or newer inbound inferred.
 
-## Integration evidence
+## Coordinator-verified release evidence
 
-Coordinator completed RUST-BRIDGE-REPAIR-59: all 70 offline Rust tests passed; Clippy all-targets with warnings denied, scoped rustfmt and project-board checks passed. Evidence and non-ASCII/device-path/live named-pipe qualification limits are in [the repair report](../results/RUST-BRIDGE-REPAIR-59.md). Results are root-verified, not independently rerun by liaison. No host/game launch, desktop use or installation occurred.
+- Installed version: 507efdea5deb419481628cdb02a44745.
+- Portable: Maelstrom-20261113-230917-f647cf.
+- Installer: Setup-20261113-231023-68abe8.
+- Native 2,616 / Rust 71 / installer 14 tests passed.
+- Embedded lifecycle preservation checks all true; installed Rust hashes match.
+- Four installed read-only host calls passed; 26 unknown aliases in disconnected test root; test host exit 0.
+- W101 PID 62076 untouched. No claim of live W101 telemetry, GUI startup qualification or automatic busy-pipe reconnect.
 
-Build slot is released, but there is no new Gemini run grant. Source/build changes require a new assignment. Earlier 55/10 test counts were contributor/user reports; the 70-test result is the coordinator's integrated verification.
+Evidence is coordinator-verified, not independently rerun by liaison. LIA-0016 records completion; documented path/GUI qualification limits and manual retry remain follow-ups.
 
-## Channel state
+## Next bounded task
 
-LIA-0012 records final evidence. Liaison channel files are frozen for root's local checkpoint. Optional Gemini audit may be the next task and does not block integration. FROM_GEMINI.md remains Gemini-owned; liaison writes only README, TO_GEMINI and STATUS. No permanent watcher or background polling remains. Reactivate liaison for further coordination.
+LIA-0017: Gemini read-only audit of up to five remaining Rust/native integration gaps, with exact source locations, impact and smallest offline acceptance test. ACK/findings only in FROM_GEMINI.md. No source/build/host/game/desktop activity. Root owns implementation and test decisions.
+
+Channel files frozen for root checkpoint after this update. No permanent watcher or pending background polling. User retrigger points Gemini at latest directive; root can reactivate liaison at the next checkpoint. FROM remains Gemini-owned; README/TO/STATUS remain liaison-owned.
+
+## External timer report (unverified)
+
+User reports Gemini recurring 10-minute timer bdf33c7d-3603-4130-b211-8b13399ae2cf / task-4447. Not verified or controlled by this liaison. User has now chosen to retain the existing external 10-minute wakeup because there is no external session trigger; no timer change or new timer was made here. Owner accepts the existing external wakeup/check mechanism only; it grants no source/build/live authority. Output remains FROM only; release60 report is root-owned. Current git status shows release60 untracked, which does not establish a Gemini edit or ownership violation. Last read inbound remains GEM-0007. LIA-0018 clarifies boundaries; channel docs frozen again.
+
+LIA-0019 records resolved owner preference: retain existing external recurrence (still unverified/uncontrolled here). Empty checks stay brief; act only on the latest bounded assignment, write FROM only unless explicitly granted otherwise, and never repeat completed work solely on a timer wakeup. No pending preference remains. Channel docs frozen for root checkpoint; no liaison polling.

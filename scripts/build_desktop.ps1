@@ -2,12 +2,20 @@ param(
     [string]$PythonHome,
     [string]$FFmpegHome,
     [switch]$Zip,
-    [switch]$NoRestore
+    [switch]$NoRestore,
+    [switch]$IncludeRustPreview
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $repo = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+if ($IncludeRustPreview) {
+    Push-Location $repo
+    try {
+        & cargo build --offline --release -j 2 -p maelstrom-fallback --bin maelstrom-bridge -p maelstrom-ide --bin maelstrom-rust-preview
+        if ($LASTEXITCODE -ne 0) { throw 'Optional Rust tools build failed.' }
+    } finally { Pop-Location }
+}
 if (-not $PythonHome) {
     $devPython = Join-Path $repo '.local/envs/dance/Scripts/python.exe'
     $PythonHome = & $devPython -c 'import sys; print(sys.base_prefix)'
@@ -69,6 +77,18 @@ Copy-Item -LiteralPath (Join-Path $repo 'tools/fixtures/game_packs') -Destinatio
 Copy-Item -LiteralPath (Join-Path $repo 'tools/fixtures/godot_dodge_native_probe.gd') -Destination (Join-Path $tools 'fixtures')
 Set-Content -LiteralPath (Join-Path $release 'portable.mode') -Value 'Maelstrom portable data mode v1'
 Copy-Item -LiteralPath (Join-Path $release 'ProjectMaelstrom.exe') -Destination (Join-Path $release 'Maelstrom.exe')
+if ($IncludeRustPreview) {
+    foreach ($name in @('maelstrom-bridge.exe', 'maelstrom-rust-preview.exe')) {
+        Copy-Item -LiteralPath (Join-Path $repo "target/release/$name") -Destination $release
+    }
+    Copy-Item -LiteralPath (Join-Path $repo 'docs/RUST_BRIDGE.md') -Destination $release
+    @{
+        mode = 'optional-read-only-preview'
+        files = @(foreach ($name in @('maelstrom-bridge.exe', 'maelstrom-rust-preview.exe')) {
+            @{ name = $name; sha256 = (Get-FileHash -LiteralPath (Join-Path $release $name) -Algorithm SHA256).Hash }
+        })
+    } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $release 'rust-tools.json') -Encoding utf8
+}
 Copy-Item -LiteralPath (Join-Path $repo 'docs/WORKSHOP_USER_GUIDE.md') -Destination (Join-Path $release 'Workshop guide.md')
 Copy-Item -LiteralPath (Join-Path $repo 'docs/EXPERIMENT_WORKBENCH.md') -Destination (Join-Path $release 'Experiments guide.md')
 Copy-Item -LiteralPath (Join-Path $repo 'docs/HOME_MOVEMENT.md') -Destination (Join-Path $release 'Home movement guide.md')

@@ -1418,6 +1418,12 @@
           "path": "docs/coordination/results/RUST-BRIDGE-REPAIR-59.md",
           "scope": "Read-only Rust/native bridge repair and actual IDE polling;70 offline Rust tests, scoped format and Clippy passed. No live host or installed update. Local checkpoint0d25009.",
           "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-BRIDGE-RELEASE-60.md",
+          "scope": "Installed optional Rust tools; actual disconnected native-host protocol passes4commands/26unknownaliases;2616native/71Rust/14installer+lifecycle pass. No W101 gameplay or GUI startup qualification.",
+          "path_status": "existing"
         }
       ],
       "depends_on": [

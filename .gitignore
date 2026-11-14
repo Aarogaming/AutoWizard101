@@ -360,3 +360,9 @@ MigrationBackup/
 .ionide/
 
 /target/
+
+# Rust executable source directories are not .NET build output.
+!crates/maelstrom-fallback/src/bin/
+!crates/maelstrom-fallback/src/bin/*.rs
+!crates/maelstrom-ide/src/bin/
+!crates/maelstrom-ide/src/bin/*.rs
