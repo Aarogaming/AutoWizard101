@@ -1,0 +1,18 @@
+<script type="text/javascript">
+RED.nodes.registerType('maelstrom-local', {
+    category:'function', color:'#8796aa', defaults:{name:{value:''}, dataRoot:{value:'',required:true}, interval:{value:1000}, channel:{value:'snapshot'}, allowActions:{value:false}},
+    inputs:1, outputs:1, icon:'bridge.svg', label:function(){return this.name || 'Maelstrom';}
+});
+</script>
+<script type="text/html" data-template-name="maelstrom-local">
+<div class="form-row"><label for="node-input-name">Name</label><input id="node-input-name"></div>
+<div class="form-row"><label for="node-input-dataRoot">Data folder</label><input id="node-input-dataRoot"></div>
+<div class="form-row"><label for="node-input-channel">Subscription</label><select id="node-input-channel"><option value="snapshot">Game facts</option><option value="state">Deck state</option></select></div>
+<div class="form-row"><label for="node-input-interval">Interval ms</label><input type="number" id="node-input-interval" min="1000" max="30000"></div>
+<div class="form-row"><label for="node-input-allowActions">Allow actions</label><input type="checkbox" id="node-input-allowActions"></div>
+</script>
+<script type="text/html" data-help-name="maelstrom-local">
+<p>Optional Windows local client. Open the existing Maelstrom deck owner first; use its exact data folder. No game connection or observations are started by this node.</p>
+<p>Set msg.topic to subscribe/unsubscribe, or an API command. msg.payload holds arguments. Actions are off by default and require msg.requestId (32 hexadecimal GUID characters). Never automatically retry an uncertain action.</p>
+<p>Subscriptions sample published state at most once per second. They emit snapshot/change/heartbeat/unavailable, with bounded memory and reconnect resynchronization. They are not a lossless receipt stream. sampledUtc is collection time, not the fact's observed time; retain freshness and unknown fields.</p>
+</script>

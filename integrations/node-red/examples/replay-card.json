@@ -1,0 +1,140 @@
+[
+  {
+    "id": "reusable-card",
+    "type": "tab",
+    "label": "Reusable Maelstrom card",
+    "info": "Configure card back, preview front, save/load and deal. Execution is a separate manual owner step."
+  },
+  {
+    "id": "card-trigger-0",
+    "type": "inject",
+    "z": "reusable-card",
+    "name": "Preview front",
+    "props": [
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "topic": "card/preview",
+    "once": false,
+    "repeat": "",
+    "x": 150,
+    "y": 100,
+    "wires": [
+      [
+        "author"
+      ]
+    ]
+  },
+  {
+    "id": "card-trigger-1",
+    "type": "inject",
+    "z": "reusable-card",
+    "name": "Save new card",
+    "props": [
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "topic": "card/save",
+    "once": false,
+    "repeat": "",
+    "x": 150,
+    "y": 160,
+    "wires": [
+      [
+        "author"
+      ]
+    ]
+  },
+  {
+    "id": "card-trigger-2",
+    "type": "inject",
+    "z": "reusable-card",
+    "name": "Load saved card",
+    "props": [
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "topic": "card/load",
+    "once": false,
+    "repeat": "",
+    "x": 150,
+    "y": 220,
+    "wires": [
+      [
+        "author"
+      ]
+    ]
+  },
+  {
+    "id": "card-trigger-3",
+    "type": "inject",
+    "z": "reusable-card",
+    "name": "Deal configured card",
+    "props": [
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "topic": "card/deal",
+    "once": false,
+    "repeat": "",
+    "x": 150,
+    "y": 280,
+    "wires": [
+      [
+        "author"
+      ]
+    ]
+  },
+  {
+    "id": "author",
+    "type": "maelstrom-card",
+    "z": "reusable-card",
+    "name": "Replay card \u00b7 settings on back",
+    "dataRoot": "${MAELSTROM_TEST_DATA_ROOT}",
+    "libraryRoot": "${MAELSTROM_CARD_LIBRARY}",
+    "cardId": "a473a22c930b4e859403bc98d4bdb874",
+    "cardJson": "{\n  \"id\": \"a473a22c930b4e859403bc98d4bdb874\",\n  \"routineId\": \"review.routine\",\n  \"title\": \"Replay my recorded routine\",\n  \"inDeck\": true,\n  \"priority\": 50,\n  \"runs\": 1,\n  \"attemptLimit\": 1,\n  \"cooldownSeconds\": 5,\n  \"settings\": {\n    \"graphFile\": \"REPLACE_WITH_ABSOLUTE_ROUTINE_PATH\",\n    \"sessionFile\": \"REPLACE_WITH_ABSOLUTE_SESSION_PATH\"\n  },\n  \"conditions\": [],\n  \"filters\": []\n}",
+    "x": 480,
+    "y": 180,
+    "wires": [
+      [
+        "card-preview"
+      ]
+    ]
+  },
+  {
+    "id": "card-preview",
+    "type": "debug",
+    "z": "reusable-card",
+    "name": "Card front, back and native spec",
+    "active": true,
+    "tosidebar": true,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 800,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "card-errors",
+    "type": "catch",
+    "z": "reusable-card",
+    "scope": null,
+    "uncaught": false,
+    "x": 480,
+    "y": 320,
+    "wires": [
+      [
+        "card-preview"
+      ]
+    ]
+  }
+]
