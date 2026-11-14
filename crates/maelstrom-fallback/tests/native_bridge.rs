@@ -359,3 +359,19 @@ fn disconnected_snapshot_preserves_evidence_but_not_current_context() {
     assert_eq!(s.identity_key(), None);
     assert_eq!(s.raw_snapshot, v);
 }
+
+#[test]
+fn blank_host_roots_are_rejected_before_pipe_resolution() {
+    for root in ["", " ", "   ", "\t", "\r\n"] {
+        assert!(
+            matches!(
+                normalize_data_root(root),
+                Err(BridgeError::InvalidDataRoot(_))
+            ),
+            "root {root:?}"
+        );
+        assert!(compute_pipe_name(root).is_err());
+    }
+    // A legitimate path containing spaces is not silently trimmed or rejected.
+    assert!(normalize_data_root(r"C:\Game Data\Maelstrom").is_ok());
+}

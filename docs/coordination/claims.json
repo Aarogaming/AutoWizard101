@@ -2532,6 +2532,18 @@
         "docs/coordination/results/RUST-DISCONNECT-63.md"
       ],
       "notes": "Offline regression reproduced then fixed;56 affected Rust tests/Clippy pass; source-only."
+    },
+    {
+      "task_id": "RUST-PATH-64",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "crates/maelstrom-fallback/src/maelstrom_bridge.rs",
+        "crates/maelstrom-fallback/tests/native_bridge.rs",
+        "docs/coordination/results/RUST-PATH-64.md"
+      ],
+      "notes": "Tab-only root regression reproduced and repaired;45 fallback tests/Clippy passed;source-only."
     }
   ]
 }

@@ -1442,6 +1442,12 @@
           "path": "docs/coordination/results/RUST-DISCONNECT-63.md",
           "path_status": "existing",
           "scope": "Disconnected Rust context/freshness regression repaired;56 affected tests and Clippy pass;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-PATH-64.md",
+          "path_status": "existing",
+          "scope": "Blank-host-root validation correction;45 Rust fallback tests/Clippy;source-only."
         }
       ],
       "depends_on": [

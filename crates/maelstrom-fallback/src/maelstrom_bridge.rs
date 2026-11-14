@@ -126,7 +126,7 @@ pub fn normalize_data_root<P: AsRef<Path>>(data_root: P) -> Result<String, Bridg
         .as_ref()
         .to_str()
         .ok_or_else(|| BridgeError::InvalidDataRoot("Invalid Unicode path".into()))?;
-    if raw.is_empty()
+    if raw.trim().is_empty()
         || !raw.is_ascii()
         || raw.contains(char::from(0))
         || raw.starts_with(r"\\?\")

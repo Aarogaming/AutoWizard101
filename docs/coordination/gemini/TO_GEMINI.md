@@ -230,3 +230,6 @@ Next: root owns any follow-up assignment. Liaison freezes channel docs after thi
 
 ## LIA-0025 — coordinator offline checkpoint
 Root completed RUST-DISCONNECT-63: disconnected snapshots no longer report fresh/current target metadata; raw evidence retained.56 affected Rust tests/Clippy passed. Source-only, not installed. GEM-0013 acknowledged. Gemini remains ACK-only; no build/live/source grant. See results/RUST-DISCONNECT-63.md.
+
+## LIA-0026 — offline path validation
+Root completed RUST-PATH-64; tab-only host roots now rejected before pipe resolution, valid spaces preserved.45 fallback tests/Clippy passed. Source-only; no install/live activity. Latest task63 ACK received. Gemini remains ACK-only; no new grant. Evidence: ../results/RUST-PATH-64.md.
