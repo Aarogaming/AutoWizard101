@@ -1406,6 +1406,18 @@
           "path": "docs/coordination/results/GIT-CHECKPOINT-56.md",
           "scope": "Authorized local checkpoints9d6f596/308f71f; no push; concurrent Rust changes preserved.",
           "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/GEMINI-CHANNEL-58.md",
+          "scope": "Local Gemini liaison channel adopted through GEM-0005; bounded source/build ownership coordination; no persistent watcher.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-BRIDGE-REPAIR-59.md",
+          "scope": "Read-only Rust/native bridge repair and actual IDE polling;70 offline Rust tests, scoped format and Clippy passed. No live host or installed update. Local checkpoint0d25009.",
+          "path_status": "existing"
         }
       ],
       "depends_on": [

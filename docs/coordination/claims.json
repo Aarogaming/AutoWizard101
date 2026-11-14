@@ -2435,13 +2435,49 @@
       "owner": "gemini",
       "state": "active",
       "owned_paths": [
+        "docs/coordination/gemini/FROM_GEMINI.md"
+      ],
+      "notes": "Gemini reported completed commit1c5127c; root takes integration repair source ownership per user. Gemini owns channel replies only pending new assignment."
+    },
+    {
+      "task_id": "GEMINI-LIAISON-58",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "gemini_liaison",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/gemini/README.md",
+        "docs/coordination/gemini/TO_GEMINI.md",
+        "docs/coordination/gemini/STATUS.md"
+      ],
+      "notes": "Channel adopted through GEM-0005; integration evidence relayed through LIA-0012. Bounded monitoring ended; reactivate liaison before next assignment."
+    },
+    {
+      "task_id": "GEMINI-CHANNEL-58",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/EXTERNAL_AGENT_GUIDE.md",
+        "docs/PROJECT_ORGANIZATION.md",
+        "docs/coordination/results/GEMINI-CHANNEL-58.md"
+      ],
+      "notes": "Channel integrated and documented; contributor ACK pending. Liaison retains outbound/status ownership. No game work."
+    },
+    {
+      "task_id": "RUST-BRIDGE-REPAIR-59",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
         "crates/maelstrom-fallback/src/maelstrom_bridge.rs",
         "crates/maelstrom-fallback/src/lib.rs",
         "crates/maelstrom-fallback/tests/native_bridge.rs",
         "crates/maelstrom-ide/src/lib.rs",
-        "docs/coordination/results/RUST-NATIVE-BRIDGE-57.md"
+        "docs/coordination/results/RUST-NATIVE-BRIDGE-57.md",
+        "docs/coordination/results/RUST-BRIDGE-REPAIR-59.md",
+        "crates/maelstrom-ide/src/native_poll.rs"
       ],
-      "notes": "Reserved for user-mediated prompt: bridge Rust read-only UI to existing native state/catalog/snapshot; no game input/hooks/newowner. Coordinator owns board/build coordination. Finish or pause current Rust slice before this task."
+      "notes": "Integrated preserved Gemini handback with bridge_repair subagent and root IDE worker;70 offline tests/Clippy/format passed; no live host or install. Build slot released. Local checkpoint0d25009; no push."
     }
   ]
 }

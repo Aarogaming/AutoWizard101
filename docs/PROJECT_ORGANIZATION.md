@@ -13,6 +13,7 @@ Maelstrom builds reusable game-player infrastructure. Pet Dance is the first ful
 | How do components work? | Focused component documents linked from [INDEX](INDEX.md) |
 | What actually happened in tests? | Tests, frozen reports and dated research records linked by the workstream |
 | How does an outside agent contribute? | Root [AGENTS.md](../AGENTS.md), the [agent guide](coordination/EXTERNAL_AGENT_GUIDE.md), and a scoped brief in `coordination/tasks/` |
+| How do Codex and Gemini exchange ongoing updates? | [Local Gemini channel](coordination/gemini/README.md): separate inbound/outbound files, explicit acknowledgements and liaison status |
 
 The board is an organizer, not a background execution service. It cannot launch games, schedule input, or grant permissions. Local reports may contain private recordings and remain local; share sanitized evidence, never credentials or clipboard contents.
 

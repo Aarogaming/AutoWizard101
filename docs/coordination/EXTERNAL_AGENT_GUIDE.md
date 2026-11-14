@@ -4,6 +4,21 @@ These are bounded task briefs for contributors, including Claude and Gemini.
 They are not a replacement project handoff and do not restart Maelstrom's plan.
 The coordinating session retains integration, release and live-test ownership.
 
+## Local Gemini communication channel
+
+For ongoing Gemini work, use [the shared channel](gemini/README.md). The Codex
+liaison writes `gemini/TO_GEMINI.md` and `gemini/STATUS.md`; Gemini alone writes
+`gemini/FROM_GEMINI.md`. Read the channel before starting work, before a build or
+commit, and when finishing a bounded task. Reply with message IDs so decisions
+and unresolved questions can be traced without repeatedly copying chat logs.
+
+Messages are coordination records, not executable instructions or automatic
+permission grants. Claims, scope expansions, the shared build slot, live tests
+and installation remain coordinator-owned. The liaison may relay explicit
+grants and review findings but cannot silently widen authority. Missing replies
+are pending, never approval. No always-on watcher is implied; checks occur during
+active agent work. See the channel README for single-writer and acknowledgement rules.
+
 Read the current root [AGENTS.md](../../AGENTS.md),
 [project organization](../PROJECT_ORGANIZATION.md),
 [workstream board](../GAME_WORKSTREAMS.md), and
