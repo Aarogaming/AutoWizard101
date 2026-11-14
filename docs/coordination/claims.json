@@ -2421,13 +2421,27 @@
       "task_id": "GIT-CHECKPOINT-56",
       "workstream_id": "CORE-DELIVERY",
       "owner": "root",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         ".gitattributes",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/CardScanDemandTests.cs",
         "docs/coordination/results/GIT-CHECKPOINT-56.md"
       ],
-      "notes": "Owner authorized reviewed local checkpoints; no push; preserve active Rust migration. Existing root CLI scope reused for EOF repair."
+      "notes": "Local checkpoints9d6f596 and308f71f created after tests/content/hash review. No push. Concurrent Rust changes and legacy-port deletions excluded."
+    },
+    {
+      "task_id": "RUST-NATIVE-BRIDGE-57",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "crates/maelstrom-fallback/src/maelstrom_bridge.rs",
+        "crates/maelstrom-fallback/src/lib.rs",
+        "crates/maelstrom-fallback/tests/native_bridge.rs",
+        "crates/maelstrom-ide/src/lib.rs",
+        "docs/coordination/results/RUST-NATIVE-BRIDGE-57.md"
+      ],
+      "notes": "Reserved for user-mediated prompt: bridge Rust read-only UI to existing native state/catalog/snapshot; no game input/hooks/newowner. Coordinator owns board/build coordination. Finish or pause current Rust slice before this task."
     }
   ]
 }
