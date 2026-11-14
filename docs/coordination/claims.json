@@ -2620,17 +2620,17 @@
       "task_id": "GEM-DANCE-AUDIT-71",
       "workstream_id": "W101-DANCE",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-DANCE-AUDIT-71.md"
       ],
-      "notes": "Preassigned bounded offline queue; ACK then sequential work; no build/live/core changes/commits. See gemini/QUEUE.md."
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
     },
     {
       "task_id": "GEM-REPLAY-MATRIX-72",
       "workstream_id": "W101-DANCE",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom.Tests/GeminiDanceVisitContractTests.cs",
         "docs/coordination/results/GEM-REPLAY-MATRIX-72.md"
@@ -2641,11 +2641,11 @@
       "task_id": "GEM-LEGACY-MAP-73",
       "workstream_id": "W101-DANCE",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-LEGACY-MAP-73.md"
       ],
-      "notes": "Preassigned bounded offline queue; ACK then sequential work; no build/live/core changes/commits. See gemini/QUEUE.md."
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
     },
     {
       "task_id": "DANCE-COURSE-74",
@@ -2658,6 +2658,64 @@
         "docs/coordination/results/DANCE-COURSE-74.md"
       ],
       "notes": "Roadmap/two queues reconciled;Gemini71-73 preassigned;69Dance tests and passive client readiness pass;next live dispatcher binding. No game inputs."
+    },
+    {
+      "task_id": "DANCE-SPECIALIST-75",
+      "workstream_id": "W101-DANCE",
+      "owner": "bridge_repair",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceSpecialistContractTests.cs"
+      ],
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+    },
+    {
+      "task_id": "DANCE-SCHEDULER-76",
+      "workstream_id": "W101-DANCE",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceScheduledVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceScheduledVisitTests.cs",
+        "docs/coordination/results/DANCE-SCHEDULER-76.md",
+        "docs/coordination/CODEX_WORK.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs"
+      ],
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+    },
+    {
+      "task_id": "CARD-QUALIFICATION-77",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "card_audit",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CardQualification.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CardQualificationTests.cs",
+        "docs/CARD_QUALIFICATION.md"
+      ],
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+    },
+    {
+      "task_id": "GEM-ENTRY-EVIDENCE-78",
+      "workstream_id": "W101-DANCE",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-ENTRY-EVIDENCE-78.md"
+      ],
+      "notes": "Bounded read-only entry producer and fixture inventory; no builds or live."
+    },
+    {
+      "task_id": "DANCE-FOCUS-79",
+      "workstream_id": "W101-DANCE",
+      "owner": "bridge_repair",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/GeminiDanceVisitContractTests.cs"
+      ],
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
     }
   ]
 }

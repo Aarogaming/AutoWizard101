@@ -27,3 +27,9 @@ Gemini uses gemini/QUEUE.md; preassigned exact files are reserved in claims.json
 Pending maintenance: source63–70 integrated validation/release when appropriate; indexed long-recording scoring remains secondary. Update this doc after meaningful progress, not each unchanged poll.
 
 Task74 completed:69 focused Dance tests pass, board/queues reconciled. Next active implementation slice is item2 (runtime binding), informed by Gemini71. No full Dance visit was attempted in task74.
+
+## Current source update75–79
+
+The specialist is now callable under the parent scheduler owner; the visit coordinator and deck adapter seam exist. Exact-card qualification reruns frozen replay evidence; editor/admission and live promotion are still pending. Explicit focus pause is distinguished from target failure. See results/DANCE-SCHEDULER-76.md. The Windows entry/dispatch runtime remains missing, so the default Dance card is unavailable. Current observation76 verified the Death wizard in the dorm in native Idle with zero inputs and clean disconnect. No full visit attempted; installed62 unchanged.
+
+Gemini71–73 delivered; task78 is active for entry producer/fixture inventory. Next main-lane work is the real entry adapter, first-Watch capture continuity and qualified approach, followed by a bounded live visit. Do not substitute another mock test for this live binding.

@@ -13,7 +13,8 @@ internal sealed record W101ModuleCardAdapter(
 internal static class JobDeckRoutines
 {
     internal static JobRoutine[] Create(Func<JobCardSpec, JobFacts?, PreparedDeckJob>? quest = null,
-        W101ModuleCardAdapter? w101Modules = null, Func<JobCardSpec, JobFacts?, PreparedDeckJob>? travel = null)
+        W101ModuleCardAdapter? w101Modules = null, Func<JobCardSpec, JobFacts?, PreparedDeckJob>? travel = null,
+        Func<JobCardSpec, JobFacts?, PreparedDeckJob>? dance = null)
     {
         var routines = new List<JobRoutine>
         {
@@ -48,8 +49,23 @@ internal static class JobDeckRoutines
         void Planned(string id, string title, string category, string icon, string description, params JobOption[] options) =>
             routines.Add(new(new(id, title, category, icon, "wizard101", "Not connected to the deck · preparation only", false, true, options, description),
                 _ => { }, (_, _) => throw new InvalidOperationException("This card has no qualified deck adapter.")));
-        Planned("w101.pet.dance", "Pet Dance", "Pet Games", "dance", "Repeat the displayed arrow sequence. Standalone teacher exists; deck visit integration is pending.",
-            new("level", "Level", "text", false, "1"), new JobOption("snacks", "Snack policy", "choice:none,suggest", false, "none"));
+        void ValidateDance(JobCardSpec card)
+        {
+            if (!int.TryParse(card.Settings?.GetValueOrDefault("level", "1") ?? "1", out var level) || level is < 1 or > 5)
+                throw new InvalidDataException("Choose Dance level 1–5.");
+            if ((card.Settings?.GetValueOrDefault("snacks", "none") ?? "none") != "none")
+                throw new InvalidDataException("This visit supports no-feed exit only.");
+        }
+        routines.Add(new(new("w101.pet.dance", "Pet Dance", "Pet Games", "dance", "wizard101",
+            dance is null ? "Preparation only · live visit runtime not connected" : "Test candidate · exact visit evidence required",
+            dance is not null, true, [new("level", "Level", "text", false, "1"),
+                new("snacks", "Snack policy", "choice:none", false, "none")],
+            "Play one verified visit through the shared owner, specialist and no-feed Idle exit."),
+            ValidateDance, (card, facts) =>
+            {
+                ValidateDance(card);
+                return dance?.Invoke(card, facts) ?? throw new InvalidOperationException("No trusted Dance visit runtime is connected.");
+            }));
         Planned("w101.pet.maze", "Pet Maze", "Pet Games", "paw", "Maze training.", new JobOption("snacks", "Snack policy", "choice:none,suggest", false, "none"));
         Planned("w101.pet.cannon", "Pet Cannon", "Pet Games", "fire", "Cannon training.", new JobOption("snacks", "Snack policy", "choice:none,suggest", false, "none"));
         Planned("w101.pet.dropping", "Gobbler Drop", "Pet Games", "paw", "Catch the falling food.", new JobOption("snacks", "Snack policy", "choice:none,suggest", false, "none"));
@@ -80,7 +96,7 @@ internal static class JobDeckRoutines
         BoundModule("w101.auto-idle", "Auto-Idle", "native-idle", "idle", "Enter verified native Idle through the game menu. Wake/resume and automatic between-run scheduling are separate operations.",
             new("method", "Method", "choice:native-idle,spin,step,routine", false, "native-idle"), new("timeoutSeconds", "Time limit (seconds)", "text", false, "30"));
         routines.Add(new(new(W101TravelCard.Id, "Travel", "W101 Operations", "replay", "wizard101",
-            "Bounded World Gate selection � live qualification required", travel is not null, true,
+            "Bounded World Gate selection � live qualification required", travel is not null, true,
             [new("destination", "Destination world", "text", true, "Zafaria"),
                 new("returnHome", "Return Home afterward", "choice:true,false", false, "true"),
                 new("maximumHomeWaitSeconds", "Home cooldown wait limit (seconds)", "text", false, "60"),

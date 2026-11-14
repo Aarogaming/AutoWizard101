@@ -6,7 +6,7 @@ internal sealed record PetDanceVisitObservation(double TimeMs, string ImageSha25
     string TargetId, Size Geometry, string ContextId, PetDanceEntryScene? Entry = null, RectangleF? ControlBounds = null,
     bool Fresh = false, bool TargetReady = false, bool ContextVerified = false, bool InputOwned = false,
     bool EntryCostApproved = false, bool WatchStartVerified = false, bool SpecialistQualified = false,
-    bool WholeGameResultVerified = false, bool UserActive = false, bool Cancelled = false);
+    bool WholeGameResultVerified = false, bool UserActive = false, bool Cancelled = false, bool FocusPaused = false);
 internal sealed record PetDanceVisitPlan(PetDanceLifecycleAction Action, bool IsProposal, string Reason,
     string? ProposalId = null, RectangleF? ActionBounds = null, PetDanceArena? Arena = null,
     bool ResultObserved = false, bool Completed = false, bool Stopped = false);
@@ -64,6 +64,13 @@ internal sealed class PetDanceVisit
     {
         ArgumentNullException.ThrowIfNull(observation);
         if (!_options.Enabled) return new(PetDanceLifecycleAction.Wait, false, "visit-disabled", Stopped: true);
+        // An explicitly observed focus pause with the same bound identity is
+        // a bounded observation pause, not loss of the input lease. Feed an
+        // untrusted frame through the runner so deadlines still advance. Actual
+        // identity/geometry/context changes, takeover and lost ownership remain fatal.
+        var focusPaused = observation.FocusPaused && !observation.TargetReady && observation.InputOwned && observation.ContextVerified &&
+            !observation.UserActive && !observation.Cancelled && observation.TargetId == _options.TargetId &&
+            observation.Geometry == _options.Geometry && observation.ContextId == _options.ContextId;
         var scene = observation.Scene;
         RectangleF? bounds = null; string? withheld = null;
         var validImage = PetDanceEntryVision.IsImageHash(observation.ImageSha256);
@@ -100,7 +107,8 @@ internal sealed class PetDanceVisit
 
         var decision = _runner.Observe(new(observation.TimeMs, withheld == null ? scene.ToString() : PetDanceScene.Unknown.ToString(),
             Bind(observation.TargetId, observation.Geometry, observation.ContextId),
-            Fresh: observation.Fresh && validImage && Enum.IsDefined(scene), TargetReady: observation.TargetReady,
+            Fresh: observation.Fresh && validImage && Enum.IsDefined(scene) && !focusPaused,
+            TargetReady: observation.TargetReady || focusPaused,
             ContextVerified: observation.ContextVerified, InputOwned: observation.InputOwned,
             ControlVerified: bounds is { } box && PetDancePostGameClassifier.ValidBounds(box, _options.Geometry),
             Cancelled: observation.Cancelled, UserActive: observation.UserActive));
@@ -110,7 +118,8 @@ internal sealed class PetDanceVisit
             if (decision.ActionId == "pet-dance.next") _resultObserved = true;
         }
         return Plan(decision, decision.IsProposal ? bounds : null,
-            !decision.Stopped && !decision.Completed && !decision.IsProposal ? withheld : null);
+            !decision.Stopped && !decision.Completed && !decision.IsProposal
+                ? focusPaused ? "target-not-ready-paused" : withheld : null);
     }
 
     /// <summary>Use the exact emitted proposal ID and actual release timestamp. Teacher

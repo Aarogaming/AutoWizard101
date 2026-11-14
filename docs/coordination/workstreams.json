@@ -1823,14 +1823,14 @@
       "verification": {
         "review": "native_player_with_partial_live_evidence",
         "code": "screen_modules_and_existing_scheduler_integrated_source",
-        "offline": "69 focused entry/lifecycle/visit tests passed20261114; no full live visit qualification",
+        "offline": "2696 native tests passed20261114; scoped whitespace/analyzers and board validation pass. Full live visit remains unqualified.",
         "live": "new_source_not_installed_or_live_qualified"
       },
       "lineage": [
         "LP02",
         "LP11"
       ],
-      "next_task": "Bind existing offline PetDanceVisit and standalone specialist through the shared scheduler; verify entry/arena/energy/no-feed/Idle receipts before enabling deck execution. Gemini71/72/73 preassigned offline; route and live game proximity separately qualified. See CODEX_WORK.md.",
+      "next_task": "Connect real entry observation/dispatch runtime and first-Watch continuity; qualify route then bounded full live visit. Scheduler/specialist seam exists but default deck adapter remains unavailable. Gemini78 inventories verified producer/fixture gaps. See CODEX_WORK.md.",
       "acceptance_criteria": [
         "Verify presented and sent sequences, feedback and complete-game result.",
         "Return native Idle only after verified valid completion, not user stop.",

@@ -83,12 +83,36 @@ internal static class PetDanceTrialCleanupPolicy
     }
 }
 
+/// <summary>Control observations supplied by the enclosing operation. This adapter
+/// installs no hooks, owns no message loop and never acquires an input lease.</summary>
+internal sealed record PetDanceSpecialistControl(nuint InputTag, long InitialRevision,
+    Func<bool> ObservationReady, Func<bool> InputReady, Func<long> ActivityRevision,
+    Func<bool> NoKeysHeld, Func<double> QuietMs);
+
+/// <summary>Gameplay evidence, not a whole-visit receipt or a verified victory.
+/// Round feedback and clean release remain separate from result-screen verification.</summary>
+internal sealed record PetDanceSpecialistResult(string Path, bool CleanupConfirmed, bool InputReleaseConfirmed,
+    long ActivityBaseline, bool Armed, string Reason, int SuccessCount, int FailureCount)
+{
+    public bool GameEnded => Armed && SuccessCount is >= 0 and <= 5 && FailureCount is >= 0 and <= 5 && (Reason == "five-results-observed" && SuccessCount + FailureCount == 5 ||
+        Reason == "three-failures-observed" && FailureCount >= 3);
+    public bool AllRoundFeedbackSuccessful => GameEnded && SuccessCount == 5 && FailureCount == 0;
+    public bool MayContinuePostGame => GameEnded && CleanupConfirmed && InputReleaseConfirmed;
+    public bool GameVictoryVerified => false;
+}
+
+internal static class PetDanceSpecialistAdmission
+{
+    internal static bool OwnsInput(OperationContext context, GameWindow target) =>
+        context.Request.WritesGame && !context.Request.DelegatedInput &&
+        context.Request.Target == ModuleOwnedInput.TargetId(target) &&
+        context.Input is { CanDispatch: true } && ReferenceEquals(context.Input, GameInputLease.Current);
+}
+
 /// <summary>One-game trial with optional verified postgame UI cleanup. Shared input
 /// ownership is held through automatic or supervised native Idle confirmation.</summary>
 internal static class PetDanceLiveTrial
 {
-    private sealed record TrialReport(string Path, bool CleanupConfirmed, bool InputReleaseConfirmed,
-        long ActivityBaseline, bool MayContinuePostGame);
     private sealed class Host(bool interactive) : Form
     {
         protected override bool ShowWithoutActivation => !interactive;
@@ -215,9 +239,12 @@ internal static class PetDanceLiveTrial
                 var request = new OperationRequest(Guid.NewGuid().ToString("N"), "w101.pet-dance-live-trial", "postgame-modules-v7", PetDanceIdleConfirmation.OperationTimeoutSeconds, true, ModuleOwnedInput.TargetId(target), pins);
                 var ticket = scheduler.Submit(request, async (context, token) =>
                 {
-                    var trial = await PlayAsync(target, client, profile, output, monitor, baseline, tag,
-                        () => FrameTimeline.TimestampMs() - Volatile.Read(ref heartbeat) < 1500, token, audioComparisonPath,
-                        controlPermission == null ? null : controlPermission.IsAllowed).ConfigureAwait(false);
+                    var control = new PetDanceSpecialistControl(tag, baseline,
+                        () => monitor.Installed && !monitor.EscapeRequested && FrameTimeline.TimestampMs() - Volatile.Read(ref heartbeat) < 1500,
+                        () => true, () => monitor.Revision, () => !DesktopActivityMonitor.AnyKeyHeld(),
+                        () => FrameTimeline.TimestampMs() - monitor.LastActivityMs);
+                    var trial = await RunSpecialistAsync(context, target, client, profile, output, control,
+                        token, audioComparisonPath, controlPermission == null ? null : controlPermission.IsAllowed).ConfigureAwait(false);
                     var report = trial.Path;
                     if (returnToNativeIdle && trial.MayContinuePostGame && trial.CleanupConfirmed && trial.InputReleaseConfirmed && !token.IsCancellationRequested)
                     {
@@ -273,10 +300,23 @@ internal static class PetDanceLiveTrial
         Application.Run(host);
     }
 
-    private static async Task<TrialReport> PlayAsync(GameWindow target, Size client, string profile, string output,
-        DesktopActivityMonitor monitor, long baseline, nuint tag, Func<bool> heartbeat, CancellationToken token, string? audioComparisonPath,
-        Func<bool>? controlPermission = null)
+    /// <summary>Run one bounded specialist under the caller's existing scheduler/lease.
+    /// The caller verifies entry, primes the complete Watch boundary, supplies a
+    /// live control scope/countdown, and performs result/Idle transitions afterward.
+    /// No scheduler, activity hook, foreground activation or nested UI loop is created.</summary>
+    internal static async Task<PetDanceSpecialistResult> RunSpecialistAsync(OperationContext context,
+        GameWindow target, Size client, string profile, string output, PetDanceSpecialistControl control,
+        CancellationToken token, string? audioComparisonPath = null, Func<bool>? controlPermission = null)
     {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(control);
+        token.ThrowIfCancellationRequested();
+        if (!PetDanceSpecialistAdmission.OwnsInput(context, target))
+            throw new InvalidOperationException("Dance specialist requires the current target-bound input owner.");
+        if (control.InputTag == 0 || control.ObservationReady is null || control.InputReady is null ||
+            control.ActivityRevision is null || control.NoKeysHeld is null || control.QuietMs is null)
+            throw new ArgumentException("Supply the enclosing operation's complete control observations.", nameof(control));
         using var vision = new PetDancePanelVision(profile);
         var visualSequenceEnabled = vision.UsesShapeSequence;
         var audioRequired = audioComparisonPath != null;
@@ -286,14 +326,14 @@ internal static class PetDanceLiveTrial
         var detector = audioRequired ? PetDanceAudioDetector.LoadFrozenComparison(audioComparisonPath!) : null;
         GameAudioRecording? audio = null;
         var audioEvents = new List<PetDanceAudioObservation>(); var audioGate = new object();
-        var arming = new PetDanceTrialArming(modernSequence, baseline);
+        var arming = new PetDanceTrialArming(modernSequence, control.InitialRevision);
         WindowObserver? observer = null;
         var sourceGeometry = Size.Empty;
-        var sink = new WindowsDodgeKeySink(tag);
+        var sink = new WindowsDodgeKeySink(control.InputTag);
         PetDanceSelectedResponse? selectedResponse = null;
-        bool ObserveAllowed() => monitor.Installed && !monitor.EscapeRequested && heartbeat() &&
-            GameWindows.IsCurrent(target) && GameWindows.ClientSize(target) == client && !GameWindows.Minimized(target);
-        bool Permitted() => arming.Armed && ObserveAllowed() && monitor.Revision == arming.Baseline && sink.Ready(target, client) &&
+        bool ObserveAllowed() => !token.IsCancellationRequested && PetDanceSpecialistAdmission.OwnsInput(context, target) &&
+            control.ObservationReady() && GameWindows.IsCurrent(target) && GameWindows.ClientSize(target) == client && !GameWindows.Minimized(target);
+        bool Permitted() => arming.Armed && ObserveAllowed() && control.InputReady() && control.ActivityRevision() == arming.Baseline && sink.Ready(target, client) &&
             (!audioAvailability.Required || audio?.IsCapturing == true) &&
             (selectedResponse?.Source != "sound-fallback" || audioAvailability.Available && audio?.IsCapturing == true) &&
             (controlPermission?.Invoke() ?? true);
@@ -417,8 +457,8 @@ internal static class PetDanceLiveTrial
                 if (lastContent != content) { if (lastContent.HasValue) contentChanges++; lastContent = content; contentSince = timer.Elapsed.TotalMilliseconds; }
                 var observation = vision.Read(panel, time);
                 responseWindow.Observe(time, observation.Phase);
-                var armedNow = !arming.Armed && arming.TryArm(observation.Phase, true, sink.Ready(target, client), !DesktopActivityMonitor.AnyKeyHeld(),
-                    FrameTimeline.TimestampMs() - monitor.LastActivityMs, monitor.Revision);
+                var armedNow = !arming.Armed && arming.TryArm(observation.Phase, true, sink.Ready(target, client) && control.InputReady(), control.NoKeysHeld(),
+                    control.QuietMs(), control.ActivityRevision());
                 if (armedNow)
                     GameExperiments.WriteAtomic(Path.Combine(output, "armed.json"), new { armed_qpc_ms = FrameTimeline.TimestampMs(), captured_ms = time, monitor_revision = arming.Baseline, quiet_required_ms = 500, no_focus_change = true });
                 clock.Advance(timer.Elapsed.TotalMilliseconds, observation.Phase == DancePhase.Loading,
@@ -717,6 +757,8 @@ internal static class PetDanceLiveTrial
             dispatched_keys = keyDowns,
             deferred_inputs = deferredInputs,
             input_release_confirmed = releases.Confirmed,
+            success_count = outcomes.Count - failures,
+            failure_count = failures,
             game_victory_verified = false,
             volume_changed = false,
             elapsed_ms = timer.Elapsed.TotalMilliseconds,
@@ -735,7 +777,7 @@ internal static class PetDanceLiveTrial
             focus_changes = false
         });
         return new(report, captureCleanup && audioCleanup && audioCleanupConfirmed && cleanupError == null, releases.Confirmed,
-            arming.Baseline, arming.Armed && reason is "five-results-observed" or "three-failures-observed");
+            arming.Baseline, arming.Armed, reason, outcomes.Count - failures, failures);
     }
 
     private static ulong Fingerprint(Bitmap panel)

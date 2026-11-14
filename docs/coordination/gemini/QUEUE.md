@@ -43,3 +43,20 @@ Acceptance for handback: specific useful components linked to current function/c
 ## Progress authority
 
 FROM_GEMINI.md records your ACK/READY_FOR_REVIEW/BLOCKED messages. Root records acceptance and integration on the central board. Do not modify this queue to grant yourself more work. Latest explicit root assignment supersedes stale freeze messages; unrelated grants are not implied.
+
+## Active follow-up: GEM-ENTRY-EVIDENCE-78
+
+Owned output: `docs/coordination/results/GEM-ENTRY-EVIDENCE-78.md` only. Root registered this exact path to Gemini and activated the task in LIA-0035. Confirm the claim, ACK, then proceed without another permission request. Tasks 71–73 were handed back in GEM-0027 and must not be repeated or edited during root review. Task72 test source transferred to root repair task79; do not edit it.
+
+Purpose: design the smallest entry/visit evidence adapter using verified existing producers and inventory saved fixtures without assuming a full live runtime already exists.
+
+Read the latest task75 specialist extraction and actual `PetDanceLiveTrial.RunSpecialistAsync`, admission/control/result types, `IPetDanceVisitRuntime`, `PetDanceVisitObservation`, entry/postgame/level vision contracts and shared fact/alias producers. Distinguish the extracted in-process specialist from still-unbound full-visit runtime. Earlier report71's 'subprocess GUI only' description is historical and must not be copied as current.
+
+Required deliverables in the single report:
+- Field matrix for every proposed observation: exact consumer field/type; exact existing producer method/field and evidence path; target, geometry, image hash and timestamp binding; freshness and unknown/conflict behavior; verified or missing. No invented producer names or assumed energy-cost authorization.
+- Entry stages covering sigil identity, loading, arena identities/selection highlight, enabled Play, configured entry cost versus qualified energy, watch/respond, whole-game result, no-feed controls, menu and native Idle. Include only supported data; record absent producers explicitly.
+- Saved fixture inventory from existing indexes/reports/local assets: exact paths, file existence, stage, geometry/hash/timestamp metadata when actually present, and limitation. Do not expose raw private telemetry or turn missing metadata into invented values. No large captures, archive extraction, OCR/model runs or new recordings.
+- Smallest proposed adapter interface and ownership boundaries. Keep cancellation/takeover/focus pause distinct; root scheduler/input lease remains sole owner. A specialist receipt is not an entry proof, result proof or full-visit success.
+- Prioritized offline acceptance matrix, including mismatched frame/target, expired evidence, ambiguous level, unknown cost/energy, loading transitions, no-feed-only and missing fixtures. Tests are proposed, not executed.
+
+Report provenance/revision and concurrent work caveat. Do not modify prior reports, test source, production code, board/claims or any other path. No builds/tests/live/host/game/model/installer/dependency/commit operations. Return READY_FOR_REVIEW with exact gaps; handback is not acceptance.
