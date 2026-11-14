@@ -1,9 +1,15 @@
 //! Fallback module for Maelstrom.
 
 pub mod bazaar_bot;
+pub mod maelstrom_bridge;
 pub mod pet_dance;
 pub mod player_controller;
 pub mod wad_reader;
+
+pub use maelstrom_bridge::{
+    compute_pipe_name, BridgeError, BridgeReply, BridgeRequest, MaelstromNativeBridge, NativeHostState,
+    MAXIMUM_BYTES,
+};
 
 use maelstrom_core::{CardPayload, Deck, FailPolicy, MacroCard, ExecutionMode};
 use std::sync::{Arc, Mutex};
@@ -94,14 +100,15 @@ impl McpCardDispatcher {
                     .map_err(|e| RunnerError::McpError(tool_name.into(), e.to_string()))?;
                 let key = args.get("key").and_then(|v| v.as_str()).unwrap_or("space");
                 println!("[McpCardDispatcher] Programmable macro simulated key press: {}", key);
-                Ok(serde_json::json!({ "dispatched": true, "key": key }).to_string())
+                Ok(serde_json::json!({ "dispatched": true, "key": key, "simulated": true }).to_string())
             }
             _ => {
                 // Generic programmable macro bridge
                 Ok(serde_json::json!({
                     "tool": tool_name,
                     "executed": true,
-                    "arguments": arguments_json
+                    "arguments": arguments_json,
+                    "simulated": true
                 }).to_string())
             }
         }

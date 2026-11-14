@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 maelstrom-core = { path = "../maelstrom-core" }
 maelstrom-platform = { path = "../maelstrom-platform" }
+maelstrom-fallback = { path = "../maelstrom-fallback" }
 
 # UI and serialization dependencies
 eframe = "0.29"
@@ -14,3 +15,6 @@ egui_tiles = "0.10"
 uuid = { version = "1.10", features = ["v4", "serde"] }
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8"
+
+[dev-dependencies]
+serde_json = "1.0"

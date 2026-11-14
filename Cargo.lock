@@ -1853,8 +1853,10 @@ dependencies = [
  "egui",
  "egui_tiles",
  "maelstrom-core",
+ "maelstrom-fallback",
  "maelstrom-platform",
  "serde",
+ "serde_json",
  "toml",
  "uuid",
 ]

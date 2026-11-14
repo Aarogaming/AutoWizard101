@@ -4,8 +4,10 @@ use egui::{self, CentralPanel, Context, TopBottomPanel, Visuals, WidgetText, Col
 use egui_tiles::{Behavior, Tree, TileId, UiResponse};
 use eframe::{self, App};
 use maelstrom_core::{AutomationSchool, CardEnchantment, CardPayload, Deck, ExecutionMode, MacroCard};
+use maelstrom_fallback::maelstrom_bridge::NativeHostState;
 use uuid::Uuid;
 use std::path::Path;
+use std::time::Instant;
 
 /// Configuration for the IDE workspace.
 #[derive(Debug, Clone)]
@@ -42,7 +44,7 @@ impl std::fmt::Display for IdePane {
             IdePane::DuelCircle => "Duel Circle (Execution Queue)",
             IdePane::SpellbookLibrary => "Spellbook Library (Available Cards)",
             IdePane::EnchantmentInspector => "Enchantment Inspector (Properties)",
-            IdePane::ArbiterTelemetry => "Arbiter Telemetry & Confidence",
+            IdePane::ArbiterTelemetry => "Arbiter Telemetry & Native Host",
         };
         write!(f, "{}", s)
     }
@@ -93,6 +95,10 @@ pub struct IdeState {
     pub confidence_score: f32,
     pub arbitration_mode: String,
     pub client_state_log: Vec<String>,
+    pub native_host_state: NativeHostState,
+    pub last_poll_time: Option<Instant>,
+    pub is_polling: bool,
+    pub poll_in_flight: bool,
 }
 
 impl Default for IdeState {
@@ -175,7 +181,11 @@ impl Default for IdeState {
             is_running: false,
             confidence_score: 0.94,
             arbitration_mode: "Fast Reflex (Local)".to_string(),
-            client_state_log: vec!["[Translator] Initialized client observation bridge (nativeIdle verified)".to_string()],
+            client_state_log: vec!["[Bridge] Initialized native host pipe bridge listener".to_string()],
+            native_host_state: NativeHostState::default(),
+            last_poll_time: None,
+            is_polling: false,
+            poll_in_flight: false,
         }
     }
 }
@@ -199,6 +209,18 @@ impl IdeState {
         self.active_deck = deck;
         self.client_state_log.push(format!("[Spellbook] Loaded deck: {}", self.active_deck.name));
         Ok(())
+    }
+
+    /// Ingest fresh native host snapshot, preserving typed metadata and absent values.
+    pub fn ingest_native_snapshot(&mut self, state: NativeHostState) {
+        if self.native_host_state.wizard_name != state.wizard_name && state.wizard_name.is_some() {
+            self.client_state_log.push(format!(
+                "[Host] Active Wizard: {} ({:?})",
+                state.wizard_name.as_deref().unwrap_or("Unknown"),
+                state.wizard_school.as_deref().unwrap_or("Unknown")
+            ));
+        }
+        self.native_host_state = state;
     }
 }
 
@@ -315,19 +337,55 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
                 }
             }
             IdePane::ArbiterTelemetry => {
-                ui.heading("Arbiter Telemetry & Panic Controls");
+                ui.heading("Arbiter Telemetry & Native Host Bridge");
                 ui.separator();
                 ui.label(format!("Active Engine: {}", self.state.arbitration_mode));
                 ui.label(format!("Vision Confidence: {:.2}", self.state.confidence_score));
                 ui.separator();
+
+                // Native Host Connection & Real Facts display
+                ui.heading("Native Deck Host Facts (Read-Only Bridge)");
+                let host = &self.state.native_host_state;
+                if host.connected {
+                    ui.colored_label(Color32::GREEN, format!("STATUS: {}", host.status));
+                } else {
+                    ui.colored_label(Color32::GRAY, format!("STATUS: {}", host.status));
+                }
+
+                ui.horizontal(|ui| {
+                    if self.state.is_polling {
+                        if ui.button("Stop Polling Native Host").clicked() {
+                            self.state.is_polling = false;
+                        }
+                    } else if ui.button("Start Bounded Polling (1s max)").clicked() {
+                        self.state.is_polling = true;
+                    }
+                });
+
+                ui.separator();
+                ui.label(format!("Wizard Name: {}", host.wizard_name.as_deref().unwrap_or("Unknown / Absent")));
+                ui.label(format!("School: {}", host.wizard_school.as_deref().unwrap_or("Unknown / Absent")));
+                ui.label(format!("Level: {}", host.wizard_level.map(|v| v.to_string()).unwrap_or_else(|| "Unknown".into())));
+                ui.label(format!("Gold: {}", host.gold.map(|v| v.to_string()).unwrap_or_else(|| "Unknown".into())));
+                ui.label(format!("World / Zone: {} / {}", host.location_world.as_deref().unwrap_or("Unknown"), host.location_zone.as_deref().unwrap_or("Unknown")));
+                ui.label(format!("Active Quest: {}", host.quest_name.as_deref().unwrap_or("None / Unavailable")));
+
+                if !host.unavailable_facts.is_empty() {
+                    ui.label(format!("Explicitly Unavailable Facts ({}):", host.unavailable_facts.len()));
+                    for f in host.unavailable_facts.iter().take(3) {
+                        ui.colored_label(Color32::from_rgb(0xD4, 0xAC, 0x0D), format!(" - {}", f));
+                    }
+                }
+
+                ui.separator();
                 if self.state.is_running {
-                    ui.colored_label(Color32::GREEN, "STATUS: RUNNING");
+                    ui.colored_label(Color32::GREEN, "RUNNER STATE: RUNNING");
                     if ui.button("PANIC STOP (F12)").clicked() {
                         self.state.is_running = false;
                         self.state.client_state_log.push("[Runner] PANIC STOP engaged - Disconnected safely.".to_string());
                     }
                 } else {
-                    ui.colored_label(Color32::YELLOW, "STATUS: IDLE (nativeIdle)");
+                    ui.colored_label(Color32::YELLOW, "RUNNER STATE: IDLE (nativeIdle)");
                     if ui.button("Engage Deck Runner").clicked() {
                         self.state.is_running = true;
                         self.state.client_state_log.push("[Runner] Deck Runner started under single control lease.".to_string());
@@ -450,5 +508,31 @@ mod tests {
         assert_eq!(app2.state.active_deck.cards.len(), app.state.active_deck.cards.len());
 
         let _ = std::fs::remove_file(file_path);
+    }
+
+    #[test]
+    fn test_ide_native_host_state_ingestion() {
+        let mut app = MaelstromIdeApp::new();
+        assert!(!app.state.native_host_state.connected);
+
+        let snap_json = serde_json::json!({
+            "connected": true,
+            "facts": {
+                "wizard.name": { "value": "Valerian Stormcloud" },
+                "wizard.school": { "value": "Storm" },
+                "wizard.level": { "value": 160 }
+            },
+            "unavailable": ["gold", "mana.current"]
+        });
+
+        let host_state = NativeHostState::from_snapshot_json(&snap_json);
+        app.state.ingest_native_snapshot(host_state);
+
+        assert!(app.state.native_host_state.connected);
+        assert_eq!(app.state.native_host_state.wizard_name.as_deref(), Some("Valerian Stormcloud"));
+        assert_eq!(app.state.native_host_state.wizard_school.as_deref(), Some("Storm"));
+        assert_eq!(app.state.native_host_state.wizard_level, Some(160));
+        assert_eq!(app.state.native_host_state.gold, None);
+        assert!(app.state.native_host_state.unavailable_facts.contains(&"gold".to_string()));
     }
 }
