@@ -2591,6 +2591,18 @@
         "docs/coordination/results/TEACHER-RECOVERY-68.md"
       ],
       "notes": "Six independent later-action acceptance cases pass;26 focused tests;test-only offline."
+    },
+    {
+      "task_id": "INPUT-FOCUS-69",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/compare_game_inputs.py",
+        "tools/tests/test_compare_game_inputs.py",
+        "docs/coordination/results/INPUT-FOCUS-69.md"
+      ],
+      "notes": "Cross-focus false match reproduced/fixed;3comparison tests,Black,compileall pass;source-only."
     }
   ]
 }

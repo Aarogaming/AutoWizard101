@@ -245,3 +245,6 @@ Root completed TEACHER-CONTEXT-67 offline: four context/target/ownership regress
 
 ## LIA-0030 — teacher recovery qualification
 Root completed TEACHER-RECOVERY-68: six later-action acceptance cases,26 focused tests pass. Test-only offline, no installation/live activity. Task67 ACK received. Gemini remains ACK-only. Next substantive lane is long-session input attribution. Evidence ../results/TEACHER-RECOVERY-68.md.
+
+## LIA-0031 — input attribution scoring
+Root completed INPUT-FOCUS-69: cross-focus false matches and injected exclusions corrected;3 comparison tests/Black/compileall pass. Source-only; no live/install grant. Task68 ACK read; Gemini remains ACK-only. Evidence ../results/INPUT-FOCUS-69.md.

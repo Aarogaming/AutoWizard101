@@ -1472,6 +1472,12 @@
           "path": "docs/coordination/results/TEACHER-RECOVERY-68.md",
           "path_status": "existing",
           "scope": "Six later independent-action recovery cases;26 focused replay tests;offline test-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/INPUT-FOCUS-69.md",
+          "path_status": "existing",
+          "scope": "Input accuracy matching and injected exclusions isolated by focus interval;3tests,Black,compileall;source-only."
         }
       ],
       "depends_on": [
