@@ -242,3 +242,6 @@ Root completed TEACHER-TAKEOVER-66; two regressions reproduced and repaired,16 f
 
 ## LIA-0029 — teacher context boundary
 Root completed TEACHER-CONTEXT-67 offline: four context/target/ownership regressions reproduced then repaired;20 focused tests passed. Source-only; no live/install grant. Task66 ACK read. Gemini remains ACK-only. Evidence ../results/TEACHER-CONTEXT-67.md.
+
+## LIA-0030 — teacher recovery qualification
+Root completed TEACHER-RECOVERY-68: six later-action acceptance cases,26 focused tests pass. Test-only offline, no installation/live activity. Task67 ACK received. Gemini remains ACK-only. Next substantive lane is long-session input attribution. Evidence ../results/TEACHER-RECOVERY-68.md.

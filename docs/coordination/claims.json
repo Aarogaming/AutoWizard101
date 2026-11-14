@@ -2580,6 +2580,17 @@
         "docs/coordination/results/TEACHER-CONTEXT-67.md"
       ],
       "notes": "Four context interruption regressions reproduced/repaired;20 focused replay tests pass;source-only."
+    },
+    {
+      "task_id": "TEACHER-RECOVERY-68",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
+        "docs/coordination/results/TEACHER-RECOVERY-68.md"
+      ],
+      "notes": "Six independent later-action acceptance cases pass;26 focused tests;test-only offline."
     }
   ]
 }

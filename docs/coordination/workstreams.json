@@ -1466,6 +1466,12 @@
           "path": "docs/coordination/results/TEACHER-CONTEXT-67.md",
           "path_status": "existing",
           "scope": "Teacher attribution rejects intervening target/context/ownership losses;20 focused tests;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHER-RECOVERY-68.md",
+          "path_status": "existing",
+          "scope": "Six later independent-action recovery cases;26 focused replay tests;offline test-only."
         }
       ],
       "depends_on": [

@@ -70,6 +70,34 @@ public sealed class TeacherActionReplayTests
         using var changed = JsonDocument.Parse(report.ToJsonString());
         Assert.Throws<InvalidDataException>(() => TeacherActionReplay.Link(changed.RootElement));
     }
+    [Theory]
+    [InlineData("UserActive")]
+    [InlineData("Cancelled")]
+    [InlineData("InputOwned")]
+    [InlineData("TargetReady")]
+    [InlineData("ContextVerified")]
+    [InlineData("Binding")]
+    public void IndependentLaterActionRemainsLearnableAfterInterruption(string field)
+    {
+        using var doc = Evidence();
+        var report = System.Text.Json.Nodes.JsonNode.Parse(doc.RootElement.GetRawText())!;
+        var events = report["events"]!.AsArray();
+        if (field == "Binding") events[2]!["observed"]!["Binding"]!["TargetId"] = "other-target";
+        else events[2]!["observed"]![field] = field is "UserActive" or "Cancelled";
+        var later = System.Text.Json.Nodes.JsonNode.Parse(doc.RootElement.GetRawText())!["events"]!.AsArray();
+        later[0]!["observed"]!["TimeMs"] = 300;
+        later[0]!["decision"]!["ProposalId"] = "independent";
+        later[1]!["receipt"]!["ProposalId"] = "independent";
+        later[1]!["receipt"]!["TimeMs"] = 350;
+        later[2]!["observed"]!["TimeMs"] = 400;
+        foreach (var row in later) events.Add(row!.DeepClone());
+        using var changed = JsonDocument.Parse(report.ToJsonString());
+        var linked = TeacherActionReplay.Link(changed.RootElement);
+        Assert.Equal("independent", linked.OriginalProposalId);
+        Assert.Equal(300, linked.Before.TimeMs);
+        Assert.Equal(350, linked.Receipt.TimeMs);
+        Assert.Equal(400, linked.After.TimeMs);
+    }
     [Fact]
     public void RecordedReceiptAndChangedStateProduceReplayWithSourceMapping()
     {
