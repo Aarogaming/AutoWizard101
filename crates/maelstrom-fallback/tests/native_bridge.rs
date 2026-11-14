@@ -345,3 +345,17 @@ fn observations_expire_by_source_time_and_reject_future_or_malformed_time() {
         Some(1136)
     );
 }
+
+#[test]
+fn disconnected_snapshot_preserves_evidence_but_not_current_context() {
+    let mut v = snapshot();
+    v["connected"] = json!(false);
+    let s = NativeHostState::from_snapshot_json_at(&v, now());
+    assert!(!s.observation_is_fresh(now()));
+    assert_eq!(s.game_id, None);
+    assert_eq!(s.target_id, None);
+    assert_eq!(s.source, None);
+    assert_eq!(s.last_observed_utc, None);
+    assert_eq!(s.identity_key(), None);
+    assert_eq!(s.raw_snapshot, v);
+}

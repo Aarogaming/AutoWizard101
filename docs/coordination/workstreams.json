@@ -1436,6 +1436,12 @@
           "path": "docs/coordination/results/RUST-LIVE-RELEASE-62.md",
           "path_status": "existing",
           "scope": "Installed busy-recovery/passive telemetry repair; real Rust projection expiry/cleanup/disconnect verified; preservation lifecycle passed; no gameplay."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-DISCONNECT-63.md",
+          "path_status": "existing",
+          "scope": "Disconnected Rust context/freshness regression repaired;56 affected tests and Clippy pass;source-only."
         }
       ],
       "depends_on": [

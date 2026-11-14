@@ -369,9 +369,11 @@ impl NativeHostState {
     }
 
     pub fn observation_is_fresh(&self, now: SystemTime) -> bool {
-        self.last_observed_utc
-            .as_deref()
-            .is_some_and(|stamp| timestamp_fresh(stamp, now))
+        self.connected
+            && self
+                .last_observed_utc
+                .as_deref()
+                .is_some_and(|stamp| timestamp_fresh(stamp, now))
     }
 
     pub fn from_snapshot_json_at(val: &serde_json::Value, now: SystemTime) -> Self {
@@ -461,9 +463,9 @@ impl NativeHostState {
                 _ => "Connected (Unknown Idle)",
             }
             .into(),
-            game_id: game.clone(),
-            target_id: target.clone(),
-            source: source.clone(),
+            game_id: game.clone().filter(|_| connected),
+            target_id: target.clone().filter(|_| connected),
+            source: source.clone().filter(|_| connected),
             wizard_profile_id: subject_text("profileId"),
             wizard_name: subject_text("name"),
             wizard_school: subject_text("school"),
@@ -478,7 +480,7 @@ impl NativeHostState {
             energy_max: integer("energy.max"),
             potions_current: real("potions"),
             potions_max: real("potions.max"),
-            last_observed_utc: observed.clone(),
+            last_observed_utc: observed.clone().filter(|_| connected),
             unavailable_facts: val["unavailable"]
                 .as_array()
                 .map(|a| {

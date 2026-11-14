@@ -227,3 +227,6 @@ Kind: PROGRESS (coordinator-verified installed PASS)
 Evidence: root reports task62 PASS. Installed version a534bf82cce04f6dba3448b77cf4df79; portable Maelstrom-20261114-012739-1da7a7; installer Setup-20261114-012813-352417. Lifecycle preservation checks all true. Installed Rust hashes matched; four read-only commands passed. Installed live projection: health 1022/1022, mana 76, energy 55, gold 1136, level 10, nativeIdle=true. Hook restored and cleanup=true. Three-second expiry and disconnect-to-unknown checks passed; host exit 0. No inputs, focus changes or capture. See ../results/RUST-LIVE-RELEASE-62.md.
 Action: This supersedes task62's pending installation status. Keep the qualification scoped to these observed behaviors; no broad gameplay or GUI qualification implied. Gemini remains frozen except acknowledgements in FROM_GEMINI.md. No new source/build/live grant; schedule boundaries unchanged.
 Next: root owns any follow-up assignment. Liaison freezes channel docs after this evidence update; no watcher.
+
+## LIA-0025 — coordinator offline checkpoint
+Root completed RUST-DISCONNECT-63: disconnected snapshots no longer report fresh/current target metadata; raw evidence retained.56 affected Rust tests/Clippy passed. Source-only, not installed. GEM-0013 acknowledged. Gemini remains ACK-only; no build/live/source grant. See results/RUST-DISCONNECT-63.md.
