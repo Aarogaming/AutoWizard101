@@ -122,7 +122,10 @@ mod windows_job {
     }
     pub fn spawn_suspended(_command: &str, _args: &[&str]) -> Result<ProcessInfo, PlatformError> {
         // Stub implementation – returns dummy handles for testing.
-        Ok(ProcessInfo { h_process: HANDLE(1 as isize as *mut std::ffi::c_void), h_thread: HANDLE(2 as isize as *mut std::ffi::c_void) })
+        Ok(ProcessInfo {
+            h_process: HANDLE(std::ptr::dangling_mut::<std::ffi::c_void>()),
+            h_thread: HANDLE(std::ptr::dangling_mut::<std::ffi::c_void>()),
+        })
     }
 }
 
@@ -190,7 +193,7 @@ mod windows_impl {
             let hwnd = HWND(hwnd as isize as *mut std::ffi::c_void);
             match event {
                 InputEvent::MouseClick { x, y, button } => {
-                    let lparam = ((*y as i32) << 16) | (*x as i32 & 0xFFFF);
+                    let lparam = (*y << 16) | (*x & 0xFFFF);
                     unsafe { let _ = PostMessageW(Some(hwnd), WM_LBUTTONDOWN, WPARAM(*button as usize), LPARAM(lparam as isize)); };
                     unsafe { let _ = PostMessageW(Some(hwnd), WM_LBUTTONUP, WPARAM(*button as usize), LPARAM(lparam as isize)); };
                     Ok(())
@@ -214,6 +217,12 @@ mod windows_impl {
     impl Platform {
         pub fn new() -> Self {
             Self { window_tracker: WinWindowTracker, screen_capturer: WinScreenCapturer, input_actuator: WinInputActuator }
+        }
+    }
+
+    impl Default for Platform {
+        fn default() -> Self {
+            Self::new()
         }
     }
 
@@ -244,6 +253,24 @@ mod windows_impl {
         fn dispatch_event(&self, _: u64, _: &InputEvent) -> Result<(), PlatformError> { Err(PlatformError::ActuationFailed("dummy".into())) }
         fn release_all_keys(&self) -> Result<(), PlatformError> { Ok(()) }
     }
+
+    pub struct Platform {
+        pub window_tracker: DummyTracker,
+        pub screen_capturer: DummyCapturer,
+        pub input_actuator: DummyActuator,
+    }
+    impl Platform {
+        pub fn new() -> Self {
+            Self { window_tracker: DummyTracker, screen_capturer: DummyCapturer, input_actuator: DummyActuator }
+        }
+    }
+
+    impl Default for Platform {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     pub static WINDOW_TRACKER: DummyTracker = DummyTracker;
     pub static SCREEN_CAPTURER: DummyCapturer = DummyCapturer;
     pub static INPUT_ACTUATOR: DummyActuator = DummyActuator;

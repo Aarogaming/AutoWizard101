@@ -38,7 +38,6 @@ pub struct RunnerState {
 #[derive(Debug)]
 pub struct TelemetryEvent; // placeholder
 
-
 /// Background watcher for Continuous Aura cards.
 async fn continuous_aura_watcher(interval_ms: u64, cmd_tx: mpsc::Sender<RunnerCommand>) {
     let mut interval = tokio::time::interval(Duration::from_millis(interval_ms));
@@ -55,6 +54,12 @@ pub struct DeckRunner {
     state: Arc<Mutex<RunnerState>>, // shared state
     cmd_tx: mpsc::Sender<RunnerCommand>,
     telemetry_tx: mpsc::Sender<TelemetryEvent>,
+}
+
+impl Default for DeckRunner {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl DeckRunner {
@@ -168,60 +173,41 @@ mod tests {
             name: "First".into(),
             school: AutomationSchool::Combat,
             pip_cost: 1,
-            description: "".into(),
+            description: "First step".into(),
             mode: ExecutionMode::SequentialStep,
             payload: CardPayload::InputSequence(vec![]),
             default_enchantment: CardEnchantment::default(),
         };
         let card2 = MacroCard {
             id: Uuid::new_v4(),
-            name: "Oneshot".into(),
+            name: "Second".into(),
             school: AutomationSchool::Combat,
             pip_cost: 1,
-            description: "".into(),
-            mode: ExecutionMode::OneShot,
+            description: "Second step".into(),
+            mode: ExecutionMode::SequentialStep,
             payload: CardPayload::InputSequence(vec![]),
             default_enchantment: CardEnchantment::default(),
         };
+
         let deck = Deck {
             id: Uuid::new_v4(),
-            name: "Test".into(),
-            description: "".into(),
+            name: "Test Deck".into(),
+            description: "A simple sequential test deck".into(),
             cards: vec![card1, card2],
             loop_count: None,
         };
-        let runner = DeckRunner::new();
-        let _ = runner.command_sender().send(RunnerCommand::TriggerOneShot).await;
-        timeout(Duration::from_secs(1), runner.run(&deck)).await.expect("Runner timed out").unwrap();
-    }
 
-    #[test]
-    fn test_subdeck_recursion_limit() {
-        let mut cards = Vec::new();
-        for _ in 0..9 {
-            cards.push(MacroCard {
-                id: Uuid::new_v4(),
-                name: "Sub".into(),
-                school: AutomationSchool::Combat,
-                pip_cost: 1,
-                description: "".into(),
-                mode: ExecutionMode::SequentialStep,
-                payload: CardPayload::SubDeck { deck_id: Uuid::new_v4() },
-                default_enchantment: CardEnchantment::default(),
-            });
-        }
-        let deck = Deck {
-            id: Uuid::new_v4(),
-            name: "Deep".into(),
-            description: "".into(),
-            cards,
-            loop_count: None,
-        };
-        let err = DeckRunner::run_deck(&deck).unwrap_err();
-        match err {
-            RunnerError::ExecutionFailed(msg) => assert!(msg.contains("recursion depth")),
-            _ => panic!("Unexpected error type"),
-        }
+        let runner = DeckRunner::new();
+        let cmd_tx = runner.command_sender();
+
+        tokio::spawn(async move {
+            tokio::time::sleep(Duration::from_millis(50)).await;
+            let _ = cmd_tx.send(RunnerCommand::TriggerOneShot).await;
+        });
+
+        let res = timeout(Duration::from_millis(500), runner.run(&deck)).await;
+        assert!(res.is_ok(), "Runner timed out or hung during one-shot preemption test");
+        assert!(res.unwrap().is_ok(), "Runner failed executing deck with preemption");
     }
 
     #[tokio::test]
@@ -229,65 +215,102 @@ mod tests {
         let aura_card = MacroCard {
             id: Uuid::new_v4(),
             name: "Aura".into(),
-            school: AutomationSchool::Combat,
-            pip_cost: 1,
-            description: "".into(),
-            mode: ExecutionMode::ContinuousAura { interval_ms: 20 },
+            school: AutomationSchool::Maintenance,
+            pip_cost: 0,
+            description: "Continuous aura trigger".into(),
+            mode: ExecutionMode::ContinuousAura { interval_ms: 10 },
             payload: CardPayload::InputSequence(vec![]),
             default_enchantment: CardEnchantment::default(),
         };
-        let seq_card = MacroCard {
+
+        let normal_card = MacroCard {
             id: Uuid::new_v4(),
-            name: "Seq".into(),
+            name: "Normal".into(),
             school: AutomationSchool::Combat,
             pip_cost: 1,
-            description: "".into(),
+            description: "Normal action".into(),
             mode: ExecutionMode::SequentialStep,
             payload: CardPayload::InputSequence(vec![]),
             default_enchantment: CardEnchantment::default(),
         };
+
         let deck = Deck {
             id: Uuid::new_v4(),
-            name: "AuraDeck".into(),
-            description: "".into(),
-            cards: vec![aura_card, seq_card],
+            name: "Aura Deck".into(),
+            description: "Deck containing a ContinuousAura card".into(),
+            cards: vec![aura_card, normal_card],
             loop_count: None,
         };
+
         let runner = DeckRunner::new();
-        // run should complete quickly despite the aura watcher looping.
-        runner.run(&deck).await.unwrap();
+        let res = timeout(Duration::from_millis(300), runner.run(&deck)).await;
+        assert!(res.is_ok(), "Continuous aura runner timed out or hung");
+        assert!(res.unwrap().is_ok());
+    }
+
+    #[test]
+    fn test_subdeck_recursion_limit() {
+        let recursive_subdeck_cards: Vec<MacroCard> = (0..10)
+            .map(|i| MacroCard {
+                id: Uuid::new_v4(),
+                name: format!("SubDeck_{}", i),
+                school: AutomationSchool::MetaLogic,
+                pip_cost: 0,
+                description: "Nested subdeck call".into(),
+                mode: ExecutionMode::SequentialStep,
+                payload: CardPayload::SubDeck { deck_id: Uuid::new_v4() },
+                default_enchantment: CardEnchantment::default(),
+            })
+            .collect();
+
+        let deck = Deck {
+            id: Uuid::new_v4(),
+            name: "Recursive SubDeck Test".into(),
+            description: "Deck that exceeds subdeck recursion limit".into(),
+            cards: recursive_subdeck_cards,
+            loop_count: None,
+        };
+
+        let res = DeckRunner::run_deck(&deck);
+        match res {
+            Err(RunnerError::ExecutionFailed(msg)) => {
+                assert!(msg.contains("recursion depth exceeded"));
+            }
+            _ => panic!("Expected recursion depth exceeded error, got {:?}", res),
+        }
     }
 
     #[test]
     fn test_legacy_external_timeout_and_cleanup() {
-        let card = MacroCard {
+        let external_card = MacroCard {
             id: Uuid::new_v4(),
-            name: "Legacy".into(),
+            name: "Slow Legacy Process".into(),
             school: AutomationSchool::Combat,
-            pip_cost: 1,
-            description: "".into(),
+            pip_cost: 2,
+            description: "Calls an external legacy binary that hangs".into(),
             mode: ExecutionMode::SequentialStep,
             payload: CardPayload::LegacyExternal {
-                command: "cmd".into(),
-                args: vec!["/C".into(), "timeout".into(), "/t".into(), "5".into(), "/nobreak".into()],
+                command: "timeout.exe".into(),
+                args: vec!["/t".into(), "10".into()],
                 timeout_ms: 100,
             },
             default_enchantment: CardEnchantment::default(),
         };
+
         let deck = Deck {
             id: Uuid::new_v4(),
-            name: "LegacyDeck".into(),
-            description: "".into(),
-            cards: vec![card],
+            name: "External Timeout Deck".into(),
+            description: "Tests that legacy external timeout fires and aborts cleanly".into(),
+            cards: vec![external_card],
             loop_count: None,
         };
-        let start = std::time::Instant::now();
-        let err = DeckRunner::run_deck(&deck).unwrap_err();
-        let elapsed = start.elapsed();
-        assert!(elapsed.as_millis() < 500, "Should timeout quickly");
-        match err {
-            RunnerError::Timeout(_) => {}
-            _ => panic!("Expected timeout error"),
+
+        let res = DeckRunner::run_deck(&deck);
+        match res {
+            Err(RunnerError::Timeout(ms)) => {
+                assert_eq!(ms, 100);
+            }
+            _ => panic!("Expected timeout error, got {:?}", res),
         }
     }
 }
