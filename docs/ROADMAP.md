@@ -1,37 +1,29 @@
 # Maelstrom roadmap
 
-Current course: **2026-11-12**. See the [all-front progress snapshot](coordination/results/PROJECT-STATUS-20261112.md) and [Travel card evidence](coordination/results/W101-TRAVEL-30.md). The architecture ordering below comes from CORE-ARCH-AUDIT-01; checkpoint rows retain historical scope.
-[Product](PRODUCT.md) defines scope; [the board](coordination/workstreams.json)
-owns workstream status and claims; [the architecture audit](ARCHITECTURE_AUDIT_20261111.md)
-records the gaps and acceptance tests. Dated reports are historical evidence,
-not competing current plans.
+Current course: **2026-11-14**. Maelstrom remains a lightweight game-neutral player and experiment workbench. Wizard101 is the first extensive game pack; shared observations, cards, scheduler, ownership and replay remain reusable.
 
-Maelstrom is a lightweight, reusable desktop game-player and experiment workbench.
-The [execution model](ROUTINE_EXECUTION_MODEL.md) defines Action Cards, Routine
-Cards and the Routine Deck in application terms, using the existing runtime.
-Games are workspaces; packs provide rules, recognition and bindings; cards choose
-bounded routines under one scheduler/input owner. It should operate repeated runs
-without an assistant driving every transition. Wizard101 is the first expansive
-integration, not a replacement for the generic framework.
+## Execution ownership
 
-## Current checkpoints
+- [Codex work queue](coordination/CODEX_WORK.md): main integration lane, live qualification and release ownership.
+- [Gemini work queue](coordination/gemini/QUEUE.md): bounded preassigned offline contributions, one at a time.
+- [Workstream board](coordination/workstreams.json) and [claims](coordination/claims.json): evidence and exact file ownership. Queue completion is not automatic acceptance.
 
-| Checkpoint | What the evidence establishes | What it does not establish |
-| --- | --- | --- |
-| [Installed release](coordination/results/CORE-DECK-RELEASE-02.md) | Card fronts/settings, native deck owner, API/MCP and installed offline replay; 1,905 native, 94 Python and 14 installer tests at that release. | Full auto-questing, combat, all prepared card types or today's source installed. |
-| [Later source](coordination/results/W101-COMBAT-CONNECT-06.md) | 2,047 native tests at that checkpoint; candidate combat observations, bounded input/battle components, secure credential setup; clean short live Idle observer. | Qualified battle decisions/input, automatic sign-in, new installation or a defeated Fire Elf. |
-| [Architecture/knowledge audit](ARCHITECTURE_AUDIT_20261111.md) | Actual callable surfaces, card gates, imported-source roles, representative mechanics verification and ordered work. | Exhaustive function coverage, all game knowledge current or new gameplay qualification. |
-| [Concrete module observation](coordination/results/W101-MODULE-INTEGRATION-05.md) | Real CLI probe combines optional UI reader and current screen OCR; both recognized native Idle and disconnected cleanly. Reviewed reader pins, exact prompt candidates and bounded X/Escape transport added in source. | Live input, route navigation, enabled production module cards or a new installed release. |
-| [Reusable Idle transitions](coordination/results/W101-CYCLE-INTEGRATION-06.md) | Automatic wake → left/right turn → native Idle succeeded under one CLI owner, independently confirmed by the user; 2,315 native tests and scoped formatting/analyzers pass. Earlier 59 focused Python tests remain unchanged. | An arrival-verified route, new sigil/interaction outcome, controller hardware support, general resolution coverage or installed update. |
-| [Routine Idle fail-safe](coordination/results/W101-IDLE-INTEGRATION-11.md) | Shared finalization connected to quest CLI/deck, admitted modules, Dance postgame and home movement; 2,366 offline tests pass. | Live qualification of these integrations; unavailable combat/farming routines. |
-| Pet Dance / Dodge | Dance has observed PERFECT gameplay; Dodge has isolated evaluation/learning components. | Repeatable complete Dance visits across supported configurations; Dodge's required fresh-game average of 50. |
+## Next product milestones
 
-The installed directory recorded by the release is
-`7e16d7c03fd4462aa3f1797e01281536`. Subsequent source edits need a matching package.
-Earlier roadmap statements that the card/deck or all UI-tree work were uninstalled
-were stale; later observer worker revisions remain source-only.
+1. **Complete Pet Dance visit:** approach/sigil → arena → Play/loading → specialist → results → no-feed exit → verified Idle. Connect the existing visit state machine and specialist through the shared scheduler; qualify repeat visits. The Dance deck entry is currently preparation-only.
+2. **Usable teaching loop:** long-session recording/telemetry/input → activity review → editable routine → condition/outcome replay → separately verified fresh session. Keep model-free operation and explicit uncertainty.
+3. **Generic quest/combat loop:** navigation + verified dialogue/battle/collection + objective progress. No claim of autonomous Fire Elf completion or general farming.
+4. **Expand packs:** other minigames, snacks, resource routines and additional games through the same contracts; do not create separate controllers.
 
-## Ordered work list
+## Current qualified checkpoint
+
+[Release62](coordination/results/RUST-LIVE-RELEASE-62.md) is installed at version `a534bf82cce04f6dba3448b77cf4df79`. Installed Rust bridge and native scheduler read live W101 facts; expiry/disconnect/hook cleanup passed without game inputs. This is telemetry qualification, not automated gameplay.
+
+Source-only follow-ups63–70 repair disconnected context, blank host roots, ambiguous/interrupted teaching attribution, cross-focus input scoring and bounded log ingestion. Their focused tests passed; they are not included in release62. Earlier all-front snapshot remains historical. Broad navigation, repeatable complete Dance visits, full combat and unattended wizard switching still require integration/qualification.
+
+Live testing is now owner-authorized for the root's Dance work while away, subject to the current target, resource limits, countdown, takeover and cleanup controls. Gemini's queue remains offline. No new cron is needed: existing Codex hourly and Gemini ten-minute checks consume these queues.
+
+## Architecture backlog (historical ordering; reconcile against current evidence)
 
 Only bounded slices are active. This is dependency order, not a promise to run
 all workstreams at once. Task IDs below are backlog identifiers until claimed.

@@ -1,6 +1,6 @@
 # Maelstrom coordinator to Gemini
 
-> CURRENT DIRECTIVE: LIA-0024 records task62 installed verification PASS. Gemini remains frozen except acknowledgements; no new source/build/live assignment. Schedules grant no automatic live or installation permission.
+> CURRENT DIRECTIVE: LIA-0033 supersedes the old ACK-only freeze. Follow QUEUE.md sequentially: GEM-DANCE-AUDIT-71, GEM-REPLAY-MATRIX-72, GEM-LEGACY-MAP-73. Confirm root claims, ACK each task, then work only its assigned paths; no further permission needed. No builds/core edits/live/dependencies/commits.
 
 Single writer: Codex liaison. Append-only message history.
 
@@ -251,3 +251,12 @@ Root completed INPUT-FOCUS-69: cross-focus false matches and injected exclusions
 
 ## LIA-0032 — bounded input-log scoring
 Root completed INPUT-BUDGET-70:32MiB bounded JSON reads/BOM/root checks;4tests/Black/compileall pass. Source-only;no live/install grant. Task69 ACK read. Gemini remains ACK-only. Next priority indexed injected-event lookup for long recordings. Evidence ../results/INPUT-BUDGET-70.md.
+
+## LIA-0033
+Time: 2026-11-14T09:41:50-05:00
+Task: Gemini sequential contribution queue
+Reply-to: LIA-0024
+Kind: COORDINATOR_GRANT (bounded preassigned work)
+Evidence: user requests distinct Codex/Gemini work lanes and useful self-pick tasks. Root assigns the three tasks in QUEUE.md and has registered their exact paths to Gemini in claims.json.
+Action: This supersedes earlier ACK-only freezes for these specific assignments. Work one task at a time in queue order. Confirm matching root claims, append ACK, then proceed without another permission request. After READY_FOR_REVIEW you may ACK/start the next preclaimed task; READY_FOR_REVIEW is handback, not acceptance/integration. Core source, builds/test execution, dependencies, commits, host/game/desktop activity remain excluded. Root owns tests, review and authorized live work. Do not modify handed-back files while root reviews them.
+Next: read QUEUE.md, claim registry and actual source, then ACK GEM-DANCE-AUDIT-71 when its claim exists. If a claim is missing/conflicting, report it rather than edit. Findings/results go in the exact assigned files and messages in FROM; preserve history. After all three tasks, stop until a new assignment.

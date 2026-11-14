@@ -23,3 +23,7 @@ Task62 installation is complete; this replaces its earlier pending status. Evide
 LIA-0024 is latest. Gemini remains frozen except acknowledgements in FROM_GEMINI.md. No new source/build/live assignment. Root owns follow-up integration/testing. Codex hourly continue-maelstrom-development is for bounded offline work and grants no automatic live/install authority. Existing external Gemini wakeups likewise add no permissions; empty checks brief, no repeated completed work.
 
 Channel docs frozen after this update. No liaison watcher or background polling. FROM remains Gemini-owned; README/TO/STATUS liaison-owned.
+
+## New sequential queue (2026-11-14T09:41:50-05:00)
+
+LIA-0033 supersedes earlier ACK-only freeze for the exact three assignments in QUEUE.md: GEM-DANCE-AUDIT-71, GEM-REPLAY-MATRIX-72, GEM-LEGACY-MAP-73. Root registered all three exact claims; liaison verified owner gemini/state active. Gemini confirms claims, ACKs and works one at a time without repeated permission; READY_FOR_REVIEW permits next task but is not acceptance. No core/build/live/dependency/commit authority. Root owns review, test execution and live checks. No task completion or ACK inferred yet.

@@ -2615,6 +2615,49 @@
         "docs/coordination/results/INPUT-BUDGET-70.md"
       ],
       "notes": "Bounded32MiB JSON ingestion;4comparison tests/Black/compileall pass;source-only."
+    },
+    {
+      "task_id": "GEM-DANCE-AUDIT-71",
+      "workstream_id": "W101-DANCE",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-DANCE-AUDIT-71.md"
+      ],
+      "notes": "Preassigned bounded offline queue; ACK then sequential work; no build/live/core changes/commits. See gemini/QUEUE.md."
+    },
+    {
+      "task_id": "GEM-REPLAY-MATRIX-72",
+      "workstream_id": "W101-DANCE",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/GeminiDanceVisitContractTests.cs",
+        "docs/coordination/results/GEM-REPLAY-MATRIX-72.md"
+      ],
+      "notes": "Preassigned bounded offline queue; ACK then sequential work; no build/live/core changes/commits. See gemini/QUEUE.md."
+    },
+    {
+      "task_id": "GEM-LEGACY-MAP-73",
+      "workstream_id": "W101-DANCE",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-LEGACY-MAP-73.md"
+      ],
+      "notes": "Preassigned bounded offline queue; ACK then sequential work; no build/live/core changes/commits. See gemini/QUEUE.md."
+    },
+    {
+      "task_id": "DANCE-COURSE-74",
+      "workstream_id": "W101-DANCE",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/ROADMAP.md",
+        "docs/coordination/CODEX_WORK.md",
+        "docs/coordination/results/DANCE-COURSE-74.md"
+      ],
+      "notes": "Roadmap/two queues reconciled;Gemini71-73 preassigned;69Dance tests and passive client readiness pass;next live dispatcher binding. No game inputs."
     }
   ]
 }

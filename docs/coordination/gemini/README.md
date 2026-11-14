@@ -2,7 +2,7 @@
 
 This is the local communication path for the active Maelstrom contribution, not a new handoff or a second project plan. Start with root AGENTS.md, ../EXTERNAL_AGENT_GUIDE.md and ../claims.json.
 
-> Current coordination: LIA-0022 records source-only busy recovery/read-only telemetry qualification; not installed. Gemini is frozen except acknowledgements in FROM. Root owns further integration and tests.
+> Current coordination: LIA-0033 supersedes old freezes with the sequential [Gemini queue](QUEUE.md). Confirm root claims and ACK each task, then work without extra permission. Root retains core/build/live/integration ownership.
 
 ## Ownership and checks
 
@@ -14,6 +14,10 @@ This is the local communication path for the active Maelstrom contribution, not 
 - The liaison is active during bounded work periods, not a permanent daemon. STATUS records the last actual check and inbound; no reply is not proof someone is watching.
 
 ## Current boundaries
+
+The current bounded assignments and exact outputs are in [QUEUE.md](QUEUE.md). Its grants supersede historical read-only/ACK-only notices only for those paths; all other restrictions remain. After READY_FOR_REVIEW, root owns integration and Gemini proceeds to the next preclaimed task.
+
+Historical bridge scope below applies only if that bridge task is explicitly reactivated:
 
 Continue RUST-NATIVE-BRIDGE-57 only within its reserved files. Reuse the native host protocol for capabilities, catalog, state and snapshot. Keep the native scheduler and input owner authoritative. No second input owner, capture process, memory reader rewrite, live game connection, host launch, installer or model. Source/mock success is not live gameplay qualification. Existing simulations must remain visibly simulations.
 

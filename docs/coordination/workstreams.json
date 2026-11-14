@@ -1129,7 +1129,7 @@
       "lineage": [
         "LP11"
       ],
-      "next_task": "Collect optional character-tab/OCR references for remaining76-field candidates and compare through offline profile tool; qualify numeric aliases individually. Four resource current/max/percent groups now connected; raw baseHP variation cause and broader state qualification remain unresolved. Vectors/current characterXP/multirate scans pending.",
+      "next_task": "Prioritize complete Dance runtime binding and teaching workflow per CODEX_WORK.md;review Gemini preassigned queue. Installed62 verified;source63-70 repairs await integrated release. Broader client field qualification remains secondary.",
       "acceptance_criteria": [
         "Show the actual method and qualification scope.",
         "Provide clear Start/Stop and resource/cleanup outcomes.",
@@ -1819,18 +1819,18 @@
       "title": "Pet Dance",
       "track": "pet",
       "status": "integration_pending",
-      "owner": "unassigned",
+      "owner": "/root",
       "verification": {
         "review": "native_player_with_partial_live_evidence",
         "code": "screen_modules_and_existing_scheduler_integrated_source",
-        "offline": "1316_native_tests_and_saved_pixel_scheduled_review_passed_20261110",
+        "offline": "69 focused entry/lifecycle/visit tests passed20261114; no full live visit qualification",
         "live": "new_source_not_installed_or_live_qualified"
       },
       "lineage": [
         "LP02",
         "LP11"
       ],
-      "next_task": "Qualify new postgame module source in one separately authorized bounded live test after packaging; retain exact shared owner, capture freshness, explicit eligibility, two-frame outcomes and user takeover. Then expose workspace module/queue controls.",
+      "next_task": "Bind existing offline PetDanceVisit and standalone specialist through the shared scheduler; verify entry/arena/energy/no-feed/Idle receipts before enabling deck execution. Gemini71/72/73 preassigned offline; route and live game proximity separately qualified. See CODEX_WORK.md.",
       "acceptance_criteria": [
         "Verify presented and sent sequences, feedback and complete-game result.",
         "Return native Idle only after verified valid completion, not user stop.",
@@ -1873,6 +1873,12 @@
           "path": "docs/MODULE_SCREEN_INTEGRATION_20261110.md",
           "scope": "1316 native tests pass. Actual saved PNGs through local OCR/modules/existing scheduler:2 completed modules,4 proposals/4 supplied rehearsal receipts,11 frames,zero desktop dispatch. Existing Dance cleanup source migrated; no installation/live test.",
           "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/DANCE-COURSE-74.md",
+          "path_status": "existing",
+          "scope": "Roadmap/queues reconciled,69Dance tests pass;current passive live readiness check only,no gameplay."
         }
       ],
       "depends_on": [],
@@ -2439,7 +2445,7 @@
         "LP01",
         "LP07"
       ],
-      "next_task": "Bind a verified current energy snapshot and cost to the existing pure gate.",
+      "next_task": "Reuse qualified current/max energy aliases;connect verified entry cost to existing pure gate for Dance. A live energy reading alone does not qualify cost or scheduling.",
       "acceptance_criteria": [
         "Unknown energy permits observation only.",
         "Insufficient reserve stops; sufficient permits one attempt only.",
