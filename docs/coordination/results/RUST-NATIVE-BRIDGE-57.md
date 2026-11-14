@@ -1,3 +1,5 @@
+> Integration review correction: this is the contributor's original report, not independently qualified native integration. Commit `1c5127c` used a non-native snapshot fixture and checked pipe prefix/length rather than hash parity; its IDE polling button did not dispatch requests. See [RUST-BRIDGE-REPAIR-59](RUST-BRIDGE-REPAIR-59.md) for the corrective review and actual offline evidence. Original results below are retained as historical contributor reports.
+
 # RUST-NATIVE-BRIDGE-57 — Read-Only Native Deck Host Integration
 
 **Date**: 2026-11-13  

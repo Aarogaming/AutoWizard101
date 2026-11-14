@@ -1,13 +1,17 @@
 //! `maelstrom-ide`: Dockable Wizard101 Arcane Spellbook IDE workspace using egui_tiles.
 
-use egui::{self, CentralPanel, Context, TopBottomPanel, Visuals, WidgetText, Color32, Stroke};
-use egui_tiles::{Behavior, Tree, TileId, UiResponse};
 use eframe::{self, App};
-use maelstrom_core::{AutomationSchool, CardEnchantment, CardPayload, Deck, ExecutionMode, MacroCard};
+use egui::{self, CentralPanel, Color32, Context, Stroke, TopBottomPanel, Visuals, WidgetText};
+use egui_tiles::{Behavior, TileId, Tree, UiResponse};
+use maelstrom_core::{
+    AutomationSchool, CardEnchantment, CardPayload, Deck, ExecutionMode, MacroCard,
+};
 use maelstrom_fallback::maelstrom_bridge::NativeHostState;
-use uuid::Uuid;
 use std::path::Path;
-use std::time::Instant;
+use std::time::{Duration, Instant, SystemTime};
+use uuid::Uuid;
+mod native_poll;
+use native_poll::NativePoll;
 
 /// Configuration for the IDE workspace.
 #[derive(Debug, Clone)]
@@ -97,8 +101,9 @@ pub struct IdeState {
     pub client_state_log: Vec<String>,
     pub native_host_state: NativeHostState,
     pub last_poll_time: Option<Instant>,
+    pub native_data_root: String,
+    pub telemetry_visible: bool,
     pub is_polling: bool,
-    pub poll_in_flight: bool,
 }
 
 impl Default for IdeState {
@@ -177,15 +182,18 @@ impl Default for IdeState {
             active_deck,
             card_library: sample_cards,
             selected_card_id: None,
-            attached_client_title: "WizardGraphicalClient.exe (PID: 62076, State: nativeIdle)".to_string(),
+            attached_client_title: "Simulated Wizard101 workspace (not connected)".to_string(),
             is_running: false,
             confidence_score: 0.94,
             arbitration_mode: "Fast Reflex (Local)".to_string(),
-            client_state_log: vec!["[Bridge] Initialized native host pipe bridge listener".to_string()],
+            client_state_log: vec![
+                "[Bridge] Initialized native host pipe bridge listener".to_string()
+            ],
             native_host_state: NativeHostState::default(),
             last_poll_time: None,
+            native_data_root: String::new(),
+            telemetry_visible: false,
             is_polling: false,
-            poll_in_flight: false,
         }
     }
 }
@@ -207,20 +215,30 @@ impl IdeState {
         let deck: Deck = toml::from_str(&content)
             .map_err(|e| format!("Failed to deserialize deck from TOML: {}", e))?;
         self.active_deck = deck;
-        self.client_state_log.push(format!("[Spellbook] Loaded deck: {}", self.active_deck.name));
+        self.client_state_log.push(format!(
+            "[Spellbook] Loaded deck: {}",
+            self.active_deck.name
+        ));
         Ok(())
     }
 
     /// Ingest fresh native host snapshot, preserving typed metadata and absent values.
     pub fn ingest_native_snapshot(&mut self, state: NativeHostState) {
-        if self.native_host_state.wizard_name != state.wizard_name && state.wizard_name.is_some() {
+        if self.native_host_state.identity_key() != state.identity_key()
+            && state.identity_key().is_some()
+        {
             self.client_state_log.push(format!(
                 "[Host] Active Wizard: {} ({:?})",
                 state.wizard_name.as_deref().unwrap_or("Unknown"),
                 state.wizard_school.as_deref().unwrap_or("Unknown")
             ));
         }
+        self.last_poll_time = Some(Instant::now());
         self.native_host_state = state;
+        if self.client_state_log.len() > 100 {
+            self.client_state_log
+                .drain(..self.client_state_log.len() - 100);
+        }
     }
 }
 
@@ -234,13 +252,20 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
         match pane {
             IdePane::GameSwitcher => {
                 ui.heading("Activity & Client Workspace");
+                ui.label("Prototype workspace controls below are simulations; use native host observations for verified state.");
                 ui.separator();
-                ui.label(format!("Attached Client: {}", self.state.attached_client_title));
+                ui.label(format!(
+                    "Attached Client: {}",
+                    self.state.attached_client_title
+                ));
                 ui.label("Workspace Profile: Wizard101.toml");
                 ui.separator();
                 if ui.button("Attach to WizardGraphicalClient.exe").clicked() {
-                    self.state.attached_client_title = "WizardGraphicalClient.exe (PID: 62076, State: nativeIdle)".to_string();
-                    self.state.client_state_log.push("[Client] Re-attached to active WizardGraphicalClient".to_string());
+                    self.state.attached_client_title =
+                        "Simulated Wizard101 workspace (not connected)".to_string();
+                    self.state.client_state_log.push(
+                        "[Simulation] Workspace preview selected; no game attachment".to_string(),
+                    );
                 }
                 ui.separator();
                 ui.label("Client Translator Telemetry Log:");
@@ -251,14 +276,21 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
             IdePane::DuelCircle => {
                 ui.heading(format!("Duel Circle: {}", self.state.active_deck.name));
                 ui.horizontal(|ui| {
-                    ui.label(format!("Loop Count: {:?}", self.state.active_deck.loop_count));
+                    ui.label(format!(
+                        "Loop Count: {:?}",
+                        self.state.active_deck.loop_count
+                    ));
                     ui.separator();
                     if ui.button("Save Deck (.toml)").clicked() {
                         let path = "HalfangFarmingDeck.toml";
                         if let Err(e) = self.state.save_deck_to_toml(path) {
-                            self.state.client_state_log.push(format!("[Error] Save failed: {}", e));
+                            self.state
+                                .client_state_log
+                                .push(format!("[Error] Save failed: {}", e));
                         } else {
-                            self.state.client_state_log.push(format!("[Spellbook] Saved active deck to {}", path));
+                            self.state
+                                .client_state_log
+                                .push(format!("[Spellbook] Saved active deck to {}", path));
                         }
                     }
                 });
@@ -268,14 +300,26 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
                 for (idx, card) in self.state.active_deck.cards.iter().enumerate() {
                     let color = SpiralTheme::school_color(card.school);
                     let payload_badge = match &card.payload {
-                        CardPayload::McpFunction { tool_name, .. } => format!("[MCP: {}]", tool_name),
+                        CardPayload::McpFunction { tool_name, .. } => {
+                            format!("[MCP: {}]", tool_name)
+                        }
                         CardPayload::InputSequence(_) => "[Input Seq]".to_string(),
                         CardPayload::VisionWait { .. } => "[Vision Wait]".to_string(),
                         CardPayload::RegionCheck { .. } => "[Region Check]".to_string(),
                         CardPayload::SubDeck { .. } => "[SubDeck]".to_string(),
                         CardPayload::LegacyExternal { .. } => "[Legacy External]".to_string(),
                     };
-                    let card_btn = ui.colored_label(color, format!("{}. [{:?}] {} {} (Pip: {})", idx + 1, card.school, card.name, payload_badge, card.pip_cost));
+                    let card_btn = ui.colored_label(
+                        color,
+                        format!(
+                            "{}. [{:?}] {} {} (Pip: {})",
+                            idx + 1,
+                            card.school,
+                            card.name,
+                            payload_badge,
+                            card.pip_cost
+                        ),
+                    );
                     if card_btn.clicked() {
                         card_to_select = Some(card.id);
                     }
@@ -306,43 +350,81 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
                 ui.heading("Enchantment & Macro Inspector");
                 ui.separator();
                 if let Some(selected_id) = self.state.selected_card_id {
-                    if let Some(card) = self.state.active_deck.cards.iter_mut().find(|c| c.id == selected_id) {
+                    if let Some(card) = self
+                        .state
+                        .active_deck
+                        .cards
+                        .iter_mut()
+                        .find(|c| c.id == selected_id)
+                    {
                         ui.label(format!("Card Name: {}", card.name));
                         ui.label(format!("School: {:?}", card.school));
                         ui.label(format!("Mode: {:?}", card.mode));
                         ui.label(format!("Pip Cost: {}", card.pip_cost));
                         ui.separator();
                         match &mut card.payload {
-                            CardPayload::McpFunction { tool_name, arguments_json } => {
+                            CardPayload::McpFunction {
+                                tool_name,
+                                arguments_json,
+                            } => {
                                 ui.label("Programmable MCP Tool Binding:");
                                 ui.text_edit_singleline(tool_name);
                                 ui.label("Arguments (JSON):");
                                 ui.text_edit_singleline(arguments_json);
                             }
                             _ => {
-                                ui.label(format!("Payload Type: {:?}", std::mem::discriminant(&card.payload)));
+                                ui.label(format!(
+                                    "Payload Type: {:?}",
+                                    std::mem::discriminant(&card.payload)
+                                ));
                             }
                         }
                         ui.separator();
                         ui.label("Enchantment Modifiers:");
-                        ui.add(egui::Slider::new(&mut card.default_enchantment.repeat_count, 1..=10).text("Repeat Count"));
-                        ui.add(egui::Slider::new(&mut card.default_enchantment.pre_delay_ms, 0..=5000).text("Pre-delay (ms)"));
-                        ui.add(egui::Slider::new(&mut card.default_enchantment.post_delay_ms, 0..=5000).text("Post-delay (ms)"));
-                        ui.add(egui::Slider::new(&mut card.default_enchantment.jitter_px, 0..=20).text("Click Jitter (px)"));
+                        ui.add(
+                            egui::Slider::new(&mut card.default_enchantment.repeat_count, 1..=10)
+                                .text("Repeat Count"),
+                        );
+                        ui.add(
+                            egui::Slider::new(&mut card.default_enchantment.pre_delay_ms, 0..=5000)
+                                .text("Pre-delay (ms)"),
+                        );
+                        ui.add(
+                            egui::Slider::new(
+                                &mut card.default_enchantment.post_delay_ms,
+                                0..=5000,
+                            )
+                            .text("Post-delay (ms)"),
+                        );
+                        ui.add(
+                            egui::Slider::new(&mut card.default_enchantment.jitter_px, 0..=20)
+                                .text("Click Jitter (px)"),
+                        );
                     } else {
                         ui.label("Selected card not found in active deck.");
                     }
                 } else {
-                    ui.label("Click any card in the Duel Circle to inspect or enchant its properties.");
+                    ui.label(
+                        "Click any card in the Duel Circle to inspect or enchant its properties.",
+                    );
                 }
             }
             IdePane::ArbiterTelemetry => {
+                self.state.telemetry_visible = true;
                 ui.heading("Arbiter Telemetry & Native Host Bridge");
                 ui.separator();
                 ui.label(format!("Active Engine: {}", self.state.arbitration_mode));
-                ui.label(format!("Vision Confidence: {:.2}", self.state.confidence_score));
+                ui.label(format!(
+                    "Vision Confidence: {:.2}",
+                    self.state.confidence_score
+                ));
                 ui.separator();
 
+                ui.label("Native host data folder (existing host; no auto-start):");
+                ui.add_enabled(
+                    !self.state.is_polling,
+                    egui::TextEdit::singleline(&mut self.state.native_data_root),
+                );
                 // Native Host Connection & Real Facts display
                 ui.heading("Native Deck Host Facts (Read-Only Bridge)");
                 let host = &self.state.native_host_state;
@@ -357,21 +439,71 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
                         if ui.button("Stop Polling Native Host").clicked() {
                             self.state.is_polling = false;
                         }
-                    } else if ui.button("Start Bounded Polling (1s max)").clicked() {
+                    } else if ui
+                        .add_enabled(
+                            !self.state.native_data_root.trim().is_empty(),
+                            egui::Button::new("Observe native host (once per second)"),
+                        )
+                        .clicked()
+                    {
                         self.state.is_polling = true;
                     }
                 });
 
                 ui.separator();
-                ui.label(format!("Wizard Name: {}", host.wizard_name.as_deref().unwrap_or("Unknown / Absent")));
-                ui.label(format!("School: {}", host.wizard_school.as_deref().unwrap_or("Unknown / Absent")));
-                ui.label(format!("Level: {}", host.wizard_level.map(|v| v.to_string()).unwrap_or_else(|| "Unknown".into())));
-                ui.label(format!("Gold: {}", host.gold.map(|v| v.to_string()).unwrap_or_else(|| "Unknown".into())));
-                ui.label(format!("World / Zone: {} / {}", host.location_world.as_deref().unwrap_or("Unknown"), host.location_zone.as_deref().unwrap_or("Unknown")));
-                ui.label(format!("Active Quest: {}", host.quest_name.as_deref().unwrap_or("None / Unavailable")));
+                ui.label(format!(
+                    "Wizard Name: {}",
+                    host.wizard_name.as_deref().unwrap_or("Unknown / Absent")
+                ));
+                ui.label(format!(
+                    "School: {}",
+                    host.wizard_school.as_deref().unwrap_or("Unknown / Absent")
+                ));
+                ui.label(format!(
+                    "Level: {}",
+                    host.wizard_level
+                        .map(|v| v.to_string())
+                        .unwrap_or_else(|| "Unknown".into())
+                ));
+                ui.label(format!(
+                    "Gold: {}",
+                    host.gold
+                        .map(|v| v.to_string())
+                        .unwrap_or_else(|| "Unknown".into())
+                ));
+                ui.label(format!(
+                    "Health: {} / {}",
+                    host.health_current
+                        .map(|v| v.to_string())
+                        .unwrap_or_else(|| "-".into()),
+                    host.health_max
+                        .map(|v| v.to_string())
+                        .unwrap_or_else(|| "-".into())
+                ));
+                ui.label(format!(
+                    "Mana: {} / {}",
+                    host.mana_current
+                        .map(|v| v.to_string())
+                        .unwrap_or_else(|| "-".into()),
+                    host.mana_max
+                        .map(|v| v.to_string())
+                        .unwrap_or_else(|| "-".into())
+                ));
+                ui.label(format!(
+                    "Energy: {} / {}",
+                    host.energy_current
+                        .map(|v| v.to_string())
+                        .unwrap_or_else(|| "-".into()),
+                    host.energy_max
+                        .map(|v| v.to_string())
+                        .unwrap_or_else(|| "-".into())
+                ));
 
                 if !host.unavailable_facts.is_empty() {
-                    ui.label(format!("Explicitly Unavailable Facts ({}):", host.unavailable_facts.len()));
+                    ui.label(format!(
+                        "Explicitly Unavailable Facts ({}):",
+                        host.unavailable_facts.len()
+                    ));
                     for f in host.unavailable_facts.iter().take(3) {
                         ui.colored_label(Color32::from_rgb(0xD4, 0xAC, 0x0D), format!(" - {}", f));
                     }
@@ -379,16 +511,21 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
 
                 ui.separator();
                 if self.state.is_running {
-                    ui.colored_label(Color32::GREEN, "RUNNER STATE: RUNNING");
+                    ui.colored_label(Color32::GREEN, "SIMULATION: RUNNING");
                     if ui.button("PANIC STOP (F12)").clicked() {
                         self.state.is_running = false;
-                        self.state.client_state_log.push("[Runner] PANIC STOP engaged - Disconnected safely.".to_string());
+                        self.state.client_state_log.push(
+                            "[Simulation] Preview stopped; no game connection changed.".to_string(),
+                        );
                     }
                 } else {
-                    ui.colored_label(Color32::YELLOW, "RUNNER STATE: IDLE (nativeIdle)");
-                    if ui.button("Engage Deck Runner").clicked() {
+                    ui.colored_label(Color32::YELLOW, "SIMULATION: STOPPED");
+                    if ui.button("Preview Deck Runner").clicked() {
                         self.state.is_running = true;
-                        self.state.client_state_log.push("[Runner] Deck Runner started under single control lease.".to_string());
+                        self.state.client_state_log.push(
+                            "[Simulation] Preview started; no control lease or game inputs."
+                                .to_string(),
+                        );
                     }
                 }
             }
@@ -406,6 +543,7 @@ pub struct MaelstromIdeApp {
     pub config: IdeWorkspaceConfig,
     pub state: IdeState,
     pub tree: Tree<IdePane>,
+    native_poll: NativePoll,
 }
 
 impl MaelstromIdeApp {
@@ -421,7 +559,66 @@ impl MaelstromIdeApp {
             IdePane::ArbiterTelemetry,
         ];
         let tree = Tree::new_tabs(egui::Id::new("ide_tree"), panes);
-        Self { config, state, tree }
+        Self {
+            config,
+            state,
+            tree,
+            native_poll: NativePoll::default(),
+        }
+    }
+
+    /// Runs only the read-only host observer. Hiding the pane cancels its request.
+    fn update_native_observation(&mut self, now: Instant) {
+        if !self.state.telemetry_visible {
+            self.state.is_polling = false;
+        }
+        let active = self.state.is_polling;
+        let result = self
+            .native_poll
+            .tick(active, self.state.native_data_root.trim().into(), now);
+        if !active {
+            if self.state.last_poll_time.is_some()
+                || self.state.native_host_state.connected
+                || self.state.native_host_state.status.is_empty()
+            {
+                self.state.native_host_state = NativeHostState {
+                    status: "Observation stopped".into(),
+                    ..Default::default()
+                };
+            }
+            self.state.last_poll_time = None;
+            return;
+        }
+        if self.state.last_poll_time.is_some_and(|last| {
+            now.duration_since(last) >= Duration::from_secs(2)
+                || !self
+                    .state
+                    .native_host_state
+                    .observation_is_fresh(SystemTime::now())
+        }) {
+            self.state.native_host_state = NativeHostState {
+                status: "Observation expired; awaiting refresh".into(),
+                ..Default::default()
+            };
+        }
+        if let Some(result) = result {
+            match result {
+                Ok(state) => {
+                    if !state.connected {
+                        self.state.is_polling = false;
+                    }
+                    self.state.ingest_native_snapshot(state);
+                }
+                Err(error) => {
+                    self.state.is_polling = false;
+                    self.state.native_host_state = NativeHostState {
+                        status: format!("Observation unavailable: {error}"),
+                        ..Default::default()
+                    };
+                    self.state.last_poll_time = None;
+                }
+            }
+        }
     }
 
     /// Apply the Spiral Spellbook visual theme.
@@ -432,7 +629,8 @@ impl MaelstromIdeApp {
     /// Wire cross-crate runners and controllers into the UI state
     pub fn wire_runtime(&mut self, window_tracker: &dyn maelstrom_platform::WindowTracker) {
         if let Ok(hwnd) = window_tracker.find_window("WizardGraphicalClient") {
-            self.state.attached_client_title = format!("WizardGraphicalClient.exe (HWND: 0x{:08X})", hwnd);
+            self.state.attached_client_title =
+                format!("WizardGraphicalClient.exe (HWND: 0x{:08X})", hwnd);
         }
     }
 }
@@ -448,15 +646,25 @@ impl App for MaelstromIdeApp {
         Self::apply_theme(ctx);
         TopBottomPanel::top("top_bar").show(ctx, |ui| {
             ui.horizontal(|ui| {
-                ui.label(format!("[Maelstrom Arcane IDE] Profile: {}", self.config.profile));
+                ui.label(format!(
+                    "[Maelstrom Arcane IDE] Profile: {}",
+                    self.config.profile
+                ));
                 ui.separator();
                 ui.label(format!("Active Deck: {}", self.state.active_deck.name));
             });
         });
+        self.state.telemetry_visible = false;
         CentralPanel::default().show(ctx, |ui| {
-            let mut behavior = IdeBehavior { state: &mut self.state };
+            let mut behavior = IdeBehavior {
+                state: &mut self.state,
+            };
             self.tree.ui(&mut behavior, ui);
         });
+        self.update_native_observation(Instant::now());
+        if self.state.is_polling {
+            ctx.request_repaint_after(Duration::from_millis(100));
+        }
     }
 }
 
@@ -499,13 +707,20 @@ mod tests {
         let file_path = temp_dir.join("test_deck_roundtrip.toml");
 
         app.state.active_deck.name = "Roundtrip Test Deck".to_string();
-        app.state.save_deck_to_toml(&file_path).expect("Failed to save toml deck");
+        app.state
+            .save_deck_to_toml(&file_path)
+            .expect("Failed to save toml deck");
 
         let mut app2 = MaelstromIdeApp::new();
-        app2.state.load_deck_from_toml(&file_path).expect("Failed to load toml deck");
+        app2.state
+            .load_deck_from_toml(&file_path)
+            .expect("Failed to load toml deck");
 
         assert_eq!(app2.state.active_deck.name, "Roundtrip Test Deck");
-        assert_eq!(app2.state.active_deck.cards.len(), app.state.active_deck.cards.len());
+        assert_eq!(
+            app2.state.active_deck.cards.len(),
+            app.state.active_deck.cards.len()
+        );
 
         let _ = std::fs::remove_file(file_path);
     }
@@ -513,26 +728,35 @@ mod tests {
     #[test]
     fn test_ide_native_host_state_ingestion() {
         let mut app = MaelstromIdeApp::new();
+        let state = NativeHostState {
+            connected: true,
+            status: "Connected (Unknown Idle)".into(),
+            wizard_name: Some("Fixture Wizard".into()),
+            wizard_school: Some("Storm".into()),
+            wizard_level: Some(160),
+            ..Default::default()
+        };
+        app.state.ingest_native_snapshot(state.clone());
+        assert_eq!(app.state.native_host_state, state);
+        assert!(app.state.last_poll_time.is_some());
+    }
+
+    #[test]
+    fn hidden_observer_clears_values_and_stops() {
+        let mut app = MaelstromIdeApp::new();
+        app.state.is_polling = true;
+        app.state.native_host_state.connected = true;
+        app.state.native_host_state.health_max = Some(100);
+        app.update_native_observation(Instant::now());
+        assert!(!app.state.is_polling);
+        assert_eq!(app.state.native_host_state.health_max, None);
         assert!(!app.state.native_host_state.connected);
+    }
 
-        let snap_json = serde_json::json!({
-            "connected": true,
-            "facts": {
-                "wizard.name": { "value": "Valerian Stormcloud" },
-                "wizard.school": { "value": "Storm" },
-                "wizard.level": { "value": 160 }
-            },
-            "unavailable": ["gold", "mana.current"]
-        });
-
-        let host_state = NativeHostState::from_snapshot_json(&snap_json);
-        app.state.ingest_native_snapshot(host_state);
-
-        assert!(app.state.native_host_state.connected);
-        assert_eq!(app.state.native_host_state.wizard_name.as_deref(), Some("Valerian Stormcloud"));
-        assert_eq!(app.state.native_host_state.wizard_school.as_deref(), Some("Storm"));
-        assert_eq!(app.state.native_host_state.wizard_level, Some(160));
-        assert_eq!(app.state.native_host_state.gold, None);
-        assert!(app.state.native_host_state.unavailable_facts.contains(&"gold".to_string()));
+    #[test]
+    fn observation_is_off_by_default_and_requires_explicit_root() {
+        let app = MaelstromIdeApp::new();
+        assert!(!app.state.is_polling);
+        assert!(app.state.native_data_root.is_empty());
     }
 }

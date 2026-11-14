@@ -7,15 +7,15 @@ pub mod player_controller;
 pub mod wad_reader;
 
 pub use maelstrom_bridge::{
-    compute_pipe_name, BridgeError, BridgeReply, BridgeRequest, MaelstromNativeBridge, NativeHostState,
-    MAXIMUM_BYTES,
+    compute_pipe_name, normalize_data_root, BridgeError, BridgeReply, BridgeRequest,
+    MaelstromNativeBridge, NativeHostState, MAXIMUM_BYTES,
 };
 
-use maelstrom_core::{CardPayload, Deck, FailPolicy, MacroCard, ExecutionMode};
+use maelstrom_core::{CardPayload, Deck, ExecutionMode, FailPolicy, MacroCard};
 use std::sync::{Arc, Mutex};
-use tokio::sync::mpsc;
 use std::time::Duration;
 use thiserror::Error;
+use tokio::sync::mpsc;
 
 #[derive(Debug, Error)]
 pub enum RunnerError {
@@ -35,7 +35,6 @@ pub enum RunnerCommand {
     Pause,
     Resume,
     TriggerOneShot,
-    // Additional variants can be added as needed.
 }
 
 #[derive(Debug, Default, Clone)]
@@ -44,7 +43,7 @@ pub struct RunnerState {
 }
 
 #[derive(Debug)]
-pub struct TelemetryEvent; // placeholder
+pub struct TelemetryEvent;
 
 /// Background watcher for Continuous Aura cards.
 async fn continuous_aura_watcher(interval_ms: u64, cmd_tx: mpsc::Sender<RunnerCommand>) {
@@ -65,58 +64,62 @@ impl McpCardDispatcher {
     /// Dispatches an MCP-style tool call matching the client-translator and macro function model.
     pub fn execute_tool(tool_name: &str, arguments_json: &str) -> Result<String, RunnerError> {
         match tool_name {
-            "read_client_idle" | "inspect_client_state" => {
-                // Reads from the client observation contracts
-                Ok(serde_json::json!({
-                    "status": "nativeIdle",
-                    "client": "WizardGraphicalClient.exe",
-                    "state_confirmed": true,
-                    "in_combat": false,
-                    "authority": "client-translator-v1"
-                }).to_string())
-            }
-            "query_combat_planning" => {
-                Ok(serde_json::json!({
-                    "in_combat": false,
-                    "planning_phase": false,
-                    "hand_cards": [],
-                    "pips": 0
-                }).to_string())
-            }
+            "read_client_idle" | "inspect_client_state" => Ok(serde_json::json!({
+                "status": "nativeIdle",
+                "client": "WizardGraphicalClient.exe",
+                "state_confirmed": true,
+                "in_combat": false,
+                "authority": "client-translator-v1"
+            })
+            .to_string()),
+            "query_combat_planning" => Ok(serde_json::json!({
+                "in_combat": false,
+                "planning_phase": false,
+                "hand_cards": [],
+                "pips": 0
+            })
+            .to_string()),
             "evaluate_damage" => {
-                // Evaluates damage parameters passed via JSON
                 let args: serde_json::Value = serde_json::from_str(arguments_json)
                     .map_err(|e| RunnerError::McpError(tool_name.into(), e.to_string()))?;
-                let base = args.get("base_damage").and_then(|v| v.as_f64()).unwrap_or(100.0);
+                let base = args
+                    .get("base_damage")
+                    .and_then(|v| v.as_f64())
+                    .unwrap_or(100.0);
                 let enchant = args.get("enchant").and_then(|v| v.as_f64()).unwrap_or(0.0);
                 let total = base + enchant;
                 Ok(serde_json::json!({
                     "calculated_damage": total,
                     "enchant": enchant
-                }).to_string())
+                })
+                .to_string())
             }
             "macro_press_key" => {
                 let args: serde_json::Value = serde_json::from_str(arguments_json)
                     .map_err(|e| RunnerError::McpError(tool_name.into(), e.to_string()))?;
                 let key = args.get("key").and_then(|v| v.as_str()).unwrap_or("space");
-                println!("[McpCardDispatcher] Programmable macro simulated key press: {}", key);
-                Ok(serde_json::json!({ "dispatched": true, "key": key, "simulated": true }).to_string())
+                println!(
+                    "[McpCardDispatcher] Programmable macro simulated key press: {}",
+                    key
+                );
+                Ok(
+                    serde_json::json!({ "dispatched": true, "key": key, "simulated": true })
+                        .to_string(),
+                )
             }
-            _ => {
-                // Generic programmable macro bridge
-                Ok(serde_json::json!({
-                    "tool": tool_name,
-                    "executed": true,
-                    "arguments": arguments_json,
-                    "simulated": true
-                }).to_string())
-            }
+            _ => Ok(serde_json::json!({
+                "tool": tool_name,
+                "executed": true,
+                "arguments": arguments_json,
+                "simulated": true
+            })
+            .to_string()),
         }
     }
 }
 
 pub struct DeckRunner {
-    state: Arc<Mutex<RunnerState>>, // shared state
+    state: Arc<Mutex<RunnerState>>,
     cmd_tx: mpsc::Sender<RunnerCommand>,
     telemetry_tx: mpsc::Sender<TelemetryEvent>,
 }
@@ -158,15 +161,31 @@ impl DeckRunner {
     pub fn execute_card(card: &MacroCard) -> Result<(), RunnerError> {
         match &card.payload {
             CardPayload::InputSequence(events) => {
-                println!("[DeckRunner] Executing {} inputs for card '{}'", events.len(), card.name);
+                println!(
+                    "[DeckRunner] Executing {} inputs for card '{}'",
+                    events.len(),
+                    card.name
+                );
                 Ok(())
             }
-            CardPayload::VisionWait { template_id, timeout_ms, .. } => {
-                println!("[DeckRunner] Waiting for template '{}' (timeout: {}ms)", template_id, timeout_ms);
+            CardPayload::VisionWait {
+                template_id,
+                timeout_ms,
+                ..
+            } => {
+                println!(
+                    "[DeckRunner] Waiting for template '{}' (timeout: {}ms)",
+                    template_id, timeout_ms
+                );
                 Ok(())
             }
-            CardPayload::RegionCheck { expected_pattern, .. } => {
-                println!("[DeckRunner] Checking region for pattern '{}'", expected_pattern);
+            CardPayload::RegionCheck {
+                expected_pattern, ..
+            } => {
+                println!(
+                    "[DeckRunner] Checking region for pattern '{}'",
+                    expected_pattern
+                );
                 Ok(())
             }
             CardPayload::SubDeck { deck_id } => {
@@ -174,12 +193,17 @@ impl DeckRunner {
                 Ok(())
             }
             CardPayload::LegacyExternal { timeout_ms, .. } => {
-                // Simulate timeout for tests.
                 Err(RunnerError::Timeout(*timeout_ms))
             }
-            CardPayload::McpFunction { tool_name, arguments_json } => {
+            CardPayload::McpFunction {
+                tool_name,
+                arguments_json,
+            } => {
                 let out = McpCardDispatcher::execute_tool(tool_name, arguments_json)?;
-                println!("[DeckRunner] MCP Card '{}' (tool: {}) output: {}", card.name, tool_name, out);
+                println!(
+                    "[DeckRunner] MCP Card '{}' (tool: {}) output: {}",
+                    card.name, tool_name, out
+                );
                 Ok(())
             }
         }
@@ -187,9 +211,15 @@ impl DeckRunner {
 
     /// Run a full deck synchronously.
     pub fn run_deck(deck: &Deck) -> Result<(), RunnerError> {
-        let subdeck_count = deck.cards.iter().filter(|c| matches!(c.payload, CardPayload::SubDeck { .. })).count();
+        let subdeck_count = deck
+            .cards
+            .iter()
+            .filter(|c| matches!(c.payload, CardPayload::SubDeck { .. }))
+            .count();
         if subdeck_count > MAX_SUBDECK_DEPTH {
-            return Err(RunnerError::ExecutionFailed("SubDeck recursion depth exceeded".into()));
+            return Err(RunnerError::ExecutionFailed(
+                "SubDeck recursion depth exceeded".into(),
+            ));
         }
         let mut idx: usize = 0;
         while idx < deck.cards.len() {
@@ -202,10 +232,16 @@ impl DeckRunner {
                         let new_idx = idx as i32 + offset;
                         if new_idx >= 0 && (new_idx as usize) < deck.cards.len() {
                             idx = new_idx as usize;
-                        } else { return Err(e); }
+                        } else {
+                            return Err(e);
+                        }
                     }
                     FailPolicy::JumpToSlot(slot) => {
-                        if *slot < deck.cards.len() { idx = *slot; } else { return Err(e); }
+                        if *slot < deck.cards.len() {
+                            idx = *slot;
+                        } else {
+                            return Err(e);
+                        }
                     }
                     FailPolicy::Retry { .. } | FailPolicy::AbortDeck => return Err(e),
                 },
@@ -216,14 +252,12 @@ impl DeckRunner {
 
     /// Async runner that also watches for ContinuousAura cards.
     pub async fn run(&self, deck: &Deck) -> Result<(), RunnerError> {
-        // Spawn watchers for any ContinuousAura cards.
         for card in &deck.cards {
             if let ExecutionMode::ContinuousAura { interval_ms } = card.mode {
                 let tx = self.cmd_tx.clone();
                 tokio::spawn(continuous_aura_watcher(interval_ms, tx));
             }
         }
-        // Run the deck synchronously.
         Self::run_deck(deck)?;
         Ok(())
     }
@@ -231,10 +265,12 @@ impl DeckRunner {
 
 #[cfg(test)]
 mod tests {
-    use maelstrom_core::{AutomationSchool, CardEnchantment, ExecutionMode, CardPayload, Deck, MacroCard};
-    use crate::{DeckRunner, RunnerCommand, RunnerError, McpCardDispatcher};
-    use uuid::Uuid;
+    use crate::{DeckRunner, McpCardDispatcher, RunnerCommand, RunnerError};
+    use maelstrom_core::{
+        AutomationSchool, CardEnchantment, CardPayload, Deck, ExecutionMode, MacroCard,
+    };
     use tokio::time::{timeout, Duration};
+    use uuid::Uuid;
 
     #[test]
     fn test_mcp_function_card_execution() {
@@ -300,8 +336,14 @@ mod tests {
         });
 
         let res = timeout(Duration::from_millis(500), runner.run(&deck)).await;
-        assert!(res.is_ok(), "Runner timed out or hung during one-shot preemption test");
-        assert!(res.unwrap().is_ok(), "Runner failed executing deck with preemption");
+        assert!(
+            res.is_ok(),
+            "Runner timed out or hung during one-shot preemption test"
+        );
+        assert!(
+            res.unwrap().is_ok(),
+            "Runner failed executing deck with preemption"
+        );
     }
 
     #[tokio::test]
@@ -352,7 +394,9 @@ mod tests {
                 pip_cost: 0,
                 description: "Nested subdeck call".into(),
                 mode: ExecutionMode::SequentialStep,
-                payload: CardPayload::SubDeck { deck_id: Uuid::new_v4() },
+                payload: CardPayload::SubDeck {
+                    deck_id: Uuid::new_v4(),
+                },
                 default_enchantment: CardEnchantment::default(),
             })
             .collect();
