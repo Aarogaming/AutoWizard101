@@ -153,8 +153,16 @@ pub use windows_job::ProcessInfo;
 #[cfg(windows)]
 mod windows_impl {
     use super::{PlatformError, WindowTracker, ScreenCapturer, InputActuator};
-    use windows::Win32::Foundation::{HWND, WPARAM, LPARAM};
-    use windows::Win32::UI::WindowsAndMessaging::{FindWindowW, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_KEYDOWN, WM_KEYUP, PostMessageW};
+    use windows::Win32::Foundation::{HWND, WPARAM, LPARAM, RECT};
+    use windows::Win32::UI::WindowsAndMessaging::{
+        FindWindowW, GetClientRect, GetForegroundWindow, PostMessageW,
+        WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEMOVE, WM_KEYDOWN, WM_KEYUP,
+    };
+    use windows::Win32::Graphics::Gdi::{
+        GetDC, ReleaseDC, CreateCompatibleDC, CreateCompatibleBitmap, SelectObject,
+        BitBlt, DeleteDC, DeleteObject, GetDIBits, BITMAPINFO, BITMAPINFOHEADER,
+        BI_RGB, DIB_RGB_COLORS, SRCCOPY,
+    };
     use windows::core::PCWSTR;
     use std::ffi::OsStr;
     use std::os::windows::ffi::OsStrExt;
@@ -174,16 +182,84 @@ mod windows_impl {
                 Ok(hwnd.0 as usize as u64)
             }
         }
-        fn get_client_bounds(&self, _hwnd: u64) -> Result<(i32, i32, u32, u32), PlatformError> {
-            Ok((0, 0, 800, 600))
+        fn get_client_bounds(&self, hwnd: u64) -> Result<(i32, i32, u32, u32), PlatformError> {
+            let hwnd = HWND(hwnd as isize as *mut std::ffi::c_void);
+            let mut rect = RECT::default();
+            unsafe {
+                GetClientRect(hwnd, &mut rect)
+                    .map_err(|e| PlatformError::Generic(format!("GetClientRect failed: {}", e)))?;
+            }
+            let width = (rect.right - rect.left).max(0) as u32;
+            let height = (rect.bottom - rect.top).max(0) as u32;
+            Ok((rect.left, rect.top, width, height))
         }
-        fn is_in_foreground(&self, _hwnd: u64) -> bool { false }
+        fn is_in_foreground(&self, hwnd: u64) -> bool {
+            let current = unsafe { GetForegroundWindow() };
+            current.0 as usize as u64 == hwnd
+        }
     }
 
     pub struct WinScreenCapturer;
     impl ScreenCapturer for WinScreenCapturer {
-        fn capture_client_area(&self, _hwnd: u64) -> Result<Vec<u8>, PlatformError> {
-            Err(PlatformError::CaptureFailed("Not implemented".into()))
+        fn capture_client_area(&self, hwnd: u64) -> Result<Vec<u8>, PlatformError> {
+            let hwnd_val = HWND(hwnd as isize as *mut std::ffi::c_void);
+            let mut rect = RECT::default();
+            unsafe {
+                GetClientRect(hwnd_val, &mut rect)
+                    .map_err(|e| PlatformError::CaptureFailed(format!("GetClientRect: {}", e)))?;
+            }
+            let width = (rect.right - rect.left).max(1);
+            let height = (rect.bottom - rect.top).max(1);
+
+            unsafe {
+                let hdc_window = GetDC(Some(hwnd_val));
+                if hdc_window.is_invalid() {
+                    return Err(PlatformError::CaptureFailed("GetDC returned null/invalid".into()));
+                }
+                let hdc_mem = CreateCompatibleDC(Some(hdc_window));
+                let h_bitmap = CreateCompatibleBitmap(hdc_window, width, height);
+                let old_obj = SelectObject(hdc_mem, h_bitmap.into());
+
+                let blt_res = BitBlt(hdc_mem, 0, 0, width, height, Some(hdc_window), 0, 0, SRCCOPY);
+                if blt_res.is_err() {
+                    let _ = SelectObject(hdc_mem, old_obj);
+                    let _ = DeleteObject(h_bitmap.into());
+                    let _ = DeleteDC(hdc_mem);
+                    let _ = ReleaseDC(Some(hwnd_val), hdc_window);
+                    return Err(PlatformError::CaptureFailed("BitBlt failed".into()));
+                }
+
+                let mut bmi = BITMAPINFO {
+                    bmiHeader: BITMAPINFOHEADER {
+                        biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
+                        biWidth: width,
+                        biHeight: -height, // top-down
+                        biPlanes: 1,
+                        biBitCount: 32,
+                        biCompression: BI_RGB.0,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                };
+
+                let mut buffer: Vec<u8> = vec![0u8; (width * height * 4) as usize];
+                GetDIBits(
+                    hdc_mem,
+                    h_bitmap,
+                    0,
+                    height as u32,
+                    Some(buffer.as_mut_ptr() as *mut _),
+                    &mut bmi,
+                    DIB_RGB_COLORS,
+                );
+
+                let _ = SelectObject(hdc_mem, old_obj);
+                let _ = DeleteObject(h_bitmap.into());
+                let _ = DeleteDC(hdc_mem);
+                let _ = ReleaseDC(Some(hwnd_val), hdc_window);
+
+                Ok(buffer)
+            }
         }
     }
 
@@ -194,16 +270,54 @@ mod windows_impl {
             match event {
                 InputEvent::MouseClick { x, y, button } => {
                     let lparam = (*y << 16) | (*x & 0xFFFF);
-                    unsafe { let _ = PostMessageW(Some(hwnd), WM_LBUTTONDOWN, WPARAM(*button as usize), LPARAM(lparam as isize)); };
-                    unsafe { let _ = PostMessageW(Some(hwnd), WM_LBUTTONUP, WPARAM(*button as usize), LPARAM(lparam as isize)); };
+                    unsafe {
+                        let _ = PostMessageW(Some(hwnd), WM_LBUTTONDOWN, WPARAM(*button as usize), LPARAM(lparam as isize));
+                        let _ = PostMessageW(Some(hwnd), WM_LBUTTONUP, WPARAM(*button as usize), LPARAM(lparam as isize));
+                    };
+                    Ok(())
+                }
+                InputEvent::MouseMove { x, y } => {
+                    let lparam = (*y << 16) | (*x & 0xFFFF);
+                    unsafe {
+                        let _ = PostMessageW(Some(hwnd), WM_MOUSEMOVE, WPARAM(0), LPARAM(lparam as isize));
+                    };
+                    Ok(())
+                }
+                InputEvent::MouseDown { button } => {
+                    unsafe {
+                        let _ = PostMessageW(Some(hwnd), WM_LBUTTONDOWN, WPARAM(*button as usize), LPARAM(0));
+                    };
+                    Ok(())
+                }
+                InputEvent::MouseUp { button } => {
+                    unsafe {
+                        let _ = PostMessageW(Some(hwnd), WM_LBUTTONUP, WPARAM(*button as usize), LPARAM(0));
+                    };
                     Ok(())
                 }
                 InputEvent::KeyPress { key_code } => {
-                    unsafe { let _ = PostMessageW(Some(hwnd), WM_KEYDOWN, WPARAM(*key_code as usize), LPARAM(0)); };
-                    unsafe { let _ = PostMessageW(Some(hwnd), WM_KEYUP, WPARAM(*key_code as usize), LPARAM(0)); };
+                    unsafe {
+                        let _ = PostMessageW(Some(hwnd), WM_KEYDOWN, WPARAM(*key_code as usize), LPARAM(0));
+                        let _ = PostMessageW(Some(hwnd), WM_KEYUP, WPARAM(*key_code as usize), LPARAM(0));
+                    };
                     Ok(())
                 }
-                _ => Err(PlatformError::ActuationFailed("Unsupported event type".into())),
+                InputEvent::KeyDown { key_code } => {
+                    unsafe {
+                        let _ = PostMessageW(Some(hwnd), WM_KEYDOWN, WPARAM(*key_code as usize), LPARAM(0));
+                    };
+                    Ok(())
+                }
+                InputEvent::KeyUp { key_code } => {
+                    unsafe {
+                        let _ = PostMessageW(Some(hwnd), WM_KEYUP, WPARAM(*key_code as usize), LPARAM(0));
+                    };
+                    Ok(())
+                }
+                InputEvent::Sleep { duration_ms } => {
+                    std::thread::sleep(std::time::Duration::from_millis(*duration_ms));
+                    Ok(())
+                }
             }
         }
         fn release_all_keys(&self) -> Result<(), PlatformError> { Ok(()) }

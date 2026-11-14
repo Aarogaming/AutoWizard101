@@ -5,6 +5,7 @@ use egui_tiles::{Behavior, Tree, TileId, UiResponse};
 use eframe::{self, App};
 use maelstrom_core::{AutomationSchool, CardEnchantment, CardPayload, Deck, ExecutionMode, MacroCard};
 use uuid::Uuid;
+use std::path::Path;
 
 /// Configuration for the IDE workspace.
 #[derive(Debug, Clone)]
@@ -179,6 +180,28 @@ impl Default for IdeState {
     }
 }
 
+impl IdeState {
+    /// Save current active deck to a TOML file.
+    pub fn save_deck_to_toml<P: AsRef<Path>>(&self, path: P) -> Result<(), String> {
+        let serialized = toml::to_string_pretty(&self.active_deck)
+            .map_err(|e| format!("Failed to serialize deck to TOML: {}", e))?;
+        std::fs::write(path, serialized)
+            .map_err(|e| format!("Failed to write deck file: {}", e))?;
+        Ok(())
+    }
+
+    /// Load active deck from a TOML file.
+    pub fn load_deck_from_toml<P: AsRef<Path>>(&mut self, path: P) -> Result<(), String> {
+        let content = std::fs::read_to_string(path)
+            .map_err(|e| format!("Failed to read deck file: {}", e))?;
+        let deck: Deck = toml::from_str(&content)
+            .map_err(|e| format!("Failed to deserialize deck from TOML: {}", e))?;
+        self.active_deck = deck;
+        self.client_state_log.push(format!("[Spellbook] Loaded deck: {}", self.active_deck.name));
+        Ok(())
+    }
+}
+
 /// Behavior implementation rendering the 5 Spellbook IDE panes.
 pub struct IdeBehavior<'a> {
     pub state: &'a mut IdeState,
@@ -205,7 +228,18 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
             }
             IdePane::DuelCircle => {
                 ui.heading(format!("Duel Circle: {}", self.state.active_deck.name));
-                ui.label(format!("Loop Count: {:?}", self.state.active_deck.loop_count));
+                ui.horizontal(|ui| {
+                    ui.label(format!("Loop Count: {:?}", self.state.active_deck.loop_count));
+                    ui.separator();
+                    if ui.button("Save Deck (.toml)").clicked() {
+                        let path = "HalfangFarmingDeck.toml";
+                        if let Err(e) = self.state.save_deck_to_toml(path) {
+                            self.state.client_state_log.push(format!("[Error] Save failed: {}", e));
+                        } else {
+                            self.state.client_state_log.push(format!("[Spellbook] Saved active deck to {}", path));
+                        }
+                    }
+                });
                 ui.separator();
                 ui.label("Active Deck Queue (MCP & Macro Cards):");
                 let mut card_to_select = None;
@@ -398,5 +432,23 @@ mod tests {
         assert_eq!(app.config.theme, "spiral_spellbook");
         assert_eq!(app.state.active_deck.name, "Halfang Farming Deck");
         assert_eq!(app.state.active_deck.cards.len(), 5);
+    }
+
+    #[test]
+    fn test_deck_toml_save_and_load_roundtrip() {
+        let mut app = MaelstromIdeApp::new();
+        let temp_dir = std::env::temp_dir();
+        let file_path = temp_dir.join("test_deck_roundtrip.toml");
+
+        app.state.active_deck.name = "Roundtrip Test Deck".to_string();
+        app.state.save_deck_to_toml(&file_path).expect("Failed to save toml deck");
+
+        let mut app2 = MaelstromIdeApp::new();
+        app2.state.load_deck_from_toml(&file_path).expect("Failed to load toml deck");
+
+        assert_eq!(app2.state.active_deck.name, "Roundtrip Test Deck");
+        assert_eq!(app2.state.active_deck.cards.len(), app.state.active_deck.cards.len());
+
+        let _ = std::fs::remove_file(file_path);
     }
 }
