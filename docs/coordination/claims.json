@@ -2556,6 +2556,18 @@
         "docs/coordination/results/TEACHER-BASELINE-65.md"
       ],
       "notes": "Unknown/Loading baseline excluded from teacher action linking;14 focused tests pass;source-only."
+    },
+    {
+      "task_id": "TEACHER-TAKEOVER-66",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeacherActionReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
+        "docs/coordination/results/TEACHER-TAKEOVER-66.md"
+      ],
+      "notes": "Two takeover attribution regressions reproduced then fixed;16 focused tests pass;source-only."
     }
   ]
 }

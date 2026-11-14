@@ -1454,6 +1454,12 @@
           "path": "docs/coordination/results/TEACHER-BASELINE-65.md",
           "path_status": "existing",
           "scope": "Teacher linking rejects ambiguous/loading baseline;14 focused replay tests pass;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHER-TAKEOVER-66.md",
+          "path_status": "existing",
+          "scope": "Teacher attribution stops across takeover/cancellation;16 focused tests;source-only."
         }
       ],
       "depends_on": [

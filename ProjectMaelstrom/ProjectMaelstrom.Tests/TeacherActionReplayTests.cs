@@ -37,6 +37,21 @@ public sealed class TeacherActionReplayTests
         using var doc = Evidence(initialScene: scene);
         Assert.Throws<InvalidDataException>(() => TeacherActionReplay.Link(doc.RootElement));
     }
+    [Theory]
+    [InlineData("UserActive")]
+    [InlineData("Cancelled")]
+    public void InterveningTakeoverCannotBeSkippedToTeachLaterOutcome(string flag)
+    {
+        using var doc = Evidence();
+        var report = System.Text.Json.Nodes.JsonNode.Parse(doc.RootElement.GetRawText())!;
+        var events = report["events"]!.AsArray();
+        var interrupted = events[2]!.DeepClone();
+        interrupted["observed"]![flag] = true;
+        interrupted["observed"]!["TimeMs"] = 175;
+        events.Insert(2, interrupted);
+        using var changed = JsonDocument.Parse(report.ToJsonString());
+        Assert.Throws<InvalidDataException>(() => TeacherActionReplay.Link(changed.RootElement));
+    }
     [Fact]
     public void RecordedReceiptAndChangedStateProduceReplayWithSourceMapping()
     {

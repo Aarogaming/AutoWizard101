@@ -236,3 +236,6 @@ Root completed RUST-PATH-64; tab-only host roots now rejected before pipe resolu
 
 ## LIA-0027 — teacher baseline guard
 Root completed TEACHER-BASELINE-65 offline: Unknown/Loading before-states cannot teach changed-action outcomes.14 focused replay tests passed. Source-only, no installation/live activity; Gemini remains ACK-only. Task64 ACK received. Evidence: ../results/TEACHER-BASELINE-65.md.
+
+## LIA-0028 — teacher attribution boundary
+Root completed TEACHER-TAKEOVER-66; two regressions reproduced and repaired,16 focused tests passed. Source-only, no live/install activity. Task65 ACK read; Gemini remains ACK-only. Evidence ../results/TEACHER-TAKEOVER-66.md.
