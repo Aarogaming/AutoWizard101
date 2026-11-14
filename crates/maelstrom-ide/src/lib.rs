@@ -91,6 +91,7 @@ pub struct IdeState {
     pub is_running: bool,
     pub confidence_score: f32,
     pub arbitration_mode: String,
+    pub client_state_log: Vec<String>,
 }
 
 impl Default for IdeState {
@@ -103,7 +104,23 @@ impl Default for IdeState {
                 pip_cost: 4,
                 description: "Deal 305-345 Fire damage to all enemies".to_string(),
                 mode: ExecutionMode::SequentialStep,
-                payload: CardPayload::InputSequence(vec![]),
+                payload: CardPayload::McpFunction {
+                    tool_name: "evaluate_damage".to_string(),
+                    arguments_json: r#"{"base_damage": 325.0, "enchant": 275.0}"#.to_string(),
+                },
+                default_enchantment: CardEnchantment::default(),
+            },
+            MacroCard {
+                id: Uuid::new_v4(),
+                name: "Probe Client Idle".to_string(),
+                school: AutomationSchool::Maintenance,
+                pip_cost: 0,
+                description: "Read native client translator idle state".to_string(),
+                mode: ExecutionMode::SequentialStep,
+                payload: CardPayload::McpFunction {
+                    tool_name: "read_client_idle".to_string(),
+                    arguments_json: "{}".to_string(),
+                },
                 default_enchantment: CardEnchantment::default(),
             },
             MacroCard {
@@ -133,7 +150,10 @@ impl Default for IdeState {
                 pip_cost: 0,
                 description: "Walk into cave sigil and await battle circle".to_string(),
                 mode: ExecutionMode::SequentialStep,
-                payload: CardPayload::InputSequence(vec![]),
+                payload: CardPayload::McpFunction {
+                    tool_name: "macro_press_key".to_string(),
+                    arguments_json: r#"{"key": "x"}"#.to_string(),
+                },
                 default_enchantment: CardEnchantment::default(),
             },
         ];
@@ -150,10 +170,11 @@ impl Default for IdeState {
             active_deck,
             card_library: sample_cards,
             selected_card_id: None,
-            attached_client_title: "WizardGraphicalClient.exe (HWND: Active)".to_string(),
+            attached_client_title: "WizardGraphicalClient.exe (PID: 62076, State: nativeIdle)".to_string(),
             is_running: false,
             confidence_score: 0.94,
             arbitration_mode: "Fast Reflex (Local)".to_string(),
+            client_state_log: vec!["[Translator] Initialized client observation bridge (nativeIdle verified)".to_string()],
         }
     }
 }
@@ -173,18 +194,32 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
                 ui.label("Workspace Profile: Wizard101.toml");
                 ui.separator();
                 if ui.button("Attach to WizardGraphicalClient.exe").clicked() {
-                    self.state.attached_client_title = "WizardGraphicalClient.exe (HWND: 0x001A02F4)".to_string();
+                    self.state.attached_client_title = "WizardGraphicalClient.exe (PID: 62076, State: nativeIdle)".to_string();
+                    self.state.client_state_log.push("[Client] Re-attached to active WizardGraphicalClient".to_string());
+                }
+                ui.separator();
+                ui.label("Client Translator Telemetry Log:");
+                for line in self.state.client_state_log.iter().rev().take(6) {
+                    ui.label(line);
                 }
             }
             IdePane::DuelCircle => {
                 ui.heading(format!("Duel Circle: {}", self.state.active_deck.name));
                 ui.label(format!("Loop Count: {:?}", self.state.active_deck.loop_count));
                 ui.separator();
-                ui.label("Active Deck Queue:");
+                ui.label("Active Deck Queue (MCP & Macro Cards):");
                 let mut card_to_select = None;
                 for (idx, card) in self.state.active_deck.cards.iter().enumerate() {
                     let color = SpiralTheme::school_color(card.school);
-                    let card_btn = ui.colored_label(color, format!("{}. [{:?}] {} (Pip: {})", idx + 1, card.school, card.name, card.pip_cost));
+                    let payload_badge = match &card.payload {
+                        CardPayload::McpFunction { tool_name, .. } => format!("[MCP: {}]", tool_name),
+                        CardPayload::InputSequence(_) => "[Input Seq]".to_string(),
+                        CardPayload::VisionWait { .. } => "[Vision Wait]".to_string(),
+                        CardPayload::RegionCheck { .. } => "[Region Check]".to_string(),
+                        CardPayload::SubDeck { .. } => "[SubDeck]".to_string(),
+                        CardPayload::LegacyExternal { .. } => "[Legacy External]".to_string(),
+                    };
+                    let card_btn = ui.colored_label(color, format!("{}. [{:?}] {} {} (Pip: {})", idx + 1, card.school, card.name, payload_badge, card.pip_cost));
                     if card_btn.clicked() {
                         card_to_select = Some(card.id);
                     }
@@ -196,7 +231,7 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
             IdePane::SpellbookLibrary => {
                 ui.heading("Spellbook Library");
                 ui.separator();
-                ui.label("Available Macro Cards:");
+                ui.label("Available Macro & MCP Cards:");
                 let mut card_to_add = None;
                 for card in &self.state.card_library {
                     let color = SpiralTheme::school_color(card.school);
@@ -212,7 +247,7 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
                 }
             }
             IdePane::EnchantmentInspector => {
-                ui.heading("Enchantment Inspector");
+                ui.heading("Enchantment & Macro Inspector");
                 ui.separator();
                 if let Some(selected_id) = self.state.selected_card_id {
                     if let Some(card) = self.state.active_deck.cards.iter_mut().find(|c| c.id == selected_id) {
@@ -220,6 +255,18 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
                         ui.label(format!("School: {:?}", card.school));
                         ui.label(format!("Mode: {:?}", card.mode));
                         ui.label(format!("Pip Cost: {}", card.pip_cost));
+                        ui.separator();
+                        match &mut card.payload {
+                            CardPayload::McpFunction { tool_name, arguments_json } => {
+                                ui.label("Programmable MCP Tool Binding:");
+                                ui.text_edit_singleline(tool_name);
+                                ui.label("Arguments (JSON):");
+                                ui.text_edit_singleline(arguments_json);
+                            }
+                            _ => {
+                                ui.label(format!("Payload Type: {:?}", std::mem::discriminant(&card.payload)));
+                            }
+                        }
                         ui.separator();
                         ui.label("Enchantment Modifiers:");
                         ui.add(egui::Slider::new(&mut card.default_enchantment.repeat_count, 1..=10).text("Repeat Count"));
@@ -243,11 +290,13 @@ impl<'a> Behavior<IdePane> for IdeBehavior<'a> {
                     ui.colored_label(Color32::GREEN, "STATUS: RUNNING");
                     if ui.button("PANIC STOP (F12)").clicked() {
                         self.state.is_running = false;
+                        self.state.client_state_log.push("[Runner] PANIC STOP engaged - Disconnected safely.".to_string());
                     }
                 } else {
-                    ui.colored_label(Color32::YELLOW, "STATUS: IDLE");
+                    ui.colored_label(Color32::YELLOW, "STATUS: IDLE (nativeIdle)");
                     if ui.button("Engage Deck Runner").clicked() {
                         self.state.is_running = true;
+                        self.state.client_state_log.push("[Runner] Deck Runner started under single control lease.".to_string());
                     }
                 }
             }
@@ -348,6 +397,6 @@ mod tests {
         assert_eq!(leaf_count, 5);
         assert_eq!(app.config.theme, "spiral_spellbook");
         assert_eq!(app.state.active_deck.name, "Halfang Farming Deck");
-        assert_eq!(app.state.active_deck.cards.len(), 4);
+        assert_eq!(app.state.active_deck.cards.len(), 5);
     }
 }

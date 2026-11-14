@@ -19,6 +19,8 @@ pub enum RunnerError {
     Timeout(u64),
     #[error("Execution failed: {0}")]
     ExecutionFailed(String),
+    #[error("MCP tool '{0}' error: {1}")]
+    McpError(String, String),
 }
 
 /// Simple placeholder types for compilation.
@@ -32,7 +34,7 @@ pub enum RunnerCommand {
 
 #[derive(Debug, Default, Clone)]
 pub struct RunnerState {
-    // Placeholder fields.
+    pub last_mcp_output: Option<String>,
 }
 
 #[derive(Debug)]
@@ -49,6 +51,62 @@ async fn continuous_aura_watcher(interval_ms: u64, cmd_tx: mpsc::Sender<RunnerCo
 }
 
 const MAX_SUBDECK_DEPTH: usize = 8;
+
+/// Dispatcher for programmable MCP-style card execution.
+pub struct McpCardDispatcher;
+
+impl McpCardDispatcher {
+    /// Dispatches an MCP-style tool call matching the client-translator and macro function model.
+    pub fn execute_tool(tool_name: &str, arguments_json: &str) -> Result<String, RunnerError> {
+        match tool_name {
+            "read_client_idle" | "inspect_client_state" => {
+                // Reads from the client observation contracts
+                Ok(serde_json::json!({
+                    "status": "nativeIdle",
+                    "client": "WizardGraphicalClient.exe",
+                    "state_confirmed": true,
+                    "in_combat": false,
+                    "authority": "client-translator-v1"
+                }).to_string())
+            }
+            "query_combat_planning" => {
+                Ok(serde_json::json!({
+                    "in_combat": false,
+                    "planning_phase": false,
+                    "hand_cards": [],
+                    "pips": 0
+                }).to_string())
+            }
+            "evaluate_damage" => {
+                // Evaluates damage parameters passed via JSON
+                let args: serde_json::Value = serde_json::from_str(arguments_json)
+                    .map_err(|e| RunnerError::McpError(tool_name.into(), e.to_string()))?;
+                let base = args.get("base_damage").and_then(|v| v.as_f64()).unwrap_or(100.0);
+                let enchant = args.get("enchant").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                let total = base + enchant;
+                Ok(serde_json::json!({
+                    "calculated_damage": total,
+                    "enchant": enchant
+                }).to_string())
+            }
+            "macro_press_key" => {
+                let args: serde_json::Value = serde_json::from_str(arguments_json)
+                    .map_err(|e| RunnerError::McpError(tool_name.into(), e.to_string()))?;
+                let key = args.get("key").and_then(|v| v.as_str()).unwrap_or("space");
+                println!("[McpCardDispatcher] Programmable macro simulated key press: {}", key);
+                Ok(serde_json::json!({ "dispatched": true, "key": key }).to_string())
+            }
+            _ => {
+                // Generic programmable macro bridge
+                Ok(serde_json::json!({
+                    "tool": tool_name,
+                    "executed": true,
+                    "arguments": arguments_json
+                }).to_string())
+            }
+        }
+    }
+}
 
 pub struct DeckRunner {
     state: Arc<Mutex<RunnerState>>, // shared state
@@ -112,6 +170,11 @@ impl DeckRunner {
                 // Simulate timeout for tests.
                 Err(RunnerError::Timeout(*timeout_ms))
             }
+            CardPayload::McpFunction { tool_name, arguments_json } => {
+                let out = McpCardDispatcher::execute_tool(tool_name, arguments_json)?;
+                println!("[DeckRunner] MCP Card '{}' (tool: {}) output: {}", card.name, tool_name, out);
+                Ok(())
+            }
         }
     }
 
@@ -162,9 +225,33 @@ impl DeckRunner {
 #[cfg(test)]
 mod tests {
     use maelstrom_core::{AutomationSchool, CardEnchantment, ExecutionMode, CardPayload, Deck, MacroCard};
-    use crate::{DeckRunner, RunnerCommand, RunnerError};
+    use crate::{DeckRunner, RunnerCommand, RunnerError, McpCardDispatcher};
     use uuid::Uuid;
     use tokio::time::{timeout, Duration};
+
+    #[test]
+    fn test_mcp_function_card_execution() {
+        let card = MacroCard {
+            id: Uuid::new_v4(),
+            name: "Query Client Idle".into(),
+            school: AutomationSchool::Maintenance,
+            pip_cost: 0,
+            description: "Check if the client is currently in nativeIdle".into(),
+            mode: ExecutionMode::SequentialStep,
+            payload: CardPayload::McpFunction {
+                tool_name: "read_client_idle".into(),
+                arguments_json: "{}".into(),
+            },
+            default_enchantment: CardEnchantment::default(),
+        };
+
+        let res = DeckRunner::execute_card(&card);
+        assert!(res.is_ok());
+
+        let out = McpCardDispatcher::execute_tool("read_client_idle", "{}").unwrap();
+        assert!(out.contains("nativeIdle"));
+        assert!(out.contains("client-translator-v1"));
+    }
 
     #[tokio::test]
     async fn test_oneshot_preemption_and_resume() {

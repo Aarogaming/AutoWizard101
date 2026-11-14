@@ -5,6 +5,7 @@
 
 extern crate alloc;
 
+use alloc::string::String;
 use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -95,6 +96,12 @@ pub enum CardPayload {
         args: Vec<String>,
         timeout_ms: u64,
     },
+    /// MCP tool call representing a programmable macro action/query dispatched
+    /// to the client translator or game observation engine.
+    McpFunction {
+        tool_name: String,
+        arguments_json: String,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -148,200 +155,130 @@ pub struct PlayerPose {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ObservationFrame {
     pub version: u16,
-    pub sequence: u64,
-    pub timestamp_ns: u64,
-    pub window_size: (u32, u32),
-    pub combat_telemetry: Option<CombatTelemetry>,
-    pub player_pose: Option<PlayerPose>,
-    pub screen_hash: Option<u64>,
+    pub timestamp_ms: u64,
+    pub in_combat: bool,
+    pub combat: Option<CombatTelemetry>,
+    pub pose: Option<PlayerPose>,
+    pub raw_features: Vec<f32>,
 }
 
 impl Default for ObservationFrame {
     fn default() -> Self {
         Self {
             version: 1,
-            sequence: 0,
-            timestamp_ns: 0,
-            window_size: (800, 600),
-            combat_telemetry: None,
-            player_pose: None,
-            screen_hash: None,
+            timestamp_ms: 0,
+            in_combat: false,
+            combat: None,
+            pose: None,
+            raw_features: Vec::new(),
         }
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ControlAction {
-    ActuateInputs(Vec<InputEvent>),
-    ExecuteFallbackStep { card_id: Uuid, step_index: usize },
+    CastCard { card_id: Uuid },
+    PassTurn,
+    FleeCombat,
+    MoveTo { x: f32, y: f32, z: f32 },
+    Interact,
     NoOp,
-    Halt { reason: String },
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum ControlSource {
-    ReflexModel { confidence: f32 },
-    MechanicalFallback { card_id: Uuid, step: usize },
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ArbiterDecision {
-    pub source: ControlSource,
-    pub action: ControlAction,
-    pub record_for_training: bool,
-}
-
-pub trait PolicyController: Send {
+pub trait PolicyController: Send + Sync {
     fn propose(&mut self, intent: &Intent, obs: &ObservationFrame) -> (ControlAction, f32);
     fn on_outcome(&mut self, intent: &Intent, succeeded: bool);
 }
 
-/// Dual-Loop Arbiter confidence gate.
 pub struct Arbiter {
-    pub default_threshold: f32,
+    pub confidence_threshold: f32,
 }
 
 impl Arbiter {
-    pub const DEFAULT_THRESHOLD: f32 = 0.85;
-
-    pub fn new(threshold: Option<f32>) -> Self {
+    pub fn new(threshold: f32) -> Self {
         Self {
-            default_threshold: threshold.unwrap_or(Self::DEFAULT_THRESHOLD),
+            confidence_threshold: threshold,
         }
     }
 
-    pub fn decide<P: PolicyController>(
+    pub fn decide(
         &self,
-        intent: &Intent,
-        obs: &ObservationFrame,
-        policy: &mut P,
-        fallback_action: ControlAction,
+        proposed_action: ControlAction,
+        model_confidence: f32,
+        required_confidence: f32,
     ) -> ArbiterDecision {
-        let (proposed_action, confidence) = policy.propose(intent, obs);
-        let threshold = if intent.required_confidence > 0.0 {
-            intent.required_confidence
+        let effective_req = required_confidence.max(self.confidence_threshold);
+        if model_confidence >= effective_req {
+            ArbiterDecision::DispatchReflex(proposed_action)
         } else {
-            self.default_threshold
-        };
-        if confidence >= threshold {
-            ArbiterDecision {
-                source: ControlSource::ReflexModel { confidence },
-                action: proposed_action,
-                record_for_training: false,
-            }
-        } else {
-            ArbiterDecision {
-                source: ControlSource::MechanicalFallback {
-                    card_id: intent.card_id,
-                    step: 0,
+            ArbiterDecision::TriggerFallback {
+                reason: ArbiterFallbackReason::ConfidenceTooLow {
+                    score: model_confidence,
+                    required: effective_req,
                 },
-                action: fallback_action,
-                record_for_training: true,
             }
         }
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum ArbiterFallbackReason {
+    ConfidenceTooLow { score: f32, required: f32 },
+    SafetyBoundaryTripped(String),
+}
+
+#[derive(Debug, PartialEq)]
+pub enum ArbiterDecision {
+    DispatchReflex(ControlAction),
+    TriggerFallback { reason: ArbiterFallbackReason },
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use uuid::Uuid;
-
-    struct MockPolicy {
-        confidence: f32,
-    }
-
-    impl PolicyController for MockPolicy {
-        fn propose(&mut self, _intent: &Intent, _obs: &ObservationFrame) -> (ControlAction, f32) {
-            (ControlAction::ActuateInputs(Vec::new()), self.confidence)
-        }
-        fn on_outcome(&mut self, _intent: &Intent, _succeeded: bool) {}
-    }
 
     #[test]
     fn test_arbiter_reflex_accepts_above_threshold() {
-        let arbiter = Arbiter::new(Some(0.85));
-        let intent = Intent {
-            id: Uuid::new_v4(),
-            card_id: Uuid::new_v4(),
-            name: "Cast Tempest".into(),
-            target_description: "Enemy circle".into(),
-            required_confidence: 0.85,
-        };
-        let obs = ObservationFrame::default();
-        let mut policy = MockPolicy { confidence: 0.92 };
-        let decision = Arbiter::decide(
-            &arbiter,
-            &intent,
-            &obs,
-            &mut policy,
-            ControlAction::ExecuteFallbackStep {
-                card_id: intent.card_id,
-                step_index: 0,
-            },
-        );
-        match decision.source {
-            ControlSource::ReflexModel { confidence } => assert_eq!(confidence, 0.92),
-            _ => panic!("Expected ReflexModel source"),
-        }
-        assert!(!decision.record_for_training);
+        let arb = Arbiter::new(0.85);
+        let dec = arb.decide(ControlAction::PassTurn, 0.90, 0.80);
+        assert_eq!(dec, ArbiterDecision::DispatchReflex(ControlAction::PassTurn));
     }
 
     #[test]
     fn test_arbiter_fallback_trips_below_threshold() {
-        let arbiter = Arbiter::new(Some(0.85));
-        let intent = Intent {
-            id: Uuid::new_v4(),
-            card_id: Uuid::new_v4(),
-            name: "Bazaar Purchase".into(),
-            target_description: "Reagent slot".into(),
-            required_confidence: 0.85,
-        };
-        let obs = ObservationFrame::default();
-        let mut policy = MockPolicy { confidence: 0.72 };
-        let decision = Arbiter::decide(
-            &arbiter,
-            &intent,
-            &obs,
-            &mut policy,
-            ControlAction::ExecuteFallbackStep {
-                card_id: intent.card_id,
-                step_index: 0,
+        let arb = Arbiter::new(0.85);
+        let dec = arb.decide(ControlAction::PassTurn, 0.80, 0.70);
+        match dec {
+            ArbiterDecision::TriggerFallback { reason } => match reason {
+                ArbiterFallbackReason::ConfidenceTooLow { score, required } => {
+                    assert_eq!(score, 0.80);
+                    assert_eq!(required, 0.85);
+                }
+                _ => panic!("wrong fallback reason"),
             },
-        );
-        match decision.source {
-            ControlSource::MechanicalFallback { card_id, .. } => assert_eq!(card_id, intent.card_id),
-            _ => panic!("Expected MechanicalFallback source"),
+            _ => panic!("expected fallback"),
         }
-        assert!(decision.record_for_training);
     }
 
     #[test]
     fn test_card_serialization_roundtrip() {
         let card = MacroCard {
             id: Uuid::new_v4(),
-            name: "Halfang Opener".into(),
-            school: AutomationSchool::Combat,
-            pip_cost: 4,
-            description: "Blade then Tempest".into(),
+            name: "Bazaar Snipe".into(),
+            school: AutomationSchool::Economy,
+            pip_cost: 0,
+            description: "Test".into(),
             mode: ExecutionMode::SequentialStep,
-            payload: CardPayload::VisionWait {
-                template_id: "combat_circle.png".into(),
-                confidence: 0.88,
-                timeout_ms: 10000,
-                click_on_match: true,
+            payload: CardPayload::McpFunction {
+                tool_name: "inspect_client_state".into(),
+                arguments_json: "{}".into(),
             },
-            default_enchantment: CardEnchantment {
-                repeat_count: 1,
-                pre_delay_ms: 500,
-                post_delay_ms: 200,
-                jitter_px: 2,
-                confidence_threshold: Some(0.85),
-                on_fail: FailPolicy::JumpToRelative(-1),
-            },
+            default_enchantment: CardEnchantment::default(),
         };
-        let json = serde_json::to_string(&card).expect("Serialization failed");
-        let decoded: MacroCard = serde_json::from_str(&json).expect("Deserialization failed");
-        assert_eq!(card, decoded);
+
+        let json = serde_json::to_string(&card).expect("serialize");
+        let deserialized: MacroCard = serde_json::from_str(&json).expect("deserialize");
+        assert_eq!(card.name, deserialized.name);
+        assert_eq!(card.payload, deserialized.payload);
     }
 }

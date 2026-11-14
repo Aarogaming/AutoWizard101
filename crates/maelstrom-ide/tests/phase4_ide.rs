@@ -46,22 +46,25 @@ fn test_phase4_ide_app_structure() {
 #[test]
 fn test_phase4_card_deck_and_inspector_manipulation() {
     let mut app = MaelstromIdeApp::new();
-    assert_eq!(app.state.active_deck.cards.len(), 4);
+    assert_eq!(app.state.active_deck.cards.len(), 5);
 
-    // Add a new card to the deck
+    // Add a new programmable MCP card to the deck
     let new_card = MacroCard {
         id: Uuid::new_v4(),
-        name: "Colossal Enchant".to_string(),
+        name: "Colossal Damage Calc".to_string(),
         school: AutomationSchool::Combat,
         pip_cost: 0,
-        description: "+275 damage to single spell".to_string(),
+        description: "+275 damage to single spell via MCP arithmetic".to_string(),
         mode: ExecutionMode::SequentialStep,
-        payload: CardPayload::InputSequence(vec![]),
+        payload: CardPayload::McpFunction {
+            tool_name: "evaluate_damage".to_string(),
+            arguments_json: r#"{"base_damage": 300.0, "enchant": 275.0}"#.to_string(),
+        },
         default_enchantment: CardEnchantment::default(),
     };
     let new_id = new_card.id;
     app.state.active_deck.cards.push(new_card);
-    assert_eq!(app.state.active_deck.cards.len(), 5);
+    assert_eq!(app.state.active_deck.cards.len(), 6);
 
     // Select the newly added card for enchantment inspection
     app.state.selected_card_id = Some(new_id);
