@@ -1430,6 +1430,12 @@
           "path": "docs/coordination/results/RUST-BUSY-TELEMETRY-61.md",
           "scope": "Source-host passive W101 telemetry through Rust;bounded busy recovery;2627native/76Rust;hook cleanup,expiry,disconnect verified;no inputs/focus/install.",
           "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/RUST-LIVE-RELEASE-62.md",
+          "path_status": "existing",
+          "scope": "Installed busy-recovery/passive telemetry repair; real Rust projection expiry/cleanup/disconnect verified; preservation lifecycle passed; no gameplay."
         }
       ],
       "depends_on": [

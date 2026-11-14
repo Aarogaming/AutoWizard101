@@ -2510,6 +2510,16 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckObservationTests.cs"
       ],
       "notes": "Source-only busy recovery/live passive Rust telemetry verified;2627native/76Rust+Clippy passed; cleanup/expiry/disconnect verified; no input/focus/install."
+    },
+    {
+      "task_id": "RUST-LIVE-RELEASE-62",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/RUST-LIVE-RELEASE-62.md"
+      ],
+      "notes": "Installed a534bf82cce04f6dba3448b77cf4df79; lifecycle preservation pass; installed4commands/live stats expiry/disconnect/cleanup pass; no inputs/focus. Hourly offline continuation created."
     }
   ]
 }

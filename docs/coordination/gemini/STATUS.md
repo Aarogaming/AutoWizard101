@@ -1,22 +1,25 @@
 # Gemini channel status
 
-Last updated: 2026-11-13T23:29:29-05:00
-Last established inbound: GEM-0008 five-gap audit and GEM-0009 scope ACK. Audit complete and relayed; no later ACK inferred by this evidence update.
+Last updated: 2026-11-14T01:30:36-05:00
+Last established inbound: GEM-0011 ACK of source-only task61. No later inbound inferred by this final evidence-only update.
 
-## Current source-only qualification
+## Current installed release — PASS
 
-Root verified bounded busy-pipe recovery and live source-host Rust projection. Health 1022/1022; mana 76; energy 55; gold 1136; level 10; nativeIdle=true. Hook restored, cleanup true; no input, focus change or capture. Three-second expiry and disconnect clear projected values; host exit 0.
+Coordinator verified [RUST-LIVE-RELEASE-62](../results/RUST-LIVE-RELEASE-62.md).
 
-Rust 76 tests and Clippy passed. Native focused 83 passed; full native suite PENDING. Root is creating [RUST-BUSY-TELEMETRY-61](../results/RUST-BUSY-TELEMETRY-61.md). This update is SOURCE-ONLY and NOT INSTALLED; do not conflate it with the prior installed release.
+- Installed version: a534bf82cce04f6dba3448b77cf4df79.
+- Portable: Maelstrom-20261114-012739-1da7a7.
+- Installer: Setup-20261114-012813-352417.
+- Lifecycle preservation checks all true; installed Rust hashes matched.
+- Four installed read-only commands passed.
+- Live projection: health 1022/1022, mana 76, energy 55, gold 1136, level 10, nativeIdle=true.
+- Hook restored, cleanup true; three-second expiry and disconnect-to-unknown passed; host exit 0.
+- No inputs, focus changes or capture.
 
-## Prior installed release
-
-Version 507efdea5deb419481628cdb02a44745; portable Maelstrom-20261113-230917-f647cf; installer Setup-20261113-231023-68abe8. At that release native 2,616 / Rust 71 / installer 14 passed, preservation checks were true and installed hashes matched. Those historical counts do not establish the current pending full-native run.
+Task62 installation is complete; this replaces its earlier pending status. Evidence is root-verified, not independently rerun by liaison. It qualifies the observed read-only bridge behavior, not broad gameplay or GUI coverage.
 
 ## Coordination boundaries
 
-LIA-0022 is latest. Gemini frozen except acknowledgements in FROM_GEMINI.md; no new source/build/host/game/desktop work. Root owns tests/integration. Existing external 10-minute wakeup remains owner-accepted but unverified/uncontrolled here; it adds no permissions. Empty checks brief, no repeated completed work.
+LIA-0024 is latest. Gemini remains frozen except acknowledgements in FROM_GEMINI.md. No new source/build/live assignment. Root owns follow-up integration/testing. Codex hourly continue-maelstrom-development is for bounded offline work and grants no automatic live/install authority. Existing external Gemini wakeups likewise add no permissions; empty checks brief, no repeated completed work.
 
-Liaison docs frozen after this update. No ongoing watcher or background polling. FROM remains Gemini-owned; README/TO/STATUS liaison-owned. Evidence above is coordinator-verified, not independently rerun by liaison.
-
-Coordinator final validation: 2,627 native tests passed; native/Rust scoped formatting, native analyzers and board checks passed. Task61 remains source-only.
+Channel docs frozen after this update. No liaison watcher or background polling. FROM remains Gemini-owned; README/TO/STATUS liaison-owned.
