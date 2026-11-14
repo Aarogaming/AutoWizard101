@@ -52,6 +52,24 @@ public sealed class TeacherActionReplayTests
         using var changed = JsonDocument.Parse(report.ToJsonString());
         Assert.Throws<InvalidDataException>(() => TeacherActionReplay.Link(changed.RootElement));
     }
+    [Theory]
+    [InlineData("InputOwned")]
+    [InlineData("TargetReady")]
+    [InlineData("ContextVerified")]
+    [InlineData("Binding")]
+    public void InterruptedContextCannotBeSkippedToTeachLaterOutcome(string field)
+    {
+        using var doc = Evidence();
+        var report = System.Text.Json.Nodes.JsonNode.Parse(doc.RootElement.GetRawText())!;
+        var events = report["events"]!.AsArray();
+        var interrupted = events[2]!.DeepClone();
+        if (field == "Binding") interrupted["observed"]!["Binding"]!["TargetId"] = "other-target";
+        else interrupted["observed"]![field] = false;
+        interrupted["observed"]!["TimeMs"] = 175;
+        events.Insert(2, interrupted);
+        using var changed = JsonDocument.Parse(report.ToJsonString());
+        Assert.Throws<InvalidDataException>(() => TeacherActionReplay.Link(changed.RootElement));
+    }
     [Fact]
     public void RecordedReceiptAndChangedStateProduceReplayWithSourceMapping()
     {

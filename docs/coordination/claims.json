@@ -2568,6 +2568,18 @@
         "docs/coordination/results/TEACHER-TAKEOVER-66.md"
       ],
       "notes": "Two takeover attribution regressions reproduced then fixed;16 focused tests pass;source-only."
+    },
+    {
+      "task_id": "TEACHER-CONTEXT-67",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeacherActionReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
+        "docs/coordination/results/TEACHER-CONTEXT-67.md"
+      ],
+      "notes": "Four context interruption regressions reproduced/repaired;20 focused replay tests pass;source-only."
     }
   ]
 }

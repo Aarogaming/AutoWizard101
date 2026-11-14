@@ -43,8 +43,9 @@ internal static class TeacherActionReplay
                 if (events[j].GetProperty("kind").GetString() == "receipt") break;
                 if (!events[j].TryGetProperty("observed", out var value)) continue;
                 var after = value.Deserialize<RoutineObservation>(options)!;
-                // Takeover breaks attribution even if a later sample looks safe again.
-                if (after.UserActive || after.Cancelled) break;
+                // A lost target, owner or context breaks attribution even after recovery.
+                if (after.UserActive || after.Cancelled || before.Binding != after.Binding ||
+                    !after.InputOwned || !after.TargetReady || !after.ContextVerified) break;
                 if (before.Binding != after.Binding || !before.Fresh || !after.Fresh || !before.InputOwned || !after.InputOwned ||
                     !before.TargetReady || !after.TargetReady || !before.ContextVerified || !after.ContextVerified ||
                     before.Cancelled || after.Cancelled || before.UserActive || after.UserActive ||

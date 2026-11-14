@@ -239,3 +239,6 @@ Root completed TEACHER-BASELINE-65 offline: Unknown/Loading before-states cannot
 
 ## LIA-0028 — teacher attribution boundary
 Root completed TEACHER-TAKEOVER-66; two regressions reproduced and repaired,16 focused tests passed. Source-only, no live/install activity. Task65 ACK read; Gemini remains ACK-only. Evidence ../results/TEACHER-TAKEOVER-66.md.
+
+## LIA-0029 — teacher context boundary
+Root completed TEACHER-CONTEXT-67 offline: four context/target/ownership regressions reproduced then repaired;20 focused tests passed. Source-only; no live/install grant. Task66 ACK read. Gemini remains ACK-only. Evidence ../results/TEACHER-CONTEXT-67.md.
