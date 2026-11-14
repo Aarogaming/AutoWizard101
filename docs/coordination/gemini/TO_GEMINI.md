@@ -248,3 +248,6 @@ Root completed TEACHER-RECOVERY-68: six later-action acceptance cases,26 focused
 
 ## LIA-0031 — input attribution scoring
 Root completed INPUT-FOCUS-69: cross-focus false matches and injected exclusions corrected;3 comparison tests/Black/compileall pass. Source-only; no live/install grant. Task68 ACK read; Gemini remains ACK-only. Evidence ../results/INPUT-FOCUS-69.md.
+
+## LIA-0032 — bounded input-log scoring
+Root completed INPUT-BUDGET-70:32MiB bounded JSON reads/BOM/root checks;4tests/Black/compileall pass. Source-only;no live/install grant. Task69 ACK read. Gemini remains ACK-only. Next priority indexed injected-event lookup for long recordings. Evidence ../results/INPUT-BUDGET-70.md.

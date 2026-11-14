@@ -3,13 +3,30 @@ import json
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from compare_game_inputs import compare
+from compare_game_inputs import compare, _read_log
 
 
 class CompareGameInputsTests(unittest.TestCase):
+    def test_bounded_log_read_preserves_bom_and_rejects_large_or_nonobject(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "log.json"
+            path.write_bytes(b'\xef\xbb\xbf{"ok":true}')
+            self.assertEqual(_read_log(path), {"ok": True})
+            with patch("compare_game_inputs.MAX_LOG_BYTES", 8):
+                with self.assertRaisesRegex(ValueError, "budget"):
+                    _read_log(path)
+            for raw in (b"[]", b"null", b"1", b'"text"'):
+                path.write_bytes(raw)
+                with self.assertRaisesRegex(ValueError, "JSON object"):
+                    _read_log(path)
+            path.write_bytes(b"{}")
+            with patch("compare_game_inputs.MAX_LOG_BYTES", 2):
+                self.assertEqual(_read_log(path), {})
+
     def test_focus_coverage_and_one_to_one_matching(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

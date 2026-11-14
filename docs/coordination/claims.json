@@ -2603,6 +2603,18 @@
         "docs/coordination/results/INPUT-FOCUS-69.md"
       ],
       "notes": "Cross-focus false match reproduced/fixed;3comparison tests,Black,compileall pass;source-only."
+    },
+    {
+      "task_id": "INPUT-BUDGET-70",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/compare_game_inputs.py",
+        "tools/tests/test_compare_game_inputs.py",
+        "docs/coordination/results/INPUT-BUDGET-70.md"
+      ],
+      "notes": "Bounded32MiB JSON ingestion;4comparison tests/Black/compileall pass;source-only."
     }
   ]
 }

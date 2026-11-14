@@ -1478,6 +1478,12 @@
           "path": "docs/coordination/results/INPUT-FOCUS-69.md",
           "path_status": "existing",
           "scope": "Input accuracy matching and injected exclusions isolated by focus interval;3tests,Black,compileall;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/INPUT-BUDGET-70.md",
+          "path_status": "existing",
+          "scope": "Bounded input/prediction JSON ingestion;4tests/Black/compileall;source-only."
         }
       ],
       "depends_on": [

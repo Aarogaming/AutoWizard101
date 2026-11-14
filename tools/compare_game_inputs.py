@@ -14,6 +14,20 @@ import math
 from collections import defaultdict
 from pathlib import Path
 
+MAX_LOG_BYTES = 32 * 1024 * 1024
+
+
+def _read_log(path):
+    """Bound allocation even if a log grows during reading; reject non-object roots."""
+    with path.open("rb") as source:
+        raw = source.read(MAX_LOG_BYTES + 1)
+    if len(raw) > MAX_LOG_BYTES:
+        raise ValueError("Input/prediction log exceeds 32 MiB budget")
+    value = json.loads(raw.decode("utf-8-sig"))
+    if not isinstance(value, dict):
+        raise ValueError("Input/prediction log must be a JSON object")
+    return value
+
 
 def _number(value, name):
     if (
@@ -35,8 +49,8 @@ def _hash_file(path):
 
 def compare(input_path, predictions_path, tolerance_ms=150, include_injected=False):
     input_path, predictions_path = Path(input_path), Path(predictions_path)
-    truth = json.loads(input_path.read_text(encoding="utf-8-sig"))
-    guesses = json.loads(predictions_path.read_text(encoding="utf-8-sig"))
+    truth = _read_log(input_path)
+    guesses = _read_log(predictions_path)
     tolerance_ms = _number(tolerance_ms, "tolerance")
     if not 0 <= tolerance_ms <= 1000:
         raise ValueError("Tolerance must be between 0 and 1000 ms")
