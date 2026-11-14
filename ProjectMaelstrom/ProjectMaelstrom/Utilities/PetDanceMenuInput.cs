@@ -28,7 +28,7 @@ internal sealed class PetDanceMenuInput(nuint tag)
         bool Continuing() => Owned() && (continuing ?? ready)();
         if (!plan.IsProposal || !Ready() || DesktopActivityMonitor.AnyKeyHeld()) return new(false, true, "input-not-ready");
         if (plan.Action is not (PetDanceLifecycleAction.Next or PetDanceLifecycleAction.FinishWithoutSnack or
-            PetDanceLifecycleAction.OpenMenu or PetDanceLifecycleAction.SelectIdle or PetDanceLifecycleAction.QuitToCharacterSelection or PetDanceLifecycleAction.SelectWizardCandidate or PetDanceLifecycleAction.EnterSelectedWizard)) return new(false, true, "action-not-allowed");
+            PetDanceLifecycleAction.OpenMenu or PetDanceLifecycleAction.SelectIdle or PetDanceLifecycleAction.QuitToCharacterSelection or PetDanceLifecycleAction.SelectWizardCandidate or PetDanceLifecycleAction.EnterSelectedWizard or PetDanceLifecycleAction.ExitWorldGate or PetDanceLifecycleAction.TravelWorldGate or PetDanceLifecycleAction.SelectWorldGate)) return new(false, true, "action-not-allowed");
         token.ThrowIfCancellationRequested();
         var keyboard = plan.Action == PetDanceLifecycleAction.OpenMenu;
         Action? move = null;

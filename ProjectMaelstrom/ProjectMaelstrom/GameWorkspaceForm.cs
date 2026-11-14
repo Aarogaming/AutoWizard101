@@ -94,6 +94,17 @@ internal sealed class GameWorkspaceForm : Form
         var teaching = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill };
         teaching.Controls.Add(_record);
         teaching.Controls.Add(_video);
+        var sessionWorkshop = new Button { Text = "Long session / timeline…", AutoSize = true };
+        teaching.Controls.Add(sessionWorkshop);
+        sessionWorkshop.Click += async (_, _) =>
+        {
+            if (_videoTask != null || _recording is { Complete: false } || _importTask != null || _dodgeRunTask != null)
+            { _recordStatus.Text = "Finish the current recording or experiment before opening the session timeline."; return; }
+            var target = _observer?.Target ?? _windows.SelectedItem as GameWindow;
+            await StopAsync("Observe paused for the session timeline. Reconnect when finished.");
+            using var timeline = new SessionTimelineForm(_dataRoot, target);
+            timeline.ShowDialog(this);
+        };
         teaching.Controls.Add(_recordGameInput);
         teaching.Controls.Add(_recordGameAudio);
         teaching.Controls.Add(_pausePreviewForVideo);

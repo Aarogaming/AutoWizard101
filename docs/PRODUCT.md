@@ -14,6 +14,11 @@ existing C# shell and Python components are the recovery foundation.
   variable; demonstration playback is not an autonomous policy.
 - Make ordinary use approachable through window selection, clear modes, a visible
   overlay and reliable pause/stop/manual takeover.
+- Complete routines in the Wizard101 workspace default to a verified return to
+  native Idle, including recoverable failures. Preserve cancellation, user
+  takeover and cleanup lockouts; never force input to satisfy this default.
+  Observation-only work leaves player state unchanged, nested primitives defer
+  to their parent, and character selection explicitly has no native Idle.
 - Include authoring: record, label, define, test, save, version and exchange packs.
   Build our own initial packs through the same tools users will use.
 - Use rules and existing specialists first. Evaluate optional SLMs and specialist

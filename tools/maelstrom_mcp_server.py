@@ -329,6 +329,15 @@ class MaelstromMcpServer:
                 },
             },
             {
+                "name": "maelstrom_get_alias_register",
+                "description": "Read typed aliases, canonical values, source, timestamps and quality from the same native snapshot used by cards. Never starts observation or gameplay.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": False,
+                },
+            },
+            {
                 "name": "maelstrom_get_session_telemetry",
                 "description": "Read the active native owner's observed facts, source and timestamp. Unobserved vitals are unknown.",
                 "inputSchema": {"type": "object", "properties": {}},
@@ -381,6 +390,7 @@ class MaelstromMcpServer:
                                 "pause",
                                 "stop",
                                 "reset",
+                                "scan-profile",
                             ],
                         },
                         "arguments": {"type": "object"},
@@ -517,6 +527,7 @@ class MaelstromMcpServer:
                 }
             return call_deck("capabilities", {})
         elif name in {
+            "maelstrom_get_alias_register",
             "maelstrom_get_session_telemetry",
             "maelstrom_inspect_routine_deck",
             "maelstrom_deal_job_card",
@@ -525,7 +536,10 @@ class MaelstromMcpServer:
         }:
             from maelstrom_deck_client import call_deck
 
+            if name == "maelstrom_get_alias_register" and args:
+                return {"ok": False, "error": "Alias discovery takes no arguments."}
             commands = {
+                "maelstrom_get_alias_register": "snapshot",
                 "maelstrom_get_session_telemetry": "snapshot",
                 "maelstrom_inspect_routine_deck": "state",
                 "maelstrom_deal_job_card": "deal",
@@ -540,6 +554,7 @@ class MaelstromMcpServer:
                 "pause",
                 "stop",
                 "reset",
+                "scan-profile",
             }:
                 return {"ok": False, "error": "Unsupported deck command."}
             arguments = (

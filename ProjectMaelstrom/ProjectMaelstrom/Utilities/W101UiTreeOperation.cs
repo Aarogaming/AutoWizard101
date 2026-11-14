@@ -9,7 +9,7 @@ internal sealed class W101UiObservationUnavailableException(string message) : In
 internal sealed record W101UiTreeRequest(int SchemaVersion, string RunId, string Operation, bool Enabled,
     bool NetworkAllowed, WizwalkerTarget Target, string SourceRoot, string SourceSha256, int TimeoutSeconds,
     int DurationSeconds, bool UiTreeEnabled, bool IncludeQuestContext = false, bool IncludeCombatContext = false,
-    bool StopAfterTwoTrees = false, bool IncludePoseContext = false);
+    bool StopAfterTwoTrees = false, bool IncludePoseContext = false, bool IncludeResourceContext = false);
 internal sealed record W101PosePoint(double X, double Y, double Z);
 internal sealed record W101PoseCandidate(string LayoutId, string Status, bool LiveQualified, bool MovementAuthorized,
     W101PosePoint? Position, double? YawRadians, long ObservedUtcTicks, int ReadCalls, int ReadBytes);
@@ -25,7 +25,8 @@ internal sealed record W101UiTreeResult(int SchemaVersion, string RunId, string 
     long ObservedUtcTicks, long StatesObservedUtcTicks, int DurationMs, bool CleanupConfirmed, bool HookRestored,
     int LoadingSamples, int TreeSamples, int TreeFailures, Dictionary<string, bool?> StableStates,
     W101QuestContext? QuestContext = null, W101QuestContext? StableQuestContext = null, W101CombatUiContext? CombatContext = null,
-    string? InteractionTitle = null, string? StableInteractionTitle = null, W101PoseCandidate? PoseCandidate = null);
+    string? InteractionTitle = null, string? StableInteractionTitle = null, W101PoseCandidate? PoseCandidate = null, W101ResourceReading? Resources = null, JsonElement? ResourceCandidate = null,
+    W101WizardSubject? WizardSubject = null, W101WizardReference? WizardReference = null);
 internal sealed record W101UiTreeRuntime(Func<WizwalkerTarget, bool> IsCurrent,
     Func<WizwalkerLaunch, W101UiTreeRequest, OperationContext, CancellationToken, Task<W101UiTreeResult>> Execute);
 
@@ -40,7 +41,7 @@ internal static class W101UiTreeOperation
     internal const string Id = "w101.ui-tree-observe";
     internal const string Version = "w101-ui-tree-v1";
     internal const int MaximumResultBytes = 262144;
-    internal const string WorkerSha256 = "d23dd3cb2c16a1c7d0191fe9e3a939edd87c081e816911fc4893bd55b6a528c1";
+    internal const string WorkerSha256 = "50e548e9eb47a8f6c822324221a2193b831b9b92e9919071ba67b95786c09d87";
     internal const string PoseReaderSha256 = "a6c9957f9aa209f6a14f1c24df0ca81e6035e7d400037416427f1ccc45baab77";
     private static readonly string[] StateNames = ["interactionPrompt", "dialogue", "menu", "nativeIdle"];
     private static readonly W101UiTreeRuntime Runtime = new(target => target.IsCurrent(), (launch, request, context, token) =>
@@ -48,7 +49,7 @@ internal static class W101UiTreeOperation
 
     internal static OperationTicket Submit(OperationScheduler scheduler, WizwalkerSession session, WizwalkerLaunch launch,
         bool uiTreeEnabled, int durationSeconds = 15, W101UiTreeRuntime? runtime = null, bool includeQuestContext = false,
-        bool includeCombatContext = false, bool includePoseContext = false)
+        bool includeCombatContext = false, bool includePoseContext = false, bool includeResourceContext = false)
     {
         if (!uiTreeEnabled) throw new InvalidOperationException("Enable the optional UI-tree reader for this check first.");
         if (durationSeconds is < 1 or > 60) throw new ArgumentOutOfRangeException(nameof(durationSeconds));
@@ -82,18 +83,18 @@ internal static class W101UiTreeOperation
             pins[Path.GetFullPath(duel)] = GameExperiments.Digest(duel);
         }
         request = request with { TimeoutSeconds = durationSeconds + 30, Pins = pins };
-        return scheduler.Submit(request, (context, token) => RunAsync(context, session.Target, launch, durationSeconds, includeQuestContext, runtime ?? Runtime, token, includeCombatContext, includePoseContext: includePoseContext));
+        return scheduler.Submit(request, (context, token) => RunAsync(context, session.Target, launch, durationSeconds, includeQuestContext, runtime ?? Runtime, token, includeCombatContext, includePoseContext: includePoseContext, includeResourceContext: includeResourceContext));
     }
 
     internal static async Task<OperationOutcome> RunAsync(OperationContext context, WizwalkerTarget target, WizwalkerLaunch launch,
         int durationSeconds, bool includeQuestContext, W101UiTreeRuntime runtime, CancellationToken token, bool includeCombatContext = false,
-        bool stopAfterTwoTrees = false, bool includePoseContext = false)
+        bool stopAfterTwoTrees = false, bool includePoseContext = false, bool includeResourceContext = false)
     {
         token.ThrowIfCancellationRequested();
         if (context.Input is not { CanDispatch: true } || !ReferenceEquals(context.Input, GameInputLease.Current) || !runtime.IsCurrent(target))
             throw new InvalidOperationException("The selected client or control ownership changed.");
         var request = new W101UiTreeRequest(1, context.Request.Id, Version, true, false, target,
-            launch.SourceRoot, WizwalkerOperation.SourceSha256, 8, durationSeconds, true, includeQuestContext, includeCombatContext, stopAfterTwoTrees, includePoseContext);
+            launch.SourceRoot, WizwalkerOperation.SourceSha256, 8, durationSeconds, true, includeQuestContext, includeCombatContext, stopAfterTwoTrees, includePoseContext, includeResourceContext);
         var requestPath = Path.Combine(context.Directory, "ui-request.json");
         GameExperiments.WriteAtomic(requestPath, request);
         W101UiTreeResult result;
@@ -132,7 +133,8 @@ internal static class W101UiTreeOperation
             result.States.Values.Any(value => value is not null) && (result.StatesObservedUtcTicks <= 0 || now - result.StatesObservedUtcTicks > TimeSpan.FromSeconds(5).Ticks) ||
             result.StableStates.Any(pair => pair.Value is not null && result.States[pair.Key] != pair.Value) ||
             !ValidQuestContext(result, includeQuestContext, now) || !ValidCombatContext(result, includeCombatContext, now) ||
-            !ValidInteractionTitle(result, now) || !ValidPose(result.PoseCandidate, includePoseContext, now))
+            !ValidInteractionTitle(result, now, 5000) || !ValidPose(result.PoseCandidate, includePoseContext, now) ||
+            !ValidResources(result, includeResourceContext, now))
             return new(OperationState.Failed, "UI state evidence is stale, inconsistent or unavailable; no action is authorized.", artifacts);
         if (includeCombatContext)
         {
@@ -140,8 +142,35 @@ internal static class W101UiTreeOperation
             GameExperiments.WriteAtomic(readiness, W101CombatRuntime.Assess(result, now));
             artifacts = [.. artifacts, readiness];
         }
+        if (result.Resources is not null)
+        {
+            var values = new Dictionary<string, System.Text.Json.JsonElement>();
+            W101ResourceFacts.Add(values, result.Resources, result.StatesObservedUtcTicks);
+            var subject = W101WizardFacts.AddObserved(values, result, DateTime.UtcNow.Ticks);
+            var facts = new JobFacts("wizard101", W101QuestStep.TargetBinding(target),
+                new DateTime(result.StatesObservedUtcTicks, DateTimeKind.Utc), values, "reviewed-w101-ui-tree", subject);
+            var path = Path.Combine(context.Directory, "resource-facts.json");
+            GameExperiments.WriteAtomic(path, new { schemaVersion = 1, facts, aliases = JobAliasRegister.Snapshot(facts, DateTime.UtcNow) });
+            artifacts = [.. artifacts, path];
+        }
         return new(OperationState.Completed,
             $"Observed {result.TreeSamples} UI trees and {result.LoadingSamples} loading samples; root hook restored and disconnected. Candidate states only; no game inputs sent.", artifacts);
+    }
+
+    internal static bool ValidResources(W101UiTreeResult result, bool included, long now)
+    {
+        if (result.Resources is not { } reading) return true;
+        return included && result.Status == "observed" && result.CleanupConfirmed && result.HookRestored && result.Loading == false &&
+            result.StatesObservedUtcTicks > 0 && reading.Status == "observed" && reading.ObservedUtcTicks >= result.StatesObservedUtcTicks &&
+            reading.ObservedUtcTicks <= now && reading.ObservedUtcTicks - result.StatesObservedUtcTicks <= TimeSpan.FromSeconds(2).Ticks &&
+            reading.Values is { Count: <= 4 } && reading.CurrentValues is { Count: >= 2 and <= 4 } values &&
+            values.ContainsKey("health") && values.ContainsKey("mana") && values.All(p =>
+                p.Key is "health" or "mana" or "energy" or "potions" && double.IsFinite(p.Value) && p.Value >= 0 &&
+                (p.Key == "potions" ? p.Value <= 100 && reading.Values.ContainsKey("potions") : p.Value <= 100000 && p.Value == Math.Truncate(p.Value))) &&
+            reading.Values.All(p => reading.Source == "hud-controls-and-correlated-stats" &&
+                p.Key is "health" or "mana" or "energy" or "potions" && p.Value is { } pair &&
+                values.TryGetValue(p.Key, out var current) && current == pair.Current && double.IsFinite(pair.Maximum) &&
+                pair.Maximum > 0 && (p.Key == "potions" ? pair.Maximum <= 100 : pair.Maximum <= 100000 && pair.Maximum == Math.Truncate(pair.Maximum)) && pair.Current <= pair.Maximum);
     }
 
     internal static bool ValidPose(W101PoseCandidate? pose, bool included, long now)
@@ -161,8 +190,21 @@ internal static class W101UiTreeOperation
     internal static Task<W101UiTreeResult> ReadOwnedAsync(OperationContext parent, WizwalkerTarget target,
         WizwalkerLaunch launch, int index, CancellationToken token) => ReadOwnedAsync(parent, target, launch, index, token, false);
 
+    /// <summary>One bounded streaming observer for a trusted owned navigation stage.
+    /// Caller must await cleanup before another UI reader starts.</summary>
+    internal static Task<OperationOutcome> WatchOwnedAsync(OperationContext parent, WizwalkerTarget target,
+        WizwalkerLaunch launch, CancellationToken token)
+    {
+        if (!parent.Request.WritesGame || parent.Request.DelegatedInput)
+            throw new InvalidOperationException("Streaming observation requires owned control.");
+        foreach (var path in new[] { launch.Worker, Path.Combine(Path.GetDirectoryName(launch.Worker)!, "wizwalker_adapter.py"), target.ImagePath })
+            if (!parent.Request.Pins.TryGetValue(Path.GetFullPath(path), out var digest) || GameExperiments.Digest(path) != digest)
+                throw new InvalidDataException("Navigation observer pins changed.");
+        return RunAsync(parent, target, launch, 40, false, Runtime, token);
+    }
+
     internal static async Task<W101UiTreeResult> ReadOwnedAsync(OperationContext parent, WizwalkerTarget target,
-        WizwalkerLaunch launch, int index, CancellationToken token, bool includePoseContext)
+        WizwalkerLaunch launch, int index, CancellationToken token, bool includePoseContext, bool includeResourceContext = false)
     {
         if (index is < 0 or > 31) throw new InvalidDataException("Quest observation budget exceeded.");
         if (!parent.Request.WritesGame || parent.Request.DelegatedInput)
@@ -182,7 +224,7 @@ internal static class W101UiTreeOperation
         if (Directory.Exists(directory)) throw new IOException("Observation folder already exists.");
         Directory.CreateDirectory(directory);
         var outcome = await RunAsync(parent with { Directory = directory }, target, launch, 2, true, Runtime, token,
-            stopAfterTwoTrees: true, includePoseContext: includePoseContext).ConfigureAwait(false);
+            stopAfterTwoTrees: true, includePoseContext: includePoseContext, includeResourceContext: includeResourceContext).ConfigureAwait(false);
         if (outcome.State != OperationState.Completed)
         {
             var resultPath = Path.Combine(directory, "ui-result.json");
@@ -202,7 +244,7 @@ internal static class W101UiTreeOperation
 
     /// <summary>Bounded source-backed prompt evidence, not permission to press X.
     /// An absent title remains unknown; a stable title must agree with this reading.</summary>
-    internal static bool ValidInteractionTitle(W101UiTreeResult result, long now)
+    internal static bool ValidInteractionTitle(W101UiTreeResult result, long now, int maximumAgeMs = 2000)
     {
         if (result.InteractionTitle is null) return result.StableInteractionTitle is null;
         return W101QuestStep.ValidText(result.InteractionTitle, 160, optional: false) &&
@@ -210,7 +252,7 @@ internal static class W101UiTreeOperation
                 result.TreeSamples >= 2 && result.StableStates.GetValueOrDefault("interactionPrompt") == true) &&
             result.States.GetValueOrDefault("interactionPrompt") == true && result.Loading == false &&
             result.StatesObservedUtcTicks > 0 && result.StatesObservedUtcTicks <= result.ObservedUtcTicks &&
-            result.ObservedUtcTicks <= now && now - result.StatesObservedUtcTicks <= TimeSpan.FromSeconds(2).Ticks;
+            result.ObservedUtcTicks <= now && now - result.StatesObservedUtcTicks <= TimeSpan.FromMilliseconds(maximumAgeMs).Ticks;
     }
 
     internal static bool ValidQuestContext(W101UiTreeResult result, bool included, long now)

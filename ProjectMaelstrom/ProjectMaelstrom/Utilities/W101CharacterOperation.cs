@@ -6,12 +6,84 @@ internal static class W101CharacterOperation
 {
     internal static readonly ModuleAction CharacterInfo = new("game.character-info", "keyboard-pulse", "C", 40, "w101.character-info");
     internal static readonly ModuleAction GoHome = new("game.go-home", "keyboard-pulse", "HOME", 40, "w101.go-home");
+    internal static long CaptureUtcTicks(double capturedMs, double nowMs, long utcTicks)
+    {
+        if (!double.IsFinite(capturedMs) || !double.IsFinite(nowMs) || capturedMs < 0 ||
+            capturedMs > nowMs || nowMs - capturedMs > 3000 || utcTicks <= 0)
+            throw new InvalidDataException("Character image timestamp is invalid or stale.");
+        var stamp = utcTicks - (long)((nowMs - capturedMs) * TimeSpan.TicksPerMillisecond);
+        return stamp > 0 ? stamp : throw new InvalidDataException("Character image timestamp predates the clock.");
+    }
+    private static readonly IReadOnlyDictionary<string, string> SchoolTitles = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Fire"] = "Pyromancer", ["Ice"] = "Thaumaturge", ["Storm"] = "Diviner",
+        ["Life"] = "Theurgist", ["Myth"] = "Conjurer", ["Death"] = "Necromancer", ["Balance"] = "Sorcerer"
+    };
+
+    // Level is mutable metadata. Identity requires one name and one unambiguous school.
+    private static bool SchoolMatches(string text, string school)
+    {
+        if (!SchoolTitles.ContainsKey(school)) return false;
+        var found = SchoolTitles.SelectMany(pair => new[] { pair.Key, pair.Value }
+            .SelectMany(label => System.Text.RegularExpressions.Regex.Matches(text,
+                @"\b" + System.Text.RegularExpressions.Regex.Escape(label) + @"\b",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase).Select(_ => pair.Key))).ToArray();
+        return found.Length == 1 && found[0].Equals(school, StringComparison.OrdinalIgnoreCase);
+    }
+
     internal static bool StatsMatch(PetDanceMenuText text, WizardProfile profile)
     {
-        var header = text.Words.Where(w => w.Bounds.Top < text.ImageSize.Height * .3f).Select(w => w.Text.ToUpperInvariant()).ToArray();
-        var joined = string.Join(" ", header);
-        return profile.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).All(part => header.Contains(part.ToUpperInvariant())) &&
-            System.Text.RegularExpressions.Regex.IsMatch(joined, @"\bLEVEL\s+" + profile.LastKnownLevel + @"\b");
+        var header = string.Join(" ", text.Words.Where(w => w.Bounds.Top < text.ImageSize.Height * .3f).Select(w => w.Text));
+        var name = string.Join(@"\s+", profile.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Select(System.Text.RegularExpressions.Regex.Escape));
+        if (name.Length == 0) return false;
+        var names = System.Text.RegularExpressions.Regex.Matches(header, @"\b" + name + @"\b",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        var levels = System.Text.RegularExpressions.Regex.Matches(header, @"\bLEVEL\s+[1-9][0-9]{0,2}\b",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return names.Count == 1 && levels.Count == 1 && SchoolMatches(header, profile.School);
+    }
+
+    internal static bool CanFinalizeFailure(bool world, bool cancelled, bool ready, bool writesGame,
+        bool delegated, bool canDispatch, bool sameOwner, bool recoveryRequired, bool inputReleased) =>
+        world && !cancelled && ready && writesGame && !delegated && canDispatch && sameOwner &&
+        !recoveryRequired && inputReleased;
+
+    private static async Task<OperationOutcome> FinalizeFailureAsync(OperationOutcome original,
+        OperationContext context, WizwalkerTarget target, WizwalkerLaunch launch, W101ControlScope scope,
+        Size geometry, bool world, bool inputReleased, CancellationToken token)
+    {
+        var eligible = CanFinalizeFailure(world, token.IsCancellationRequested, scope.Ready(),
+            context.Request.WritesGame, context.Request.DelegatedInput, context.Input?.CanDispatch == true,
+            ReferenceEquals(context.Input, GameInputLease.Current), context.Input?.RecoveryRequired != false, inputReleased);
+        OperationOutcome? idleResult = null;
+        if (eligible)
+        {
+            var directory = Path.Combine(context.Directory, "idle-failure-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(directory);
+            var child = context with { Directory = directory, Request = context.Request with { Id = Guid.NewGuid().ToString("N") } };
+            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
+            deadline.CancelAfter(TimeSpan.FromSeconds(20));
+            try
+            {
+                idleResult = await W101IdleCycleOperation.RunOwnedAsync(child, target,
+                    W101IdleCycleOperation.CreateRuntime(target, launch, scope, geometry), deadline.Token, "idle").ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) { idleResult = new(OperationState.Cancelled, "Idle finalization cancelled.", []); }
+            catch (Exception error)
+            {
+                context.Input?.RequireRecovery("Character Idle finalization escaped without a cleanup receipt.");
+                idleResult = new(OperationState.CleanupFailed, error.GetType().Name, []);
+            }
+            if (idleResult.State == OperationState.CleanupFailed)
+                context.Input?.RequireRecovery("Character Idle cleanup was not confirmed.");
+        }
+        var verified = idleResult?.State == OperationState.Completed;
+        var report = Path.Combine(context.Directory, "idle-failure-result-" + Guid.NewGuid().ToString("N") + ".json");
+        GameExperiments.WriteAtomic(report, new { original, eligible, world, inputReleased, idleResult, idleVerified = verified });
+        return original with { State = idleResult?.State == OperationState.CleanupFailed ? OperationState.CleanupFailed : original.State,
+            Message = original.Message + (verified ? " Native Idle verified." : " Native Idle not verified."),
+            Artifacts = [.. original.Artifacts, report] };
     }
 
     internal static PreparedDeckJob PrepareHome(WizwalkerSession session, WizwalkerLaunch launch, bool enabled, string profilePath)
@@ -41,15 +113,20 @@ internal static class W101CharacterOperation
                 if (!result.Accepted || !result.InputReleased) throw new InvalidOperationException("Character input rejected.");
                 await Task.Delay(400, token).ConfigureAwait(false);
             }
+            var worldReading = await W101UiTreeOperation.ReadOwnedAsync(context, target, launch, 20, token).ConfigureAwait(false);
+            var knownWorld = worldReading.CleanupConfirmed && worldReading.HookRestored && worldReading.Loading == false &&
+                VisibleControl(Path.Combine(context.Directory, "read-20", "ui-observations.jsonl"), "windowHUD");
             if (!StatsMatch(await Read("identity-1"), profile) || !StatsMatch(await Read("identity-2"), profile))
-                return new(OperationState.Failed, "loaded-character-identity-not-confirmed", [context.Directory]);
+                return await FinalizeFailureAsync(new(OperationState.Failed, "loaded-character-identity-not-confirmed", [context.Directory]),
+                    context, target, launch, scope, geometry, knownWorld, true, token).ConfigureAwait(false);
             await Pulse(CharacterInfo).ConfigureAwait(false);
             var panels = await Read("after-character-close").ConfigureAwait(false);
             if (panels.Text.Contains("CROWN SHOP", StringComparison.OrdinalIgnoreCase))
                 await Pulse(W101IdleCycle.CloseMenu).ConfigureAwait(false);
             var outside = await W101UiTreeOperation.ReadOwnedAsync(context, target, launch, 0, token).ConfigureAwait(false);
             if (outside.Loading != false || outside.States.GetValueOrDefault("menu") != false || outside.States.GetValueOrDefault("dialogue") != false)
-                return new(OperationState.Failed, "home-port-needs-outside-context", [context.Directory]);
+                return await FinalizeFailureAsync(new(OperationState.Failed, "home-port-needs-outside-context", [context.Directory]),
+                    context, target, launch, scope, geometry, knownWorld && outside.Loading == false, true, token).ConfigureAwait(false);
             await Pulse(GoHome).ConfigureAwait(false);
             bool house = false;
             var homeTransition = new LoadingTransitionGate(FrameTimeline.TimestampMs(), 45000);
@@ -132,6 +209,8 @@ internal static class W101CharacterOperation
     private static async Task<OperationOutcome> VerifyLoadedAsync(OperationContext context, WizwalkerTarget target, WizwalkerLaunch launch, W101ControlScope scope, Banner? banner, CancellationToken token)
     {
         var directory = context.Directory; var geometry = WindowObserver.GetCaptureSize(target.Window);
+        var statsOcr = new PetDanceMenuOcr();
+        await statsOcr.PrepareAsync(token).ConfigureAwait(false);
         bool world = false;
         var worldTransition = new LoadingTransitionGate(FrameTimeline.TimestampMs(), 45000);
         for (int i = 1; i <= 8; i++)
@@ -153,9 +232,11 @@ internal static class W101CharacterOperation
         var action = CharacterInfo;
         var proposal = new ModuleDecision("character", "info", "verify-loaded-wizard", Guid.NewGuid().ToString("N"), action.ActionId, action);
         var info = await W101ModuleInput.DispatchAsync(proposal, context, scope.Ready, (key, release) => W101ModuleInput.Send(target, key, release), FrameTimeline.TimestampMs, token, scope.Ready).ConfigureAwait(false);
-        if (!info.Accepted || !info.InputReleased) return new(OperationState.Failed, "character-info-input-rejected", [directory]);
+        if (!info.Accepted || !info.InputReleased)
+            return await FinalizeFailureAsync(new(OperationState.Failed, "character-info-input-rejected", [directory]),
+                context, target, launch, scope, geometry, world, info.InputReleased, token).ConfigureAwait(false);
         await Task.Delay(400, token).ConfigureAwait(false);
-        try { _ = await W101UiTreeOperation.ReadOwnedAsync(context, target, launch, 10, token).ConfigureAwait(false); }
+        try { _ = await W101UiTreeOperation.ReadOwnedAsync(context, target, launch, 10, token, false, includeResourceContext: true).ConfigureAwait(false); }
         catch (W101UiObservationUnavailableException)
         {
             // A clean unavailable panel tree does not prevent visual evidence
@@ -163,10 +244,29 @@ internal static class W101CharacterOperation
             GameExperiments.WriteAtomic(Path.Combine(directory, "character-tree-unavailable.json"), new { visualFallback = true, cleanupConfirmed = true });
         }
         var stats = await W101ModuleObserver.CaptureAsync(target, geometry, scope.Ready, token).ConfigureAwait(false);
+        var capturedUtcTicks = CaptureUtcTicks(stats.CapturedMs, FrameTimeline.TimestampMs(), DateTime.UtcNow.Ticks);
         await File.WriteAllBytesAsync(Path.Combine(directory, "loaded-character.png"), stats.Png, token).ConfigureAwait(false);
+        try
+        {
+            using var stream = new MemoryStream(stats.Png);
+            using var bitmap = new Bitmap(stream);
+            var words = await statsOcr.ReadAsync(bitmap, token).ConfigureAwait(false);
+            GameExperiments.WriteAtomic(Path.Combine(directory, "character-ocr.json"), new
+            {
+                schemaVersion = 1, target, observedUtcTicks = capturedUtcTicks, completedUtcTicks = DateTime.UtcNow.Ticks,
+                source = "local-windows-ocr", imageSha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(stats.Png)).ToLowerInvariant(),
+                words, candidateOnly = true
+            });
+        }
+        catch (Exception error) when (error is not OperationCanceledException)
+        {
+            GameExperiments.WriteAtomic(Path.Combine(directory, "character-ocr-unavailable.json"), new { error = error.GetType().Name, candidateOnly = true });
+        }
         var close = await W101ModuleInput.DispatchAsync(proposal with { ProposalId = Guid.NewGuid().ToString("N") }, context, scope.Ready,
             (key, release) => W101ModuleInput.Send(target, key, release), FrameTimeline.TimestampMs, token, scope.Ready).ConfigureAwait(false);
-        if (!close.Accepted || !close.InputReleased) return new(OperationState.Failed, "character-info-close-rejected", [directory]);
+        if (!close.Accepted || !close.InputReleased)
+            return await FinalizeFailureAsync(new(OperationState.Failed, "character-info-close-rejected", [directory]),
+                context, target, launch, scope, geometry, world, close.InputReleased, token).ConfigureAwait(false);
         var idleDirectory = Path.Combine(directory, "idle"); Directory.CreateDirectory(idleDirectory);
         var idle = context with { Directory = idleDirectory, Request = context.Request with { Id = Guid.NewGuid().ToString("N") } };
         var outcome = await W101IdleCycleOperation.RunOwnedAsync(idle, target, W101IdleCycleOperation.CreateRuntime(target, launch, scope, geometry), token, "idle").ConfigureAwait(false);
@@ -213,8 +313,8 @@ internal static class W101CharacterOperation
     }
 
     internal static bool Matches(Banner banner, WizardProfile profile) =>
-        banner.Name.Equals(profile.Name, StringComparison.OrdinalIgnoreCase) && profile.School == "Fire" &&
-        System.Text.RegularExpressions.Regex.IsMatch(banner.Level, @"^Level\s+[1-9][0-9]{0,2}\s+\([^)]*Pyromancer\)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        banner.Name.Equals(profile.Name, StringComparison.OrdinalIgnoreCase) && SchoolMatches(banner.Level, profile.School) &&
+        System.Text.RegularExpressions.Regex.IsMatch(banner.Level, @"^Level\s+[1-9][0-9]{0,2}\s+\([^)]*\)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
     internal static WizardProfile RefreshObservedLevel(Banner banner, WizardProfile profile)
     {

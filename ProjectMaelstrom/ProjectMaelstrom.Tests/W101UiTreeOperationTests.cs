@@ -1,9 +1,55 @@
+using System.Text.Json;
 using ProjectMaelstrom.Utilities;
 
 namespace ProjectMaelstrom.Tests;
 
 public sealed class W101UiTreeOperationTests : IDisposable
 {
+    [Fact]
+    public async Task ResourceOptInExportsTheSameRegistryProjectionAsCards()
+    {
+        await using var scheduler = new OperationScheduler(_root, Locks);
+        var runtime = Runtime(r =>
+        {
+            Assert.True(r.IncludeResourceContext);
+            var result = Result(r);
+            return result with
+            {
+                Resources = new("observed", result.StatesObservedUtcTicks,
+                new() { ["health"] = new(2460, 4920) }, new() { ["health"] = 2460, ["mana"] = 543 },
+                "hud-controls-and-correlated-stats")
+            };
+        });
+        var receipt = await W101UiTreeOperation.Submit(scheduler, new(_target, true), _launch, true,
+            runtime: runtime, includeResourceContext: true).Completion;
+        Assert.Equal(OperationState.Completed, receipt.State);
+        var path = Assert.Single(receipt.Artifacts, p => p.EndsWith("resource-facts.json"));
+        using var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+        var facts = json.RootElement.GetProperty("facts").Deserialize<JobFacts>(JobDeckRules.Json)!;
+        Assert.Equal(4920, facts.Values["health.max"].GetDouble());
+        Assert.Equal(50, facts.Values["health.percent"].GetDouble());
+    }
+    [Fact]
+    public void ResourceEvidenceRequiresOptInCleanupFreshnessAndVerifiedFields()
+    {
+        var now = DateTime.UtcNow.Ticks;
+        var resources = new W101ResourceReading("observed", now, new(), new() { ["health"] = 4559, ["mana"] = 446 });
+        var result = new W101UiTreeResult(1, "test", W101UiTreeOperation.Version, WizwalkerOperation.SourceSha256,
+            _target, "observed", "test", false, States(), now, now, 1000, true, true, 4, 2, 0, States(), Resources: resources);
+        Assert.True(W101UiTreeOperation.ValidResources(result, true, now));
+        Assert.False(W101UiTreeOperation.ValidResources(result, false, now));
+        Assert.False(W101UiTreeOperation.ValidResources(result with { Loading = null }, true, now));
+        Assert.False(W101UiTreeOperation.ValidResources(result with { CleanupConfirmed = false }, true, now));
+        Assert.False(W101UiTreeOperation.ValidResources(result with { Resources = resources with { ObservedUtcTicks = now + 1 } }, true, now));
+        Assert.False(W101UiTreeOperation.ValidResources(result with { StatesObservedUtcTicks = now - TimeSpan.FromSeconds(3).Ticks }, true, now));
+        Assert.False(W101UiTreeOperation.ValidResources(result with { Resources = resources with { Values = new() { ["health"] = new(4559, 6973) } } }, true, now));
+        var globe = resources with { Source = "hud-controls-and-correlated-stats", Values = new() { ["health"] = new(4559, 4920) } };
+        Assert.True(W101UiTreeOperation.ValidResources(result with { Resources = globe }, true, now));
+        var potions = globe with { Values = new() { ["potions"] = new(2.5, 4) }, CurrentValues = new() { ["health"] = 4559, ["mana"] = 446, ["potions"] = 2.5 } };
+        Assert.True(W101UiTreeOperation.ValidResources(result with { Resources = potions }, true, now));
+        Assert.False(W101UiTreeOperation.ValidResources(result with { Resources = potions with { Values = new() } }, true, now));
+        Assert.False(W101UiTreeOperation.ValidResources(result with { Resources = globe with { Values = new() { ["health"] = new(4000, 4920) } } }, true, now));
+    }
     [Fact]
     public void PoseCandidatesRequireFreshBoundedOptInAndNeverGrantMovement()
     {
@@ -57,6 +103,7 @@ public sealed class W101UiTreeOperationTests : IDisposable
             fault == "one-sample" ? 1 : 2, 0, new(states),
             InteractionTitle: title, StableInteractionTitle: fault == "absent" ? null : fault == "different" ? "Other NPC" : "Sir Nigel");
         Assert.Equal(expected, W101UiTreeOperation.ValidInteractionTitle(result, now));
+        if (fault == "stale") Assert.True(W101UiTreeOperation.ValidInteractionTitle(result, now, 5000));
     }
     private W101UiTreeResult Result(W101UiTreeRequest r)
     {

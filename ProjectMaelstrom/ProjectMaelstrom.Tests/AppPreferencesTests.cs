@@ -11,7 +11,9 @@ public class AppPreferencesTests
         try
         {
             Assert.Equal(new AppPreferences(), AppPreferences.Load(root));
-            var settings = new AppPreferences(false, true);
+            Assert.False(AppPreferences.Load(root).W101KeyboardOnlyTakeover);
+            Assert.False(AppPreferences.Load(root).W101RunningCaption);
+            var settings = new AppPreferences(false, true, W101KeyboardOnlyTakeover: true, W101RunningCaption: true);
             settings.Save(root);
             Assert.Equal(settings, AppPreferences.Load(root));
             var original = File.ReadAllText(Path.Combine(root, "settings.json"));

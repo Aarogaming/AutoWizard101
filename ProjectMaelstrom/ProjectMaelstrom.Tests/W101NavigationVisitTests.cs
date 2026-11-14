@@ -73,6 +73,41 @@ public sealed class W101NavigationVisitTests : IDisposable
         Assert.Equal(4, report.RootElement.GetProperty("stages").GetArrayLength());
     }
 
+    [Theory]
+    [InlineData("between-stages", true, 1)]
+    [InlineData("before-idle", true, 1)]
+    [InlineData("keyboard-stop", false, 0)]
+    public async Task FocusPauseResumesReleasedCheckpointsWithoutReplayingBody(string scenario, bool expectedComplete, int expectedIdle)
+    {
+        var ready = scenario != "keyboard-stop";
+        var pulses = 0; var idleCalls = 0; var waits = 0; var resets = 0;
+        var runtime = new W101NavigationVisitRuntime(() => ready,
+            (_, mode, _) =>
+            {
+                if (mode == "wake" && scenario == "between-stages") ready = false;
+                if (mode == "idle") idleCalls++;
+                return Task.FromResult(OperationOutcome.Completed("fresh observation"));
+            }, (_, _) =>
+            {
+                pulses++;
+                if (scenario == "before-idle") ready = false;
+                return Task.FromResult(OperationOutcome.Completed("released pulse"));
+            }, (_, _) => { resets++; return Task.FromResult(true); }, _ =>
+            {
+                waits++;
+                if (scenario == "keyboard-stop") return Task.FromResult(false);
+                ready = true; return Task.FromResult(true);
+            });
+        var job = W101NavigationVisit.Prepare(new(_target, true), _launch, true, "A", 100,
+            runtime, _validation, new(IdleRetries: 0));
+        await using var scheduler = new OperationScheduler(Path.Combine(_root, "runs"), Path.Combine(_root, "locks"));
+        var result = await scheduler.Submit(job.Request, job.Execute).Completion;
+        Assert.Equal(expectedComplete, result.State == OperationState.Completed);
+        Assert.Equal(expectedComplete ? 1 : 0, pulses);
+        Assert.Equal(expectedIdle, idleCalls);
+        Assert.True(waits >= 1); Assert.Equal(0, resets);
+    }
+
     private readonly string _root = Path.Combine(Path.GetTempPath(), "navigation-visit-" + Guid.NewGuid().ToString("N"));
     private readonly WizwalkerLaunch _launch;
     private readonly WizwalkerTarget _target;

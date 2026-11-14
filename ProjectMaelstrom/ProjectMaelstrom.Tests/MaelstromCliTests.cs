@@ -5,6 +5,47 @@ namespace ProjectMaelstrom.Tests;
 
 public sealed class MaelstromCliTests : IDisposable
 {
+    [Theory]
+    [InlineData("world-gate-inspect")]
+    [InlineData("world-gate-close")]
+    [InlineData("world-gate-travel-current")]
+    public void GateQualificationNeedsExplicitActionAndObservationOptIns(string command)
+    {
+        var args = CheckArgs(); args[1] = command;
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args, "--enable-ui-tree"], _root));
+        Assert.Equal(command, MaelstromCli.Parse([.. args, "--enable-ui-tree", "--enable-module-actions"], _root).Command);
+    }
+
+    [Fact]
+    public void TravelCardRequiresSelectionAndActionOptIns()
+    {
+        var args = CheckArgs(); args[1] = "travel-card";
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse(args, _root));
+        var ready = args.Concat(new[] { "--enable-ui-tree", "--enable-module-actions", "--selection", Path.Combine(_root, "travel.json") }).ToArray();
+        Assert.Equal("travel-card", MaelstromCli.Parse(ready, _root).Command);
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse(ready.Where(a => a != "--enable-module-actions").ToArray(), _root));
+    }
+
+    [Fact]
+    public void HomeCalibrationRequiresMeasuredVisitAndSinglePulse()
+    {
+        var args = CheckArgs(); args[1] = "navigation-visit";
+        args = [.. args, "--enable-ui-tree", "--enable-module-actions", "--key", "HOME", "--pulse-ms", "40"];
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse(args, _root));
+        Assert.Equal("HOME", MaelstromCli.Parse([.. args, "--include-pose-context"], _root).NavigationKey);
+    }
+
+    [Fact]
+    public void NamedPromptAcceptsBoundedReverseApproach()
+    {
+        var args = CheckArgs(); args[1] = "navigation-visit";
+        args = [.. args, "--enable-ui-tree", "--enable-module-actions", "--key", "S", "--pulse-ms", "2000", "--include-pose-context", "--assisted-hold", "true", "--until-interaction", "World Gate"];
+        Assert.Equal("World Gate", MaelstromCli.Parse(args, _root).UntilInteraction);
+        args[Array.IndexOf(args, "2000")] = "0";
+        Assert.Equal(0, MaelstromCli.Parse(args, _root).PulseMs);
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args, "--walk-until-loading", "true"], _root));
+    }
+
     [Fact]
     public void LoadingWalkNeedsExplicitMeasuredForwardVisit()
     {

@@ -4,6 +4,17 @@ namespace ProjectMaelstrom.Utilities;
 /// Every action uses the established input transport and independent scene checks.</summary>
 internal static class W101FeedbackVisit
 {
+    /// <summary>Probe contract latches any missing/unconfirmed release on the
+    /// shared lease. Do not retry the pulse; only permit a new pose observation.</summary>
+    internal static async Task<bool> ResumeReleasedAsync(OperationContext owner, OperationOutcome outcome,
+        Func<bool> ready, Func<CancellationToken, Task<bool>> waitForFocus, CancellationToken token)
+    {
+        if (token.IsCancellationRequested || outcome.State is OperationState.CleanupFailed or OperationState.Cancelled or OperationState.TimedOut ||
+            owner.Input is not { CanDispatch: true } || !ReferenceEquals(owner.Input, GameInputLease.Current) || ready()) return false;
+        return await waitForFocus(token).ConfigureAwait(false) && owner.Input.CanDispatch &&
+            ReferenceEquals(owner.Input, GameInputLease.Current) && ready();
+    }
+
     internal static async Task<OperationOutcome> RunAsync(OperationContext owner, WizwalkerTarget target,
         WizwalkerLaunch launch, W101ControlScope scope, W101NavigationProbeRuntime pulse,
         int distance, int maximumPulseMs, CancellationToken token)
@@ -17,10 +28,18 @@ internal static class W101FeedbackVisit
         for (int i = 0; i < 6; i++)
         {
             token.ThrowIfCancellationRequested();
-            if (!scope.Ready()) { reason = "control-changed"; break; }
+            if (!scope.Ready() && !await scope.WaitForFocusAsync(token).ConfigureAwait(false)) { reason = "control-changed"; break; }
             // This stage owns its directory; pulse observations live in separate
             // child directories. Keep indexes inside the owned reader's 0..31 budget.
-            var sample = await W101UiTreeOperation.ReadOwnedAsync(owner, target, launch, i, token, true).ConfigureAwait(false);
+            W101UiTreeResult sample;
+            try { sample = await W101UiTreeOperation.ReadOwnedAsync(owner, target, launch, i, token, true).ConfigureAwait(false); }
+            catch (InvalidOperationException) when (!scope.Ready() && owner.Input is { CanDispatch: true })
+            {
+                // The reader latches uncertain hook cleanup. Only clean focus
+                // loss may wait; discard this observation and acquire a fresh one.
+                if (!await scope.WaitForFocusAsync(token).ConfigureAwait(false)) { reason = "control-changed"; break; }
+                evidence.Add(new { checkpoint = "observation-discarded-after-focus-loss" }); Save(); continue;
+            }
             if (sample.Target != target || !sample.CleanupConfirmed || !sample.HookRestored || sample.Loading != false ||
                 sample.PoseCandidate is not { Status: "candidate" } pose ||
                 !W101UiTreeOperation.ValidPose(pose, true, DateTime.UtcNow.Ticks) ||
@@ -36,7 +55,13 @@ internal static class W101FeedbackVisit
             var decision = controller.Observe(current);
             evidence.Add(new { current, decision });
             Save();
-            if (!scope.Ready()) { reason = "control-changed"; break; }
+            if (!scope.Ready())
+            {
+                if (!await scope.WaitForFocusAsync(token).ConfigureAwait(false)) { reason = "control-changed"; break; }
+                // A plan made before the pause is never dispatched. Reobserve
+                // against the same frozen destination on the next iteration.
+                evidence.Add(new { checkpoint = "proposal-discarded-after-focus-loss" }); Save(); continue;
+            }
             reason = decision.Reason;
             if (decision.State == "arrived") { arrived = true; break; }
             if (decision.State == "stopped") break;
@@ -47,7 +72,15 @@ internal static class W101FeedbackVisit
             var outcome = await W101NavigationProbe.RunOwnedAsync(owner with { Directory = directory }, target, action, pulse, token).ConfigureAwait(false);
             evidence.Add(new { outcome });
             Save();
-            if (outcome.State != OperationState.Completed) { reason = outcome.Message; break; }
+            if (outcome.State != OperationState.Completed)
+            {
+                reason = outcome.Message;
+                if (await ResumeReleasedAsync(owner, outcome, scope.Ready, scope.WaitForFocusAsync, token).ConfigureAwait(false))
+                {
+                    evidence.Add(new { checkpoint = "released-pulse-reobserve-after-focus-loss" }); Save(); continue;
+                }
+                break;
+            }
         }
         Save();
         return new(arrived ? OperationState.Completed : OperationState.Failed, reason, [path]);

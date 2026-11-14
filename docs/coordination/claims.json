@@ -1862,25 +1862,572 @@
         "tools/tests/test_w101_ui_tree.py",
         "tools/fixtures/w101_ui_tree_review.json",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterOperation.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterSwitch.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/CharacterSwitchTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CharacterSwitchTests.cs",
         "docs/HEADLESS_CLI.md",
         "docs/coordination/results/W101-CHARACTER-27.md",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationInput.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationProbe.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationInputTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycleOperation.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationTransition.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationTransitionTests.cs"
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationTransitionTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationPrompt.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationPromptTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/DesktopActivityMonitor.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/AppPreferences.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/ResearchSettingsForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/AppPreferencesTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ControlScopeTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101WorldGateVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101WorldGateVisitTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLifecycle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101TravelCard.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101TravelCardTests.cs",
+        "docs/coordination/results/W101-TRAVEL-30.md",
+        "ProjectMaelstrom/ProjectMaelstrom/JobDeckForm.cs",
+        "docs/coordination/results/W101-COOLDOWN-33.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ActionStartNotice.cs",
+        "docs/coordination/results/W101-CONTROL-34.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
+        "docs/coordination/results/W101-CONTROL-35.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RoutineControl.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RoutineControlTests.cs"
       ],
-      "notes": "Panel/HUD repair and single-owner switching orchestration; bounded live authorized."
+      "notes": "W101-TRAVEL-30 slice complete: reusable configured Travel card in deck/API/CLI; one Zafaria/Home/Idle run verified with countdown. 2478 native/64 reader tests and scoped checks pass. Live paging/cooldown waits remain qualification limits. No active processes or installation; original character-switch orchestration remains pending."
+    },
+    {
+      "task_id": "RUST-PORT-AUDIT-30",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root/rust_audit",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/RUST-PORT-AUDIT-30.md"
+      ],
+      "notes": "Source-only review completed in RUST-PORT-AUDIT-30.md. Five crates; no C# production bridge found; dirty runner blockers and codec/Dance parity gaps. No builds/tests/runtime claims. Coordinator reviewed findings."
+    },
+    {
+      "task_id": "RUST-PARITY-31",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root/rust_audit",
+      "state": "released",
+      "owned_paths": [
+        "crates/maelstrom-core/src/deck_encoder.rs",
+        "crates/maelstrom-fallback/src/pet_dance.rs",
+        "docs/coordination/results/RUST-PARITY-31.md"
+      ],
+      "notes": "Offline codec/Dance increment reviewed: 11 core and 8 Dance tests pass; scoped formatting passes; Clippy exits 0 with unowned warnings. Compatibility/resource limits documented; no production bridge or live integration. Build slot released."
+    },
+    {
+      "task_id": "PROJECT-STATUS-31",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/PROJECT-STATUS-20261112.md",
+        "docs/ROADMAP.md"
+      ],
+      "notes": "All-front progress report and roadmap refreshed with qualified travel evidence, remaining workflow gaps and owner-reported port cooldown semantics. No live actions or installation."
+    },
+    {
+      "task_id": "RUST-CONFORMANCE-32",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root/rust_audit",
+      "state": "released",
+      "owned_paths": [
+        "crates/maelstrom-core/tests/native_parity.rs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/RustComponentParityTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/component-parity-v1.tsv",
+        "docs/coordination/results/RUST-CONFORMANCE-32.md"
+      ],
+      "notes": "Shared 56-case corpus passes Rust integration and native test; scoped formatting/analyzers/Clippy pass. External serde_json unit-test dependency regression preserved and reported. No runtime substitution."
+    },
+    {
+      "task_id": "W101-TRAVEL-32",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/W101-TRAVEL-32.md"
+      ],
+      "notes": "Second travel/Home/Idle succeeded; active then inactive timer observed, exact cooldown wait unqualified. Waypoint attempts withheld on focus/takeover; no movement. No running CLI."
+    },
+    {
+      "task_id": "RUST-DANCE-CONFORMANCE-33",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root/rust_audit",
+      "state": "released",
+      "owned_paths": [
+        "crates/maelstrom-fallback/tests/dance_parity.rs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/RustDanceParityTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/dance-observations-v1.tsv",
+        "docs/coordination/results/RUST-DANCE-CONFORMANCE-33.md"
+      ],
+      "notes": "390 shared observations/15 scenarios pass in C# and Rust; scoped format/analyzers pass; Clippy warnings only in unowned runner. No production bridge."
+    },
+    {
+      "task_id": "RUST-WAYPOINT-CONFORMANCE-34",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root/rust_audit",
+      "state": "released",
+      "owned_paths": [
+        "crates/maelstrom-core/src/waypoint_feedback.rs",
+        "crates/maelstrom-core/tests/waypoint_parity.rs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/RustWaypointParityTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/waypoint-observations-v1.tsv",
+        "docs/coordination/results/RUST-WAYPOINT-CONFORMANCE-34.md"
+      ],
+      "notes": "Coordinator integrated/reviewed bounded increment; results in task report. No claim of universal resumable routines or full walking-route qualification."
+    },
+    {
+      "task_id": "W101-RUNNING-CAPTION-34",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root/running_caption",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RunningNotice.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RunningNoticeTests.cs",
+        "docs/coordination/results/W101-RUNNING-CAPTION-34.md"
+      ],
+      "notes": "Coordinator integrated/reviewed bounded increment; results in task report. No claim of universal resumable routines or full walking-route qualification."
+    },
+    {
+      "task_id": "W101-FOCUS-34",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root/focus_pause_review",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FeedbackVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationVisitTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FocusResumeTests.cs",
+        "docs/coordination/results/W101-FOCUS-34.md"
+      ],
+      "notes": "Coordinator integrated/reviewed bounded increment; results in task report. No claim of universal resumable routines or full walking-route qualification."
+    },
+    {
+      "task_id": "W101-OVERLAY-CONTROLS-35",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RunningNotice.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RunningNoticeTests.cs",
+        "docs/coordination/results/W101-OVERLAY-CONTROLS-35.md"
+      ],
+      "notes": "Worker stopped at usage limit; coordinator completing validation and repairs, preserving files."
+    },
+    {
+      "task_id": "RUST-PAUSE-CONFORMANCE-35",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "crates/maelstrom-core/src/gameplay_pause_clock.rs",
+        "crates/maelstrom-core/tests/pause_clock_parity.rs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/RustPauseClockParityTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/pause-clock-v1.tsv",
+        "docs/coordination/results/RUST-PAUSE-CONFORMANCE-35.md"
+      ],
+      "notes": "Worker stopped at usage limit; coordinator completing validation and repairs, preserving files."
+    },
+    {
+      "task_id": "TEACHING-LONG-SESSION-35",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "docs/TEACHING_LONG_SESSIONS.md",
+        "tools/session_activity_index.py",
+        "tools/tests/test_session_activity_index.py"
+      ],
+      "notes": "Audit and acceptance plan for mixed30-60minute sessions; do not claim existing recorder supports hour."
+    },
+    {
+      "task_id": "TEACHING-WORKSHOP-36",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/LongTeachingSession.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/SessionTimelineForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/LongTeachingSessionTests.cs",
+        "docs/coordination/results/TEACHING-WORKSHOP-36.md",
+        "ProjectMaelstrom/ProjectMaelstrom/GameWorkspaceForm.cs"
+      ],
+      "notes": "Source increment complete; 2530 full checkpoint and final12 focused tests pass, formatting/analyzers/board pass. No live capture or installation. See TEACHING-WORKSHOP-36 result; remaining telemetry/automatic learning gates explicit."
+    },
+    {
+      "task_id": "TEACHING-STATE-37",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingStateTrack.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/LongTeachingSession.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/SessionTimelineForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeachingStateTrackTests.cs",
+        "docs/coordination/results/TEACHING-STATE-37.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101TeachingStateImport.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingReviewCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs"
+      ],
+      "notes": "Offline increment complete: 2538 tests, format/analyzers, actual CLI smoke passed. Saved-state import and local proposals connected; continuous live telemetry and API/MCP teaching endpoints pending. See result report."
+    },
+    {
+      "task_id": "TEACHING-CONTINUOUS-38",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingTelemetryLoop.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingRecordingCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/SessionTimelineForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeachingTelemetryLoopTests.cs",
+        "docs/coordination/results/TEACHING-CONTINUOUS-38.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101TeachingStateImport.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingReviewCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeachingStateTrackTests.cs"
+      ],
+      "notes": "Source integration and short live observation complete; 2544 tests, format/analyzers, CLI workflow checked. No input sent; Idle and clean disconnect observed. Teacher action/long soak/model training still pending. Report TEACHING-CONTINUOUS-38."
+    },
+    {
+      "task_id": "TEACHING-ACTION-39",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingRecordingCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/SessionTimelineForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeacherActionReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
+        "docs/coordination/results/TEACHING-ACTION-39.md"
+      ],
+      "notes": "Bounded live teacher cycle, saved capture/input/state, source-linked first-action card and CLI replay succeeded; Idle restored. 2548 tests + scoped checks. Report records failed capture attempts/repair and limits; no install."
+    },
+    {
+      "task_id": "TEACHING-RELEASE-40",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/TEACHING-RELEASE-40.md"
+      ],
+      "notes": "Fresh teacher capture, frozen-card held-out replay, package/install if passed. No new runtime edits planned. HEADLESS_CLI remains under root W101-CHARACTER-27 ownership."
+    },
+    {
+      "task_id": "CORE-LOGIC-REUSE-41",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/CORE-LOGIC-REUSE-41.md"
+      ],
+      "notes": "Offline logic-engine reuse research and Rust status; overlay edits under existing root OVERLAY-CONTROLS-35 claim."
+    },
+    {
+      "task_id": "CORE-NODERED-42",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "integrations/node-red/package.json",
+        "integrations/node-red/maelstrom.js",
+        "integrations/node-red/maelstrom.html",
+        "integrations/node-red/bridge.js",
+        "integrations/node-red/bridge.test.js",
+        "docs/coordination/results/CORE-NODERED-42.md"
+      ],
+      "notes": "Optional bridge and bounded subscriptions offline/installed-host verified; overlay installed. See result42. Node-RED UI runtime not installed."
+    },
+    {
+      "task_id": "CORE-NODERED-43",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "integrations/node-red/examples/offline-card.json",
+        "integrations/node-red/README.md",
+        "integrations/node-red/editor-smoke.test.js",
+        "docs/coordination/results/CORE-NODERED-43.md"
+      ],
+      "notes": "Editor UI and true/false action flow tested offline; example/README/result43. No game attachment."
+    },
+    {
+      "task_id": "CORE-CARD-AUTHOR-44",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "integrations/node-red/card-library.js",
+        "integrations/node-red/card-library.test.js",
+        "integrations/node-red/maelstrom-card.js",
+        "integrations/node-red/maelstrom-card.html",
+        "integrations/node-red/package.json",
+        "integrations/node-red/examples/replay-card.json",
+        "integrations/node-red/README.md",
+        "docs/coordination/results/CORE-CARD-AUTHOR-44.md"
+      ],
+      "notes": "Native card library/catalog front-back authoring, save/load/deal and scheduler replay offline verified; result44. UI polish remains."
+    },
+    {
+      "task_id": "CORE-CARD-EDITOR-45",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "integrations/node-red/card-editor.js",
+        "integrations/node-red/card-editor.html",
+        "integrations/node-red/card-editor.test.js",
+        "integrations/node-red/maelstrom-card.js",
+        "integrations/node-red/maelstrom-card.html",
+        "integrations/node-red/README.md",
+        "docs/coordination/results/CORE-CARD-EDITOR-45.md"
+      ],
+      "notes": "Graphical front/back editor and save/load/version/offline replay browser verified; result45 lists condition-replay and UI gaps."
+    },
+    {
+      "task_id": "CORE-NATIVE-CARDS-46",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/RecordedCardReviewForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/CardRequirementsForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/RecordedCardReview.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/RecordedCardReviewTests.cs",
+        "docs/coordination/results/CORE-NATIVE-CARDS-46.md"
+      ],
+      "notes": "Native backs/typed conditions/export-load and recorded FactBlock review integrated;2557 tests; report46. No install/live. Confirmation and joint action+condition replay remain explicit gaps."
+    },
+    {
+      "task_id": "CORE-CARD-RELEASE-47",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/RecordedCardReviewForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ConditionalRoutineReplayTests.cs",
+        "docs/coordination/results/CORE-CARD-RELEASE-47.md"
+      ],
+      "notes": "Joint replay checks,2565 native/14 installer tests; native editor update installed, headless replay passed; report47. W101 untouched."
+    },
+    {
+      "task_id": "CORE-RECORDING-FACTS-48",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RecordedFacts.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101TeachingStateImport.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeacherActionReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeachingStateTrackTests.cs",
+        "docs/coordination/results/CORE-RECORDING-FACTS-48.md"
+      ],
+      "notes": "Canonical telemetry facts and teacher export verified offline;2570 tests; result48. No install or game access."
+    },
+    {
+      "task_id": "CORE-ALIASES-49",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobFactCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobAliasRegister.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeck.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobAliasRegisterTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "docs/coordination/results/CORE-ALIASES-49.md"
+      ],
+      "notes": "Typed alias projection and shared condition/API/MCP path verified offline;2581 native and30Python tests; result49; no install/live."
+    },
+    {
+      "task_id": "W101-RESOURCES-50",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_resources.py",
+        "tools/tests/test_w101_resources.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ResourceFacts.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RecordedFacts.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobFactCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ResourceFactsTests.cs",
+        "docs/coordination/results/W101-RESOURCES-50.md"
+      ],
+      "notes": "Offline resource adapter and canonical current/max evidence; no client attachment or new hook activation. Verified:2587native/3resource Python tests; existing observer3seconds cleaned up. Stats live qualification and demand scan runtime pending."
+    },
+    {
+      "task_id": "W101-DATA-AUDIT-51",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "tools/audit_w101_data.py",
+        "research/w101-data-supply.json",
+        "docs/W101_DATA_SUPPLY.md"
+      ],
+      "notes": "Static imported reader catalog and existing installed archive evidence; no process access. Verified:2587native/3resource Python tests; existing observer3seconds cleaned up. Stats live qualification and demand scan runtime pending."
+    },
+    {
+      "task_id": "CORE-SCAN-52",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CardScanDemand.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeck.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CardScanDemandTests.cs",
+        "docs/coordination/results/CORE-SCAN-52.md",
+        "tools/maelstrom_mcp_server.py"
+      ],
+      "notes": "Card demand and context prediction integrated into shared observer;2594native tests. Stats signature matched but runtime stats qualification remains incomplete; result52."
+    },
+    {
+      "task_id": "W101-STATS-53",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/W101-STATS-53.md",
+        "tools/w101_resources.py",
+        "tools/tests/test_w101_resources.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ResourceFacts.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ResourceFactsTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobFactCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CardScanDemand.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CardScanDemandTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobFactCatalogTests.cs",
+        "research/w101-current-stats-layout.json",
+        "docs/W101_DATA_SUPPLY.md"
+      ],
+      "notes": "Completed bounded local-file/current-build review:132-property inventory,76 named live scalar candidates, three corroborated current facts, opt-in scheduler/API integration.2599native/73Python tests; probe9 cleaned up. Maxima/potions/vector qualification remains pending; no install or input."
+    },
+    {
+      "task_id": "W101-STATS-54",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/W101-STATS-54.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ResourceFacts.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobFactCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CardScanDemand.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ResourceFactsTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobFactCatalogTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CardScanDemandTests.cs",
+        "research/w101-ui-resource-layout.json",
+        "docs/W101_DATA_SUPPLY.md"
+      ],
+      "notes": "Integrated: exact-build HUD max and PotionButton qualification;12 live canonical facts; optional offline OCR/manual comparison.2601native/89Python tests;probe4 clean. Remaining scalar qualifications require independent evidence; no install/input."
+    },
+    {
+      "task_id": "W101-STATS-PROFILE-54",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "resource_gate_review",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_stats_profile.py",
+        "tools/tests/test_w101_stats_profile.py"
+      ],
+      "notes": "Integrated: exact-build HUD max and PotionButton qualification;12 live canonical facts; optional offline OCR/manual comparison.2601native/89Python tests;probe4 clean. Remaining scalar qualifications require independent evidence; no install/input."
+    },
+    {
+      "task_id": "W101-STATS-55",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/W101-STATS-55.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ResourceFacts.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobFactCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ResourceFactsTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobFactCatalogTests.cs"
+      ],
+      "notes": "Character-sheet capture/OCR integrated; restarted Death wizard eight numeric comparisons agree; native Idle verified twice. 2602 native,73 observer,14 profile tests. Gold/level remain candidates pending subject-bound qualification; no install."
+    },
+    {
+      "task_id": "W101-IDENTITY-56",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/W101-IDENTITY-56.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101WizardFacts.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101WizardFactsTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobFactCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobFactCatalogTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeck.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobAliasRegister.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CardScanDemand.cs",
+        "docs/PRODUCT.md"
+      ],
+      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit."
+    },
+    {
+      "task_id": "W101-SUBJECT-56",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "resource_gate_review",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_stats_profile.py",
+        "tools/tests/test_w101_stats_profile.py"
+      ],
+      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit."
+    },
+    {
+      "task_id": "W101-CHARACTER-GUARD-56",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "local_ui_audit",
+      "state": "released",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CharacterSwitchTests.cs"
+      ],
+      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit."
+    },
+    {
+      "task_id": "W101-IDENTITY-READER-56",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "resource_gate_review",
+      "state": "released",
+      "owned_paths": [
+        "tools/w101_identity.py",
+        "tools/tests/test_w101_identity.py"
+      ],
+      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit."
+    },
+    {
+      "task_id": "GIT-CHECKPOINT-56",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        ".gitattributes",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CardScanDemandTests.cs",
+        "docs/coordination/results/GIT-CHECKPOINT-56.md"
+      ],
+      "notes": "Owner authorized reviewed local checkpoints; no push; preserve active Rust migration. Existing root CLI scope reused for EOF repair."
     }
   ]
 }

@@ -44,7 +44,7 @@ internal sealed class JobDeckForm : Form
         });
         AddButton("Deck limits", EditLimits); AddButton("Connect W101", Connect);
         AddButton("Observe once", () => ShowResult(_host.Handle(Request("observe"))));
-        AddButton("Add card", AddCard); AddButton("Export", Export); AddButton("Import", Import);
+        AddButton("New", AddCard); AddButton("Load card", ImportCard); AddButton("Export", Export); AddButton("Import", Import);
         toolbar.Controls.Add(_count);
         var footer = new Panel { Dock = DockStyle.Bottom, Height = 84 }; footer.Controls.Add(_status);
         Controls.Add(_cards); Controls.Add(footer); Controls.Add(toolbar); Controls.Add(header);
@@ -159,22 +159,34 @@ internal sealed class JobDeckForm : Form
         var deck = JsonSerializer.Deserialize<JobDeckDocument>(GameExperiments.BoundedBytes(dialog.FileName, 65536), JobDeckRules.Json) ?? throw new InvalidDataException("Empty deck.");
         _host.Deck.Replace(deck, _host.Deck.State.Revision); Reload();
     }
+    private void ImportCard()
+    {
+        using var file = new OpenFileDialog { Filter = "Maelstrom card (*.json)|*.json" };
+        if (file.ShowDialog(this) != DialogResult.OK) return;
+        var card = JsonSerializer.Deserialize<JobCardSpec>(GameExperiments.BoundedBytes(file.FileName, 65536), JobDeckRules.Json)
+            ?? throw new InvalidDataException("Missing card.");
+        var state = _host.Deck.State;
+        card = card with { Id = Guid.NewGuid().ToString("N"), InDeck = false };
+        _host.Deck.Replace(state.Deck with { Cards = [.. state.Deck.Cards, card] }, state.Revision);
+        Reload();
+    }
     private void Connect()
     {
-        using var dialog = new Form { Text = "Connect Wizard101 · optional client reader", Size = new Size(690, 340), StartPosition = FormStartPosition.CenterParent };
+        using var dialog = new Form { Text = "Connect Wizard101 · optional client reader", Size = new Size(690, 380), StartPosition = FormStartPosition.CenterParent };
         var flow = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.TopDown, Padding = new Padding(20), WrapContents = false };
         var windows = GameWindows.List().Where(w => w.ProcessName == "WizardGraphicalClient").ToArray();
         var choice = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 610 }; choice.Items.AddRange(windows.Cast<object>().ToArray()); if (windows.Length > 0) choice.SelectedIndex = 0;
         var path = new TextBox { Width = 610, PlaceholderText = "Maelstrom source workspace containing the reviewed optional adapter" };
         var observe = new CheckBox { Text = "Enable reviewed client observation and UI-tree reader", AutoSize = true };
         var actions = new CheckBox { Text = "Also allow my selected conversation cards to advance dialogue", AutoSize = true };
-        flow.Controls.Add(choice); flow.Controls.Add(path); flow.Controls.Add(observe); flow.Controls.Add(actions);
+        var travel = new CheckBox { Text = "Also allow my configured Travel cards to select worlds and return Home", AutoSize = true };
+        flow.Controls.Add(choice); flow.Controls.Add(path); flow.Controls.Add(observe); flow.Controls.Add(actions); flow.Controls.Add(travel);
         flow.Controls.Add(new Label { Text = "Connection alone sends no inputs. Observe once collects a bounded reading.\nUnobserved resources remain unknown. No networking or arbitrary client commands.", AutoSize = true });
         flow.Controls.Add(new Button { Text = "Connect", AutoSize = true, DialogResult = DialogResult.OK }); dialog.Controls.Add(flow); WorkspaceTheme.Apply(dialog);
         if (dialog.ShowDialog(this) != DialogResult.OK) return;
         if (choice.SelectedItem is not GameWindow window) throw new InvalidOperationException("Choose a current Wizard101 window.");
         ShowResult(_host.Handle(Request("connect", new { handle = window.Handle.ToInt64(), processId = window.ProcessId, startedUtcTicks = window.StartedUtcTicks,
-            workspace = path.Text, enableClientObservation = observe.Checked, enableUiTree = observe.Checked, enableQuestActions = actions.Checked })));
+            workspace = path.Text, enableClientObservation = observe.Checked, enableUiTree = observe.Checked, enableQuestActions = actions.Checked, enableTravelActions = travel.Checked })));
     }
 }
 
@@ -194,6 +206,7 @@ internal sealed class JobCardView : UserControl
     private bool _showBack;
     private int _frame;
     private TextBox _title = null!, _include = null!, _exclude = null!, _fact = null!, _conditions = null!;
+    private JobCondition[] _editedConditions = [];
     private NumericUpDown _copies = null!, _attempts = null!, _priority = null!, _cooldown = null!;
     internal string CardId => _card.Id;
     internal string RoutineId => _info.Id;
@@ -203,8 +216,9 @@ internal sealed class JobCardView : UserControl
     {
         _card = card; _info = info; _save = save; _duplicate = duplicate;
         _factDefinitions = factDefinitions ?? JobFactCatalog.All;
-        Size = new Size(252, 378); Margin = new Padding(10, 8, 10, 12); DoubleBuffered = true;
+        Size = new Size(330, 540); Margin = new Padding(10, 8, 10, 12); DoubleBuffered = true;
         AccessibleName = card.Title; AccessibleDescription = info.Description; TabStop = true;
+        _editedConditions = JobDeckRules.Copy(card.Conditions ?? []);
         Cursor = Cursors.Hand; BuildBack(); _back.Visible = false; Controls.Add(_back);
         _flip.Tick += (_, _) =>
         {
@@ -229,12 +243,12 @@ internal sealed class JobCardView : UserControl
     private void Flip() { if (_flip.Enabled) return; _back.Visible = false; _frame = 0; _flip.Start(); }
     private void BuildBack()
     {
-        var flow = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Width = 215, ForeColor = Color.FromArgb(241, 226, 189) };
-        void Label(string text) => flow.Controls.Add(new Label { Text = text, AutoSize = true, MaximumSize = new Size(210, 0) });
-        TextBox Text(string text) { var box = new TextBox { Width = 210, Text = text }; flow.Controls.Add(box); return box; }
+        var flow = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.TopDown, WrapContents = false, Width = 292, ForeColor = Color.FromArgb(241, 226, 189) };
+        void Label(string text) => flow.Controls.Add(new Label { Text = text, AutoSize = true, MaximumSize = new Size(286, 0) });
+        TextBox Text(string text) { var box = new TextBox { Width = 286, Text = text }; flow.Controls.Add(box); return box; }
         NumericUpDown Number(string label, int value, int min, int max)
         { Label(label); var box = new NumericUpDown { Width = 100, Minimum = min, Maximum = max, Value = value }; flow.Controls.Add(box); return box; }
-        Label("CARD SETTINGS"); _title = Text(_card.Title);
+        Label("SETTINGS"); _title = Text(_card.Title);
         _copies = Number("Copies to complete", _card.Runs, 1, 100); _attempts = Number("Maximum attempts", _card.AttemptLimit, 1, 100);
         _priority = Number("Priority (lower plays first)", _card.Priority, 0, 999); _cooldown = Number("Cooldown · seconds", _card.CooldownSeconds, 1, 3600);
         foreach (var option in _info.Options)
@@ -242,7 +256,7 @@ internal sealed class JobCardView : UserControl
             Label(option.Label + (option.Required ? " *" : ""));
             if (option.Kind.StartsWith("choice:", StringComparison.Ordinal))
             {
-                var choices = new CardChoiceButton { Width = 210, ForeColor = Color.FromArgb(35, 27, 30), BackColor = Color.FromArgb(245, 231, 197) };
+                var choices = new CardChoiceButton { Width = 286, ForeColor = Color.FromArgb(35, 27, 30), BackColor = Color.FromArgb(245, 231, 197) };
                 choices.Items.AddRange(option.Kind[7..].Split(',').Cast<object>().ToArray());
                 choices.SelectedItem = option.Name == "mode" && _info.Id == "w101.questing" ? JobDeckRoutines.QuestMode(_card) : _card.Settings?.GetValueOrDefault(option.Name) ?? option.Default;
                 if (choices.SelectedIndex < 0) choices.SelectedIndex = 0;
@@ -257,15 +271,25 @@ internal sealed class JobCardView : UserControl
             }
         }
         Label("Scope fact (quest.area, quest.action, quest.id)"); _fact = Text(_card.Filters?.FirstOrDefault()?.Fact ?? (_info.Id == "w101.questing" ? "quest.area" : "area"));
-        var factPicker = new ComboBox { Width = 210, DropDownStyle = ComboBoxStyle.DropDownList, AccessibleName = "Registered scope fact" };
+        var factPicker = new ComboBox { Width = 286, DropDownStyle = ComboBoxStyle.DropDownList, AccessibleName = "Registered scope fact" };
         factPicker.Items.AddRange(_factDefinitions.Where(f => f.Kind == "string").Select(f => (object)f.Id).ToArray());
         factPicker.SelectedItem = _fact.Text;
         factPicker.SelectedIndexChanged += (_, _) => _fact.Text = factPicker.SelectedItem?.ToString() ?? _fact.Text;
         flow.Controls.Add(factPicker);
         Label("Only these values · one per line"); _include = Text(string.Join(Environment.NewLine, _card.Filters?.FirstOrDefault()?.Include ?? [])); _include.Multiline = true; _include.Height = 48;
         Label("Exclude these values · one per line"); _exclude = Text(string.Join(Environment.NewLine, _card.Filters?.FirstOrDefault()?.Exclude ?? [])); _exclude.Multiline = true; _exclude.Height = 48;
-        Label("Conditions · fact operator value\nExample: energy gte 10");
-        _conditions = Text(string.Join(Environment.NewLine, (_card.Conditions ?? []).Select(c => $"{c.Fact} {c.Operator} {c.Value.GetRawText()}"))); _conditions.Multiline = true; _conditions.Height = 65;
+        Label("Requirements to play");
+        _conditions = Text(string.Join(Environment.NewLine, _editedConditions.Select(c => $"{c.Fact} {c.Operator} {c.Value}")));
+        _conditions.Multiline = true; _conditions.Height = 65; _conditions.ReadOnly = true;
+        var editRequirements = new Button { Text = "Edit requirements...", AutoSize = true };
+        editRequirements.Click += (_, _) =>
+        {
+            using var editor = new CardRequirementsForm(_editedConditions, _factDefinitions);
+            if (editor.ShowDialog(this) != DialogResult.OK) return;
+            _editedConditions = editor.Conditions;
+            _conditions.Text = string.Join(Environment.NewLine, _editedConditions.Select(c => $"{c.Fact} {c.Operator} {c.Value}"));
+        };
+        flow.Controls.Add(editRequirements);
         var factHelp = new Button { Text = "Available facts and requirements…", AutoSize = true };
         factHelp.Click += (_, _) => MessageBox.Show(this, string.Join(Environment.NewLine + Environment.NewLine,
             _factDefinitions.Select(f => $"{f.Id} ({f.Kind}, {f.Unit})\n{f.Description}\nProducer: {f.Producer}. {(f.ProducerAvailable ? "Producer supported; current reading may still be unknown." : "Producer not connected; conditions will wait.")}")),
@@ -280,12 +304,7 @@ internal sealed class JobCardView : UserControl
                 string[] Lines(TextBox box) => box.Lines.Select(s => s.Trim()).Where(s => s.Length != 0).ToArray();
                 var include = Lines(_include); var exclude = Lines(_exclude);
                 if (include.Length + exclude.Length > 0) filters.Insert(0, new(_fact.Text.Trim(), include, exclude));
-                var conditions = Lines(_conditions).Select(line =>
-                {
-                    var parts = line.Split(' ', 3, StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length != 3) throw new InvalidDataException("Each condition needs a fact, eq/gte/lte, and a JSON value.");
-                    return new JobCondition(parts[0], parts[1], JsonSerializer.Deserialize<JsonElement>(parts[2]));
-                }).ToArray();
+                var conditions = _editedConditions;
                 _save(_card with { Title = _title.Text.Trim(), Runs = (int)_copies.Value, AttemptLimit = (int)_attempts.Value,
                     Priority = (int)_priority.Value, CooldownSeconds = (int)_cooldown.Value, Settings = _options.ToDictionary(o => o.Key, o => o.Value is CardChoiceButton choice ? choice.SelectedItem?.ToString() ?? "" : o.Value.Text), Conditions = conditions, Filters = filters.ToArray() });
             }
@@ -294,6 +313,19 @@ internal sealed class JobCardView : UserControl
         flow.Controls.Add(save);
         var cancel = new Button { Text = "Flip back", AutoSize = true }; cancel.Click += (_, _) => Flip(); flow.Controls.Add(cancel);
         var duplicate = new Button { Text = "Make another card", AutoSize = true }; duplicate.Click += (_, _) => _duplicate(); flow.Controls.Add(duplicate);
+        var test = new Button { Text = "Test recording...", AutoSize = true };
+        test.Click += (_, _) => { using var review = new RecordedCardReviewForm(_card, _factDefinitions, _info.GameId); review.ShowDialog(this); };
+        flow.Controls.Add(test);
+        var export = new Button { Text = "Export...", AutoSize = true };
+        export.Click += (_, _) =>
+        {
+            using var file = new SaveFileDialog { Filter = "Maelstrom card (*.json)|*.json", FileName = "custom-card.json" };
+            if (file.ShowDialog(this) != DialogResult.OK) return;
+            try { using var output = new FileStream(file.FileName, FileMode.CreateNew); JsonSerializer.Serialize(output, _card, JobDeckRules.Json); }
+            catch (Exception e) { MessageBox.Show(this, e.Message, "Save card"); }
+        };
+        flow.Controls.Add(export);
+        Label("Save changes before testing.");
         _back.Controls.Add(flow);
     }
     protected override void OnPaint(PaintEventArgs e)
@@ -322,7 +354,11 @@ internal sealed class JobCardView : UserControl
             _progress.Completed >= _card.Runs ? "COMPLETED" : _eligibility?.Ready == true ? "READY" : "WAITING";
         g.DrawString(status, small, ink, new RectangleF(26, 258, Width - 52, 22), centered);
         g.DrawString($"{_progress.Completed}/{_card.Runs} copies · {_progress.Attempts}/{_card.AttemptLimit} attempts", body, ink, new RectangleF(25, 284, Width - 50, 21), centered);
-        g.DrawString("Click to flip & configure", body, ink, new RectangleF(22, 307, Width - 44, 22), centered);
+        g.DrawString("Edit", body, ink, new RectangleF(22, 307, Width - 44, 22), centered);
+        g.DrawString(_info.Description, body, ink, new RectangleF(24, 337, Width - 48, 65));
+        var requirements = string.Join("; ", (_card.Conditions ?? []).Select(c => $"{c.Fact} {c.Operator} {c.Value}"));
+        g.DrawString("Requires: " + (requirements.Length == 0 ? "fresh state and adapter readiness" : requirements), body, ink, new RectangleF(24, 409, Width - 48, 48));
+        g.DrawString("" + _info.Qualification, body, ink, new RectangleF(24, 462, Width - 48, 28));
         g.FillRectangle(purple, 15, Height - 47, Width - 64, 31);
         using var cream = new SolidBrush(Color.FromArgb(249, 227, 173));
         g.DrawString(_card.InDeck ? "✓  IN ROUTINE DECK" : "+  DEAL THIS CARD", small, cream, new RectangleF(15, Height - 47, Width - 64, 31), centered);

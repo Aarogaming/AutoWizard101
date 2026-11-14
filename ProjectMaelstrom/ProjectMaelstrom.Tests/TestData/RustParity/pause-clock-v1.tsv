@@ -1,0 +1,81 @@
+# maelstrom-pause-clock-v1
+# Synthetic elapsed-run scene budget conformance. NOT user pause/resume or input authority.
+# case TAB id TAB pause-budget TAB active-budget TAB constructor-error (- for none)
+# obs TAB wall-ms TAB loading TAB gameplay-observed TAB error TAB started TAB is-loading TAB active-ms TAB paused-ms TAB stop-reason TAB gameplay-allowed
+# Error categories: pause-budget, gameplay-budget, wall-time, scene; - means none.
+case	load-keeps-active-budget	45000	75000	-
+obs	0	true	false	-	false	true	0	0	-	false
+obs	20000	false	true	-	true	false	0	20000	-	true
+obs	94999	false	true	-	true	false	74999	20000	-	true
+obs	95000	false	true	-	true	false	75000	20000	game-duration-limit	false
+case	cumulative-loading	10000	75000	-
+obs	0	false	true	-	true	false	0	0	-	true
+obs	1000	true	false	-	true	true	1000	0	-	false
+obs	4000	false	true	-	true	false	1000	3000	-	true
+obs	5000	true	false	-	true	true	2000	3000	-	false
+obs	11999	true	false	-	true	true	2000	9999	-	false
+obs	12000	false	true	-	true	false	2000	10000	loading-wait-limit	false
+case	unknown-scenes	45000	75000	-
+obs	0	false	false	-	false	false	0	0	-	false
+obs	5000	false	true	-	true	false	0	5000	-	true
+obs	6000	false	false	-	true	false	1000	5000	-	false
+obs	8000	false	false	-	true	false	3000	5000	-	false
+obs	9000	false	true	-	true	false	4000	5000	-	true
+case	missing-start-false	45000	75000	-
+obs	0	false	false	-	false	false	0	0	-	false
+obs	44999	false	false	-	false	false	0	44999	-	false
+obs	45000	false	false	-	false	false	0	45000	game-start-not-observed	false
+case	missing-start-true	45000	75000	-
+obs	0	true	false	-	false	true	0	0	-	false
+obs	44999	true	false	-	false	true	0	44999	-	false
+obs	45000	true	false	-	false	true	0	45000	loading-wait-limit	false
+case	missing-after-start	45000	75000	-
+obs	0	false	true	-	true	false	0	0	-	true
+obs	1000	false	false	-	true	false	1000	0	-	false
+obs	75000	false	false	-	true	false	75000	0	game-duration-limit	false
+case	stop-is-sticky	10	10	-
+obs	0	true	false	-	false	true	0	0	-	false
+obs	10	false	true	-	true	false	0	10	loading-wait-limit	false
+obs	30	false	true	-	true	false	20	10	loading-wait-limit	false
+obs	40	true	false	-	true	true	30	10	loading-wait-limit	false
+obs	50	false	true	-	true	false	30	20	loading-wait-limit	false
+case	first-nonzero	45000	75000	-
+obs	5000	false	true	-	true	false	0	5000	-	true
+case	ready-at-deadline	45000	75000	-
+obs	0	false	false	-	false	false	0	0	-	false
+obs	45000	false	true	-	true	false	0	45000	game-start-not-observed	false
+case	invalid-first--1	45000	75000	-
+obs	-1	false	true	wall-time	false	false	0	0	-	false
+obs	0	false	true	-	true	false	0	0	-	true
+case	invalid-first-NaN	45000	75000	-
+obs	NaN	false	true	wall-time	false	false	0	0	-	false
+obs	0	false	true	-	true	false	0	0	-	true
+case	invalid-first-Infinity	45000	75000	-
+obs	Infinity	false	true	wall-time	false	false	0	0	-	false
+obs	0	false	true	-	true	false	0	0	-	true
+case	invalid-first--Infinity	45000	75000	-
+obs	-Infinity	false	true	wall-time	false	false	0	0	-	false
+obs	0	false	true	-	true	false	0	0	-	true
+case	duplicate-and-backwards	45000	75000	-
+obs	0	false	true	-	true	false	0	0	-	true
+obs	0	true	false	wall-time	true	false	0	0	-	true
+obs	10	false	true	-	true	false	10	0	-	true
+obs	9	true	false	wall-time	true	false	10	0	-	true
+obs	20	false	true	-	true	false	20	0	-	true
+case	contradictory-scene	45000	75000	-
+obs	0	true	false	-	false	true	0	0	-	false
+obs	10	true	true	scene	false	true	0	0	-	false
+obs	10	false	true	-	true	false	0	10	-	true
+case	time-error-before-scene	45000	75000	-
+obs	0	true	true	scene	false	false	0	0	-	false
+obs	0	false	true	-	true	false	0	0	-	true
+obs	0	true	true	wall-time	true	false	0	0	-	true
+case	zero-pause	0	1	pause-budget
+case	zero-active	1	0	gameplay-budget
+case	negative-pause	-1	1	pause-budget
+case	negative-active	1	-1	gameplay-budget
+case	nan-pause	NaN	1	pause-budget
+case	nan-active	1	NaN	gameplay-budget
+case	infinite-pause	Infinity	1	pause-budget
+case	infinite-active	1	Infinity	gameplay-budget
+case	both-invalid	0	0	pause-budget

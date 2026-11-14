@@ -1,0 +1,91 @@
+# maelstrom-waypoint-observations-v1
+# Synthetic pose feedback conformance, not a route or live movement qualification.
+# case TAB id TAB destination-x TAB destination-y TAB destination-z TAB maximum-pulse-ms
+# obs TAB x TAB y TAB z TAB heading TAB timestamp TAB state TAB reason TAB pulse-ms TAB distance TAB heading-error
+# Floating output tolerance: 1e-9; NaN/Infinity require matching special values.
+case	speed-03	0	-60	0	60
+obs	0	0	0	0	1	move	bounded-forward-correction	60	60	0
+obs	0	-18	0	0	2	move	bounded-forward-correction	60	42	0
+obs	0	-36	0	0	3	move	bounded-forward-correction	60	24	0
+obs	0	-54	0	0	4	confirm	coordinate-arrival	0	6	0
+obs	0	-54	0	0	5	arrived	coordinate-arrival	0	6	0
+case	speed-06	0	-60	0	60
+obs	0	0	0	0	1	move	bounded-forward-correction	60	60	0
+obs	0	-36	0	0	2	move	bounded-forward-correction	32	24	0
+obs	0	-55.2	0	0	3	confirm	coordinate-arrival	0	4.8	0
+obs	0	-55.2	0	0	4	arrived	coordinate-arrival	0	4.8	0
+case	speed-09	0	-60	0	60
+obs	0	0	0	0	1	move	bounded-forward-correction	60	60	0
+obs	0	-54	0	0	2	confirm	coordinate-arrival	0	6	0
+obs	0	-54	0	0	3	arrived	coordinate-arrival	0	6	0
+case	two-stalls	0	-60	0	60
+obs	0	0	0	0	1	move	bounded-forward-correction	60	60	0
+obs	0	0	0	0	2	move	bounded-forward-correction	60	60	0
+obs	0	0	0	0	3	stopped	movement-stalled	0	60	0
+case	three-move-budget	0	-500	0	60
+obs	0	0	0	0	1	move	bounded-forward-correction	60	500	0
+obs	0	-36	0	0	2	move	bounded-forward-correction	60	464	0
+obs	0	-72	0	0	3	move	bounded-forward-correction	60	428	0
+obs	0	-108	0	0	4	stopped	movement-budget-exhausted	0	392	0
+case	stale-does-not-update-prior	0	-60	0	60
+obs	0	0	0	0	10	move	bounded-forward-correction	60	60	0
+obs	0	-36	0	0	10	stopped	pose-not-newer	0	24	0
+obs	0	-36	0	0	9	stopped	pose-not-newer	0	24	0
+obs	0	-36	0	0	11	move	bounded-forward-correction	32	24	0
+case	moving-away	0	-60	0	60
+obs	0	0	0	0	1	move	bounded-forward-correction	60	60	0
+obs	0	11	0	0	2	stopped	moving-away-from-destination	0	71	0
+case	jump-before-away	0	-60	0	60
+obs	0	0	0	0	1	move	bounded-forward-correction	60	60	0
+obs	0	121	0	0	2	stopped	unexpected-displacement	0	181	0
+case	level-before-clock	0	-60	0	60
+obs	0	0	0	0	1	move	bounded-forward-correction	60	60	0
+obs	0	0	10.1	0	1	stopped	level-changed	0	60	0
+case	level-boundary	0	-60	0	60
+obs	0	0	10	0	1	move	bounded-forward-correction	60	60	0
+case	heading-wrapped	0	-60	0	60
+obs	0	0	0	6.2731853071795864	1	move	bounded-forward-correction	60	60	0.01
+case	heading-at-limit	0	-60	0	60
+obs	0	0	0	0.15	1	move	bounded-forward-correction	60	60	-0.15
+case	heading-over-limit	0	-60	0	60
+obs	0	0	0	0.150001	1	stopped	heading-correction-needs-calibration	0	60	-0.150001
+obs	0	0	0	0	2	move	bounded-forward-correction	60	60	0
+case	heading-half-turn	0	-60	0	60
+obs	0	0	0	3.141592653589793	1	stopped	heading-correction-needs-calibration	0	60	-3.141592653589793
+case	arrival-consecutive	0	-60	0	60
+obs	0	-50	0	0	1	confirm	coordinate-arrival	0	10	0
+obs	0	-40	0	0	2	move	bounded-forward-correction	26	20	0
+obs	0	-54	0	0	3	confirm	coordinate-arrival	0	6	0
+obs	0	-54	0	0	4	arrived	coordinate-arrival	0	6	0
+case	upper-speed-clamp	0	-200	0	100
+obs	0	0	0	0	1	move	bounded-forward-correction	100	200	0
+obs	0	-120	0	0	2	move	bounded-forward-correction	53	80	0
+obs	0	-180	0	0	3	move	bounded-forward-correction	20	20	0
+obs	0	-195	0	0	4	confirm	coordinate-arrival	0	5	0
+obs	0	-195	0	0	5	arrived	coordinate-arrival	0	5	0
+case	lower-speed-clamp	0	-60	0	100
+obs	0	0	0	0	1	move	bounded-forward-correction	80	60	0
+obs	0	-2	0	0	2	move	bounded-forward-correction	100	58	0
+obs	0	-4	0	0	3	move	bounded-forward-correction	100	56	0
+obs	0	-6	0	0	4	stopped	movement-budget-exhausted	0	54	0
+case	invalid-budget-19	0	-60	0	19
+obs	0	0	0	0	1	stopped	invalid-pose-or-budget	0	60	0
+case	invalid-budget-101	0	-60	0	101
+obs	0	0	0	0	1	stopped	invalid-pose-or-budget	0	60	0
+case	minimum-pulse	0	-11	0	20
+obs	0	0	0	0	1	move	bounded-forward-correction	20	11	0
+case	nonfinite-heading	0	-60	0	60
+obs	0	0	0	NaN	1	stopped	invalid-pose-or-budget	0	60	NaN
+case	nonfinite-position	0	-60	0	60
+obs	NaN	0	0	0	1	stopped	invalid-pose-or-budget	0	NaN	NaN
+case	distance-overflow	1e+308	0	0	60
+obs	0	0	0	0	1	stopped	invalid-pose-or-budget	0	Infinity	-1.5707963267948966
+case	arrival-ignores-heading	0	-60	0	60
+obs	0	-55	0	3.141592653589793	1	confirm	coordinate-arrival	0	5	-3.141592653589793
+obs	0	-55	0	3.141592653589793	2	arrived	coordinate-arrival	0	5	-3.141592653589793
+case	heading-positive-three-pi	0	-60	0	60
+obs	0	0	0	9.42477796076938	1	stopped	heading-correction-needs-calibration	0	60	3.141592653589793
+case	heading-negative-three-pi	0	-60	0	60
+obs	0	0	0	-9.42477796076938	1	stopped	heading-correction-needs-calibration	0	60	-3.141592653589793
+case	heading-large-finite	0	-60	0	60
+obs	0	0	0	1e100	1	stopped	heading-correction-needs-calibration	0	60	-0.748627653441908

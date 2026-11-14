@@ -13,7 +13,7 @@ internal sealed record W101ModuleCardAdapter(
 internal static class JobDeckRoutines
 {
     internal static JobRoutine[] Create(Func<JobCardSpec, JobFacts?, PreparedDeckJob>? quest = null,
-        W101ModuleCardAdapter? w101Modules = null)
+        W101ModuleCardAdapter? w101Modules = null, Func<JobCardSpec, JobFacts?, PreparedDeckJob>? travel = null)
     {
         var routines = new List<JobRoutine>
         {
@@ -79,6 +79,15 @@ internal static class JobDeckRoutines
             new("action", "Menu action", "choice:open-menu", false, "open-menu"), new("timeoutSeconds", "Time limit (seconds)", "text", false, "30"));
         BoundModule("w101.auto-idle", "Auto-Idle", "native-idle", "idle", "Enter verified native Idle through the game menu. Wake/resume and automatic between-run scheduling are separate operations.",
             new("method", "Method", "choice:native-idle,spin,step,routine", false, "native-idle"), new("timeoutSeconds", "Time limit (seconds)", "text", false, "30"));
+        routines.Add(new(new(W101TravelCard.Id, "Travel", "W101 Operations", "replay", "wizard101",
+            "Bounded World Gate selection · live qualification required", travel is not null, true,
+            [new("destination", "Destination world", "text", true, "Zafaria"),
+                new("returnHome", "Return Home afterward", "choice:true,false", false, "true"),
+                new("maximumHomeWaitSeconds", "Home cooldown wait limit (seconds)", "text", false, "60"),
+                new("maximumPages", "World menu page limit", "text", false, "8"),
+                new("captureHomeCooldown", "Observe Home cooldown after return", "choice:true,false", false, "false")],
+            "Start at a World Gate. Verify the selected world, travel, optionally wait for Home availability, return and enter Idle. Home return currently requires starting at your house gate."),
+            card => W101TravelCard.Options(card), travel ?? ((_, _) => throw new InvalidOperationException("No travel adapter connected."))));
         Planned("w101.character-switch", "Switch Wizard", "W101 Operations", "cards",
             "Return to character selection, verify the configured wizard after loading, associate its house profile, and verify native Idle. Live identity and selection bindings are pending; this card cannot yet dispatch.",
             new("wizardName", "Exact wizard name", "text", true),

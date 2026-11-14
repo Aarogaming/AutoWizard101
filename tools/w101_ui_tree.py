@@ -28,6 +28,9 @@ COMBAT_READER_SHA256 = (
 )
 DUEL_READER_SHA256 = "632a826d1aee0757a01dbe442d61b3045eecc0f274d5a94650d6f0048c060165"
 POSE_READER_SHA256 = "a6c9957f9aa209f6a14f1c24df0ca81e6035e7d400037416427f1ccc45baab77"
+IDENTITY_READER_SHA256 = (
+    "f1ddc2fb6a89b92ce3210792308df4acb5d4703cadba05d177bea9e7543f4691"
+)
 MAX_NODES = 384
 MAX_DEPTH = 16
 MAX_TRACE_BYTES = 4 * 1024 * 1024
@@ -192,6 +195,17 @@ def pose_reader_module():
     return module
 
 
+def identity_reader_module():
+    path = Path(__file__).with_name("w101_identity.py")
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != IDENTITY_READER_SHA256:
+        raise ValueError("Reviewed identity reader changed")
+    spec = importlib.util.spec_from_file_location("maelstrom_wizard_identity", path)
+    module = importlib.util.module_from_spec(spec)
+    exec(compile(raw, str(path), "exec"), module.__dict__)
+    return module
+
+
 async def current_duel_manager(read, image_base, image_size):
     """Exact-image static binding reviewed in W101-COMBAT-DUEL-10. No scan/hook."""
     pointer(image_base)
@@ -215,6 +229,8 @@ def validate_request(request):
         raise ValueError("Quest context requires a boolean opt-in")
     if type(request.get("includeCombatContext", False)) is not bool:
         raise ValueError("Combat context requires a boolean opt-in")
+    if type(request.get("includeResourceContext", False)) is not bool:
+        raise ValueError("Resource context requires boolean opt-in")
     if type(request.get("includePoseContext", False)) is not bool:
         raise ValueError("Pose context requires a boolean opt-in")
     if type(request.get("stopAfterTwoTrees", False)) is not bool:
@@ -232,6 +248,7 @@ def validate_request(request):
             "includeQuestContext",
             "includeCombatContext",
             "includePoseContext",
+            "includeResourceContext",
             "stopAfterTwoTrees",
         )
     }
@@ -373,11 +390,18 @@ class RootScope:
 
 class UiClient:
     def __init__(
-        self, target, include_quest_context=False, include_combat_context=False
+        self,
+        target,
+        include_quest_context=False,
+        include_combat_context=False,
+        include_resource_context=False,
     ):
         from wizwalker import Client
         from wizwalker.memory.hooks import RootWindowHook
 
+        self.image_sha256 = target["imageSha256"]
+        self.include_resource_context = include_resource_context
+        self.resource_labels = {}
         self.include_quest_context = include_quest_context
         self.include_combat_context = include_combat_context
         self.combat_reader = combat_reader_module() if include_combat_context else None
@@ -417,6 +441,7 @@ class UiClient:
         return await self.client.is_loading()
 
     async def tree(self):
+        self.resource_acquired = common.utc_ticks()
         tree = await snapshot(
             self.client.hook_handler.read_bytes,
             await self.scope.root(),
@@ -425,7 +450,17 @@ class UiClient:
             include_quest_context=self.include_quest_context,
             include_combat_context=self.include_combat_context,
             combat_reader=self.combat_reader,
+            include_resource_context=self.include_resource_context,
         )
+        if self.include_resource_context:
+            self.resource_globes = tree.get("resourceGlobes", {})
+            self.resource_potions = tree.get("resourcePotions")
+            self.resource_labels = {
+                n["name"]: n["text"]
+                for n in tree["nodes"]
+                if n.get("name") in {"textHealth", "textMana", "textEnergy"}
+                and n.get("text") is not None
+            }
         fields = tree.get("combatFieldCandidates")
         if self.duel_reader is not None and fields and fields["participants"]:
             try:
@@ -458,6 +493,164 @@ class UiClient:
             self.client._pymem.close_process()
             self.handle_closed = True
 
+    async def resources(self):
+        """Qualification only: serialized legacy stats hook, no resource publication."""
+        if (
+            self.image_sha256
+            != "d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a"
+        ):
+            return dict(status="unknown", reason="stats-layout-unreviewed")
+        from wizwalker.memory.hooks import PlayerStatHook
+
+        await self.scope.close()
+        scope = RootScope(
+            self.client.hook_handler,
+            PlayerStatHook,
+            expected_entry=bytes.fromhex("2b d8 b8 00 00 00 00"),
+            export_name="stat_addr",
+        )
+        self.scope = scope
+        stage = "hook-open"
+        try:
+            await scope.open()
+            stage = "stats-export"
+            address = None
+            for _ in range(20):
+                await asyncio.sleep(0.05)
+                try:
+                    address = await scope.root()
+                    break
+                except ValueError:
+                    continue
+            if address is None:
+                return dict(
+                    status="unknown", reason="stats-export-not-observed", stage=stage
+                )
+            stage = "stats-read"
+            acquired = common.utc_ticks()
+            read = self.client.hook_handler.read_bytes
+            from pymem.process import module_from_name
+
+            module = module_from_name(
+                self.client._pymem.process_handle, "WizardGraphicalClient.exe"
+            )
+            identity_reader = identity_reader_module()
+            before_identity = await identity_reader.read_identity(
+                read, module.lpBaseOfDll, module.SizeOfImage, address
+            )
+            first = await read(address + 80, 992)
+            await asyncio.sleep(0.1)
+            second = await read(address + 80, 992)
+            after_identity = await identity_reader.read_identity(
+                read, module.lpBaseOfDll, module.SizeOfImage, address
+            )
+            wizard_identity = qualify_identity_pair(before_identity, after_identity)
+            offsets = (112, 136)
+            if (
+                any(first[o - 80 : o - 76] != second[o - 80 : o - 76] for o in offsets)
+                or await scope.root() != address
+            ):
+                return dict(status="unknown", reason="stats-changed-during-read")
+
+            def integer(offset):
+                return struct.unpack_from("<i", second, offset - 80)[0]
+
+            def floating(offset):
+                return struct.unpack_from("<f", second, offset - 80)[0]
+
+            import math
+
+            named_fields = []
+            for name, offset, kind in RESOURCE_SCALARS:
+                fmt, width = {
+                    "int32": ("<i", 4),
+                    "uint32": ("<I", 4),
+                    "uint8": ("<B", 1),
+                    "float32": ("<f", 4),
+                }[kind]
+                value = struct.unpack_from(fmt, second, offset - 80)[0]
+                stable = (
+                    first[offset - 80 : offset - 80 + width]
+                    == second[offset - 80 : offset - 80 + width]
+                )
+                valid = stable and math.isfinite(value)
+                named_fields.append(
+                    dict(
+                        name=name,
+                        offset=offset,
+                        dataType=kind,
+                        value=value if valid else None,
+                        quality="candidate" if valid else "unknown",
+                        reason=(
+                            "awaiting-independent-verification"
+                            if valid
+                            else "changed-or-nonfinite"
+                        ),
+                        source="exact-build-property-registration",
+                        executable=False,
+                    )
+                )
+
+            def finite_float(offset):
+                value = floating(offset)
+                return value if math.isfinite(value) else None
+
+            object_type = None
+            try:
+                from pymem.process import module_from_name
+
+                module = module_from_name(
+                    self.client._pymem.process_handle, "WizardGraphicalClient.exe"
+                )
+                base, size = module.lpBaseOfDll, module.SizeOfImage
+
+                def inside(value, length):
+                    if not base <= value <= base + size - length:
+                        raise ValueError("type-reference-outside-image")
+                    return value
+
+                vtable = struct.unpack("<Q", await read(address, 8))[0]
+                locator = struct.unpack("<Q", await read(inside(vtable - 8, 8), 8))[0]
+                col = await read(inside(locator, 24), 24)
+                signature, _, _, descriptor, _, self_rva = struct.unpack("<6I", col)
+                if signature != 1 or base + self_rva != locator:
+                    raise ValueError("type-locator-invalid")
+                name = (await read(inside(base + descriptor + 16, 96), 96)).split(
+                    b"\0", 1
+                )[0]
+                if re.fullmatch(rb"[.?@$A-Za-z0-9_]{1,95}", name):
+                    object_type = name.decode("ascii")
+                if struct.unpack("<Q", await read(address, 8))[0] != vtable:
+                    raise ValueError("type-changed")
+            except Exception:
+                object_type = None
+            return dict(
+                status="candidate",
+                liveQualified=False,
+                observedUtcTicks=acquired,
+                layout="d410-property-registration-candidate",
+                uiResources=getattr(self, "resource_labels", {}),
+                uiGlobes=getattr(self, "resource_globes", {}),
+                uiPotions=getattr(self, "resource_potions", None),
+                uiObservedUtcTicks=getattr(self, "resource_acquired", 0),
+                objectType=object_type,
+                namedFields=named_fields,
+                wizardIdentity=wizard_identity,
+                health=dict(current=integer(112), maximum=integer(80) + integer(224)),
+                mana=dict(current=integer(136), maximum=integer(84) + integer(228)),
+                energy=dict(baseMaximum=integer(108), bonus=integer(244)),
+                potions=dict(current=finite_float(172), maximum=finite_float(168)),
+            )
+        except Exception as error:
+            return dict(
+                status="unknown",
+                reason="stats-candidate-unavailable",
+                stage=stage,
+                error=type(error).__name__,
+            )
+        finally:
+            await scope.close()
+
     async def pose(self):
         """Serialize hooks; never let two hooks share the scratch block."""
         from wizwalker.memory.hooks import PlayerHook
@@ -486,6 +679,184 @@ class UiClient:
             await scope.close()
 
 
+# Exact-build named scalar candidates. Static registration + imported type semantics.
+def qualify_identity_pair(before, after):
+    """Two owner-checked reads must agree around the complete stats acquisition."""
+    if (
+        before.get("status") == after.get("status") == "observed"
+        and before.get("source") == after.get("source") == "client-object-registry-v1"
+        and before.get("statsMatched") is True
+        and after.get("statsMatched") is True
+        and isinstance(before.get("characterKey"), str)
+        and re.fullmatch(r"[0-9a-f]{64}", before["characterKey"])
+        and before["characterKey"] == after.get("characterKey")
+    ):
+        return dict(
+            after,
+            readCalls=before["readCalls"] + after["readCalls"],
+            readBytes=before["readBytes"] + after["readBytes"],
+        )
+    return dict(
+        status="unknown",
+        reason="wizard-owner-not-stable",
+        source="client-object-registry-v1",
+        statsMatched=False,
+    )
+
+
+RESOURCE_SCALARS = (
+    ("m_baseHitpoints", 80, "int32"),
+    ("m_baseMana", 84, "int32"),
+    ("m_baseGoldPouch", 88, "int32"),
+    ("m_baseEventCurrency1Pouch", 92, "int32"),
+    ("m_baseEventCurrency2Pouch", 96, "int32"),
+    ("m_basePvPCurrencyPouch", 100, "int32"),
+    ("m_basePvPTourneyCurrencyPouch", 104, "int32"),
+    ("m_energyMax", 108, "int32"),
+    ("m_currentHitpoints", 112, "int32"),
+    ("m_currentGold", 116, "int32"),
+    ("m_currentEventCurrency1", 120, "int32"),
+    ("m_currentEventCurrency2", 124, "int32"),
+    ("m_currentPvPCurrency", 128, "int32"),
+    ("m_currentPvPTourneyCurrency", 132, "int32"),
+    ("m_currentMana", 136, "int32"),
+    ("m_currentArenaPoints", 140, "int32"),
+    ("m_potionMax", 168, "float32"),
+    ("m_potionCharge", 172, "float32"),
+    ("m_bonusHitpoints", 224, "int32"),
+    ("m_bonusMana", 228, "int32"),
+    ("m_bonusEnergy", 244, "int32"),
+    ("m_criticalHitPercentAll", 248, "float32"),
+    ("m_blockPercentAll", 252, "float32"),
+    ("m_criticalHitRatingAll", 256, "float32"),
+    ("m_blockRatingAll", 260, "float32"),
+    ("m_referenceLevel", 324, "int32"),
+    ("m_petActChance", 344, "int32"),
+    ("m_dmgBonusPercentAll", 712, "float32"),
+    ("m_dmgBonusFlatAll", 716, "float32"),
+    ("m_accBonusPercentAll", 720, "float32"),
+    ("m_apBonusPercentAll", 724, "float32"),
+    ("m_dmgReducePercentAll", 728, "float32"),
+    ("m_dmgReduceFlatAll", 732, "float32"),
+    ("m_accReducePercentAll", 736, "float32"),
+    ("m_healBonusPercentAll", 740, "float32"),
+    ("m_healIncBonusPercentAll", 744, "float32"),
+    ("m_spellChargeBonusAll", 752, "int32"),
+    ("m_powerPipBase", 756, "float32"),
+    ("m_powerPipBonusPercentAll", 792, "float32"),
+    ("m_xpPercentIncrease", 800, "float32"),
+    ("m_balanceMastery", 832, "int32"),
+    ("m_deathMastery", 836, "int32"),
+    ("m_fireMastery", 840, "int32"),
+    ("m_iceMastery", 844, "int32"),
+    ("m_lifeMastery", 848, "int32"),
+    ("m_mythMastery", 852, "int32"),
+    ("m_stormMastery", 856, "int32"),
+    ("m_maximumNumberOfIslands", 860, "int32"),
+    ("m_gardeningLevel", 864, "uint8"),
+    ("m_gardeningXP", 868, "int32"),
+    ("m_stunResistancePercent", 880, "float32"),
+    ("m_shadowPipMax", 888, "int32"),
+    ("m_fishingLevel", 893, "uint8"),
+    ("m_fishingXP", 896, "int32"),
+    ("m_fishingLuckBonusPercentAll", 748, "float32"),
+    ("m_shadowPipBonusPercent", 796, "float32"),
+    ("m_wispBonusPercent", 824, "float32"),
+    ("m_pipConversionRatingAll", 288, "float32"),
+    ("m_pipConversionPercentAll", 320, "float32"),
+    ("m_monsterMagicLevel", 908, "uint8"),
+    ("m_monsterMagicXP", 912, "int32"),
+    ("m_extraInventorySpace", 920, "int32"),
+    ("m_pipConversionBaseAllSchools", 760, "int32"),
+    ("m_adventurePowerCooldownTime", 1000, "uint32"),
+    ("m_shadowPipRating", 1004, "float32"),
+    ("m_bonusShadowPipRating", 1008, "float32"),
+    ("m_shadowPipRateAccumulated", 1012, "float32"),
+    ("m_shadowPipRateThreshold", 1016, "float32"),
+    ("m_shadowPipRatePercentage", 1020, "int32"),
+    ("m_cantripLevel", 1040, "uint8"),
+    ("m_cantripXP", 1044, "int32"),
+    ("m_archmasteryBase", 1048, "float32"),
+    ("m_archmasteryBonusFlat", 1052, "float32"),
+    ("m_archmasteryBonusPercentage", 1056, "float32"),
+    ("m_schoolID", 328, "uint32"),
+    ("m_levelScaled", 332, "int32"),
+)
+
+
+def qualify_resources(candidate, image, snapshot_ticks):
+    """Current image property layout + independently observed HUD agreement."""
+    if image != "d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a":
+        return None
+    if (
+        candidate.get("status") != "candidate"
+        or candidate.get("layout") != "d410-property-registration-candidate"
+    ):
+        return None
+    stamp = candidate.get("observedUtcTicks", 0)
+    hud_stamp = candidate.get("uiObservedUtcTicks", 0)
+    if (
+        not 0 < snapshot_ticks <= hud_stamp <= stamp
+        or stamp - snapshot_ticks > 20000000
+    ):
+        return None
+    labels = candidate.get("uiResources", {})
+
+    def number(name):
+        text = re.sub(r"<[^>]*>", "", labels.get(name, "")).strip()
+        return int(text) if re.fullmatch(r"[0-9]{1,8}", text) else None
+
+    currents = {}
+    for key, name in (("health", "textHealth"), ("mana", "textMana")):
+        current = candidate.get(key, {}).get("current")
+        if (
+            type(current) is not int
+            or not 0 <= current <= 100000
+            or number(name) != current
+        ):
+            return None
+        currents[key] = current
+    energy = number("textEnergy")
+    if energy is not None and 0 <= energy <= 100000:
+        currents["energy"] = energy
+    # Exact-build StatGlobe getters establish displayed maximum semantics.
+    # Never recompute maxima from the transient base/bonus stats representation.
+    values = {}
+    for key, current in currents.items():
+        globe = candidate.get("uiGlobes", {}).get(key, {})
+        maximum = globe.get("maximum")
+        if (
+            type(globe.get("current")) is int
+            and globe["current"] == current
+            and type(maximum) is int
+            and 0 < maximum <= 100000
+            and current <= maximum
+        ):
+            values[key] = dict(current=current, maximum=maximum)
+    potion = candidate.get("potions", {})
+    ui_potion = candidate.get("uiPotions") or {}
+    charge, capacity = potion.get("current"), potion.get("maximum")
+    if (
+        type(charge) in (int, float)
+        and type(capacity) in (int, float)
+        and 0 <= charge <= capacity <= 100
+        and capacity > 0
+        and type(ui_potion.get("current")) in (int, float)
+        and type(ui_potion.get("maximum")) in (int, float)
+        and ui_potion["current"] == charge
+        and ui_potion["maximum"] == capacity
+    ):
+        values["potions"] = dict(current=charge, maximum=capacity)
+        currents["potions"] = charge
+    return dict(
+        status="observed",
+        observedUtcTicks=stamp,
+        values=values,
+        currentValues=currents,
+        source="hud-controls-and-correlated-stats",
+    )
+
+
 def pointer(value, alignment=8):
     if (
         type(value) is not int
@@ -505,9 +876,12 @@ async def snapshot(
     include_quest_context=False,
     include_combat_context=False,
     combat_reader=None,
+    include_resource_context=False,
 ):
     """Bounded visible tree; batched headers and child vectors, no unsafe text API."""
     nodes, seen = [], set()
+    resource_globes = {}
+    resource_potions = None
     combat_bindings = []
     pending = [(pointer(root), None, 0, True, ())]
     total_bytes = 0
@@ -587,6 +961,15 @@ async def snapshot(
         if private or not visible:
             continue
         path = (*ancestors, name)
+        # Geometry for reviewed gate controls only; raw parent-relative layout units.
+        if (
+            "optionWindow" in ancestors
+            and name in {"leftButton", "rightButton", "selectedWorldCheckMark"}
+            or name.startswith("wbtn")
+            and "optionWindow" in ancestors
+        ):
+            rectangle = list(struct.unpack_from("<iiii", header, 80))
+            node["rawRectangle"] = rectangle if valid_raw_rectangle(rectangle) else None
         if include_combat_context and combat_kind(path) is not None:
             # Already inside the bounded header; raw layout units, NOT client pixels.
             raw_rectangle = list(struct.unpack_from("<iiii", header, 80))
@@ -615,6 +998,53 @@ async def snapshot(
                                 "card" if kind == "hand-descendant" else "participant",
                             )
                         )
+        resource_paths = tuple(
+            ("Root", "WorldView", "windowHUD", sprite, rect, text)
+            for sprite, rect, text in (
+                ("spriteHealthBkg", "HealthGlobeRect", "textHealth"),
+                ("spriteManaBkg", "ManaGlobeRect", "textMana"),
+                ("spriteEnergyBkg", "EnergyGlobeRect", "textEnergy"),
+            )
+        )
+        resource_branch = include_resource_context and any(
+            p[: len(path)] == path for p in resource_paths
+        )
+        resource_text = include_resource_context and path in resource_paths
+        if (
+            include_resource_context
+            and archived_profile
+            and path == ("Root", "WorldView", "windowHUD", "btnPotions")
+        ):
+            try:
+                if await control_type(address) == b"PotionButton":
+                    maximum, current = struct.unpack(
+                        "<ff", await bounded(address + 0x440, 8)
+                    )
+                    if 0 <= current <= maximum <= 100 and maximum > 0:
+                        resource_potions = dict(current=current, maximum=maximum)
+            except (ValueError, OSError, KeyError):
+                pass
+        globe = {
+            "spriteHealthBkg": ("health", b"HealthGlobe"),
+            "spriteManaBkg": ("mana", b"ManaGlobe"),
+            "spriteEnergyBkg": ("energy", b"EnergyGlobe"),
+        }.get(name)
+        if (
+            include_resource_context
+            and archived_profile
+            and globe is not None
+            and ancestors == ("Root", "WorldView", "windowHUD")
+        ):
+            try:
+                if await control_type(address) == globe[1]:
+                    raw = await bounded(address + 0x3A0, 8)
+                    current, maximum = struct.unpack("<II", raw)
+                    if 0 <= current <= maximum <= 100000 and maximum > 0:
+                        resource_globes[globe[0]] = dict(
+                            current=current, maximum=maximum
+                        )
+            except (ValueError, OSError, KeyError):
+                pass
         quest_branch = include_quest_context and any(
             p[: len(path)] == path for p in QUEST_PATHS
         )
@@ -629,9 +1059,17 @@ async def snapshot(
             (name in STRUCTURAL_LEAVES and not quest_branch and not hud_root)
             or (
                 (hud_child or ancestors == ("Root", "WorldView", "DeckConfiguration"))
+                and name != "compassAndTeleporterButtons"
                 and not quest_branch
+                and not resource_branch
             )
-            or (inside_quest_branch and not quest_branch)
+            or (
+                inside_quest_branch
+                and not quest_branch
+                and not resource_branch
+                and path[:4]
+                != ("Root", "WorldView", "windowHUD", "compassAndTeleporterButtons")
+            )
         ):
             # Retain the control itself for path matching; its decorative/content
             # descendants cannot establish any of this observer's four states.
@@ -644,6 +1082,7 @@ async def snapshot(
             and ancestors == ("Root", "idleMessage", "idleBackground")
             or path in selection_paths
             or path == INTERACTION_TITLE
+            or resource_text
             or include_quest_context
             and path in (QUEST_OBJECTIVE, QUEST_DIALOGUE)
         ):
@@ -653,7 +1092,9 @@ async def snapshot(
                     + await text_offset(
                         address,
                         path == ("Root", "idleMessage", "idleBackground", "idleText")
-                        or path in selection_paths,
+                        or path in selection_paths
+                        or path == INTERACTION_TITLE
+                        or resource_text,
                     ),
                     24,
                 )
@@ -721,6 +1162,8 @@ async def snapshot(
         questContextIncluded=include_quest_context,
         combatContextIncluded=include_combat_context,
         combatFieldCandidates=fields,
+        resourceGlobes=resource_globes,
+        resourcePotions=resource_potions,
     )
 
 
@@ -902,7 +1345,10 @@ def quest_context(tree):
 
 def interaction_title(tree):
     """Source-backed title candidate, not permission to interact or a menu outcome."""
-    if not tree.get("complete") or tree.get("layout") != CURRENT_IMAGE_SHA256:
+    if not tree.get("complete") or tree.get("layout") not in (
+        CURRENT_IMAGE_SHA256,
+        ARCHIVED_LAYOUT_IMAGE_SHA256,
+    ):
         return None
     raw_nodes = tree.get("nodes", [])
     if not raw_nodes or len(raw_nodes) > MAX_NODES:
@@ -963,6 +1409,15 @@ def classify(tree):
         node["name"] in {"SettingPage", "SettingsPage"} and node["parent"] in settings
         for node in visible
     )
+    # Spiral Map can remain open underneath native Idle; Escape is not Exit.
+    # Require the observed control set, rather than treating unknown panels as outside.
+    visible_names = {node["name"] for node in visible}
+    values["menu"] |= {
+        "spiralScene",
+        "teleportButton",
+        "cancelButton",
+        "optionWindow",
+    } <= visible_names
     # Current-client Idle departure/return was user-coordinated and recorded.
     # Only this qualified layout may turn an absent overlay into a negative.
     by_index = {node["index"]: node for node in tree["nodes"]}
@@ -1183,8 +1638,8 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                 # and cleanup unchanged; duration remains the maximum budget.
                 if (
                     request.get("stopAfterTwoTrees", False)
-                    and result["treeSamples"] >= 2
-                ):
+                    or request.get("includeResourceContext", False)
+                ) and result["treeSamples"] >= 2:
                     result.update(
                         status="observed", code="bounded-ui-snapshot-finished"
                     )
@@ -1272,8 +1727,55 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                         )
                     except Exception:
                         result["poseCandidate"] = None
+                if (
+                    request.get("includeResourceContext", False)
+                    and result["status"] == "observed"
+                    and result.get("loading") is False
+                    and not stop()
+                    and identity(request["target"])
+                ):
+                    try:
+                        result["resourceCandidate"] = await asyncio.wait_for(
+                            client.resources(), 3
+                        )
+                        if (
+                            await asyncio.wait_for(client.loading(), 1) is False
+                            and not stop()
+                            and identity(request["target"])
+                        ):
+                            result["resources"] = qualify_resources(
+                                result["resourceCandidate"],
+                                request["target"]["imageSha256"],
+                                result.get("statesObservedUtcTicks", 0),
+                            )
+                        else:
+                            result.update(
+                                status="unavailable",
+                                code="resource-context-changed",
+                                resources=None,
+                                loading=None,
+                                states=dict.fromkeys(STATES),
+                                stableStates=dict.fromkeys(STATES),
+                                statesObservedUtcTicks=0,
+                                questContext=None,
+                                stableQuestContext=None,
+                                interactionTitle=None,
+                                stableInteractionTitle=None,
+                                combatContext=None,
+                            )
+                    except Exception:
+                        result.update(
+                            status="unavailable",
+                            code="resource-observation-unavailable",
+                            resources=None,
+                        )
+                        result["resourceCandidate"] = dict(
+                            status="unknown", reason="stats-candidate-unavailable"
+                        )
                 await asyncio.wait_for(client.close(), 3)
                 result.update(cleanupConfirmed=True, hookRestored=True)
+                if stop():
+                    result.update(status="cancelled", code="cancelled", resources=None)
             except Exception:
                 result.update(
                     status="cleanup_failed",
@@ -1322,6 +1824,7 @@ def main():
                     target,
                     request.get("includeQuestContext", False),
                     request.get("includeCombatContext", False),
+                    request.get("includeResourceContext", False),
                 ),
                 common.current_target,
                 lambda: (directory / "stop.request").exists(),

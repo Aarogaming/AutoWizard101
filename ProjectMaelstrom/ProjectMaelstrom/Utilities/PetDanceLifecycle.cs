@@ -9,7 +9,7 @@ internal enum PetDanceScene
 internal enum PetDanceLifecycleAction
 {
     ApproachRoute, InteractX, ChooseLevel, Play, Wait, TeacherHandoff, Next,
-    FinishWithoutSnack, OptionalSnackPlannerHandoff, OpenMenu, SelectIdle, Done, QuitToCharacterSelection, SelectWizardCandidate, EnterSelectedWizard
+    FinishWithoutSnack, OptionalSnackPlannerHandoff, OpenMenu, SelectIdle, Done, QuitToCharacterSelection, SelectWizardCandidate, EnterSelectedWizard, ExitWorldGate, TravelWorldGate, SelectWorldGate
 }
 internal sealed record PetDanceLifecycleOptions(string TargetId, Size Geometry, string ContextId,
     string? LevelId = null, string? ApproachRouteId = null, bool ApproachRouteQualified = false,

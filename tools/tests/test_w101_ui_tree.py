@@ -459,6 +459,11 @@ def title_tree(text="Dance Game"):
 
 
 class InteractionTitleTests(unittest.IsolatedAsyncioTestCase):
+    def test_reviewed_archived_profile_can_identify_world_gate(self):
+        tree = title_tree("World Gate")
+        tree["layout"] = ui.ARCHIVED_LAYOUT_IMAGE_SHA256
+        self.assertEqual("World Gate", ui.interaction_title(tree))
+
     def test_exact_visible_title_is_normalized_without_authorizing_action(self):
         self.assertEqual(
             "Dance & Game",
@@ -767,6 +772,50 @@ class TreeTests(unittest.IsolatedAsyncioTestCase):
             tree["layout"] = "unknown"
             self.assertIsNone(ui.classify(tree)["nativeIdle"])
 
+    async def test_gate_geometry_is_bounded_and_parent_relative(self):
+        m = Memory()
+        world = m.node("wbtnZafaria")
+        marker = m.node("selectedWorldCheckMark")
+        m.put(world + 160, struct.pack("<iiii", 10, 100, 110, 130))
+        m.put(marker + 160, struct.pack("<iiii", 0, 100, 20, 120))
+        root = m.node(
+            "Root", [m.node("WorldView", [m.node("optionWindow", [world, marker])])]
+        )
+        tree = await ui.snapshot(m.read, root, current_layout=True)
+        nodes = {n["name"]: n for n in tree["nodes"]}
+        self.assertEqual([10, 100, 110, 130], nodes["wbtnZafaria"]["rawRectangle"])
+        self.assertNotIn("rawRectangle", nodes["Root"])
+        self.assertIsNone(nodes["wbtnZafaria"]["text"])
+
+    async def test_home_controls_are_structural_not_arbitrary_hud_text(self):
+        m = Memory()
+        home = m.node("btnHome")
+        compass = m.node("compassAndTeleporterButtons", [home])
+        root = m.node("Root", [m.node("WorldView", [m.node("windowHUD", [compass])])])
+        tree = await ui.snapshot(m.read, root, current_layout=True)
+        self.assertTrue(any(n["name"] == "btnHome" for n in tree["nodes"]))
+        self.assertTrue(all(n["text"] is None for n in tree["nodes"]))
+
+    async def test_spiral_map_is_a_menu_even_without_named_direct_child(self):
+        m = Memory()
+        controls = [
+            m.node(name)
+            for name in (
+                "spiralScene",
+                "teleportButton",
+                "cancelButton",
+                "optionWindow",
+            )
+        ]
+        root = m.node(
+            "Root",
+            [m.node("WorldView", [m.node("", [m.node("messageBoxBG", controls)])])],
+        )
+        tree = await ui.snapshot(m.read, root, current_layout=True)
+        self.assertTrue(ui.classify(tree)["menu"])
+        tree["nodes"] = [n for n in tree["nodes"] if n["name"] != "spiralScene"]
+        self.assertFalse(ui.classify(tree)["menu"])
+
     async def test_current_text_layout_requires_verified_control_type(self):
         for valid_type in (True, False):
             m = Memory()
@@ -1072,6 +1121,58 @@ class Client:
 
 
 class ObserveTests(unittest.IsolatedAsyncioTestCase):
+    async def test_resource_stage_loading_unknown_and_cancellation_cannot_publish(self):
+        for cancel in (False, True):
+            with self.subTest(cancel=cancel):
+                client = Client()
+                sampled = False
+
+                async def resources():
+                    nonlocal sampled
+                    sampled = True
+                    return dict(status="candidate")
+
+                async def loading():
+                    return None if sampled else False
+
+                async def emit(value):
+                    pass
+
+                client.resources, client.loading = resources, loading
+                result = await ui.observe(
+                    request() | dict(durationSeconds=3, includeResourceContext=True),
+                    lambda _: client,
+                    lambda _: True,
+                    lambda: cancel and sampled,
+                    emit,
+                )
+                self.assertEqual(
+                    "cancelled" if cancel else "unavailable", result["status"]
+                )
+                self.assertIsNone(result.get("resources"))
+                self.assertTrue(result["cleanupConfirmed"] and client.closed)
+
+    async def test_resource_snapshot_does_not_wait_out_watch_tail(self):
+        client = Client()
+
+        async def resources():
+            return dict(status="unknown")
+
+        async def emit(value):
+            pass
+
+        client.resources = resources
+        result = await ui.observe(
+            request() | dict(durationSeconds=3, includeResourceContext=True),
+            lambda _: client,
+            lambda _: True,
+            lambda: False,
+            emit,
+        )
+        self.assertEqual(2, result["treeSamples"])
+        self.assertEqual("bounded-ui-snapshot-finished", result["code"])
+        self.assertTrue(result["cleanupConfirmed"] and client.closed)
+
     async def test_two_tree_snapshot_stops_with_original_timestamps_and_cleanup(self):
         client = Client()
         events = []
@@ -1411,3 +1512,259 @@ class ContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ResourceOptInTests(unittest.TestCase):
+    def test_resource_opt_in_is_explicit_boolean(self):
+        value = request()
+        value["includeResourceContext"] = True
+        ui.validate_request(value)
+        value["includeResourceContext"] = "true"
+        with self.assertRaises(ValueError):
+            ui.validate_request(value)
+
+
+class ResourceCandidateTests(unittest.IsolatedAsyncioTestCase):
+    def test_identity_pair_rejects_same_stats_from_changed_wizard(self):
+        first = dict(
+            status="observed",
+            source="client-object-registry-v1",
+            statsMatched=True,
+            characterKey="a" * 64,
+            readCalls=24,
+            readBytes=384,
+        )
+        self.assertEqual("observed", ui.qualify_identity_pair(first, first)["status"])
+        self.assertEqual(48, ui.qualify_identity_pair(first, first)["readCalls"])
+        for second in (
+            dict(first, characterKey="b" * 64),
+            dict(first, statsMatched=False),
+            dict(first, status="unknown"),
+            dict(first, characterKey=None),
+        ):
+            self.assertEqual(
+                "unknown", ui.qualify_identity_pair(first, second)["status"]
+            )
+
+    async def test_resource_read_does_not_expand_unqualified_character_panel(
+        self,
+    ):
+        m = Memory()
+        field = m.node("txtGold", text="12345")
+        secret = m.node("ChatWindow", [m.node("message", text="Private")])
+        root = m.node(
+            "Root",
+            [
+                m.node(
+                    "WorldView",
+                    [
+                        m.node(
+                            "DeckConfiguration",
+                            [m.node("CharacterStatsPage", [field, secret])],
+                        )
+                    ],
+                )
+            ],
+        )
+        tree = await ui.snapshot(
+            m.read, root, archived_profile=True, include_resource_context=True
+        )
+        self.assertFalse(any(n["name"] == "txtGold" for n in tree["nodes"]))
+        self.assertFalse(any(n["name"] == "message" for n in tree["nodes"]))
+
+    async def test_potion_ui_candidate_preserves_fractional_charge_and_rejects_nonfinite(
+        self,
+    ):
+        m = Memory()
+        button = m.node("btnPotions")
+        m.allocate()  # Reserve tail beyond the synthetic node's default allocation.
+        function, vtable, name = m.allocate(), m.allocate(), m.allocate()
+        m.put(name, b"PotionButton\0")
+        m.put(
+            function + 63,
+            bytes.fromhex("48 8d 0d") + struct.pack("<i", name - function - 70),
+        )
+        m.put(vtable, struct.pack("<Q", function))
+        m.put(button, struct.pack("<Q", vtable))
+        m.put(button + 0x440, struct.pack("<ff", 4, 2.5))
+        root = m.node("Root", [m.node("WorldView", [m.node("windowHUD", [button])])])
+        tree = await ui.snapshot(
+            m.read, root, archived_profile=True, include_resource_context=True
+        )
+        self.assertEqual(dict(current=2.5, maximum=4), tree["resourcePotions"])
+        self.assertIsNone(
+            (await ui.snapshot(m.read, root, archived_profile=True))["resourcePotions"]
+        )
+        m.put(button + 0x440, struct.pack("<ff", float("nan"), 2.5))
+        self.assertIsNone(
+            (
+                await ui.snapshot(
+                    m.read, root, archived_profile=True, include_resource_context=True
+                )
+            )["resourcePotions"]
+        )
+
+    async def test_globe_amounts_require_exact_type_path_and_opt_in(self):
+        m = Memory()
+        globe = m.node("spriteHealthBkg")
+        function, vtable, name = m.allocate(), m.allocate(), m.allocate()
+        m.put(name, b"HealthGlobe\0")
+        m.put(
+            function + 63,
+            bytes.fromhex("48 8d 0d") + struct.pack("<i", name - function - 70),
+        )
+        m.put(vtable, struct.pack("<Q", function))
+        m.put(globe, struct.pack("<Q", vtable))
+        m.put(globe + 0x3A0, struct.pack("<II", 100, 200))
+        root = m.node("Root", [m.node("WorldView", [m.node("windowHUD", [globe])])])
+        self.assertEqual(
+            {},
+            (await ui.snapshot(m.read, root, archived_profile=True))["resourceGlobes"],
+        )
+        tree = await ui.snapshot(
+            m.read, root, archived_profile=True, include_resource_context=True
+        )
+        self.assertEqual(
+            dict(health=dict(current=100, maximum=200)), tree["resourceGlobes"]
+        )
+        m.put(name, b"WrongGlobe\0")
+        self.assertEqual(
+            {},
+            (
+                await ui.snapshot(
+                    m.read, root, archived_profile=True, include_resource_context=True
+                )
+            )["resourceGlobes"],
+        )
+
+    async def test_unreviewed_build_never_opens_stats_scope(self):
+        reader = object.__new__(ui.UiClient)
+        reader.image_sha256 = "unreviewed"
+        self.assertEqual(
+            "stats-layout-unreviewed", (await reader.resources())["reason"]
+        )
+
+    async def test_candidate_reads_are_serial_and_scope_restored(self):
+        from unittest.mock import AsyncMock, patch
+
+        block = bytearray(992)
+        for offset, value in {
+            80: 100,
+            84: 20,
+            108: 100,
+            112: 120,
+            136: 30,
+            224: 50,
+            228: 20,
+            244: 10,
+        }.items():
+            struct.pack_into("<i", block, offset - 80, value)
+        struct.pack_into("<ff", block, 168 - 80, 4.0, 4.0)
+        struct.pack_into("<I", block, 328 - 80, 4000000000)
+        block[864 - 80 : 868 - 80] = bytes([20, 255, 255, 255])
+        changed = bytearray(block)
+        struct.pack_into("<i", changed, 116 - 80, 12345)
+        handler = SimpleNamespace(
+            read_bytes=AsyncMock(side_effect=[bytes(block), bytes(changed)])
+        )
+        reader = object.__new__(ui.UiClient)
+        reader.image_sha256 = (
+            "d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a"
+        )
+        old = SimpleNamespace(close=AsyncMock())
+        reader.scope = old
+        reader.client = SimpleNamespace(
+            hook_handler=handler, _pymem=SimpleNamespace(process_handle=1)
+        )
+        scope = SimpleNamespace(
+            open=AsyncMock(), close=AsyncMock(), root=AsyncMock(return_value=65536)
+        )
+        with patch.dict(
+            sys.modules,
+            {
+                "wizwalker.memory.hooks": SimpleNamespace(PlayerStatHook=object),
+                "pymem.process": SimpleNamespace(
+                    module_from_name=lambda *_: SimpleNamespace(
+                        lpBaseOfDll=0x140000000, SizeOfImage=0x3B69000
+                    )
+                ),
+            },
+        ), patch.object(ui, "RootScope", return_value=scope), patch.object(
+            ui,
+            "identity_reader_module",
+            return_value=SimpleNamespace(
+                read_identity=AsyncMock(return_value=dict(status="unknown"))
+            ),
+        ):
+            result = await reader.resources()
+        old.close.assert_awaited_once()
+        scope.close.assert_awaited_once()
+        self.assertEqual({"current": 120, "maximum": 150}, result["health"])
+        self.assertEqual({"current": 4.0, "maximum": 4.0}, result["potions"])
+        self.assertFalse(result["liveQualified"])
+        self.assertEqual(
+            3, handler.read_bytes.await_count
+        )  # Two blocks plus bounded RTTI attempt.
+        self.assertEqual("unknown", result["wizardIdentity"]["status"])
+        self.assertGreater(len(result["namedFields"]), 20)
+        fields = {field["name"]: field for field in result["namedFields"]}
+        self.assertIsNone(fields["m_currentGold"]["value"])
+        self.assertEqual("unknown", fields["m_currentGold"]["quality"])
+        self.assertEqual(4000000000, fields["m_schoolID"]["value"])
+        self.assertEqual(20, fields["m_gardeningLevel"]["value"])
+        self.assertTrue(all(not f["executable"] for f in result["namedFields"]))
+        self.assertEqual(
+            100,
+            next(
+                f["value"]
+                for f in result["namedFields"]
+                if f["name"] == "m_baseHitpoints"
+            ),
+        )
+
+
+class ResourceQualificationTests(unittest.TestCase):
+    def test_image_clock_and_hud_agreement_gate_publication(self):
+        candidate = dict(
+            status="candidate",
+            layout="d410-property-registration-candidate",
+            observedUtcTicks=200,
+            uiObservedUtcTicks=150,
+            uiResources={
+                "textHealth": "<center>120</center>",
+                "textMana": "30",
+                "textEnergy": "25",
+            },
+            health=dict(current=120, maximum=150),
+            mana=dict(current=30, maximum=40),
+            energy=dict(baseMaximum=100, bonus=10),
+            potions=dict(current=4.0, maximum=4.0),
+        )
+        image = "d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a"
+        result = ui.qualify_resources(candidate, image, 100)
+        self.assertEqual({}, result["values"])
+        self.assertEqual(dict(health=120, mana=30, energy=25), result["currentValues"])
+        candidate["uiGlobes"] = dict(health=dict(current=120, maximum=140))
+        candidate["health"]["maximum"] = 9999
+        self.assertEqual(
+            140,
+            ui.qualify_resources(candidate, image, 100)["values"]["health"]["maximum"],
+        )
+        candidate["uiGlobes"]["health"]["current"] = 121
+        self.assertEqual({}, ui.qualify_resources(candidate, image, 100)["values"])
+        candidate["potions"] = dict(current=2.5, maximum=4.0)
+        candidate["uiPotions"] = dict(current=2.5, maximum=4.0)
+        self.assertEqual(
+            2.5,
+            ui.qualify_resources(candidate, image, 100)["values"]["potions"]["current"],
+        )
+        candidate["uiPotions"]["current"] = 3.0
+        self.assertNotIn(
+            "potions", ui.qualify_resources(candidate, image, 100)["values"]
+        )
+        self.assertIsNone(ui.qualify_resources(candidate, "other", 100))
+        self.assertIsNone(ui.qualify_resources(candidate, image, 201))
+        stale = dict(candidate, observedUtcTicks=30000000)
+        self.assertIsNone(ui.qualify_resources(stale, image, 100))
+        candidate["uiResources"]["textHealth"] = "121"
+        self.assertIsNone(ui.qualify_resources(candidate, image, 100))

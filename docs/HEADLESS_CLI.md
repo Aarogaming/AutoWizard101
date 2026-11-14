@@ -372,3 +372,172 @@ images and traversal outcomes. Observed edges remain candidates until destinatio
 identity is verified; a return edge needs its own traversal. Repeated runs can
 refine travel time, approach radius and obstruction rates without a large model.
 Current guided snapshots are evidence collection, not an autonomous map builder.
+
+
+For a straight entrance approach, add `--walk-until-loading true` and set
+`--pulse-ms` to a maximum hold of 1�15000 ms. This still requires the assisted,
+measured forward visit opt-ins. Serial loading reads run alongside the one held
+key; a loading/unknown reading, takeover, or 2.5-second observation freshness
+expiry releases it. Each read disconnects before the next. There is no second
+controller, model or video recorder. The hold is not obstacle avoidance: a wall
+can consume the time cap. A missing loading transition is an unsuccessful
+approach, followed by the existing Idle finalizer where ownership permits.
+`loading-walk.json` preserves the raw release receipt and observed loading flag;
+`navigation-transition.json` records the subsequent bounded clear-state wait.
+Coordinates before and after a detected transition are separate map spaces,
+not a distance/speed measurement. Winding-road following remains unimplemented.
+
+
+Navigation key cleanup retries only key-up for up to five seconds if synchronous
+delivery is blocked by loading. It also queues the same release, but queue success
+alone cannot clear recovery. This repair follows a live failure where the owner
+had to stop the wizard; it is not yet live-qualified across loading.
+
+
+### Exact interaction destination (source, qualification in progress)
+
+`navigation-visit --key W|S --pulse-ms 0..30000 --assisted-hold true
+--until-interaction "World Gate" --include-pose-context` uses one streaming UI
+observer under the current owner. Only the exact configured title, case-insensitive,
+interrupts movement; other object titles do not count as arrival. Loading, unknown
+or stale UI, takeover and the duration cap stop movement. A second stable title
+confirms the stop. No X interaction is sent. A zero duration is a check-only visit:
+no movement can be dispatched, even if the target is absent. Native Idle finalizes
+the visit where ownership permits. `interaction-arrival.json` separates target
+recognition, dispatch, release and outcome. Road/path steering remains separate.
+
+A single measured `navigation-visit --key HOME --pulse-ms 40
+--include-pose-context` reuses the registered Home action and waits for observed
+loading then clear state; it does not retry Home or assume which house is reached.
+Owner/live evidence: Home from the equipped house reached the dorm. The owner then
+waited for cooldown and used Home from the dorm to return to the equipped house,
+where World Gate was already in range. Do not apply house coordinates until the
+current destination/profile is verified; do not turn this into a blind double-Home
+macro. Cooldown recognition and automatic house/dorm selection remain unfinished.
+
+
+W101 Settings now includes keyboard-only takeover (`W101KeyboardOnlyTakeover`,
+default false). When enabled, mouse events/buttons are excluded from takeover and
+quiet admission. Keyboard events and Escape still stop control; loss of target
+focus, geometry changes and cleanup failures remain blocking. This is applied once
+at the start of each W101 control scope and recorded in `control-policy.json`.
+The existing `--resume-after-quiet true` can restore Idle after focus returns and
+input settles; it does not yet resume an interrupted gameplay body. General
+checkpointed gameplay pause/resume is planned separately.
+
+
+Planned composition for quest navigation: gate approach -> exact-prompt X ->
+recognized destination menu -> configured world selection -> loading -> verified
+world identity -> Idle. Current exact-prompt checking does not execute this chain
+or qualify destination selection. A loading event alone never proves world arrival.
+
+
+### World Gate menu qualification
+
+`world-gate-inspect` requires the exact selected process identity plus client/UI
+observation and module-action opt-ins. It uses one owner and countdown: wake,
+verify the fresh stable World Gate title, X once, capture/read the Spiral Map,
+close with Escape, then verify native Idle. `world-gate-close` only closes a
+currently recognized Spiral Map and restores Idle; it does not send X.
+Menu recognition combines two UI-tree samples containing spiralScene,
+teleportButton, cancelButton and optionWindow with the visible Spiral Map,
+Go To World and Exit labels. It does not depend on a specific page/world list.
+Neither command selects a world, pages the list, teleports, or presses Home.
+Unknown menu evidence stops for review rather than choosing an action blindly.
+
+
+### World Gate recovery and current-selection travel (qualification)
+
+`world-gate-close` now handles the observed Spiral Map/native Idle overlap:
+read the named map controls, wake if needed, reinteract once only for the exact
+World Gate prompt, recognize Exit from fresh game pixels, click it, then require
+menu disappearance before restoring Idle. Escape is not the map's Exit command.
+No movement or fixed-coordinate fallback remains. The shared reader now treats
+Spiral Map as a menu, so it cannot authorize outside-world actions by omission.
+
+`world-gate-inspect` performs exact prompt → X → verified menu → Exit → verified
+menu disappearance → Idle. `world-gate-travel-current` uses that opening flow,
+then clicks the unique visible Go To World control for the game's current
+selection. It requires an observed loading edge, cleared loading and a gameplay
+HUD, saves arrival pixels, and restores Idle. It does not choose a different world,
+claim destination identity from loading, or send Home. These commands require
+`--enable-client-observation --enable-ui-tree --enable-module-actions` and the
+selected process/window identity. Travel/Home round-trip qualification is recorded
+separately in W101-CHARACTER-27; this is not general cross-world routing.
+
+
+### Configured Travel card
+
+`travel-card --selection <card.json>` runs the same `w101.travel` adapter used by
+Routine Deck. Use the existing selected-window identity and all three opt-ins:
+`--enable-client-observation --enable-ui-tree --enable-module-actions`.
+The JSON is a JobCardSpec, with `routineId: "w101.travel"` and string settings
+`destination`, `returnHome` (`true`/`false`), `maximumHomeWaitSeconds` (0–120), and
+`maximumPages` (1–8). It selects by current menu labels, verifies the selected row,
+waits for loading, optionally waits for Home availability, and uses shared Idle
+finalization. Return-Home mode presently requires a house-gate origin. Missing
+worlds, ambiguous controls, unknown Home state, time limits and takeover stop the
+operation; a cooldown never grants permission to repeat Home blindly.
+
+Deck/API connection separately requires `enableTravelActions: true`, default off.
+The UI connection dialog exposes this permission separately from quest dialogue.
+See `coordination/results/W101-TRAVEL-30.md` for qualification and limitations.
+
+
+Cooldown note (owner report, November 12): Home and relative-world Commons ports usually start a 30-second cooldown when used. The Home wait budget is not that duration: readiness comes from the actual Home control and timer. World Gate travel is not presumed to start it. Commons timer/action mapping requires separate qualification; the current card implements Home only.
+
+Owner clarification, November 12: expected cooldown is 30 seconds from the last Commons/Home teleport, displayed as a countdown on grayed buttons. This is expected mechanics, not a qualified Commons adapter. Backend enabled flags alone are insufficient; live Home traces retained enabled=true with timer visible.
+
+Travel setting captureHomeCooldown=true (default false) requires returnHome=true. It records Home readiness immediately after loading, restores Idle, then performs bounded read-only samples under the same owner until blocked-to-ready is observed or 45 seconds from dispatch/20 samples is reached. Unknown samples do not mean ready. home-cooldown.json records sampling timestamps, not exact cooldown expiry; no extra port input is sent.
+
+Focus-control update: W101 scopes now ignore mouse activity and count keyboard takeover only when W101 is foreground. Ready remains an immediate dispatch guard. Navigation released checkpoints/Idle finalization may await focus for up to60seconds within existing parent deadlines, with fresh evidence before resuming. No activity baseline reset or teleport/menu replay. Startup also waits boundedly for focus after its optional initial activation attempt. Countdown focus interruption still cancels admission; other routines are not yet universally resumable. Optional W101RunningCaption in Settings draws a small bottom-center, nonactivating caption for scope lifetime (default off). Reverse S loading approaches use the same stop/release protections as W.
+
+
+## Recording, timeline review and teacher cards
+
+The source update adds model-free commands that use the same timeline/card code:
+
+```text
+Maelstrom.exe --teaching-record <request.json> <new-report.json>
+Maelstrom.exe --teaching-attach-state <teaching-session.json> <state.jsonl>
+Maelstrom.exe --teaching-import-w101 <teaching-session.json> <ui-request.json>
+Maelstrom.exe --teaching-merge-w101 <teaching-session.json> <telemetry-batches.json>
+Maelstrom.exe --teaching-annotate <teaching-session.json> <activity.json>
+Maelstrom.exe --teaching-review <teaching-session.json> <new-proposals.json>
+Maelstrom.exe --teaching-export-card <teaching-session.json> <activity-id> <new-routine.json>
+Maelstrom.exe --teaching-link-action <idle-cycle.json> <input-events.json> <new-folder>
+```
+
+Recording request fields (PascalCase): `Target` containing `ProcessId`,
+`StartedUtcTicks`, `WindowHandle`, `ProcessName`; absolute `DataRoot`; `Minutes`
+(1–60); absolute `StopFile`; `RecordInputs` (false by default); `InputProfile`
+(`Movement` or target-specific `Wizard101Navigation`); `EnableW101Telemetry`
+(false by default); and `Workspace` for the explicitly enabled optional W101
+adapter. Launch hidden and await the report. Create StopFile to request cleanup.
+The recorder never sends input. It uses a hidden message-loop host; no ordinary
+app window is opened. Recording-ready.json in the session folder marks the first
+frame. New files/folders are required; existing evidence is not overwritten.
+
+Telemetry owns the normal scheduler and cannot run beside a second client reader.
+For a teacher operation which already owns observations, record with telemetry
+OFF and use the teacher's own state/receipt artifacts. Never start a second owner
+to bypass this constraint. Recording is chunked, not guaranteed seamless; preserve
+video timing, frame-alignment limits and actual source FPS. Optional input hooks
+observe selected foreground keys/mouse; target-bound window messages are visible
+in transport receipts, not necessarily in low-level keyboard hooks.
+
+Review/annotation commands require a stopped recording. Commentary is not measured
+state. Proposals remain editable/unqualified; export does not authorize execution.
+The teacher linker currently accepts only the bounded W101 Idle-cycle report and
+requires final Idle, accepted/released input, fresh changed state, matching capture
+coverage and video hash. It exports provenance, a shared routine graph and evidence
+replay, with explicit source/replay proposal-ID mapping. It sends no input.
+
+For a fresh-session holdout, replay the ORIGINAL frozen routine against the newly
+linked evidence session using --replay-routine. Do not retune or substitute the new
+capture's derived graph and call that validation of the original card. Same-session
+replay and a single fresh-session pass do not establish broad autoplay reliability.
+
+See coordination/results/TEACHING-CONTINUOUS-38.md and TEACHING-ACTION-39.md for
+qualified scope. The teaching commands are CLI-first; separate API/MCP teaching
+endpoints and system-tray minimization are not implemented yet.

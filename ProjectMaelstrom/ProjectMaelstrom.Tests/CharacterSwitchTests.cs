@@ -4,6 +4,27 @@ namespace ProjectMaelstrom.Tests;
 
 public sealed class CharacterSwitchTests
 {
+    [Fact]
+    public void FailureIdleRequiresKnownWorldAndOriginalCleanOwner()
+    {
+        Assert.True(W101CharacterOperation.CanFinalizeFailure(true, false, true, true, false, true, true, false, true));
+        for (var guard = 0; guard < 9; guard++)
+        {
+            bool[] values = [true, false, true, true, false, true, true, false, true];
+            values[guard] = !values[guard];
+            Assert.False(W101CharacterOperation.CanFinalizeFailure(values[0], values[1], values[2], values[3],
+                values[4], values[5], values[6], values[7], values[8]));
+        }
+    }
+
+    [Fact]
+    public void CharacterEvidenceUsesCaptureTimeRatherThanOcrCompletionTime()
+    {
+        Assert.Equal(999000000, W101CharacterOperation.CaptureUtcTicks(100, 200, 1000000000));
+        Assert.Throws<InvalidDataException>(() => W101CharacterOperation.CaptureUtcTicks(201, 200, 1000000000));
+        Assert.Throws<InvalidDataException>(() => W101CharacterOperation.CaptureUtcTicks(100, 3200, 1000000000));
+        Assert.Throws<InvalidDataException>(() => W101CharacterOperation.CaptureUtcTicks(double.NaN, 200, 1000000000));
+    }
     [Theory]
     [InlineData("character-inspect")]
     [InlineData("character-roster")]
@@ -42,14 +63,40 @@ public sealed class CharacterSwitchTests
     }
 
     [Fact]
-    public void StatsRequireNameAndCurrentLevelInHeader()
+    public void StatsRequireNameSchoolAndValidObservedLevelInHeader()
     {
         var profile = new WizardProfile(1, Guid.NewGuid().ToString("N"), "Luke SkyWalker", "Fire", 106);
-        PetDanceMenuWord[] words = [new("LUKE", new(500, 100, 40, 20)), new("SKYWALKER", new(550, 100, 100, 20)), new("(LEVEL 106)", new(400, 180, 100, 20))];
+        PetDanceMenuWord[] words = [new("LUKE", new(500, 100, 40, 20)), new("SKYWALKER", new(550, 100, 100, 20)), new("(LEVEL 106) PYROMANCER", new(400, 180, 100, 20))];
         Assert.True(W101CharacterOperation.StatsMatch(new(new(1282, 759), words), profile));
-        Assert.False(W101CharacterOperation.StatsMatch(new(new(1282, 759), words), profile with { LastKnownLevel = 10 }));
+        Assert.True(W101CharacterOperation.StatsMatch(new(new(1282, 759), words), profile with { LastKnownLevel = 10 }));
         Assert.False(W101CharacterOperation.StatsMatch(new(new(1282, 759), words[1..]), profile));
     }
+    [Theory]
+    [InlineData("Fire", "Pyromancer")]
+    [InlineData("Ice", "Thaumaturge")]
+    [InlineData("Storm", "Diviner")]
+    [InlineData("Life", "Theurgist")]
+    [InlineData("Myth", "Conjurer")]
+    [InlineData("Death", "Necromancer")]
+    [InlineData("Balance", "Sorcerer")]
+    public void EverySchoolRequiresUnambiguousIdentity(string school, string title)
+    {
+        var profile = new WizardProfile(1, Guid.NewGuid().ToString("N"), "Luke SkyWalker", school, 10);
+        var banner = new W101CharacterOperation.Banner(profile.Name, "Level 11 (Initiate " + title + ")", "Dorm");
+        Assert.True(W101CharacterOperation.Matches(banner, profile));
+        Assert.Equal(11, W101CharacterOperation.RefreshObservedLevel(banner, profile).LastKnownLevel);
+        Assert.False(W101CharacterOperation.Matches(banner with { Level = "Level 11 (" + title + " " + title + ")" }, profile));
+        Assert.False(W101CharacterOperation.Matches(banner with { Name = profile.Name + " " + profile.Name }, profile));
+        PetDanceMenuText Header(string value) => new(new(1282, 759), [new(value, new(400, 100, 400, 20))]);
+        var text = profile.Name + " Level 11 " + title;
+        Assert.True(W101CharacterOperation.StatsMatch(Header(text), profile));
+        Assert.False(W101CharacterOperation.StatsMatch(Header(text + " " + title), profile));
+        Assert.False(W101CharacterOperation.StatsMatch(Header(text + " " + profile.Name), profile));
+        Assert.False(W101CharacterOperation.StatsMatch(Header(text + " Level 12"), profile));
+        Assert.False(W101CharacterOperation.StatsMatch(Header(profile.Name + " Level 11"), profile));
+        Assert.False(W101CharacterOperation.StatsMatch(Header(text + (school == "Death" ? " Pyromancer" : " Necromancer")), profile));
+    }
+
     [Fact]
     public void SameNameDeathWizardDoesNotMatchFireTarget()
     {

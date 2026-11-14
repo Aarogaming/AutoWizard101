@@ -17,22 +17,26 @@ internal sealed class ResearchSettingsForm : Form
         body.Controls.Add(new Label { Text = "Choose which research suggestions appear. Changes apply when you next open Game Research.", AutoSize = true, MaximumSize = new Size(550, 0), Margin = new Padding(0, 12, 0, 12) });
         var controls = new CheckBox { Text = "Suggest controls and hotkeys from guides", AutoSize = true };
         var tips = new CheckBox { Text = "Suggest tips and hidden-item clues from guides", AutoSize = true };
+        var keyboardOnly = new CheckBox { Text = "W101: only focused keyboard input stops control", AutoSize = true, Checked = true, Enabled = false };
+        var caption = new CheckBox { Text = "Show W101 play / pause / stop overlay", AutoSize = true };
         var sound = new CheckBox { Text = "Play a sound when the game-action countdown starts", AutoSize = true };
-        try { var current = AppPreferences.Load(dataRoot); controls.Checked = current.ControlSuggestions; tips.Checked = current.TipsAndHiddenItems; sound.Checked = current.ActionCountdownSound; }
+        try { var current = AppPreferences.Load(dataRoot); controls.Checked = current.ControlSuggestions; tips.Checked = current.TipsAndHiddenItems; sound.Checked = current.ActionCountdownSound; caption.Checked = current.W101RunningCaption; }
         catch (Exception ex)
         {
             MessageBox.Show(this, "Could not load settings: " + ex.Message + "\nYour existing settings were not changed.", "Settings");
-            controls.Enabled = tips.Enabled = sound.Enabled = false;
+            controls.Enabled = tips.Enabled = sound.Enabled = caption.Enabled = false;
         }
         body.Controls.Add(controls);
         body.Controls.Add(tips);
         body.Controls.Add(sound);
-        body.Controls.Add(new Label { Text = "W101 shared motion and Idle routines show a five-second countdown. Mouse or keyboard activity cancels the start. Sound does not change your volume.", AutoSize = true, MaximumSize = new Size(550, 0) });
+        body.Controls.Add(keyboardOnly);
+        body.Controls.Add(caption);
+        body.Controls.Add(new Label { Text = "W101 shared motion and Idle routines show a five-second countdown. Keyboard input stops control only while W101 is focused. Mouse movement is ignored. Supported navigation checkpoints pause on focus loss. Sound does not change your volume.", AutoSize = true, MaximumSize = new Size(550, 0) });
         body.Controls.Add(new Label { Text = "Suggestions are unverified source excerpts. These options do not enable game control or automatic research.", AutoSize = true, MaximumSize = new Size(550, 0), Margin = new Padding(0, 14, 0, 14) });
         var save = new Button { Text = "Save settings", AutoSize = true, Enabled = controls.Enabled };
         save.Click += (_, _) =>
         {
-            try { (AppPreferences.Load(dataRoot) with { ControlSuggestions = controls.Checked, TipsAndHiddenItems = tips.Checked, ActionCountdownSound = sound.Checked }).Save(dataRoot); DialogResult = DialogResult.OK; }
+            try { (AppPreferences.Load(dataRoot) with { ControlSuggestions = controls.Checked, TipsAndHiddenItems = tips.Checked, ActionCountdownSound = sound.Checked, W101KeyboardOnlyTakeover = true, W101RunningCaption = caption.Checked }).Save(dataRoot); DialogResult = DialogResult.OK; }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, "Could not save settings"); }
         };
         body.Controls.Add(save);

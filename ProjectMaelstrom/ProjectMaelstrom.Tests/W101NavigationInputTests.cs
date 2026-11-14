@@ -4,6 +4,30 @@ namespace ProjectMaelstrom.Tests;
 
 public sealed class W101NavigationInputTests : IDisposable
 {
+    [Theory]
+    [InlineData("W", "game.move-forward")]
+    [InlineData("S", "game.move-backward")]
+    public async Task LoadingApproachReleasesEitherDirectionWhenGuardDrops(string key, string id)
+    {
+        using var lease = GameInputLease.Acquire("test", _root);
+        using var owner = GameInputLease.EnterScope(lease);
+        var context = Context(lease);
+        context = context with { Request = context.Request with { Operation = W101NavigationVisit.Id } };
+        var proposal = new ModuleDecision("route", "segment", "proposal", "p1", id, new(id, "keyboard-pulse", key, 15000, "w101.walk-until-loading"));
+        var calls = new List<(string, bool)>();
+        var result = await W101NavigationInput.DispatchAsync(proposal, context, Target, () => true,
+            (k, up) => { calls.Add((k, up)); return true; }, () => 1, default, () => false);
+        Assert.False(result.Accepted); Assert.True(result.InputReleased);
+        Assert.Equal(new[] { (key, false), (key, true) }, calls);
+    }
+    [Fact]
+    public async Task ReleaseRetriesTemporaryLoadingFailureWithoutAnotherPress()
+    {
+        var attempts = 0;
+        Assert.True(await W101NavigationInput.ReleaseAsync(() => ++attempts == 3));
+        Assert.Equal(3, attempts);
+        Assert.False(await W101NavigationInput.ReleaseAsync(() => false, 1));
+    }
     [Fact]
     public async Task AssistedHoldStillReleasesImmediatelyOnTakeover()
     {

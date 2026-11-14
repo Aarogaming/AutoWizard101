@@ -1,0 +1,62 @@
+# maelstrom-component-parity-v1
+# Synthetic legacy-coordinate and spell-deck wire conformance; never live calibration.
+# Each row: operation, unique case ID, operation-specific inputs, expected outputs (TAB separated).
+# target/pedestal: index,x,y. hand: index,total,x,y. enchant: enchantX,enchantY,spellX,spellY,width,resultX.
+# reject-target/reject-pedestal: signed index. reject-hand: signed index,total.
+# codec: .NET-produced Base64 zlib token,normal,tc,item. Map entries use name=count separated by |; - means empty.
+target	enemy-0	0	130	50
+target	enemy-1	1	304	50
+target	enemy-2	2	478	50
+target	enemy-3	3	652	50
+target	ally-4	4	682	590
+target	ally-5	5	508	590
+target	ally-6	6	334	590
+target	ally-7	7	160	590
+pedestal	pedestal-0	0	203	75
+pedestal	pedestal-1	1	377	75
+pedestal	pedestal-2	2	551	75
+pedestal	pedestal-3	3	725	75
+hand	hand-1-0	0	1	430	325
+hand	hand-2-0	0	2	404	325
+hand	hand-2-1	1	2	456	325
+hand	hand-3-0	0	3	378	325
+hand	hand-3-1	1	3	430	325
+hand	hand-3-2	2	3	482	325
+hand	hand-4-0	0	4	352	325
+hand	hand-4-1	1	4	404	325
+hand	hand-4-2	2	4	456	325
+hand	hand-4-3	3	4	508	325
+hand	hand-5-0	0	5	326	325
+hand	hand-5-1	1	5	378	325
+hand	hand-5-2	2	5	430	325
+hand	hand-5-3	3	5	482	325
+hand	hand-5-4	4	5	534	325
+hand	hand-6-0	0	6	300	325
+hand	hand-6-1	1	6	352	325
+hand	hand-6-2	2	6	404	325
+hand	hand-6-3	3	6	456	325
+hand	hand-6-4	4	6	508	325
+hand	hand-6-5	5	6	560	325
+hand	hand-7-0	0	7	274	325
+hand	hand-7-1	1	7	326	325
+hand	hand-7-2	2	7	378	325
+hand	hand-7-3	3	7	430	325
+hand	hand-7-4	4	7	482	325
+hand	hand-7-5	5	7	534	325
+hand	hand-7-6	6	7	586	325
+enchant	enchant-before	260	325	320	325	52	294
+enchant	enchant-after	400	301	300	327	52	326
+enchant	enchant-equal	300	301	300	327	52	326
+enchant	enchant-odd-width	260	301	320	327	53	293
+reject-target	target-negative	-1
+reject-target	target-too-large	8
+reject-pedestal	pedestal-negative	-1
+reject-pedestal	pedestal-too-large	4
+reject-hand	hand-negative	-1	7
+reject-hand	hand-at-count	7	7
+reject-hand	hand-empty	0	0
+reject-hand	hand-too-many	0	8
+reject-hand	hand-negative-count	0	-1
+codec	codec-native	 eJwLSc0tSC0uidE2idEJLskvyk3KSUxJjdE2irF2zklNzCtOVXDOSCzKjdE2jLH2AwCCWQ/m 	Tempest=4|Stormblade=2	Cleanse Charm=1	-
+codec	codec-empty	eJzzi7H2i7H2AwAIiAIZ	-	-	-
+codec	codec-case-and-malformed	eJwLSc0tSC0uidE2idEJcfUNcA0OidHWNYrRSUpMidHxL0stSsvJL4/RNjI0MTexMDYzsYixds5JTcwrTlVwzkgsyo3RNoyxDk/MS1HwyCyJ0TYAACCrGYE=	Tempest=-2	Cleanse Charm=1	Wand Hit=0

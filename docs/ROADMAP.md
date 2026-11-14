@@ -1,6 +1,6 @@
 # Maelstrom roadmap
 
-Current course: **2026-11-11**, reconciled by CORE-ARCH-AUDIT-01.
+Current course: **2026-11-12**. See the [all-front progress snapshot](coordination/results/PROJECT-STATUS-20261112.md) and [Travel card evidence](coordination/results/W101-TRAVEL-30.md). The architecture ordering below comes from CORE-ARCH-AUDIT-01; checkpoint rows retain historical scope.
 [Product](PRODUCT.md) defines scope; [the board](coordination/workstreams.json)
 owns workstream status and claims; [the architecture audit](ARCHITECTURE_AUDIT_20261111.md)
 records the gaps and acceptance tests. Dated reports are historical evidence,

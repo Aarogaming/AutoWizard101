@@ -1123,13 +1123,13 @@
       "verification": {
         "review": "architecture_cards_reuse_and_knowledge_audited_20261111",
         "code": "w101_semantic_module_bindings_trusted_runtime_card_factory_source",
-        "offline": "2127_native_tests_pass_20261111",
-        "live": "card_deck_installed_headless_replay_verified_no_gameplay"
+        "offline": "2601_native_72_observer_14_profile_3_resource_tests_scoped_format_analyzers_passed",
+        "live": "stats54probe4:12 UI-correlated resource facts/aliases; exact-build globe maxima and PotionButton agreement; cleanup verified/no inputs/no install"
       },
       "lineage": [
         "LP11"
       ],
-      "next_task": "Connect qualified action outcomes and native Idle/sigil/menu transport to production cards, then release source changes. Read-only module-observe probe works; Idle wake and autonomous navigation remain pending.",
+      "next_task": "Collect optional character-tab/OCR references for remaining76-field candidates and compare through offline profile tool; qualify numeric aliases individually. Four resource current/max/percent groups now connected; raw baseHP variation cause and broader state qualification remain unresolved. Vectors/current characterXP/multirate scans pending.",
       "acceptance_criteria": [
         "Show the actual method and qualification scope.",
         "Provide clear Start/Stop and resource/cleanup outcomes.",
@@ -1232,6 +1232,174 @@
           "path_status": "existing",
           "scope": "W101sigil/menu/nativeIdle semanticbindings andtrustedcardruntime;2127native tests. No game access/install; productiontransport unqualified.",
           "path": "docs/coordination/results/W101-MODULE-INTEGRATION-04.md"
+        },
+        {
+          "kind": "reference",
+          "path": "docs/coordination/results/RUST-PORT-AUDIT-30.md",
+          "scope": "Source-only Rust inventory and prioritized parity/bridge plan; no Rust build or runtime qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/PROJECT-STATUS-20261112.md",
+          "scope": "All-front evidence and gaps; owner-reported port cooldown distinguished from qualified Home timer.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-PARITY-31.md",
+          "scope": "11 core/8 Dance tests; scoped format passes; Clippy unowned warnings remain. No live or host substitution.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-CONFORMANCE-32.md",
+          "path_status": "existing",
+          "scope": "Same 56-case corpus passes native and Rust; scoped checks pass. No bridge/live integration; external core unit-test dependency issue remains."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-DANCE-CONFORMANCE-33.md",
+          "path_status": "existing",
+          "scope": "Native/Rust same390 observation Dance corpus passes; synthetic decisions only, no live substitution."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-WAYPOINT-CONFORMANCE-34.md",
+          "path_status": "existing",
+          "scope": "27scenarios/59observations agree native/standalone Rust; Cargo locked blocked by concurrent mismatch, port inactive."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-RUNNING-CAPTION-34.md",
+          "path_status": "existing",
+          "scope": "Optional bottom-center caption integrated in scope; pure tests pass, no independent physical visibility confirmation."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHING-WORKSHOP-36.md",
+          "scope": "Recoverable chunk recording and manual timeline/card/replay source increment; not hour-long capture qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHING-STATE-37.md",
+          "scope": "Saved telemetry to timeline; deterministic editable card proposals and headless CLI. No continuous live telemetry qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/TEACHING-CONTINUOUS-38.md",
+          "scope": "Short CLI video plus two observer batches; cleanup verified, native Idle observed. Offline annotation/export/replay correctly remains incomplete without action receipts; not gameplay qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/TEACHING-ACTION-39.md",
+          "scope": "Recorded two-action Idle/menu/Idle teacher cycle; accepted/released input receipts and independent states. Derived first action card passed same-session offline replay. Not held-out reliability.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHING-RELEASE-40.md",
+          "path_status": "existing",
+          "scope": "Installed frozen-card replay / offline logic reuse and overlay source; see report for exact qualification limits."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-LOGIC-REUSE-41.md",
+          "path_status": "existing",
+          "scope": "Installed frozen-card replay / offline logic reuse and overlay source; see report for exact qualification limits."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-NODERED-42.md",
+          "path_status": "existing",
+          "scope": "Optional direct named-pipe Node-RED client, bounded pull subscriptions, four JS tests and real isolated native-host snapshot; 2550 native tests. Node-RED UI deployment unverified."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-NODERED-43.md",
+          "path_status": "existing",
+          "scope": "Actual Node-RED editor edit/deploy/manual action; false/true condition integration test against isolated disconnected owner. Not native graph round-trip or gameplay."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-CARD-AUTHOR-44.md",
+          "path_status": "existing",
+          "scope": "Catalog-backed native card save/load/deal, front/back view data and real isolated scheduler replay. Structured settings UI; no arbitrary flow compiler or polished flip UI."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-CARD-EDITOR-45.md",
+          "path_status": "existing",
+          "scope": "Graphical front/back catalog editor; browser save/load/version and actual recorded replay passed. Conditional replay explicitly unsupported; optional Node-RED surface, not native app package."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-NATIVE-CARDS-46.md",
+          "path_status": "existing",
+          "scope": "Native app card-back editor and recorded requirements with live evaluator;2557 tests and offscreen render. Separate action replay, no automatic confirmation; source not installed."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-CARD-RELEASE-47.md",
+          "path_status": "existing",
+          "scope": "Native editor installed; unified requirement gates+receipt/outcome replay passes8synthetic scenarios;2565native/14installer tests. Installed unconditional holdout replay passes. No client interaction."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-RECORDING-FACTS-48.md",
+          "path_status": "existing",
+          "scope": "Canonical recorded facts and timestamp-bound teacher envelopes;2570 tests; saved export replay; no game access or install."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-ALIASES-49.md",
+          "path_status": "existing",
+          "scope": "Typed canonical aliases, API snapshot/MCP forwarding, shared card/replay condition resolution;2581native/30Python; no game access/install."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-RESOURCES-50.md",
+          "path_status": "existing",
+          "scope": "Resource mapping and bounded mock collector;2587native/3Python; stats hook not qualified."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/W101_DATA_SUPPLY.md",
+          "path_status": "existing",
+          "scope": "975source declarations and current3second UI observation; hook restored; demand-driven scan design not yet implemented."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-SCAN-52.md",
+          "path_status": "existing",
+          "scope": "Shared demand/context scans, bounded learning profile;2594native tests; stats signature only, live stats not qualified; not installed."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-STATS-53.md",
+          "scope": "Read-only installed-file property/HUD layout review; bounded current-value live qualification; optional shared scan integration; maxima unqualified.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-STATS-54.md",
+          "scope": "Globe-based max and PotionButton qualification,live registry projection,optional offline visual profile comparison; no gameplay/install.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/W101-STATS-55.md",
+          "scope": "Restart-bound Death character-sheet capture/OCR;8 independent numeric matches;Idle verified;2602native tests. Gold/level not yet executable aliases; no install.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/W101-IDENTITY-56.md",
+          "scope": "3clean current-wizard ownership probes;fresh gold/level aliases;2616native/107Python;school-aware identity and guarded character Idle failure finalization. No installed update or full gameplay qualification.",
+          "path_status": "existing"
         }
       ],
       "depends_on": [
@@ -1817,15 +1985,15 @@
       "owner": "root",
       "verification": {
         "review": "available",
-        "code": "bounded_target_owned_navigation_input_and_capture_only_teaching_probe_no_arrival_inference",
-        "offline": "2385 native tests;scoped formatting/analyzers pass 20261112",
-        "live": "CLI pose observed with cleanup; measured W150 displacement58.0694 units with user-confirmed deflection and native Idle restoration; dorm waypoint trial blocked before input by foreground"
+        "code": "Configured w101.travel card shared by deck/API/CLI: exact world selection with marker verification, bounded page calibration, timer-aware Home availability, house-origin checks, shared Idle fail-safe and opt-in ownership.",
+        "offline": "2478 native and64 Python reader tests pass; scoped formatting/analyzers, warnings-as-errors compilation, Black/compileall and board validation pass 20261112.",
+        "live": "One configured Zafaria travel-card round trip c87172cb completed: exact world selection verified, loading both ways, Home readiness checked, house origin and final native Idle verified. Prior foreground failure stopped before input. Multi-page selection and actual cooldown waiting not live qualified."
       },
       "lineage": [
         "LP06",
         "LP09"
       ],
-      "next_task": "Calibrate bounded turns using position/heading, qualify zone/landmark identities, then replay a multi-waypoint dorm route. Forward feedback passed2varied local trials; installed release still lacks feedback mode.",
+      "next_task": "Qualify reverse house doorway/repeated named route; test deliberate focus pause/resume and caption visibility. Then Wizard City/Commons/Pet Pavilion/Dance composition; do not replay consequential actions blindly.",
       "acceptance_criteria": [
         "Wrong-world, obstruction, loading and arrival replays.",
         "Map labels are not teleport controls.",
@@ -1969,6 +2137,36 @@
           "path": "docs/coordination/results/W101-CHARACTER-26.md",
           "path_status": "existing",
           "scope": "Live selection and loaded Fire106 evidence; home/Idle user-assisted then Idle read verified. Source profiles/loading gate; unattended deck integration remains pending."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-CHARACTER-27.md",
+          "scope": "Guided house motion, Idle activation, loading-walk incident and repair; live qualification in progress.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "reference",
+          "path": "docs/coordination/results/W101-TRAVEL-30.md",
+          "scope": "Configured Travel card implementation, 2478 native/64 reader checks and one live Zafaria/Home/Idle success; explicit remaining page/cooldown qualification limits.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-TRAVEL-32.md",
+          "path_status": "existing",
+          "scope": "Second configured Zafaria/Home/Idle pass; post-Home timer active observed, later inactive. Exact duration/wait branch unqualified; waypoint admission stopped on focus/takeover, no movement."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-COOLDOWN-33.md",
+          "path_status": "existing",
+          "scope": "Home blocked-to-ready captured under same owner after verified Idle; waypoint reached within2.88 units but final Idle lost foreground. Not a qualified full route."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-CONTROL-34.md",
+          "path_status": "existing",
+          "scope": "Focused keyboard policy and released-checkpoint pause, live waypoint/Idle success, center-path house entry/loading/Idle success. Reverse edge rejected beforeinput; full repeatable route pending."
         }
       ],
       "depends_on": [],

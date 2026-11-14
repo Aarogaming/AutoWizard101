@@ -47,7 +47,7 @@ internal static class W101ModuleInput
             // Do not require fresh semantic readiness for release-only cleanup.
             if (attempted)
             {
-                try { released = send(action.Key!, true); } catch { released = false; }
+                released = await W101NavigationInput.ReleaseAsync(() => send(action.Key!, true)).ConfigureAwait(false);
                 if (!released) context.Input!.RequireRecovery("W101 module key release was not confirmed.");
             }
         }

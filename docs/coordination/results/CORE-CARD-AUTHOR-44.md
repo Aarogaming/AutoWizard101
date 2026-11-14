@@ -1,0 +1,11 @@
+# Reusable card authoring — 2026-11-12
+
+Implemented optional maelstrom-card Node-RED node, native JobCardSpec file library, catalog validation and front/back view projection. Package manifest registers the new editor. Example replay-card.json exposes Preview/Save/Load/Deal without implicit execution. Existing owner accepts cards via deal with current revision; catalog routine/option/fact IDs are authoritative. Unknown fact/type/choice/field/path-ID rejected; save refuses overwrite; load rechecks current catalog. Loaded payload.card may be edited then revalidated/dealt.
+
+Front contains description, conditions, filters, qualification and run limits. Back contains options/settings. Current node editor uses structured JSON, not a polished flip-card screen or graphical picker. Arbitrary Node-RED flow conversion and new custom executable actions are not implemented. Saved cards are native; metadata does not introduce a parallel execution schema. Runtime-specific validation remains native authority.
+
+Offline evidence: four card tests passed with native integration enabled, plus four existing bridge tests. Real installed isolated owner accepted saved/loaded Replay card, blocked unavailable Energy condition, then executed the condition-free recorded replay via shared scheduler. Completed count1, disconnected before/after. Author handlers save/load/edit/deal and overwrite rejection also passed against native host. Events/saved graph were not generated or modified for success. Reports in .local/card-author-44/data/operations/*/replay.json and verified-state.json; replay reports explicitly have zero desktop dispatch and live_qualified=false.
+
+JS syntax checks passed. No separate JS formatter/linter configured; no C# change or native rebuild needed. New author editor HTML/flow was not browser-qualified this increment (prior task43 covered bridge editor). No installer change, gameplay, GPU/model, or new production dependency. Existing installed release remains unchanged. Test host stopped afterward.
+
+Next: graphical catalog-driven configuration and actual front/back rendering, then native graph round-trip editing. Preserve explicit save/deal/execute stages and replay evidence gates.

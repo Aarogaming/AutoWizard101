@@ -4,6 +4,33 @@ namespace ProjectMaelstrom.Tests;
 
 public sealed class W101ControlScopeTests
 {
+    [Fact]
+    public void FocusOnlyWaitNeverClearsTakeoverOrOtherFaults()
+    {
+        Assert.True(W101ControlScope.FocusWaitAllowed(Valid() with { ForegroundHandle = 99 }));
+        Assert.True(W101ControlScope.FocusWaitAllowed(Valid() with { OperatorPaused = true }));
+        Assert.False(W101ControlScope.FocusWaitAllowed(Valid() with { OperatorStopped = true, OperatorPaused = true }));
+        Assert.False(W101ControlScope.FocusWaitAllowed(Valid() with { OperatorPaused = true, ActivityRevision = 8 }));
+        Assert.False(W101ControlScope.FocusWaitAllowed(Valid() with { ForegroundHandle = 99, ActivityRevision = 8 }));
+        Assert.False(W101ControlScope.FocusWaitAllowed(Valid() with { Cancelled = true }));
+        Assert.False(W101ControlScope.FocusWaitAllowed(Valid() with { EscapeRequested = true }));
+        Assert.True(DesktopActivityMonitor.TargetActivityAllowed(42, 42));
+        Assert.False(DesktopActivityMonitor.TargetActivityAllowed(42, 99));
+        Assert.True(DesktopActivityMonitor.TargetActivityAllowed(0, 99));
+    }
+
+    [Fact]
+    public void KeyboardOnlyPolicyIgnoresMouseButRetainsKeyboardAndEscape()
+    {
+        Assert.False(DesktopActivityMonitor.CountsActivity(false, true));
+        Assert.True(DesktopActivityMonitor.CountsActivity(false, false));
+        Assert.True(DesktopActivityMonitor.CountsActivity(true, true));
+        Assert.False(DesktopActivityMonitor.IncludesHeldKey(1, true));
+        Assert.True(DesktopActivityMonitor.IncludesHeldKey(0x1B, true));
+        Assert.Equal("target-not-foreground", (Valid() with { ForegroundHandle = 99 }).Code);
+        Assert.Equal("escape-takeover", (Valid() with { EscapeRequested = true }).Code);
+    }
+
     private static W101ControlReadiness Valid() => new(null, true, false, 42, 42,
         new(1280, 720), new(1280, 720), true, false, false, false, 7, 7, 1000, 900);
 

@@ -21,6 +21,32 @@ internal static class Program
     [STAThread]
     static void Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--teaching-link-action")
+        {
+            try
+            {
+                if (args.Length != 4) throw new ArgumentException("--teaching-link-action <idle-cycle.json> <input-events.json> <new-output-directory>");
+                TeacherActionReplay.Export(args[1], args[2], args[3]);
+            }
+            catch (Exception ex) { Console.Error.WriteLine(ex.Message); Environment.ExitCode = 1; }
+            return;
+        }
+        if (args.Length > 0 && args[0] == "--teaching-record")
+        {
+            try
+            {
+                if (args.Length != 3) throw new ArgumentException("--teaching-record <request.json> <new-report.json>");
+                TeachingRecordingCli.Run(args[1], args[2]);
+            }
+            catch (Exception ex) { Console.Error.WriteLine(ex.Message); Environment.ExitCode = 1; }
+            return;
+        }
+        if (args.Length > 0 && args[0] is "--teaching-review" or "--teaching-attach-state" or "--teaching-import-w101" or "--teaching-annotate" or "--teaching-export-card" or "--teaching-merge-w101")
+        {
+            try { TeachingReviewCli.Run(args); }
+            catch (Exception ex) { Console.Error.WriteLine(ex.Message); Environment.ExitCode = 1; }
+            return;
+        }
         if (args.Length > 0 && args[0] is "--deck-api" or "--deck-host" or "--render-job-deck")
         {
             try { RunDeckCommandAsync(args).GetAwaiter().GetResult(); }

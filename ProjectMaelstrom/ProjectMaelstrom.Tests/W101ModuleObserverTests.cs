@@ -5,6 +5,32 @@ namespace ProjectMaelstrom.Tests;
 
 public sealed class W101ModuleObserverTests : IDisposable
 {
+    [Fact]
+    public async Task LoadingWithoutTreeIsPausedEvidenceNotTimestampFailure()
+    {
+        using var lease = GameInputLease.Acquire("test", _root);
+        using var scope = GameInputLease.EnterScope(lease);
+        var original = Runtime("fresh");
+        var runtime = original with
+        {
+            Read = async (owner, target, launch, index, token) =>
+        {
+            var reading = await original.Read(owner, target, launch, index, token);
+            return reading with
+            {
+                Loading = true,
+                StatesObservedUtcTicks = 0,
+                States = reading.States.ToDictionary(pair => pair.Key, _ => (bool?)null),
+                StableStates = reading.StableStates.ToDictionary(pair => pair.Key, _ => (bool?)null)
+            };
+        }
+        };
+        var result = await W101ModuleObserver.ReadAsync(Context(lease), _target, _launch, 0, Binding, _geometry, () => true, default, runtime);
+        Assert.Equal("paused-for-loading", result.ReadinessReason);
+        Assert.False(result.Sample.Context.GameMenuVerified);
+        Assert.False(lease.RecoveryRequired);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

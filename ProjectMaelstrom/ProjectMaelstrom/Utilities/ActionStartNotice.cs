@@ -56,7 +56,7 @@ internal sealed class ActionStartNotice : Form
                             throw new InvalidOperationException("Countdown placement failed.");
                         if (!IsWindowVisible(window.Handle)) throw new InvalidOperationException("Countdown is not visible.");
                         int remaining = Remaining(elapsed.Elapsed.TotalSeconds);
-                        label.Text = $"Maelstrom starts in {remaining}…\nMove mouse or press a key to cancel";
+                        label.Text = $"Maelstrom starts in {remaining}…\nPress a key in W101 to stop";
                         if (!recorded && evidenceDirectory is not null)
                         {
                             window.Update();

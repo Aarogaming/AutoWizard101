@@ -9,16 +9,16 @@ namespace ProjectMaelstrom.Utilities;
 internal sealed record W101ControlReadiness(string? AdmissionFailure, bool TargetCurrent, bool Minimized,
     long TargetHandle, long ForegroundHandle, Size ExpectedGeometry, Size? ActualGeometry,
     bool MonitorInstalled, bool Cancelled, bool Stopping, bool EscapeRequested,
-    long? ActivityRevision, long Baseline, double NowMs, double HeartbeatMs, string? InspectionFailure = null)
+    long? ActivityRevision, long Baseline, double NowMs, double HeartbeatMs, string? InspectionFailure = null, bool OperatorPaused = false, bool OperatorStopped = false)
 {
-    internal string Code => Cancelled ? "cancelled" : Stopping ? "scope-stopping" :
+    internal string Code => OperatorStopped ? "operator-stopped" : Cancelled ? "cancelled" : Stopping ? "scope-stopping" :
         AdmissionFailure ?? (InspectionFailure is not null ? "target-inspection-failed" :
         !TargetCurrent ? "target-instance-changed" : Minimized ? "target-minimized" :
         !MonitorInstalled ? "activity-monitor-unavailable" : EscapeRequested ? "escape-takeover" :
         ActivityRevision != Baseline ? "desktop-activity-takeover" : ForegroundHandle != TargetHandle ? "target-not-foreground" :
         ActualGeometry != ExpectedGeometry ? "client-geometry-changed" :
         !double.IsFinite(NowMs) || !double.IsFinite(HeartbeatMs) ? "invalid-heartbeat-clock" :
-        NowMs < HeartbeatMs ? "future-heartbeat" : NowMs - HeartbeatMs > 1500 ? "message-loop-stalled" : "ready");
+        NowMs < HeartbeatMs ? "future-heartbeat" : NowMs - HeartbeatMs > 1500 ? "message-loop-stalled" : OperatorPaused ? "operator-paused" : "ready");
     internal bool Ready => Code == "ready";
     internal string Describe()
     {
@@ -41,19 +41,23 @@ internal sealed class W101ControlScope : IAsyncDisposable
     private readonly GameWindow _target;
     private readonly Size _geometry;
     private readonly CancellationToken _token;
+    private readonly bool _keyboardOnly;
     private readonly TaskCompletionSource _started = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly TaskCompletionSource _finished = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly Thread _thread;
     private CancellationTokenRegistration _cancel;
     private DesktopActivityMonitor? _monitor;
+    private W101RunningNotice? _runningNotice;
+    private readonly W101RoutineControl _operator = new();
     private long _baseline;
     private double _heartbeat;
     private uint _threadId;
     private int _stopRequested;
     internal nuint Tag { get; }
 
-    private W101ControlScope(OperationContext context, GameWindow target, Size geometry, CancellationToken token)
+    private W101ControlScope(OperationContext context, GameWindow target, Size geometry, CancellationToken token, bool keyboardOnly)
     {
+        _keyboardOnly = keyboardOnly;
         _context = context; _target = target; _geometry = geometry; _token = token;
         Tag = (nuint)RandomNumberGenerator.GetInt32(1, int.MaxValue);
         _thread = new Thread(Pump) { IsBackground = true, Name = "Maelstrom W101 control scope" };
@@ -61,12 +65,15 @@ internal sealed class W101ControlScope : IAsyncDisposable
     }
 
     internal static async Task<W101ControlScope> CreateAsync(OperationContext context, GameWindow target,
-        Size clientGeometry, CancellationToken token, bool activateWhenQuiet = false)
+        Size clientGeometry, CancellationToken token, bool activateWhenQuiet = false, bool resumable = false)
     {
         if (AdmissionFailure(context, target, clientGeometry) is { } rejected)
             throw new InvalidOperationException("W101 control admission rejected: " + rejected);
         token.ThrowIfCancellationRequested();
-        var scope = new W101ControlScope(context, target, clientGeometry, token);
+        var dataRoot = Directory.GetParent(context.Directory)?.Parent?.FullName
+            ?? throw new InvalidOperationException("Operation settings directory unavailable.");
+        var preferences = AppPreferences.Load(dataRoot);
+        var scope = new W101ControlScope(context, target, clientGeometry, token, true);
         scope._thread.Start();
         scope._cancel = token.Register(scope.RequestStop);
         try
@@ -74,13 +81,17 @@ internal sealed class W101ControlScope : IAsyncDisposable
             await scope._started.Task.WaitAsync(TimeSpan.FromSeconds(3), token).ConfigureAwait(false);
             if (activateWhenQuiet && scope.InspectReadiness().Code == "target-not-foreground")
                 await scope.ActivateAfterQuietAsync(token).ConfigureAwait(false);
+            if (scope.InspectReadiness().Code == "target-not-foreground")
+                await scope.WaitForFocusAsync(token).ConfigureAwait(false);
             var readiness = scope.InspectReadiness();
             if (!readiness.Ready) throw new InvalidOperationException("W101 control not ready: " + readiness.Describe());
-            var dataRoot = Directory.GetParent(context.Directory)?.Parent?.FullName
-                ?? throw new InvalidOperationException("Operation settings directory unavailable.");
+            GameExperiments.WriteAtomic(Path.Combine(context.Directory, "control-policy.json"),
+                new { keyboardOnlyTakeover = true, keyboardTakeoverRequiresTargetFocus = true, escapeRequiresTargetFocus = true, foregroundRequired = true });
             await ActionStartNotice.ShowAsync(target, scope.Ready,
-                AppPreferences.Load(dataRoot).ActionCountdownSound, token, context.Directory).ConfigureAwait(false);
+                preferences.ActionCountdownSound, token, context.Directory).ConfigureAwait(false);
             if (!scope.Ready()) throw new InvalidOperationException("W101 changed during the start countdown.");
+            if (preferences.W101RunningCaption) scope._runningNotice = await W101RunningNotice.StartAsync(target, () => scope._operator.Stopped ? "Stopping" : scope.Ready() ? "Running" : "Paused", token,
+                resumable ? scope._operator.Resume : null, resumable ? scope._operator.Pause : null, scope._operator.Stop).ConfigureAwait(false);
             return scope;
         }
         catch
@@ -101,6 +112,29 @@ internal sealed class W101ControlScope : IAsyncDisposable
     internal bool Ready() => InspectReadiness().Ready;
     internal string ReadinessReason => InspectReadiness().Describe();
 
+    internal static bool FocusWaitAllowed(W101ControlReadiness state) => state.Code is "ready" or "target-not-foreground" or "operator-paused";
+
+    // Only call after input release; never replace the immediate Ready input guard.
+    internal async Task<bool> WaitForFocusAsync(CancellationToken token)
+    {
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        double? stableSince = null;
+        while (timer.Elapsed.TotalSeconds < 60)
+        {
+            token.ThrowIfCancellationRequested();
+            var state = InspectReadiness();
+            if (!FocusWaitAllowed(state)) return false;
+            if (state.Ready && !DesktopActivityMonitor.AnyKeyHeld(true))
+            {
+                stableSince ??= timer.Elapsed.TotalMilliseconds;
+                if (timer.Elapsed.TotalMilliseconds - stableSince >= 500) return Ready();
+            }
+            else stableSince = null;
+            await Task.Delay(100, token).ConfigureAwait(false);
+        }
+        return false;
+    }
+
     private async Task ActivateAfterQuietAsync(CancellationToken token)
     {
         var gate = new W101ForegroundQuietGate();
@@ -110,11 +144,11 @@ internal sealed class W101ControlScope : IAsyncDisposable
         {
             token.ThrowIfCancellationRequested();
             var state = InspectReadiness();
-            if (!W101ForegroundQuietGate.Eligible(state) || DesktopActivityMonitor.AnyKeyHeld()) break;
+            if (!W101ForegroundQuietGate.Eligible(state) || DesktopActivityMonitor.AnyKeyHeld(_keyboardOnly)) break;
             if (gate.Observe(state, false))
             {
                 // Recheck immediately before the single OS activation request.
-                if (!W101ForegroundQuietGate.Eligible(InspectReadiness()) || DesktopActivityMonitor.AnyKeyHeld()) break;
+                if (!W101ForegroundQuietGate.Eligible(InspectReadiness()) || DesktopActivityMonitor.AnyKeyHeld(_keyboardOnly)) break;
                 attempted = true;
                 _ = SetForegroundWindow(_target.Handle);
                 for (var i = 0; i < 10; i++)
@@ -142,10 +176,10 @@ internal sealed class W101ControlScope : IAsyncDisposable
             token.ThrowIfCancellationRequested();
             var state = InspectReadiness();
             if (state.Code is not ("ready" or "desktop-activity-takeover" or "target-not-foreground")) return false;
-            if (quiet.Observe(state, DesktopActivityMonitor.AnyKeyHeld(), quietSeconds))
+            if (quiet.Observe(state, DesktopActivityMonitor.AnyKeyHeld(_keyboardOnly), quietSeconds))
             {
                 var current = InspectReadiness();
-                if (current.ActivityRevision != state.ActivityRevision || DesktopActivityMonitor.AnyKeyHeld() ||
+                if (current.ActivityRevision != state.ActivityRevision || DesktopActivityMonitor.AnyKeyHeld(_keyboardOnly) ||
                     !(current with { Baseline = current.ActivityRevision ?? -1 }).Ready) return false;
                 Interlocked.Exchange(ref _baseline, current.ActivityRevision!.Value);
                 return Ready();
@@ -180,7 +214,7 @@ internal sealed class W101ControlScope : IAsyncDisposable
         return new(AdmissionFailure(_context, _target, _geometry), current, minimized,
             _target.Handle.ToInt64(), foreground, _geometry, actual, monitor?.Installed == true,
             _token.IsCancellationRequested, Volatile.Read(ref _stopRequested) != 0, monitor?.EscapeRequested == true,
-            monitor?.Revision, _baseline, now, heartbeat, failure);
+            monitor?.Revision, _baseline, now, heartbeat, failure, _operator.Paused, _operator.Stopped);
     }
 
     /// <summary>Pure scope policy: changes to activity can never be acknowledged
@@ -200,10 +234,10 @@ internal sealed class W101ControlScope : IAsyncDisposable
             Volatile.Write(ref _threadId, GetCurrentThreadId());
             if (Volatile.Read(ref _stopRequested) != 0 || _token.IsCancellationRequested)
                 throw new OperationCanceledException(_token);
-            using var monitor = DesktopActivityMonitor.Install(Tag);
+            using var monitor = DesktopActivityMonitor.Install(Tag, _keyboardOnly, _target.Handle);
             _baseline = monitor.Revision;
             Volatile.Write(ref _monitor, monitor);
-            if (DesktopActivityMonitor.AnyKeyHeld())
+            if (DesktopActivityMonitor.AnyKeyHeld(_keyboardOnly))
                 throw new InvalidOperationException("Release existing desktop keys before control begins.");
             timer = SetTimer(0, 0, 200, 0);
             if (timer == 0) throw new Win32Exception(Marshal.GetLastWin32Error(), "Control heartbeat could not start.");
@@ -244,10 +278,14 @@ internal sealed class W101ControlScope : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         RequestStop(); _cancel.Dispose();
-        try { await _finished.Task.WaitAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false); }
+        try
+        {
+            try { if (_runningNotice is not null) await _runningNotice.DisposeAsync().ConfigureAwait(false); }
+            finally { await _finished.Task.WaitAsync(TimeSpan.FromSeconds(3)).ConfigureAwait(false); }
+        }
         catch
         {
-            _context.Input?.RequireRecovery("W101 control monitor did not confirm bounded shutdown.");
+            _context.Input?.RequireRecovery("W101 control resources did not confirm bounded shutdown.");
             throw;
         }
     }

@@ -17,7 +17,10 @@ public sealed class JobFactCatalogTests
     [Fact]
     public void UnavailableProducerDoesNotInventAReading()
     {
-        Assert.False(JobFactCatalog.Find("energy")!.ProducerAvailable);
+        Assert.True(JobFactCatalog.Find("energy")!.ProducerAvailable);
+        Assert.True(JobFactCatalog.Find("energy.max")!.ProducerAvailable);
+        Assert.True(JobFactCatalog.Find("potions.max")!.ProducerAvailable);
+        Assert.False(JobFactCatalog.Find("inventory")!.ProducerAvailable);
         using var value = JsonDocument.Parse("10");
         JobFactCatalog.ValidateCondition(new("energy", "gte", value.RootElement));
         var card = new JobCardSpec(Guid.NewGuid().ToString("N"), "test", "Test", Conditions: [new("energy", "gte", value.RootElement)]);

@@ -9,10 +9,16 @@ namespace ProjectMaelstrom.Utilities;
 /// receipts, opens a game, loads input modules or waits for wall-clock time.</summary>
 internal static class RoutineReplay
 {
-    public static bool Run(string graphPath, string sessionPath, string reportPath)
+    public static bool Run(string graphPath, string sessionPath, string reportPath,
+        JobCardSpec? card = null, IReadOnlyList<JobFactDefinition>? definitions = null)
     {
         var graphBytes = ReadBounded(graphPath, 65536);
         var graph = RoutineGraphs.Read(Encoding.UTF8.GetString(graphBytes));
+        if (card != null)
+        {
+            foreach (var c in card.Conditions ?? []) JobFactCatalog.ValidateCondition(c, definitions);
+            foreach (var f in card.Filters ?? []) JobFactCatalog.ValidateFilter(f, definitions);
+        }
         var manifestBytes = ReadBounded(sessionPath, 65536);
         using var manifest = Parse(manifestBytes);
         var root = manifest.RootElement;
@@ -36,6 +42,8 @@ internal static class RoutineReplay
             .Select(e => e.ActionId).ToHashSet(StringComparer.Ordinal), root.GetProperty("session_id").GetString());
         var trace = new List<object>(); var ids = new HashSet<string>(StringComparer.Ordinal);
         var lastSequence = -1; double lastTime = 0; var proposals = 0; var receipts = 0; var ignored = 0;
+        string? conditionBlock = null;
+        JsonElement? recordedFacts = null;
         using var lines = new StringReader(Encoding.UTF8.GetString(eventBytes));
         while (lines.ReadLine() is { } line)
         {
@@ -55,9 +63,21 @@ internal static class RoutineReplay
             if (payload.ValueKind != JsonValueKind.Object) throw new InvalidDataException("Event payload must be an object.");
             if (kind is "observation" or "outcome" && payload.TryGetProperty("routine_observation", out var observation))
             {
+                // A complete snapshot replaces the earlier one. Missing values never inherit
+                // individual fields. Evidence is scoped to this event stream and binding.
+                recordedFacts = payload.TryGetProperty("recorded_facts", out var facts) ? facts.Clone() : null;
                 var frame = observation.Deserialize<RoutineObservation>(RoutineGraphs.Json)
                     ?? throw new InvalidDataException("Missing routine observation.");
                 var decision = runner.Observe(frame with { TimeMs = time });
+                if (decision.IsProposal && card != null)
+                {
+                    conditionBlock = ConditionBlock(card, graph.GameId, frame with { TimeMs = time }, recordedFacts, definitions);
+                    if (conditionBlock != null)
+                    {
+                        trace.Add(new { event_id = id, time_ms = time, scene = frame.Scene, condition_block = conditionBlock });
+                        break;
+                    }
+                }
                 if (decision.IsProposal) proposals++;
                 trace.Add(new { event_id = id, time_ms = time, scene = frame.Scene, decision });
             }
@@ -75,14 +95,35 @@ internal static class RoutineReplay
         {
             schema_version = 1, routine_id = graph.Id, game_id = graph.GameId,
             session_id = root.GetProperty("session_id").GetString(), evidence_mode = "labelled-state-replay",
-            completed = status.Completed, stopped = status.Stopped, reason = status.Reason,
+            completed = status.Completed && conditionBlock == null, stopped = status.Stopped || conditionBlock != null, reason = conditionBlock ?? status.Reason,
+            card_hash = card == null ? null : RecordedCardReview.Hash(card), conditions_checked = card != null,
             desktop_dispatch_count = 0, live_qualified = false, proposal_count = proposals, receipt_count = receipts,
             ignored_events = ignored, sha256_graph = Digest(graphBytes), sha256_manifest = Digest(manifestBytes),
             sha256_events = Digest(eventBytes), trace
         };
         using var output = new FileStream(reportPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
         JsonSerializer.Serialize(output, report, RoutineGraphs.Json);
-        return status.Completed;
+        return status.Completed && conditionBlock == null;
+    }
+
+    internal static string? ConditionBlock(JobCardSpec card, string game, RoutineObservation frame,
+        JsonElement? evidence, IReadOnlyList<JobFactDefinition>? definitions)
+    {
+        if ((card.Conditions?.Length ?? 0) == 0 && (card.Filters?.Length ?? 0) == 0) return null;
+        if (evidence is not { ValueKind: JsonValueKind.Object } snapshot)
+            return "Requirements unknown: this observation has no recorded facts.";
+        if (snapshot.GetProperty("game_id").GetString() != game ||
+            snapshot.GetProperty("target_id").GetString() != frame.Binding.TargetId ||
+            snapshot.GetProperty("context_id").GetString() != frame.Binding.ContextId)
+            return "Requirements unknown: recorded fact binding differs.";
+        var time = snapshot.GetProperty("observed_time_ms").GetDouble();
+        if (!double.IsFinite(time) || time < 0 || time > frame.TimeMs || frame.TimeMs - time > 2000)
+            return "Requirements unknown: recorded facts are stale or from the future.";
+        var values = snapshot.GetProperty("values").Deserialize<Dictionary<string, JsonElement>>(JobDeckRules.Json)
+            ?? throw new InvalidDataException("Missing recorded fact values.");
+        if (values.Count > 128) throw new InvalidDataException("Too many recorded facts.");
+        var facts = new JobFacts(game, frame.Binding.TargetId, DateTime.UnixEpoch.AddMilliseconds(time), values, "recorded-session");
+        return JobDeckRules.FactBlock(card, game, facts, DateTime.UnixEpoch.AddMilliseconds(frame.TimeMs), true, definitions);
     }
 
     internal static JsonDocument Parse(byte[] bytes)

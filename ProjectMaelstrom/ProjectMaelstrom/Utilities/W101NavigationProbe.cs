@@ -21,10 +21,10 @@ internal static class W101NavigationProbe
         if (!enabled) throw new InvalidOperationException("Enable this explicitly selected teaching pulse.");
         var actionId = key switch
         {
-            "W" => "game.move-forward", "A" => "game.turn-left", "D" => "game.turn-right",
+            "W" => "game.move-forward", "S" => "game.move-backward", "A" => "game.turn-left", "D" => "game.turn-right",
             _ => throw new InvalidDataException("Choose W, A or D for one teaching pulse.")
         };
-        if (durationMs < 1 || durationMs > (assistedHold && key == "W" ? 3000 : 300)) throw new InvalidDataException("Teaching pulses must last 1–300 ms.");
+        if (durationMs < 1 || durationMs > (assistedHold && key is "W" or "S" ? 3000 : 300)) throw new InvalidDataException("Teaching pulses must last 1–300 ms.");
         var helper = Path.Combine(Path.GetDirectoryName(launch.Worker)!, "wizwalker_adapter.py");
         if (validation is null && !GameExperiments.Digest(helper).Equals(WizwalkerOperation.WorkerSha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Reviewed UI helper changed.");
@@ -53,8 +53,15 @@ internal static class W101NavigationProbe
                 (owner, index, binding, cancellation) => W101ModuleObserver.ReadAsync(owner, target, launch, index, binding, geometry, scope.Ready, cancellation, recognize: false),
                 async (owner, proposal, ready, cancellation) =>
                 {
+                    const string promptPrefix = "w101.walk-until-interaction:";
+                    if (proposal.Action?.ControlId?.StartsWith(promptPrefix, StringComparison.Ordinal) == true)
+                        return await W101NavigationPrompt.RunAsync(owner, target, launch, proposal.Action.ControlId[promptPrefix.Length..], proposal,
+                            (before, continuing) => W101NavigationInput.DispatchAsync(proposal, owner, owner.Request.Target, before,
+                                (pressed, release) => W101NavigationInput.Send(target, pressed, release), FrameTimeline.TimestampMs, cancellation, continuing),
+                            scope.Ready, cancellation).ConfigureAwait(false);
                     var untilLoading = proposal.Action?.ControlId == "w101.walk-until-loading";
-                    var assisted = proposal.Action?.ControlId == "w101.assisted-navigation" || untilLoading;
+                    var home = proposal.Action == W101CharacterOperation.GoHome;
+                    var assisted = proposal.Action?.ControlId == "w101.assisted-navigation" || untilLoading || home;
                     var index = 0;
                     var loadingLaunch = launch with { Worker = Path.Combine(Path.GetDirectoryName(launch.Worker)!, "wizwalker_adapter.py") };
                     async Task<bool?> ReadLoading(CancellationToken ct)
@@ -72,15 +79,17 @@ internal static class W101NavigationProbe
                     RoutineReceipt receipt;
                     if (untilLoading)
                     {
-                        walk = await W101NavigationTransition.WalkAsync(ReadLoading, Move, scope.Ready, FrameTimeline.TimestampMs, cancellation).ConfigureAwait(false);
+                        walk = await W101NavigationTransition.WalkAsync(ReadLoading, Move, scope.Ready, FrameTimeline.TimestampMs, cancellation, initialClear: true).ConfigureAwait(false);
                         receipt = walk.Receipt;
                         GameExperiments.WriteAtomic(Path.Combine(owner.Directory, "loading-walk.json"), walk);
                         if (!walk.SawLoading || !receipt.InputReleased || !scope.Ready()) return receipt with { Accepted = false };
                     }
+                    else if (home) receipt = await W101ModuleInput.DispatchAsync(proposal, owner, ready,
+                        (pressed, release) => W101ModuleInput.Send(target, pressed, release), FrameTimeline.TimestampMs, cancellation, scope.Ready).ConfigureAwait(false);
                     else receipt = await Move(scope.Ready).ConfigureAwait(false);
                     if ((!untilLoading && !receipt.Accepted) || !receipt.InputReleased || !assisted) return receipt;
-                    var transition = await W101NavigationTransition.WaitAsync(ReadLoading, scope.Ready, FrameTimeline.TimestampMs, cancellation).ConfigureAwait(false);
-                    if (walk?.SawLoading == true) transition = transition with { SawLoading = true };
+                    var transition = await W101NavigationTransition.WaitAsync(ReadLoading, scope.Ready, FrameTimeline.TimestampMs, cancellation, requireLoading: home).ConfigureAwait(false);
+                    if (walk?.SawLoading == true) transition = transition with { SawLoading = true, Reason = transition.Ready ? "loading-cleared-destination-unverified" : transition.Reason };
                     GameExperiments.WriteAtomic(Path.Combine(owner.Directory, "navigation-transition.json"), transition);
                     return receipt with { Accepted = transition.Ready };
 
@@ -126,7 +135,7 @@ internal static class W101NavigationProbe
         var state = OperationState.Failed; var reason = "unqualified-before-observation";
         bool Ready() => !token.IsCancellationRequested && context.Input is { CanDispatch: true } &&
             ReferenceEquals(context.Input, GameInputLease.Current) && runtime.Ready() &&
-            double.IsFinite(runtime.Clock()) && runtime.Clock() >= started && runtime.Clock() - started < (action.ControlId is "w101.assisted-navigation" or "w101.walk-until-loading" ? 60000 : 26000);
+            double.IsFinite(runtime.Clock()) && runtime.Clock() >= started && runtime.Clock() - started < (action.ControlId != "w101.navigation" ? 60000 : 26000);
         bool Clean(W101ModuleObservation sample)
         {
             if (sample.Sample.Reading.CleanupConfirmed && sample.Sample.Reading.HookRestored) return true;

@@ -7,11 +7,11 @@ internal sealed record JobCondition(string Fact, string Operator, JsonElement Va
 internal sealed record JobFilter(string Fact, string[] Include, string[] Exclude);
 internal sealed record JobCardSpec(string Id, string RoutineId, string Title, bool InDeck = false,
     int Priority = 50, int Runs = 1, int AttemptLimit = 3, int CooldownSeconds = 5,
-    Dictionary<string, string>? Settings = null, JobCondition[]? Conditions = null, JobFilter[]? Filters = null);
+    Dictionary<string, string>? Settings = null, JobCondition[]? Conditions = null, JobFilter[]? Filters = null, string[]? DataRequests = null);
 internal sealed record JobDeckDocument(string Name, string GameId, JobCardSpec[] Cards,
     int AttemptLimit = 50, int DurationSeconds = 600, int SchemaVersion = 1);
 internal sealed record JobFacts(string GameId, string TargetId, DateTime ObservedUtc,
-    Dictionary<string, JsonElement> Values, string Source);
+    Dictionary<string, JsonElement> Values, string Source, W101WizardSubject? WizardSubject = null);
 internal sealed record JobCardProgress(int Attempts = 0, int Completed = 0, DateTime? LastAttemptUtc = null,
     string Status = "Waiting", string? OperationId = null, string? Reason = null);
 internal sealed record JobDeckState(JobDeckDocument Deck, long Revision, string Status,
@@ -55,6 +55,8 @@ internal static class JobDeckRules
                 routine.Info.GameId != "*" && routine.Info.GameId != deck.GameId)
                 throw new InvalidDataException("Invalid card, routine, game, copies or attempt limit.");
             var settings = card.Settings ?? [];
+            if ((card.DataRequests?.Length ?? 0) > 32 || (card.DataRequests ?? []).Any(id => JobFactCatalog.Find(id, routine.Facts) is null))
+                throw new InvalidDataException("Data requests must name up to 32 registered facts.");
             if (settings.Count > 16 || settings.Any(p => p.Value is null || p.Value.Length > 4096 || !routine.Info.Options.Any(o => o.Name == p.Key)))
                 throw new InvalidDataException("Use only the routine's documented settings.");
             foreach (var option in routine.Info.Options.Where(o => o.Required && card.InDeck))
@@ -104,7 +106,11 @@ internal static class JobDeckRules
             return "Waiting for fresh observations of the selected game.";
         foreach (var condition in card.Conditions ?? [])
         {
-            if (!facts.Values.TryGetValue(condition.Fact, out var value) || !JobFactCatalog.ValueMatches(condition.Fact, value, definitions)) return $"Unknown: {condition.Fact}.";
+            if (game == "wizard101" && JobFactCatalog.Find(condition.Fact, definitions)?.Id is "gold.current" or "wizard.level" &&
+                (!W101WizardFacts.ValidSubject(facts.WizardSubject) || facts.WizardSubject!.ObservedUtcTicks > now.Ticks ||
+                    now.Ticks - facts.WizardSubject.ObservedUtcTicks > TimeSpan.FromSeconds(2).Ticks))
+                return "Waiting for current wizard identity.";
+            if (!facts.Values.TryGetValue(JobFactCatalog.Find(condition.Fact, definitions)?.Id ?? condition.Fact, out var value) || !JobFactCatalog.ValueMatches(condition.Fact, value, definitions)) return $"Unknown: {condition.Fact}.";
             var matched = condition.Operator == "eq" ? value.ValueKind == condition.Value.ValueKind &&
                 (value.ValueKind == JsonValueKind.Number ? FiniteNumber(value, out var a) && FiniteNumber(condition.Value, out var b) && a == b : value.ToString() == condition.Value.ToString()) :
                 FiniteNumber(value, out var n) && FiniteNumber(condition.Value, out var limit) && (condition.Operator == "gte" ? n >= limit : n <= limit);
@@ -113,7 +119,7 @@ internal static class JobDeckRules
         foreach (var filter in card.Filters ?? [])
         {
             if (filter.Include.Length + filter.Exclude.Length == 0) continue;
-            if (!facts.Values.TryGetValue(filter.Fact, out var value) || value.ValueKind != JsonValueKind.String)
+            if (!facts.Values.TryGetValue(JobFactCatalog.Find(filter.Fact, definitions)?.Id ?? filter.Fact, out var value) || value.ValueKind != JsonValueKind.String)
                 return $"Unknown filter value: {filter.Fact}.";
             var text = value.GetString()!;
             if (filter.Exclude.Contains(text, StringComparer.OrdinalIgnoreCase) ||
@@ -311,7 +317,9 @@ internal sealed class JobDeckService : IAsyncDisposable
                     return new(OperationState.TimedOut, "The deck's absolute deadline elapsed while queued.", [admission]);
                 var latest = _observe();
                 var blocked = JobDeckRules.FactBlock(card, _state.Deck.GameId, latest, _now(), routine.Info.WritesGame, routine.Facts) ?? routine.Eligibility?.Invoke(card, latest);
-                if (blocked != null || routine.Info.WritesGame && latest?.TargetId != facts?.TargetId)
+                if (blocked != null || routine.Info.WritesGame && (latest?.TargetId != facts?.TargetId ||
+                    (latest?.WizardSubject is not null || facts?.WizardSubject is not null) &&
+                    !W101WizardFacts.SameSubject(latest?.WizardSubject, facts?.WizardSubject)))
                     return new(OperationState.Failed, blocked ?? "Selected target changed while queued.", [admission]);
                 var outcome = await prepared.Execute(context, token).ConfigureAwait(false);
                 return outcome with { Artifacts = new[] { admission }.Concat(outcome.Artifacts).ToArray() };

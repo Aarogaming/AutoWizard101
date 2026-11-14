@@ -32,6 +32,11 @@ public sealed class JobDeckHostTests : IDisposable
         var snapshot = Result(await Call("snapshot"));
         Assert.False(snapshot.GetProperty("connected").GetBoolean());
         Assert.Equal(0, snapshot.GetProperty("refresh").GetProperty("attempts").GetInt32());
+        var aliases = snapshot.GetProperty("aliases").EnumerateArray().ToArray();
+        Assert.Equal(JobFactCatalog.All.Count, aliases.Length);
+        Assert.All(aliases, alias => Assert.Equal("unknown", alias.GetProperty("quality").GetString()));
+        Assert.Contains(aliases, alias => alias.GetProperty("aliases").EnumerateArray().Any(name => name.GetString() == "Idle"));
+        Assert.Equal(0, scheduler.Pending);
     }
 
     private Task<JsonElement> Call(string command, object? arguments = null, string? requestId = null) =>

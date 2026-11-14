@@ -7,6 +7,8 @@ namespace ProjectMaelstrom.Utilities;
 internal sealed class DesktopActivityMonitor : IDisposable
 {
     private readonly nuint _ownTag;
+    private readonly bool _keyboardOnly;
+    private readonly nint _activityTarget;
     private readonly HookProc _keyboard, _mouse;
     private nint _keyboardHook, _mouseHook;
     private long _revision;
@@ -16,14 +18,14 @@ internal sealed class DesktopActivityMonitor : IDisposable
     public bool EscapeRequested { get; private set; }
     public bool Installed => _keyboardHook != 0 && _mouseHook != 0;
 
-    private DesktopActivityMonitor(nuint ownTag) { _ownTag = ownTag; _keyboard = Keyboard; _mouse = Mouse; }
+    private DesktopActivityMonitor(nuint ownTag, bool keyboardOnly, nint activityTarget) { _activityTarget = activityTarget; _keyboardOnly = keyboardOnly; _ownTag = ownTag; _keyboard = Keyboard; _mouse = Mouse; }
 
     // Install/remove on the form's message-loop thread. Remote/injected input counts
     // as takeover unless both its injection flag and this run's private tag match.
-    public static DesktopActivityMonitor Install(nuint ownTag)
+    public static DesktopActivityMonitor Install(nuint ownTag, bool keyboardOnly = false, nint activityTarget = 0)
     {
         if (ownTag == 0) throw new ArgumentOutOfRangeException(nameof(ownTag));
-        var monitor = new DesktopActivityMonitor(ownTag);
+        var monitor = new DesktopActivityMonitor(ownTag, keyboardOnly, activityTarget);
         try
         {
             monitor._keyboardHook = SetWindowsHookEx(13, monitor._keyboard, GetModuleHandle(null), 0);
@@ -42,7 +44,7 @@ internal sealed class DesktopActivityMonitor : IDisposable
         if (code >= 0 && (int)message is 0x100 or 0x101 or 0x104 or 0x105)
         {
             var value = Marshal.PtrToStructure<KeyboardData>(data);
-            if (IsTakeover((value.Flags & 0x10) != 0, value.ExtraInfo, _ownTag))
+            if (TargetActivityAllowed(_activityTarget, GetForegroundWindow()) && IsTakeover((value.Flags & 0x10) != 0, value.ExtraInfo, _ownTag))
             {
                 if (value.VirtualKey == 0x1B) EscapeRequested = true;
                 Activity();
@@ -55,11 +57,14 @@ internal sealed class DesktopActivityMonitor : IDisposable
         if (code >= 0)
         {
             var value = Marshal.PtrToStructure<MouseData>(data);
-            if (IsTakeover((value.Flags & 1) != 0, value.ExtraInfo, _ownTag)) Activity();
+            if (TargetActivityAllowed(_activityTarget, GetForegroundWindow()) && CountsActivity(false, _keyboardOnly) && IsTakeover((value.Flags & 1) != 0, value.ExtraInfo, _ownTag)) Activity();
         }
         return CallNextHookEx(_mouseHook, code, message, data);
     }
-    internal static bool AnyKeyHeld() => Enumerable.Range(1, 254).Any(key => (GetAsyncKeyState(key) & 0x8000) != 0);
+    internal static bool TargetActivityAllowed(nint target, nint foreground) => target == 0 || target == foreground;
+    internal static bool CountsActivity(bool keyboard, bool keyboardOnly) => keyboard || !keyboardOnly;
+    internal static bool IncludesHeldKey(int key, bool keyboardOnly) => !keyboardOnly || key is not (1 or 2 or 4 or 5 or 6);
+    internal static bool AnyKeyHeld(bool keyboardOnly = false) => Enumerable.Range(1, 254).Any(key => IncludesHeldKey(key, keyboardOnly) && (GetAsyncKeyState(key) & 0x8000) != 0);
     public void Dispose()
     {
         if (_keyboardHook != 0) { UnhookWindowsHookEx(_keyboardHook); _keyboardHook = 0; }
@@ -73,5 +78,6 @@ internal sealed class DesktopActivityMonitor : IDisposable
     [DllImport("user32.dll")] private static extern bool UnhookWindowsHookEx(nint hook);
     [DllImport("user32.dll")] private static extern nint CallNextHookEx(nint hook, int code, nint message, nint data);
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] private static extern nint GetModuleHandle(string? name);
+    [DllImport("user32.dll")] private static extern nint GetForegroundWindow();
     [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int key);
 }

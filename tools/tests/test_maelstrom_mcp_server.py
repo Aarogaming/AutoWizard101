@@ -69,6 +69,7 @@ class MaelstromMcpServerTests(unittest.TestCase):
 
     def test_deck_tools_use_native_owner_and_never_invent_success(self):
         cases = [
+            ("maelstrom_get_alias_register", {}, "snapshot", {}),
             ("maelstrom_get_session_telemetry", {}, "snapshot", {}),
             ("maelstrom_inspect_routine_deck", {}, "state", {}),
             (

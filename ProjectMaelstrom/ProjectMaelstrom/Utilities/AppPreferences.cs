@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace ProjectMaelstrom.Utilities;
 
 internal sealed record AppPreferences(bool ControlSuggestions = true, bool TipsAndHiddenItems = true, int Version = 1,
-    bool ActionCountdownSound = true)
+    bool ActionCountdownSound = true, bool W101KeyboardOnlyTakeover = false, bool W101RunningCaption = false)
 {
     public static AppPreferences Load(string dataRoot)
     {

@@ -25,16 +25,21 @@ internal sealed class JobDeckHost : IAsyncDisposable
     private WizwalkerSession? _session;
     private WizwalkerLaunch? _launch;
     private bool _questEnabled;
+    private bool _travelEnabled;
+    private bool _resourcesEnabled;
     private OperationTicket? _observer;
     private Task _observation = Task.CompletedTask;
     private (string RequestId, bool Continuous, long Revision)? _pendingStart;
     private bool _draining;
     private long _observationGeneration;
+    private DateTime? _learningUntil;
+    private string? _learningRun;
+    private bool Learning => _learningUntil > DateTime.UtcNow;
     internal JobDeckService Deck { get; }
     internal JobDeckHost(string dataRoot, OperationScheduler scheduler)
     {
         _dataRoot = Path.GetFullPath(dataRoot); _scheduler = scheduler;
-        var routines = JobDeckRoutines.Create(PrepareQuest);
+        var routines = JobDeckRoutines.Create(PrepareQuest, travel: PrepareTravel);
         Deck = new(_dataRoot, scheduler, routines, JobDeckRoutines.Initial(routines), () => Volatile.Read(ref _facts));
         // Construct synchronously so a duplicate host fails visibly before being advertised.
         var pipe = NewPipe(); _server = ServeAsync(pipe);
@@ -50,13 +55,14 @@ internal sealed class JobDeckHost : IAsyncDisposable
                 lock (_gate)
                 {
                     var state = Deck.State;
-                    var interested = state.Deck.Cards.Any(c => c.InDeck && c.RoutineId == "w101.questing");
-                    if (!_refresh.Admit(state.LastRunRequest, DateTime.UtcNow,
-                        state.StartedUtc?.AddSeconds(state.Deck.DurationSeconds), Deck.Facts?.ObservedUtc,
-                        state.Status == "Waiting", interested && _session != null && _launch != null && _questEnabled,
+                    var plan = CardScanDemand.Build(state, Learning, Deck.Facts, resourcesEnabled: _resourcesEnabled);
+                    var interested = plan.Ui;
+                    if (!_refresh.Admit(Learning ? _learningRun : state.LastRunRequest, DateTime.UtcNow,
+                        Learning ? _learningUntil : state.StartedUtc?.AddSeconds(state.Deck.DurationSeconds), Deck.Facts?.ObservedUtc,
+                        Learning || state.Status == "Waiting", interested && _session != null && _launch != null,
                         _observer != null || state.ActiveOperation != null || _scheduler.Pending > 0,
                         _draining || _stop.IsCancellationRequested || state.RecoveryRequired)) continue;
-                    try { Observe(); }
+                    try { Observe(plan.Quest, plan.Resources); }
                     catch (Exception error) when (error is InvalidOperationException or IOException or InvalidDataException)
                     { Volatile.Write(ref _facts, null); }
                 }
@@ -78,11 +84,12 @@ internal sealed class JobDeckHost : IAsyncDisposable
                 object? result = request.Command switch
                 {
                     "catalog" => Deck.Catalog,
-                    "capabilities" => new { schemaVersion = 1, facts = JobFactCatalog.All, routineFacts = Deck.FactDefinitions, routines = Deck.Catalog, liveQualified = false, note = "Catalog availability is not session readiness or permission." },
+                    "capabilities" => new { schemaVersion = 1, facts = JobFactCatalog.All, routineFacts = Deck.FactDefinitions.ToDictionary(p => p.Key, p => p.Value.Where(f => !JobFactCatalog.All.Any(shared => shared.Id == f.Id)).ToArray()), aliases = JobAliasRegister.Snapshot(null, DateTime.UtcNow), routines = Deck.Catalog, liveQualified = false, note = "Catalog availability is not session readiness or permission." },
                     "validate-routine" => ValidateRoutine(args),
+                    "scan-profile" => ConfigureScan(args),
                     "state" => new { state = Deck.State, eligibility = Deck.Preview(), observerOperation = _observer?.Request.Id, pendingStart = _pendingStart?.RequestId },
-                    "snapshot" => new { connected = _session != null, facts = Deck.Facts, questIntent = CurrentIntent(), freshnessSeconds = 2, refresh = new { attempts = _refresh.Attempts, reason = _refresh.Reason, maximumAttempts = 30, cooldownSeconds = 5 },
-                        unavailable = new[] { "health", "mana", "energy", "potions", "inventory", "area", "quest.type", "quest.id" },
+                    "snapshot" => new { scan = CardScanDemand.Build(Deck.State, Learning, Deck.Facts, resourcesEnabled: _resourcesEnabled), resourcesEnabled = _resourcesEnabled, resourceCandidates = Volatile.Read(ref _questReading)?.ResourceCandidate, learningUntil = _learningUntil, connected = _session != null, facts = Deck.Facts, aliases = JobAliasRegister.Snapshot(Deck.Facts, DateTime.UtcNow), questIntent = CurrentIntent(), freshnessSeconds = 2, refresh = new { attempts = _refresh.Attempts, reason = _refresh.Reason, maximumAttempts = 30, cooldownSeconds = 5 },
+                        unavailable = JobFactCatalog.All.Where(f => Deck.Facts?.Values.ContainsKey(f.Id) != true).Select(f => f.Id).ToArray(),
                         note = "Absent readings are unknown. No vitals are inferred from defaults." },
                     "replace" => Deck.Replace(args.GetProperty("deck").Deserialize<JobDeckDocument>(JobDeckRules.Json)!, args.GetProperty("revision").GetInt64()),
                     "deal" => Deal(args),
@@ -143,6 +150,7 @@ internal sealed class JobDeckHost : IAsyncDisposable
     }
     private object Stop()
     {
+        _learningUntil = null; _learningRun = null;
         _observationGeneration++; _pendingStart = null; _observer?.Cancel();
         return new { state = Deck.Stop(), observerOperation = _observer?.Request.Id, cleanupPending = _observer != null };
     }
@@ -165,23 +173,36 @@ internal sealed class JobDeckHost : IAsyncDisposable
         var target = WizwalkerTarget.FromWindow(window);
         var workspace = Path.GetFullPath(args.GetProperty("workspace") .GetString()!);
         var launch = WizwalkerLaunch.FromWorkspace(workspace) with { Worker = Path.Combine(workspace, "tools", "w101_ui_tree.py") };
+        _observationGeneration++; _pendingStart = null;
         _session = new(target, true); _launch = launch;
         _questEnabled = args.TryGetProperty("enableQuestActions", out var enabled) && enabled.GetBoolean();
+        _resourcesEnabled = args.TryGetProperty("enableResourceObservation", out var resources) && resources.GetBoolean();
+        _travelEnabled = args.TryGetProperty("enableTravelActions", out var travel) && travel.GetBoolean();
         Volatile.Write(ref _facts, null); Volatile.Write(ref _questReading, null);
-        return new { connected = true, target = W101QuestStep.TargetBinding(target), observationStarted = false, questActionsEnabled = _questEnabled };
+        return new { connected = true, target = W101QuestStep.TargetBinding(target), observationStarted = false, questActionsEnabled = _questEnabled, travelActionsEnabled = _travelEnabled, resourceObservationEnabled = _resourcesEnabled };
     }
     private object Disconnect()
     {
         if (_observer is not null || Deck.State.ActiveOperation is not null) throw new InvalidOperationException("Stop and wait for cleanup before disconnecting.");
-        Deck.Stop(); _session = null; _launch = null; _questEnabled = false; Volatile.Write(ref _facts, null); Volatile.Write(ref _questReading, null);
+        _observationGeneration++; _pendingStart = null;
+        Deck.Stop(); _learningUntil = null; _learningRun = null; _session = null; _launch = null; _questEnabled = false; _travelEnabled = false; _resourcesEnabled = false; Volatile.Write(ref _facts, null); Volatile.Write(ref _questReading, null);
         return new { connected = false, note = "No client hook is retained between operations." };
     }
-    private object Observe()
+    private object ConfigureScan(JsonElement args)
+    {
+        var learning = args.GetProperty("learning").GetBoolean();
+        if (learning && _session is null) throw new InvalidOperationException("Connect an opted-in observer first.");
+        _learningUntil = learning ? DateTime.UtcNow.AddSeconds(60) : null;
+        _learningRun = learning ? Guid.NewGuid().ToString("N") : null;
+        return new { learning, until = _learningUntil, maximumSeconds = 60 };
+    }
+    private object Observe(bool includeQuest = true, bool includeResources = true)
     {
         if (_session is null || _launch is null) throw new InvalidOperationException("Connect an exact W101 window with observation opt-ins first.");
         if (_observer is not null || Deck.State.ActiveOperation is not null) throw new InvalidOperationException("An operation is already active.");
         Volatile.Write(ref _facts, null); Volatile.Write(ref _questReading, null);
-        var ticket = W101UiTreeOperation.Submit(_scheduler, _session, _launch, true, 2, includeQuestContext: true);
+        var ticket = W101UiTreeOperation.Submit(_scheduler, _session, _launch, true, 2, includeQuestContext: includeQuest,
+            includeResourceContext: includeResources && _resourcesEnabled);
         _observer = ticket;
         var state = Deck.State;
         var deadline = _pendingStart != null || state.Status is "Running" or "Waiting" ? state.StartedUtc?.AddSeconds(state.Deck.DurationSeconds) : null;
@@ -241,8 +262,17 @@ internal sealed class JobDeckHost : IAsyncDisposable
             facts["quest.area"] = JsonSerializer.SerializeToElement(intent.Area);
             facts["quest.target"] = JsonSerializer.SerializeToElement(intent.Target);
         }
-        var result = new JobFacts("wizard101", W101QuestStep.TargetBinding(_session.Target), new DateTime(reading.StatesObservedUtcTicks, DateTimeKind.Utc), facts, "reviewed-w101-ui-tree");
+        W101ResourceFacts.Add(facts, reading.Resources, reading.StatesObservedUtcTicks);
+        W101WizardSubject? subject = W101WizardFacts.AddObserved(facts, reading, DateTime.UtcNow.Ticks);
+        if (reading.WizardReference is { } reference && W101WizardFacts.Add(facts, reading, reading.WizardSubject, reference, DateTime.UtcNow.Ticks))
+            subject = reading.WizardSubject;
+          var result = new JobFacts("wizard101", W101QuestStep.TargetBinding(_session.Target), new DateTime(reading.StatesObservedUtcTicks, DateTimeKind.Utc), facts, "reviewed-w101-ui-tree", subject);
         Volatile.Write(ref _questReading, reading); Volatile.Write(ref _facts, result); return result;
+    }
+    private PreparedDeckJob PrepareTravel(JobCardSpec card, JobFacts? facts)
+    {
+        if (_session is null || _launch is null || !_travelEnabled) throw new InvalidOperationException("Connect W101 and enable Travel cards first.");
+        return W101WorldGateVisit.Prepare(_session, _launch, true, options: W101TravelCard.Options(card));
     }
     private PreparedDeckJob PrepareQuest(JobCardSpec card, JobFacts? facts)
     {

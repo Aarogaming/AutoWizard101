@@ -103,16 +103,18 @@ internal static class W101ModuleObserver
             throw new InvalidDataException("Recognition does not describe the captured image.");
         var now = runtime.UtcTicks();
         stage = "tree-freshness-after-recognition";
-        if (reading.StatesObservedUtcTicks <= 0 || reading.StatesObservedUtcTicks > reading.ObservedUtcTicks || reading.ObservedUtcTicks > now)
+        var loadingWithoutTree = reading.Loading == true && reading.StatesObservedUtcTicks == 0 &&
+            reading.States.Values.All(value => value is null) && reading.StableStates.Values.All(value => value is null);
+        if ((!loadingWithoutTree && reading.StatesObservedUtcTicks <= 0) || reading.StatesObservedUtcTicks > reading.ObservedUtcTicks || reading.ObservedUtcTicks > now)
             throw new InvalidDataException("UI observation timestamp ordering is invalid.");
-        var treeAge = (now - reading.StatesObservedUtcTicks) / (double)TimeSpan.TicksPerMillisecond;
+        var treeAge = loadingWithoutTree ? double.PositiveInfinity : (now - reading.StatesObservedUtcTicks) / (double)TimeSpan.TicksPerMillisecond;
         var treeFresh = treeAge <= 2000;
         stage = "visual-context";
         var clockAtEnd = runtime.Clock();
         var contextFacts = treeFresh ? W101ModuleBindings.FromVisual(recognition, binding, expectedGeometry, clockAtEnd) : new();
         var prompt = W101UiTreeOperation.ValidInteractionTitle(reading, now)
             ? reading.StableInteractionTitle : null;
-        var readinessReason = !treeFresh ? "stale-ui-tree" :
+        var readinessReason = loadingWithoutTree ? "paused-for-loading" : !treeFresh ? "stale-ui-tree" :
             !double.IsFinite(clockAtEnd) || clockAtEnd < image.CapturedMs || clockAtEnd - image.CapturedMs > ModuleRecognition.MaximumAgeMs
                 ? "stale-or-invalid-image-clock" : "candidate-observation-only";
         static double? Number(double value) => double.IsFinite(value) ? value : null;
