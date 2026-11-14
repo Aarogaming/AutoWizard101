@@ -23,6 +23,58 @@ pub const MAXIMUM_BYTES: usize = 262_144;
 pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(8);
 pub const CONNECT_TIMEOUT: Duration = Duration::from_millis(1500);
 
+/// Retry only ERROR_PIPE_BUSY before connecting; never replay a sent request.
+pub async fn open_with_busy_retry<T>(
+    mut open: impl FnMut() -> io::Result<T>,
+    budget: Duration,
+    cancelled: Arc<AtomicBool>,
+) -> Result<T, BridgeError> {
+    let deadline = tokio::time::Instant::now() + budget;
+    let mut delay = Duration::from_millis(25);
+    loop {
+        if cancelled.load(Ordering::Acquire) {
+            return Err(BridgeError::Cancelled);
+        }
+        let remaining = deadline.saturating_duration_since(tokio::time::Instant::now());
+        if remaining.is_zero() {
+            return Err(BridgeError::Timeout);
+        }
+        match open() {
+            Ok(connection) => {
+                if cancelled.load(Ordering::Acquire) {
+                    return Err(BridgeError::Cancelled);
+                }
+                return Ok(connection);
+            }
+            Err(error) if error.raw_os_error() == Some(231) => {}
+            Err(error) => return Err(BridgeError::Io(error)),
+        }
+        tokio::select! {
+            biased;
+            _ = async {
+                while !cancelled.load(Ordering::Acquire) {
+                    tokio::time::sleep(Duration::from_millis(20)).await;
+                }
+            } => return Err(BridgeError::Cancelled),
+            _ = tokio::time::sleep(delay.min(remaining)) => {},
+        }
+        delay = (delay * 2).min(Duration::from_millis(100));
+    }
+}
+
+#[cfg(windows)]
+pub async fn connect_pipe(
+    name: &str,
+    cancelled: Arc<AtomicBool>,
+) -> Result<tokio::net::windows::named_pipe::NamedPipeClient, BridgeError> {
+    open_with_busy_retry(
+        || tokio::net::windows::named_pipe::ClientOptions::new().open(name),
+        CONNECT_TIMEOUT,
+        cancelled,
+    )
+    .await
+}
+
 #[derive(Debug, Error)]
 pub enum BridgeError {
     #[error("I/O error: {0}")]
@@ -502,16 +554,13 @@ impl MaelstromNativeBridge {
 
     #[cfg(windows)]
     async fn execute_snapshot_poll(&mut self) -> Result<NativeHostState, BridgeError> {
-        use tokio::net::windows::named_pipe::ClientOptions;
         use tokio::time::timeout;
 
-        let client = ClientOptions::new()
-            .open(&self.pipe_name)
-            .map_err(BridgeError::Io)?;
+        let client = connect_pipe(&self.pipe_name, Arc::new(AtomicBool::new(false))).await?;
 
         let mut stream = client;
         let reply = timeout(
-            CONNECT_TIMEOUT + DEFAULT_TIMEOUT,
+            DEFAULT_TIMEOUT,
             call_stream(&mut stream, "snapshot", None, None),
         )
         .await
@@ -557,7 +606,7 @@ pub async fn call_stream_bounded<S: AsyncRead + AsyncWrite + Unpin>(
 }
 
 /// One read-only request on a serialized worker, not on the UI thread.
-/// No host/game startup, retry loop or input capability is available.
+/// No host/game startup or input; retries only pre-request busy opens.
 pub fn poll_snapshot_blocking(
     data_root: PathBuf,
     cancelled: Arc<AtomicBool>,
@@ -572,8 +621,7 @@ pub fn poll_snapshot_blocking(
             .enable_all()
             .build()?;
         runtime.block_on(async {
-            let mut stream =
-                tokio::net::windows::named_pipe::ClientOptions::new().open(&bridge.pipe_name)?;
+            let mut stream = connect_pipe(&bridge.pipe_name, cancelled.clone()).await?;
             let reply =
                 call_stream_bounded(&mut stream, "snapshot", DEFAULT_TIMEOUT, cancelled).await?;
             decode_snapshot(reply)

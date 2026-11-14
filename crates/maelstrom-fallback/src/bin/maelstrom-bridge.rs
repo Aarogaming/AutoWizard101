@@ -31,7 +31,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             .enable_all()
             .build()?;
         let result = runtime.block_on(async {
-            let mut stream = tokio::net::windows::named_pipe::ClientOptions::new().open(pipe)?;
+            let mut stream = maelstrom_fallback::maelstrom_bridge::connect_pipe(
+                &pipe,
+                Arc::new(AtomicBool::new(false)),
+            )
+            .await?;
             call_stream_bounded(
                 &mut stream,
                 &args[1],
@@ -42,7 +46,19 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         });
         match result {
             Ok(reply) => {
-                serde_json::to_writer_pretty(&mut report, &reply)?;
+                let mut envelope = serde_json::to_value(&reply)?;
+                if args[1] == "snapshot" {
+                    let state =
+                        maelstrom_fallback::maelstrom_bridge::NativeHostState::from_snapshot_json(
+                            reply.result.as_ref().unwrap_or(&serde_json::Value::Null),
+                        );
+                    let mut projection = serde_json::to_value(state)?;
+                    if let Some(object) = projection.as_object_mut() {
+                        object.remove("raw_snapshot");
+                    }
+                    envelope["projection"] = projection;
+                }
+                serde_json::to_writer_pretty(&mut report, &envelope)?;
                 report.write_all(b"\n")?;
                 println!("Read-only {} check passed; report saved.", args[1]);
                 Ok(())

@@ -1424,6 +1424,12 @@
           "path": "docs/coordination/results/RUST-BRIDGE-RELEASE-60.md",
           "scope": "Installed optional Rust tools; actual disconnected native-host protocol passes4commands/26unknownaliases;2616native/71Rust/14installer+lifecycle pass. No W101 gameplay or GUI startup qualification.",
           "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/RUST-BUSY-TELEMETRY-61.md",
+          "scope": "Source-host passive W101 telemetry through Rust;bounded busy recovery;2627native/76Rust;hook cleanup,expiry,disconnect verified;no inputs/focus/install.",
+          "path_status": "existing"
         }
       ],
       "depends_on": [

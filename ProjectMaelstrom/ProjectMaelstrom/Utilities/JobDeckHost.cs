@@ -249,7 +249,7 @@ internal sealed class JobDeckHost : IAsyncDisposable
     }
     private JobFacts? UpdateFacts(W101UiTreeResult reading)
     {
-        if (_session is null || !W101QuestStep.EvidenceReady(_session.Target, reading, DateTime.UtcNow.Ticks))
+        if (_session is null || !ObservationReady(_session.Target, reading, DateTime.UtcNow.Ticks))
         { Volatile.Write(ref _facts, null); Volatile.Write(ref _questReading, null); return null; }
         var facts = new Dictionary<string, JsonElement>();
         foreach (var (name, value) in reading.StableStates)
@@ -268,6 +268,21 @@ internal sealed class JobDeckHost : IAsyncDisposable
             subject = reading.WizardSubject;
           var result = new JobFacts("wizard101", W101QuestStep.TargetBinding(_session.Target), new DateTime(reading.StatesObservedUtcTicks, DateTimeKind.Utc), facts, "reviewed-w101-ui-tree", subject);
         Volatile.Write(ref _questReading, reading); Volatile.Write(ref _facts, result); return result;
+    }
+    /// <summary>Observation validity is independent of quest-action readiness.
+    /// Idle/menu readings are useful telemetry, never permission to advance dialogue.</summary>
+    internal static bool ObservationReady(WizwalkerTarget target, W101UiTreeResult reading, long now)
+    {
+        string[] names = ["interactionPrompt", "dialogue", "menu", "nativeIdle"];
+        return reading.Target == target && reading.Operation == W101UiTreeOperation.Version && reading.SchemaVersion == 1 &&
+            reading.SourceSha256 == WizwalkerOperation.SourceSha256 && reading.Status == "observed" &&
+            reading.CleanupConfirmed && reading.HookRestored && reading.TreeSamples is >= 2 and <= 120 && reading.Loading == false &&
+            reading.ObservedUtcTicks > 0 && reading.ObservedUtcTicks <= now && reading.StatesObservedUtcTicks > 0 &&
+            reading.StatesObservedUtcTicks <= reading.ObservedUtcTicks && now - reading.StatesObservedUtcTicks <= TimeSpan.FromSeconds(2).Ticks &&
+            reading.States is { Count: 4 } && reading.StableStates is { Count: 4 } &&
+            names.All(name => reading.States.ContainsKey(name) && reading.StableStates.ContainsKey(name)) &&
+            reading.StableStates.All(pair => pair.Value is null || reading.States[pair.Key] == pair.Value) &&
+            W101UiTreeOperation.ValidQuestContext(reading, true, now);
     }
     private PreparedDeckJob PrepareTravel(JobCardSpec card, JobFacts? facts)
     {

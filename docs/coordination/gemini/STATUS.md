@@ -1,28 +1,22 @@
 # Gemini channel status
 
-Last updated: 2026-11-13T23:13:33-05:00
-Last established inbound: GEM-0007 ACKs prior review/decision, confirms standing down source/build/host/game activity. LIA-0017 is a new task awaiting ACK; no acceptance or newer inbound inferred.
+Last updated: 2026-11-13T23:29:29-05:00
+Last established inbound: GEM-0008 five-gap audit and GEM-0009 scope ACK. Audit complete and relayed; no later ACK inferred by this evidence update.
 
-## Coordinator-verified release evidence
+## Current source-only qualification
 
-- Installed version: 507efdea5deb419481628cdb02a44745.
-- Portable: Maelstrom-20261113-230917-f647cf.
-- Installer: Setup-20261113-231023-68abe8.
-- Native 2,616 / Rust 71 / installer 14 tests passed.
-- Embedded lifecycle preservation checks all true; installed Rust hashes match.
-- Four installed read-only host calls passed; 26 unknown aliases in disconnected test root; test host exit 0.
-- W101 PID 62076 untouched. No claim of live W101 telemetry, GUI startup qualification or automatic busy-pipe reconnect.
+Root verified bounded busy-pipe recovery and live source-host Rust projection. Health 1022/1022; mana 76; energy 55; gold 1136; level 10; nativeIdle=true. Hook restored, cleanup true; no input, focus change or capture. Three-second expiry and disconnect clear projected values; host exit 0.
 
-Evidence is coordinator-verified, not independently rerun by liaison. LIA-0016 records completion; documented path/GUI qualification limits and manual retry remain follow-ups.
+Rust 76 tests and Clippy passed. Native focused 83 passed; full native suite PENDING. Root is creating [RUST-BUSY-TELEMETRY-61](../results/RUST-BUSY-TELEMETRY-61.md). This update is SOURCE-ONLY and NOT INSTALLED; do not conflate it with the prior installed release.
 
-## Next bounded task
+## Prior installed release
 
-LIA-0017: Gemini read-only audit of up to five remaining Rust/native integration gaps, with exact source locations, impact and smallest offline acceptance test. ACK/findings only in FROM_GEMINI.md. No source/build/host/game/desktop activity. Root owns implementation and test decisions.
+Version 507efdea5deb419481628cdb02a44745; portable Maelstrom-20261113-230917-f647cf; installer Setup-20261113-231023-68abe8. At that release native 2,616 / Rust 71 / installer 14 passed, preservation checks were true and installed hashes matched. Those historical counts do not establish the current pending full-native run.
 
-Channel files frozen for root checkpoint after this update. No permanent watcher or pending background polling. User retrigger points Gemini at latest directive; root can reactivate liaison at the next checkpoint. FROM remains Gemini-owned; README/TO/STATUS remain liaison-owned.
+## Coordination boundaries
 
-## External timer report (unverified)
+LIA-0022 is latest. Gemini frozen except acknowledgements in FROM_GEMINI.md; no new source/build/host/game/desktop work. Root owns tests/integration. Existing external 10-minute wakeup remains owner-accepted but unverified/uncontrolled here; it adds no permissions. Empty checks brief, no repeated completed work.
 
-User reports Gemini recurring 10-minute timer bdf33c7d-3603-4130-b211-8b13399ae2cf / task-4447. Not verified or controlled by this liaison. User has now chosen to retain the existing external 10-minute wakeup because there is no external session trigger; no timer change or new timer was made here. Owner accepts the existing external wakeup/check mechanism only; it grants no source/build/live authority. Output remains FROM only; release60 report is root-owned. Current git status shows release60 untracked, which does not establish a Gemini edit or ownership violation. Last read inbound remains GEM-0007. LIA-0018 clarifies boundaries; channel docs frozen again.
+Liaison docs frozen after this update. No ongoing watcher or background polling. FROM remains Gemini-owned; README/TO/STATUS liaison-owned. Evidence above is coordinator-verified, not independently rerun by liaison.
 
-LIA-0019 records resolved owner preference: retain existing external recurrence (still unverified/uncontrolled here). Empty checks stay brief; act only on the latest bounded assignment, write FROM only unless explicitly granted otherwise, and never repeat completed work solely on a timer wakeup. No pending preference remains. Channel docs frozen for root checkpoint; no liaison polling.
+Coordinator final validation: 2,627 native tests passed; native/Rust scoped formatting, native analyzers and board checks passed. Task61 remains source-only.

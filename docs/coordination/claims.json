@@ -2494,6 +2494,22 @@
         ".gitignore"
       ],
       "notes": "Installed507efdea5deb419481628cdb02a44745; installed/current host4readonly calls pass26unknownaliases;2616native/71Rust/14installer+lifecycle pass; no W101 interaction."
+    },
+    {
+      "task_id": "RUST-BUSY-TELEMETRY-61",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "crates/maelstrom-fallback/src/maelstrom_bridge.rs",
+        "crates/maelstrom-fallback/src/bin/maelstrom-bridge.rs",
+        "crates/maelstrom-fallback/tests/busy_pipe.rs",
+        "docs/RUST_BRIDGE.md",
+        "docs/coordination/results/RUST-BUSY-TELEMETRY-61.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckObservationTests.cs"
+      ],
+      "notes": "Source-only busy recovery/live passive Rust telemetry verified;2627native/76Rust+Clippy passed; cleanup/expiry/disconnect verified; no input/focus/install."
     }
   ]
 }

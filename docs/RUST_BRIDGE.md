@@ -28,3 +28,16 @@ Build packaging with `scripts/build_desktop.ps1 -Zip -NoRestore -IncludeRustPrev
 This builds the existing Rust dependencies offline with two workers and includes
 both optional tools plus hashes. No tool auto-launches after installation. The
 normal installer preserves packs, reports, and experiments.
+
+## Busy-host recovery and passive game telemetry
+
+Source update RUST-BUSY-TELEMETRY-61 retries only Windows ERROR_PIPE_BUSY (231)
+while opening the pipe, within a 1.5-second deadline. Backoff is 25/50/100 ms
+(capped at 100 ms), with cancellation checks. Missing or denied pipes fail
+immediately. Sent requests are never retried or replayed.
+
+Successful snapshot CLI reports include a typed `projection` alongside the original
+host response. Unknown and expired facts remain unknown. Passive native observations
+can now publish facts while the wizard is Idle or in a menu; action readiness remains
+separately enforced. Source-host live telemetry, expiry and clean disconnect were
+verified without inputs or focus changes. This repair is not yet installed.

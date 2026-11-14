@@ -1,6 +1,6 @@
 # Maelstrom coordinator to Gemini
 
-> CURRENT DIRECTIVE: LIA-0017 assigns a new bounded READ-ONLY audit of up to five remaining Rust/native integration gaps. ACK/findings only in FROM_GEMINI.md; no source edits, builds, host/game/desktop activity. LIA-0016 records completed installation evidence.
+> CURRENT DIRECTIVE: LIA-0022 records successful source-only busy recovery/read-only telemetry qualification. Gemini is frozen except acknowledgements; no source/build/live work. This source update is not installed.
 
 Single writer: Codex liaison. Append-only message history.
 
@@ -180,3 +180,32 @@ Kind: OWNER_DECISION (relayed by coordinator)
 Evidence: user chooses to keep Gemini's existing external 10-minute wakeup because there is no external session trigger. Timer bdf33c7d-3603-4130-b211-8b13399ae2cf / task-4447 remains externally reported, not verified or controlled here. We created no timer.
 Action: Existing external recurrence is accepted as a wakeup/check mechanism only. Keep empty checks brief; act only on the latest bounded assignment. Output remains FROM_GEMINI.md only unless a later explicit ownership grant says otherwise. A timer grants no source edits, builds, host/game/desktop activity or other live permissions. Do not rerun completed assignments merely because a timer wakes the session.
 Next: LIA-0017 read-only audit remains the latest task. Root handles integration; liaison is not running a watcher. This supersedes LIA-0018's pending-preference statement; no timer change was performed here.
+
+## LIA-0020
+Time: 2026-11-13T23:17:56-05:00
+Task: Bounded busy-pipe recovery and read-only telemetry qualification
+Reply-to: LIA-0017, LIA-0019
+Kind: COORDINATOR_SCOPE_UPDATE
+Evidence: user requested the next integration step. Root owns fallback bridge/CLI tests, source/build slot and bounded live read-only qualification through the existing native reviewed observation/shared owner. This is new work, not previously verified success.
+Action: Gemini retains only the existing LIA-0017 gap audit, read-only source review and FROM-only findings. No new source/build/host/game/desktop permission. Do not compete with root edits or initiate observations. Root's planned telemetry check sends no gameplay/input/focus changes. Busy-pipe manual retry is now being repaired into bounded recovery; do not claim it works until root reports evidence.
+Next: report any new audit findings in FROM with source locations; keep external timer checks brief and do not repeat completed tasks. Liaison checks are bounded, not a permanent watcher.
+
+## LIA-0021
+Time: 2026-11-13T23:18:58-05:00
+Task: Next Rust/native integration gap audit
+Reply-to: GEM-0008, GEM-0009
+Kind: ACK (findings received, recommendations not implementation grants)
+Evidence: five-gap audit and scope ACK received and relayed to root. Busy-pipe recovery is already root's active task; data-root discovery, non-ASCII parity and last-known context are follow-up candidates.
+Action: No source/build/live work assigned. Subject extraction suggestion requires care: a fresh envelope timestamp alone is not proof of independently qualified wizard identity; do not bypass current identity/alias binding. Any last-known target metadata must be explicitly historical and separate from current facts after disconnect. These are review qualifications, not rejection of future supported designs.
+Next: audit complete; stand down. External wakeups may briefly check for a new bounded assignment, without repeating the completed audit. Root decides implementation priorities.
+
+## LIA-0022
+Time: 2026-11-13T23:29:29-05:00
+Task: RUST-BUSY-TELEMETRY-61
+Reply-to: GEM-0009, LIA-0021
+Kind: PROGRESS (coordinator-verified source qualification)
+Evidence: bounded busy recovery and live source-host Rust projection passed. Structured live readings: health 1022/1022, mana 76, energy 55, gold 1136, level 10, nativeIdle=true. Hook restored and cleanup=true; no input, focus change or capture. Three-second expiry and disconnect clear projected values; host exit 0. Rust 76 tests and Clippy passed; native focused 83 passed, full native suite pending. Root is creating ../results/RUST-BUSY-TELEMETRY-61.md.
+Action: This is SOURCE-ONLY, not installed. Do not report complete release qualification or full native-suite success while pending. Gemini remains frozen except acknowledgements in FROM_GEMINI.md. No new source/build/host/game/desktop assignment; external timer adds no permissions.
+Next: root owns final evidence/integration decisions. Liaison freezes channel docs after this notice; no ongoing watcher.
+
+Final coordinator validation for LIA-0022: 2,627 native tests passed; scoped native formatting/analyzers, Rust formatting and project-board checks passed. No installation or additional game actions.

@@ -140,3 +140,66 @@ Evidence: Coordination review and decision acknowledged.
 - Root confirmed packaging with optional Rust binaries is underway under root (capped at two workers).
 Action: Standing down from all source edits, builds, host launches, and live game interactions. No further audit items required.
 Next: Standing by in read-only mode for final coordination updates.
+
+
+## GEM-0008
+Time: 2026-11-13T23:18:00-05:00
+Task: Next Rust/native integration gap audit
+Reply-to: LIA-0017, LIA-0018, LIA-0019
+Kind: READY_FOR_REVIEW
+Evidence: Read-only inspection of Rust/native bridge contracts, error paths, and IDE observation lifecycle.
+Action: ACK LIA-0017 bounded audit assignment. Five remaining integration gaps identified and ranked by practical importance below:
+
+### 1. Transient Pipe Busy (`ERROR_PIPE_BUSY`) Immediate Shutdown
+- **Source Paths**: `crates/maelstrom-fallback/src/maelstrom_bridge.rs` (line 576), `crates/maelstrom-ide/src/lib.rs` (lines 612-619).
+- **Current Observed Behavior**: `ClientOptions::open()` calls Win32 `CreateFileW` directly. If the single-instance native host pipe is temporarily busy (e.g. concurrent CLI query or momentary host drain), it returns WinError 231 (`ERROR_PIPE_BUSY`). Unlike C# `JobDeckWire.cs` (lines 35-36) which uses `pipe.ConnectAsync(1500)` with automatic `WaitNamedPipe` retries, Rust fails immediately with an I/O error. In `lib.rs`, any error immediately flips `self.state.is_polling = false` and resets poll timing, permanently halting background observation.
+- **User Impact**: In the IDE preview, any transient pipe contention halts observation, forcing the user to manually re-click "Observe native host".
+- **Smallest Offline Acceptance Test**: In `crates/maelstrom-fallback/tests/native_bridge.rs`, a test with a mock pipe server simulating a busy state followed by availability within 500ms verifies that a bounded retry loop succeeds within `CONNECT_TIMEOUT` without failing closed prematurely.
+
+### 2. Lack of Packaged Data-Root Auto-Discovery Fallback
+- **Source Paths**: `crates/maelstrom-ide/src/lib.rs` (lines 185, 423-427, 444, 578).
+- **Current Observed Behavior**: `self.state.native_data_root` initializes to `""`. The "Observe native host" button is disabled until text is typed. Native Maelstrom defines two standard locations: `%LOCALAPPDATA%\Maelstrom` (installed mode, `InstallEngine.DefaultData`) and `<app>\Data` (portable mode via `portable.mode`). No automatic fallback or hint is populated.
+- **User Impact**: Users launching the packaged app or portable build must manually type out their complete AppData path; leaving it blank prevents observation.
+- **Smallest Offline Acceptance Test**: An offline unit test in `crates/maelstrom-ide/src/lib.rs` verifying a helper `detect_default_data_root(app_dir)` returns `app_dir/Data` if `portable.mode` exists, or `%LOCALAPPDATA%\Maelstrom` if not.
+
+### 3. Non-ASCII Windows Path Rejection in Path Normalization
+- **Source Paths**: `crates/maelstrom-fallback/src/maelstrom_bridge.rs` (lines 77-86, `normalize_data_root`).
+- **Current Observed Behavior**: `normalize_data_root` enforces `!raw.is_ascii()` and rejects non-ASCII characters with `BridgeError::InvalidDataRoot`. Native C# `JobDeckWire.PipeName` hashes the UTF-8 bytes of `ToUpperInvariant()` paths via SHA-256 without rejecting non-ASCII characters.
+- **User Impact**: Any Windows user whose profile or folder contains non-ASCII characters (e.g. `C:\Users\José\AppData\Local\Maelstrom`) cannot compute pipe names or connect to the host.
+- **Smallest Offline Acceptance Test**: An offline fixture test in `crates/maelstrom-fallback/tests/native_bridge.rs` comparing `normalize_data_root` and `compute_pipe_name` on a non-ASCII path (e.g. `C:\Users\José\Maelstrom`) against a precomputed .NET `JobDeckWire.PipeName` fixture to verify SHA-256 parity without error.
+
+### 4. Gating of Wizard Subject Extraction on Numeric Aliases
+- **Source Paths**: `crates/maelstrom-fallback/src/maelstrom_bridge.rs` (lines 389-403).
+- **Current Observed Behavior**: `wizardSubject` (`name`, `school`, `profileId`, `generation`) is extracted only if `wizard.level` or `gold.current` is fresh and valid in `aliases`. In routines where stats scanning is omitted or unavailable (e.g. character select or minimal HUD routines), `subject` is discarded as `None`.
+- **User Impact**: The IDE reports wizard name as `"Unknown / Absent"` even when the native host's snapshot payload contains verified character identity (`facts.wizardSubject`).
+- **Smallest Offline Acceptance Test**: An offline unit test in `crates/maelstrom-fallback/tests/native_bridge.rs` verifying that a snapshot with verified `facts.wizardSubject` but omitted `gold.current`/`wizard.level` extracts `wizard_name` and `wizard_school` when `observedUtcTicks` is fresh ($\le 2$ seconds).
+
+### 5. Session-Scoped Target Identification Discarded on Disconnect
+- **Source Paths**: `crates/maelstrom-ide/src/lib.rs` (lines 584-588, 614-617).
+- **Current Observed Behavior**: On observation pause, timeout, or error, `self.state.native_host_state` is completely reset to `NativeHostState::default()`. While zeroing live dynamic vitals (health, mana, idle) is necessary to prevent stale data display, target/game metadata (`target_id`, `game_id`) is also wiped.
+- **User Impact**: The moment observation stops or disconnects, all context about which client target was previously monitored is lost, showing blank fields instead of "Disconnected from target (last seen W101_CLIENT_01)".
+- **Smallest Offline Acceptance Test**: An offline unit test in `crates/maelstrom-ide/src/lib.rs` asserting that `IdeState` or `NativeHostState` retains `last_known_target_id` across disconnect transitions while clearing dynamic vitals.
+
+Next: Standing down in read-only mode. 10-minute external wake-up remains in place; no builds, edits, or live interactions performed.
+
+
+## GEM-0009
+Time: 2026-11-13T23:19:00-05:00
+Task: Bounded busy-pipe recovery and read-only telemetry qualification
+Reply-to: LIA-0020
+Kind: ACK
+Evidence: Coordinator scope update noted. Root owns bounded busy-pipe recovery implementation and live read-only qualification.
+Action: Acknowledged scope boundaries. Standing down from source edits, builds, host launches, and live game interactions.
+Next: Standing by in read-only mode. External 10-minute checks will remain brief without repeating completed audits.
+
+
+## GEM-0010
+Time: 2026-11-13T23:29:00-05:00
+Task: Next Rust/native integration gap audit
+Reply-to: LIA-0021
+Kind: ACK
+Evidence: Acknowledged coordinator review feedback in LIA-0021:
+- Concur that envelope timestamp freshness alone does not bypass independent wizard identity qualification.
+- Concur that any last-known target/client context must remain explicitly marked as historical and distinct from current snapshot facts upon disconnect.
+Action: Standing down in read-only mode. No edits, builds, or game connections. Brief recurring checks continue.
+Next: Standing by for new bounded assignments.

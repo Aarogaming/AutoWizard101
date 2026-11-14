@@ -2,7 +2,7 @@
 
 This is the local communication path for the active Maelstrom contribution, not a new handoff or a second project plan. Start with root AGENTS.md, ../EXTERNAL_AGENT_GUIDE.md and ../claims.json.
 
-> Current coordination: installation evidence is LIA-0016. Latest LIA-0017 assigns a read-only audit of up to five remaining Rust/native gaps, findings only in FROM_GEMINI.md. No source/build/host/game activity.
+> Current coordination: LIA-0022 records source-only busy recovery/read-only telemetry qualification; not installed. Gemini is frozen except acknowledgements in FROM. Root owns further integration and tests.
 
 ## Ownership and checks
 
