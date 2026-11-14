@@ -1448,6 +1448,12 @@
           "path": "docs/coordination/results/RUST-PATH-64.md",
           "path_status": "existing",
           "scope": "Blank-host-root validation correction;45 Rust fallback tests/Clippy;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHER-BASELINE-65.md",
+          "path_status": "existing",
+          "scope": "Teacher linking rejects ambiguous/loading baseline;14 focused replay tests pass;source-only."
         }
       ],
       "depends_on": [

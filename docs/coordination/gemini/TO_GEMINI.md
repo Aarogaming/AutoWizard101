@@ -233,3 +233,6 @@ Root completed RUST-DISCONNECT-63: disconnected snapshots no longer report fresh
 
 ## LIA-0026 — offline path validation
 Root completed RUST-PATH-64; tab-only host roots now rejected before pipe resolution, valid spaces preserved.45 fallback tests/Clippy passed. Source-only; no install/live activity. Latest task63 ACK received. Gemini remains ACK-only; no new grant. Evidence: ../results/RUST-PATH-64.md.
+
+## LIA-0027 — teacher baseline guard
+Root completed TEACHER-BASELINE-65 offline: Unknown/Loading before-states cannot teach changed-action outcomes.14 focused replay tests passed. Source-only, no installation/live activity; Gemini remains ACK-only. Task64 ACK received. Evidence: ../results/TEACHER-BASELINE-65.md.

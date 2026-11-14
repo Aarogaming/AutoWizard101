@@ -48,7 +48,7 @@ internal static class TeacherActionReplay
                     before.Cancelled || after.Cancelled || before.UserActive || after.UserActive ||
                     !double.IsFinite(before.TimeMs) || !double.IsFinite(receipt.TimeMs) || !double.IsFinite(after.TimeMs) ||
                     receipt.TimeMs < before.TimeMs || after.TimeMs <= receipt.TimeMs || after.TimeMs - before.TimeMs > 15000 ||
-                    after.Scene is "Unknown" or "Loading" || after.Scene == before.Scene) continue;
+                    before.Scene is "Unknown" or "Loading" || after.Scene is "Unknown" or "Loading" || after.Scene == before.Scene) continue;
                 return new(before, receipt, after, action, decision.ProposalId, Facts(events[i]), Facts(events[j]));
             }
         }

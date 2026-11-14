@@ -5,10 +5,10 @@ namespace ProjectMaelstrom.Tests;
 
 public sealed class TeacherActionReplayTests
 {
-    private static JsonDocument Evidence(bool accepted = true, bool released = true, bool fresh = true)
+    private static JsonDocument Evidence(bool accepted = true, bool released = true, bool fresh = true, string initialScene = "NativeIdle")
     {
         var binding = new RoutineBinding("pid-1-start-2", "geometry", "visit");
-        var before = new RoutineObservation(100, "NativeIdle", binding, true, true, true, true, true);
+        var before = new RoutineObservation(100, initialScene, binding, true, true, true, true, true);
         var action = new ModuleAction("wizard101.wake-idle", "keyboard-pulse", "ESCAPE", 40, "wake");
         return JsonDocument.Parse(JsonSerializer.Serialize(new
         {
@@ -27,6 +27,14 @@ public sealed class TeacherActionReplayTests
     public void UnconfirmedInputOrStaleOutcomeCannotTeach(bool accepted, bool released, bool fresh)
     {
         using var doc = Evidence(accepted, released, fresh);
+        Assert.Throws<InvalidDataException>(() => TeacherActionReplay.Link(doc.RootElement));
+    }
+    [Theory]
+    [InlineData("Unknown")]
+    [InlineData("Loading")]
+    public void AmbiguousBaselineCannotTeachAnActionOutcome(string scene)
+    {
+        using var doc = Evidence(initialScene: scene);
         Assert.Throws<InvalidDataException>(() => TeacherActionReplay.Link(doc.RootElement));
     }
     [Fact]
