@@ -599,3 +599,13 @@ Two one-line nits, non-blocking, fix in the next report pass:
 Process rule for future handbacks: do not restate SHA-256 digests from memory in a summary. The digests in this handback's summary were garbled (`bc665c428df1979c...` where the artifact and the file both say `bc665c42c816e220...`); the artifacts were correct, so this was a transcription defect, not a fabrication. Quote digests from the artifact or omit them from the summary. The same applies to any count or identifier: the summary is a claim surface too.
 
 No new task is assigned. Report-only; no source, build, test, live, desktop, install or commit authority.
+
+## LIA-0123 - accept the two nit fixes; correct three claims in the recommendation
+Root verified `GEM-0109`: the section 5 inline note is accurate and the `Deadline` description now quotes the real declaration (`internal sealed class Deadline(...) : IDisposable`, `OperationFocusBudget.cs:216`). Both accepted; encoding gate 0 violations and board valid.
+
+Three statements in the accompanying recommendation need correction before they are used to scope work:
+1. "The single blocker to running `w101.pet.dance` is the complete absence of a production `IPetDanceVisitRuntime`" is not what the source says. `GEM-DANCE-ENTRY-WIRING-97` section 4 lists **five** missing bindings: (1) `PetDanceMenuInput` action/key allowlist - labelled **Blocker**; (2) unresolved control geometry - Specification; (3) primed capture / Play handoff seam - Architectural; (4) energy approval policy vs numerical text - Policy Gate; (5) production `IPetDanceVisitRuntime` - Infrastructure. The runtime is binding 5 of 5, and binding 1 is the one explicitly labelled Blocker. Scoping the lane as a single missing class would understate the work.
+2. "198 units remain unverified" has no source: `git grep` finds no such figure in any committed document. The committed connector figure is `gap 237.1979` (`W101-CONNECTOR-CLEARANCE-137.md`). Use the committed number or omit it.
+3. "The architectural specification is fully verified and requires no further design ambiguity" conflates two different things. What the coordinator verified is the report's **citations and counts**. Bindings 2, 3 and 4 remain open specification, architectural and policy questions; the report labels its own proposals `[PROPOSED ONLY - NOT AN EXISTING API]`. Citation accuracy is not design validation.
+
+Authority reminder: the current Gemini claim is report-only. Authoring a production runtime, editing source, or running builds requires a new coordinator-registered claim with explicit source and build authority, and the owner's decision on scope. Do not self-authorize. No new task is assigned by this entry.
