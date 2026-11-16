@@ -43,7 +43,7 @@ Correction to the source report: `GEM-DANCE-ENTRY-WIRING-97` presents binding 3 
 - `ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceScheduledVisitTests.cs` (additions only)
 - `docs/coordination/results/DANCE-PRODUCTION-RUNTIME-01.md` (result report)
 
-Overlap check required before registration: `JobDeckRoutines.cs` and `PetDanceScheduledVisit.cs` may be owned by active claims (`DANCE-CAPTURE-82`, `CARD-PROTOTYPE-81`); transfer or defer those paths explicitly rather than editing under another active claim.
+Overlap check performed 2026-11-16 against active claims: **`Utilities/PetDanceMenuInput.cs` is owned by active claim `W101-CHARACTER-27` (root).** That path must be transferred to this claim (documented transfer, as done for `TEXT-ENCODING-REPAIR-01`) or the entry-dispatch work must use a new `PetDanceEntryInput.cs` instead, leaving `PetDanceMenuInput.cs` untouched. `PetDanceScheduledVisit.cs`, `JobDeckRoutines.cs` and `PetDanceScheduledVisitTests.cs` are currently unowned by any active claim, but re-check immediately before registration because the board changes between heartbeats.
 
 ## 5. Authority requested
 
