@@ -3760,13 +3760,14 @@
     },
     {
       "task_id": "ROOT-PROSE-AUDIT-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         "docs/coordination/results/ROOT-PROSE-AUDIT-01.md"
       ],
-      "notes": "Owner-authorized 2026-11-16 symmetric audit of coordinator-authored documents: ROADMAP, PROJECT_ORGANIZATION, INDEX, CODEX_WORK, workstreams.json/claims.json consistency, key root result reports, and the coordinator's own recent audit/release output. Report-only: no edits to the audited documents, no source changes, no build/test/live authority. Output is a single audit report with per-claim verdicts and primary-source evidence."
+      "notes": "Owner-authorized 2026-11-16 symmetric audit of coordinator-authored documents: ROADMAP, PROJECT_ORGANIZATION, INDEX, CODEX_WORK, workstreams.json/claims.json consistency, key root result reports, and the coordinator's own recent audit/release output. Report-only: no edits to the audited documents, no source changes, no build/test/live authority. Output is a single audit report with per-claim verdicts and primary-source evidence.",
+      "release_note": "Closed 2026-11-16 with a REDUCED SCOPE recorded explicitly. Three commissioned auditors all failed before producing output with 'OpenCode Go 5 hour usage limit reached'. The coordinator ran a bounded spot check instead: 25 root zips verified, 19 JobDeckRoutines entries verified (2/17 adapter split structurally stale), 157 markdown links across 5 key docs all resolve, no future-dated entries; two minor staleness items (ROADMAP header 2026-11-14 vs 2026-11-15 body; readiness map dated 2026-11-11), one unverifiable knowledge-bundle count. No material overclaim in the checked subset. Report: docs/coordination/results/ROOT-PROSE-AUDIT-01.md. The full three-group audit remains outstanding and must be re-run when model capacity allows; this release does NOT certify the unexamined documents."
     },
     {
       "task_id": "DANCE-PRODUCTION-RUNTIME-01",
