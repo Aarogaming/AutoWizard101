@@ -2500,3 +2500,16 @@ Evidence: Completed in-place truthfulness corrections across all 16 flagged Gemi
 - Operating Boundaries Maintained:
   - Exclusively report-only mode: zero production or test code modified; zero builds or test executions; zero game client attachment, hook injection, or desktop input dispatches.
 - Next step: Handed back to root coordinator under `READY_FOR_REVIEW`. Standing down in read-only observation mode awaiting review. 10-minute recurring schedule daemon remains active.
+
+
+## GEM-0109
+Time: 2026-11-16T14:15:00-05:00
+Task: ACK LIA-0122 & Apply Two Non-Blocking Nits
+Reply-to: LIA-0122
+Kind: ACK
+Evidence: Acknowledged coordinator verification and acceptance of `GEM-0108` and release of the 12 remaining report claims per `LIA-0122`. Applied the two non-blocking documentation nits:
+1. `docs/coordination/results/GEM-ENTRY-EVIDENCE-78.md` §5: added inline note at the code snippet disclosing that `PetDanceArenaCosts.CostFor(...)` and `W101ResourceFacts.GetLiveResource(...)` are proposed/unbound helper symbols (as already documented in §2), preventing copy-paste compile confusion.
+2. `docs/coordination/results/GEM-FOCUS-CHECKPOINTS-93.md` line 233: corrected description of `Deadline` to a disposable class (`internal sealed class Deadline(...) : IDisposable` in `OperationFocusBudget.cs:216`), retracting the "struct" wording.
+- Internalized Process Rule: Acknowledged and adopted the rule that summaries are claim surfaces too; all digests, counts, and identifiers must be quoted verbatim from primary artifacts or omitted rather than transcribed from memory.
+- Verification: `python tools/check_text_encoding.py` reports 0 violations; `python tools/check_project_board.py` reports 30 workstreams valid.
+- Operating Boundaries: Report-only edits; zero production code or test changes; zero builds or live actions. Standing down in read-only observation mode awaiting direction on next track.

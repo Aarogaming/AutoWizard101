@@ -230,7 +230,7 @@ A core tenet of Maelstrom safety is that **dispatchers do NOT always return clea
      ```csharp
      using var deadline = (context.FocusBudget ?? fallbackBudget).CreateDeadline(TimeSpan.FromSeconds(20), token);
      ```
-     (Note: `CreateDeadline` returns a `Deadline` struct/object wrapping `.Token`, not a raw `CancellationToken`).
+     (Note: `CreateDeadline` returns a disposable `Deadline` class wrapping `.Token` [declared as `internal sealed class Deadline(...) : IDisposable` in `OperationFocusBudget.cs:216`], not a raw `CancellationToken`).
   2. In character roster loop (line 345), if `!scope.Ready()`, call `await scope.WaitForFocusAsync(token)` between seat readings before failing.
 - **Unit Test [PROPOSED ONLY - NOT IMPLEMENTED]**: `W101CharacterOperationTests.cs`:
   - `FinalizeFailure_WithFocusLoss_DoesNotExpireActiveDeadlineEarly`: Simulates a 15-second focus pause during Idle restoration; verifies the 20-second active deadline does not cancel prematurely and native Idle verification succeeds.

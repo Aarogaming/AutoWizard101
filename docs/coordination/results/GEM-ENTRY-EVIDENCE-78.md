@@ -317,6 +317,8 @@ internal sealed class PetDanceLiveVisitRuntime : IPrimedPetDanceVisitRuntime
             var postgame = PetDancePostGameClassifier.Classify(menuText);
             var scene = entryScene.Scene != PetDanceScene.Unknown ? entryScene.Scene : postgame.Scene;
 
+            // Note: W101ResourceFacts.GetLiveResource and PetDanceArenaCosts.CostFor are proposed/unbound helper symbols
+            // (documented as missing in Section 2); in existing code, energy and cost must be supplied via verified facts or manual policy.
             var energySnapshot = new PetTrainingEnergySnapshot(
                 Current: W101ResourceFacts.GetLiveResource("energy"),
                 NextAttemptCost: PetDanceArenaCosts.CostFor(_options.Arena),
