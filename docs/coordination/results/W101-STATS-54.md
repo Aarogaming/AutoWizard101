@@ -1,4 +1,4 @@
-# W101-STATS-54 — observed resource maxima, potion correlation and optional visual profile evidence
+# W101-STATS-54 â€” observed resource maxima, potion correlation and optional visual profile evidence
 
 Bounded continuation of [STATS-53](W101-STATS-53.md). Exact executable d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a. Installation reads only; scoped existing observation hooks are optional. No game input, focus change, desktop control, volume change, install or network manipulation.
 

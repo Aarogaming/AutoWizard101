@@ -96,7 +96,7 @@ internal static class JobDeckRoutines
         BoundModule("w101.auto-idle", "Auto-Idle", "native-idle", "idle", "Enter verified native Idle through the game menu. Wake/resume and automatic between-run scheduling are separate operations.",
             new("method", "Method", "choice:native-idle,spin,step,routine", false, "native-idle"), new("timeoutSeconds", "Time limit (seconds)", "text", false, "30"));
         routines.Add(new(new(W101TravelCard.Id, "Travel", "W101 Operations", "replay", "wizard101",
-            "Bounded World Gate selection � live qualification required", travel is not null, true,
+            "Bounded World Gate selection — live qualification required", travel is not null, true,
             [new("destination", "Destination world", "text", true, "Zafaria"),
                 new("returnHome", "Return Home afterward", "choice:true,false", false, "true"),
                 new("maximumHomeWaitSeconds", "Home cooldown wait limit (seconds)", "text", false, "60"),

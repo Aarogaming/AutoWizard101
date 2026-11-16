@@ -375,7 +375,7 @@ Current guided snapshots are evidence collection, not an autonomous map builder.
 
 
 For a straight entrance approach, add `--walk-until-loading true` and set
-`--pulse-ms` to a maximum hold of 1–15000 ms. This still requires the assisted,
+`--pulse-ms` to a maximum hold of 1â€“15000 ms. This still requires the assisted,
 measured forward visit opt-ins. Serial loading reads run alongside the one held
 key; a loading/unknown reading, takeover, or 2.5-second observation freshness
 expiry releases it. Each read disconnects before the next. There is no second

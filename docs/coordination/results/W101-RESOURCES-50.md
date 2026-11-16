@@ -1,6 +1,6 @@
 # W101 resource registry foundation
 
-2026-11-12 Â· CORE-DELIVERY Â· offline integration verified; live producer pending.
+2026-11-12 · CORE-DELIVERY · offline integration verified; live producer pending.
 
 Added a bounded sequential read-only collector reusing imported wizwalker current_hitpoints/max_hitpoints, current_mana/max_mana, current_energy/energy_max and potion_charge/potion_max. It owns no process/hook and refuses unqualified invocation. Reads each pair twice, omits changing or invalid pairs, and discards a timed-out batch. This helper is not yet invoked by the live UI worker: qualification/ownership of the exact-build stats hook remains required.
 

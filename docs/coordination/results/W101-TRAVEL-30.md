@@ -1,4 +1,4 @@
-# Reusable World Gate Travel card — 2026-11-12
+# Reusable World Gate Travel card â€” 2026-11-12
 
 Status: source/offline verified; one configured Zafaria/Home round trip live verified. Parent W101-NAVIGATION.
 Owned under the coordinator's W101-CHARACTER-27 continuation.
@@ -6,7 +6,7 @@ Owned under the coordinator's W101-CHARACTER-27 continuation.
 ## Implementation
 
 - `w101.travel` is a configurable card in the existing routine registry. Destination,
-  optional Home return, 0–120 second Home availability wait and 1–8 page limit.
+  optional Home return, 0â€“120 second Home availability wait and 1â€“8 page limit.
 - Same prepared operation is callable from CLI `travel-card --selection <card.json>`.
   Explicit client/UI/action opt-ins remain mandatory. Deck connection has a separate,
   default-off Travel permission, including a checkbox in the existing connection UI.

@@ -1,4 +1,4 @@
-# W101-CHARACTER-27 — house route teaching and transition recovery
+# W101-CHARACTER-27 â€” house route teaching and transition recovery
 
 Workstream: W101-NAVIGATION. Owner: root. Status: integration in progress.
 
@@ -28,7 +28,7 @@ is distinct from destination identity and from a replay-qualified route.
 All receipts are below `.local/w101-cycle-06/`. The study manifest is
 `house-route-study-27/study.json`. It retains the owner-estimated 100 units/step
 as an estimate, not measured gait. Observed mount displacement is approximately
-782–828 units per commanded second, not a universal speed calibration.
+782â€“828 units per commanded second, not a universal speed calibration.
 
 ## Limits and follow-up
 
@@ -188,7 +188,7 @@ worldSelectionDispatched=false to avoid confusing UI selection with agent action
 World Gate increment final validation: full native suite 2459 passed, zero failed/skipped; warnings-as-errors build and scoped whitespace/analyzer checks passed. Project board valid (30 workstreams). No installation performed. Live qualification remains partial: menu opened and close/Idle verified separately; repeat prompt recovery and destination travel remain pending.
 
 
-## World Gate recovery audit — November 12 (task 29 follow-up)
+## World Gate recovery audit â€” November 12 (task 29 follow-up)
 
 Correction to the previous follow-up: Escape did NOT close Spiral Map. Saved
 wake/Idle pixels from c94fb1b1f8cd47ddb244c60a32824064 show the map underneath

@@ -1,4 +1,4 @@
-# W101-STATS-53 — local-file layout review and bounded live qualification
+# W101-STATS-53 â€” local-file layout review and bounded live qualification
 
 Status: current-value qualification and opt-in integration; maximum/potion qualification remains pending. No installer or gameplay actions in this task.
 

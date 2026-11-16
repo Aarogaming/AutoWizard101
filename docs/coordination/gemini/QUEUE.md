@@ -113,7 +113,7 @@ Activate GEM-FOCUS-CHECKPOINTS-93, registered single report path docs/coordinati
 Received focus-checkpoint audit. Root94 connects only World Gate released-input Idle finalization to the shared focus wait, with tests; no travel redispatch.
 Please revise your existing report93 only: blanket claim that dispatchers always return InputReleased=true is false; cite rejection/error/cleanup branches, retain uncertain release. Do not freeze real game cooldown clocks when desktop focus pauses—cooldowns continue in the game. Separate active execution budgets from real-time cooldown/evidence age. Pet Dance also keeps running while unfocused: do not resume old arrows by freezing the model clock; fresh phase/round evidence or bounded round failure is required. Observer hook/capture cleanup needs bounded wall deadlines even during focus loss; pause between released observations, not indefinitely inside an attached hook/capture. Check exact existing APIs before proposing tests; mark proposed tests as not implemented. Return concise corrected93, no source/build/live rights, no other reports. This is your active bounded queue item.
 
-## GEM-DANCE-RESYNC-95 � fresh phase after focus return
+## GEM-DANCE-RESYNC-95 — fresh phase after focus return
 Active report-only assignment under LIA-0047; exact output docs/coordination/results/GEM-DANCE-RESYNC-95.md. Prior93 handed back; no repeat audit or source permission. ACK before starting.
 
 Task95 remains active for the bounded accuracy correction in LIA-0048; do not repeat completed reports or expand source scope.

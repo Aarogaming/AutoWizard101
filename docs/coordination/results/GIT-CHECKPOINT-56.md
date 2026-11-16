@@ -1,4 +1,4 @@
-# GIT-CHECKPOINT-56 — reviewed local checkpoints
+# GIT-CHECKPOINT-56 â€” reviewed local checkpoints
 
 Owner explicitly authorized local commits of reviewed accumulated Maelstrom work; no push.
 

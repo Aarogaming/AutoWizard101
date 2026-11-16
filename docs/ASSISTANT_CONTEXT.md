@@ -218,7 +218,7 @@ Evidence: `.local/dance-native-idle-live-20261109/repair-installation-verified.j
 There is no outstanding approval for that already-installed repair package.
 
 Latest live report: `%LOCALAPPDATA%/Maelstrom/reports/pet-dance/20261110-031213-a787bbc5d0244862a8350e68e863e891/`.
-At 1280Ã—720 with Large UI it recorded five successes and 25 dispatched keys;
+At 1280—720 with Large UI it recorded five successes and 25 dispatched keys;
 PERFECT was independently observed on the reward screen. The report deliberately
 retains `game_victory_verified: false`. Automatic Idle admitted zero frames:
 80 reads, one missing frame, 79 stale frames, zero aligned frames. The 31 retained
@@ -241,7 +241,7 @@ Native-resolution geometry and bounded panel extraction exist as an offline
 overload in the installed repair package. Saved game pixels pass declared synthetic
 720p/1080p/1440p transforms, with UI scale independent of client size. Menu OCR has
 a bounded raster and inverse word mapping. Its pre-package native suite passed
-981/981; scoped formatting and analyzers passed. Keep the 1280Ã—720 live gate until
+981/981; scoped formatting and analyzers passed. Keep the 1280—720 live gate until
 actual native-resolution capture/replay qualification in PET_DANCE_RESOLUTION_PLAN.md
 is complete. Installed offline capability is not native-resolution live evidence.
 

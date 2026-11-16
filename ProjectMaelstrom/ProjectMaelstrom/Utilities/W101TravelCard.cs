@@ -8,7 +8,7 @@ internal sealed record W101TravelOptions(string Destination, bool ReturnHome = t
     {
         if (string.IsNullOrWhiteSpace(Destination) || Destination.Length > 64 || Destination.Any(c => !char.IsLetter(c) && c != ' ') ||
             (CaptureHomeCooldown && !ReturnHome) || MaximumHomeWaitSeconds is < 0 or > 120 || MaximumPages is < 1 or > 8)
-            throw new InvalidDataException("Choose a world name, 1–8 pages and a Home wait of 0–120 seconds.");
+            throw new InvalidDataException("Choose a world name, 1â€“8 pages and a Home wait of 0â€“120 seconds.");
     }
 }
 
