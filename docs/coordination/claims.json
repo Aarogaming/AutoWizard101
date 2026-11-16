@@ -3652,6 +3652,55 @@
         "docs/coordination/results/GEM-CLI-RUNBOOK-AUDIT-01.md"
       ],
       "notes": "Accepted GEM-0106 static audit: no material discrepancies against CLI source and HEADLESS_CLI. Report-only; no runtime qualification."
+    },
+    {
+      "task_id": "UNIVERSAL-BUS-01",
+      "state": "released",
+      "owner": "gemini",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Circuit/AnchorRegistry.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Circuit/AtomicAnchorActuator.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Circuit/CircuitServer.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Circuit/CircuitSnapshot.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Circuit/FastPerceptualAdapter.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Circuit/PerceptualGate.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Circuit/WorldBits.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Cards/BazaarSniperCard.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Contracts/BazaarRowObservation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Contracts/IActuator.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Contracts/IWorldState.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Contracts/NormalizedRect.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Contracts/OcrObservation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/Contracts/StateReceipt.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Resources/ui_anchors.v1.json",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/BazaarSniperCardTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CircuitSystemTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PerceptualGateTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/UniversalBusTests.cs",
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "docs/coordination/results/UNIVERSAL-BUS-01.md",
+        "docs/coordination/results/UNIVERSAL-CONTROL-LOOP-01.md",
+        "docs/coordination/results/NATIVE-COMPARATOR-01.md",
+        "docs/coordination/results/BAZAAR-SNIPER-CARD-01.md"
+      ],
+      "notes": "Retroactive registration of owner-directed Antigravity work committed in 236eb00/2993d94 (2026-11-15). Scaffold scope only: components, contracts and unit tests independently verified (28 native focused tests, 28 Python MCP tests, 78 Rust workspace tests; warnaserror build and scoped whitespace format passed). END-TO-END UNWIRED: JobDeckHost has no circuit-snapshot command, MaelstromCli has no actuate verb, IActuator has no production implementation; MCP read tools fail against a real host. Fail-closed: no production caller, lease probes default false. MCP server/test files are shared with released root backend work (CORE-CATALOG-SURFACE-02, BACKEND-MCP-153..157); CardPrototype files in the same commit remain under active CARD-PROTOTYPE-81. Live wiring requires a future coordinator claim.",
+      "release_note": "Scaffold deliverables complete and independently re-verified 2026-11-15; release records component completion, NOT an operational control loop. Report truthfulness corrections tracked under UNIVERSAL-BUS-CORRECTION-01."
+    },
+    {
+      "task_id": "UNIVERSAL-BUS-CORRECTION-01",
+      "state": "active",
+      "owner": "gemini",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/results/UNIVERSAL-CONTROL-LOOP-01.md",
+        "docs/coordination/results/UNIVERSAL-BUS-01.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WadIndexService.cs",
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py"
+      ],
+      "notes": "Bounded truthfulness corrections after independent adversarial audit (2026-11-15, root coordinator session). Requirements: (1) revise the two reports in place with a dated revision marker citing the audit; correct counts to CircuitSystemTests 3, combined 24 (28 with UniversalBusTests 4), Python MCP 28, Rust 78; reframe as scaffolded/unwired; add explicit Unimplemented/Mock Boundaries section. (2) WadIndexService.cs docstring only (lines 67-69): describe in-process WadArchiveReader; no behavior change. (3) MCP: the two READ tools must early-return ok:false with an explicit unwired-scaffold error plus a regression test; the two PROPOSE tools are pure declarative Python - annotate accurately, do not disable. (4) Re-verify after edits: 28+ Python MCP tests, black --check, compileall, scoped dotnet format whitespace --verify-no-changes on WadIndexService.cs. claims.json is coordinator-owned and OUT OF SCOPE for this claim. No build-slot, live, desktop or installation authority."
     }
   ]
 }
