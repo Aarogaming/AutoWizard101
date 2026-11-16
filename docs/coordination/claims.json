@@ -3758,6 +3758,16 @@
         "docs/coordination/gemini/TO_GEMINI.md"
       ],
       "notes": "Coordinator-issued correction routing LIA-0121 after GEM-HONESTY-AUDIT-01. LIA entries are appended by root; the liaison replies in FROM_GEMINI.md and report owners revise their own reports. No Gemini source/test/build/live authority is granted or implied."
+    },
+    {
+      "task_id": "ROOT-PROSE-AUDIT-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/results/ROOT-PROSE-AUDIT-01.md"
+      ],
+      "notes": "Owner-authorized 2026-11-16 symmetric audit of coordinator-authored documents: ROADMAP, PROJECT_ORGANIZATION, INDEX, CODEX_WORK, workstreams.json/claims.json consistency, key root result reports, and the coordinator's own recent audit/release output. Report-only: no edits to the audited documents, no source changes, no build/test/live authority. Output is a single audit report with per-claim verdicts and primary-source evidence."
     }
   ]
 }
