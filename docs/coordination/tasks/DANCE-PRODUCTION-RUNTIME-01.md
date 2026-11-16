@@ -1,6 +1,6 @@
 # Proposed brief: DANCE-PRODUCTION-RUNTIME-01 — production Pet Dance visit runtime (offline slice)
 
-Status: **PROPOSED — not a reservation.** Per `AGENTS.md` and `docs/PROJECT_ORGANIZATION.md`, a proposed brief is not a claim until the coordinator registers it after owner approval. No source, build, live or desktop authority is granted by this document.
+Status: **REGISTERED — active claim `DANCE-PRODUCTION-RUNTIME-01`, owner `gemini`, 2026-11-16 (owner-approved).** Source/build authority on the exact owned paths below; no live, desktop, install or dependency authority. Activation notice: LIA-0124 in `docs/coordination/gemini/TO_GEMINI.md`.
 Drafted: 2026-11-16 by root, from `GEM-DANCE-ENTRY-WIRING-97` re-verified against HEAD.
 Workstream: `W101-DANCE`. Suggested owner: gemini (Antigravity) under a new coordinator-registered claim, or root.
 
