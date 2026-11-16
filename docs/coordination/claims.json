@@ -1859,10 +1859,7 @@
       "state": "active",
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterSwitch.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CharacterSwitchTests.cs",
-        "docs/HEADLESS_CLI.md",
-        "docs/coordination/results/W101-CHARACTER-27.md",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationInput.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationInputTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationTransition.cs",
@@ -1876,16 +1873,14 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ControlScopeTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLifecycle.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuInput.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101TravelCard.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101TravelCardTests.cs",
-        "docs/coordination/results/W101-TRAVEL-30.md",
         "docs/coordination/results/W101-COOLDOWN-33.md",
         "docs/coordination/results/W101-CONTROL-34.md",
         "docs/coordination/results/W101-CONTROL-35.md",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RoutineControl.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RoutineControlTests.cs"
       ],
-      "notes": "W101-TRAVEL-30 slice complete: reusable configured Travel card in deck/API/CLI; one Zafaria/Home/Idle run verified with countdown. 2478 native/64 reader tests and scoped checks pass. Live paging/cooldown waits remain qualification limits. No active processes or installation; original character-switch orchestration remains pending. Root transferred overlapping current integration paths to tasks80/82 on 2026-11-14; other reservations preserved."
+      "notes": "W101-TRAVEL-30 slice complete: reusable configured Travel card in deck/API/CLI; one Zafaria/Home/Idle run verified with countdown. 2478 native/64 reader tests and scoped checks pass. Live paging/cooldown waits remain qualification limits. No active processes or installation; original character-switch orchestration remains pending. Root transferred overlapping current integration paths to tasks80/82 on 2026-11-14; other reservations preserved. Path transfer 2026-11-16: 5 paths moved to TEXT-ENCODING-REPAIR-01 for coordinator encoding repair (character-level only); this claim remains active for its remaining paths and must not re-edit the transferred files until TEXT-ENCODING-REPAIR-01 is released."
     },
     {
       "task_id": "RUST-PORT-AUDIT-30",
@@ -3702,6 +3697,43 @@
       ],
       "notes": "Bounded truthfulness corrections after independent adversarial audit (2026-11-15, root coordinator session). Requirements: (1) revise the two reports in place with a dated revision marker citing the audit; correct counts to CircuitSystemTests 3, combined 24 (28 with UniversalBusTests 4), Python MCP 28, Rust 78; reframe as scaffolded/unwired; add explicit Unimplemented/Mock Boundaries section. (2) WadIndexService.cs docstring only (lines 67-69): describe in-process WadArchiveReader; no behavior change. (3) MCP: the two READ tools must early-return ok:false with an explicit unwired-scaffold error plus a regression test; the two PROPOSE tools are pure declarative Python - annotate accurately, do not disable. (4) Re-verify after edits: 28+ Python MCP tests, black --check, compileall, scoped dotnet format whitespace --verify-no-changes on WadIndexService.cs. claims.json is coordinator-owned and OUT OF SCOPE for this claim. No build-slot, live, desktop or installation authority. Coordinator gate 2026-11-15 (independent re-verification of cfbffaf): PASS on commit scope (exactly 5 owned paths; claims.json untouched), docstring-only WadIndexService diff (0 behavior change), MCP read-tool early return verified on the real handler path without mocks, propose tools still functional (deadman HOLD_LEASE_INACTIVE; anchor registry validation), 28/28 Python MCP tests, black clean, compileall OK, board 30 workstreams valid, and corrected report counts 3/24/28/28/78 matching coordinator runs. THREE RESIDUAL OVERCLAIMS REMAIN (docs only, no code): (1) docs/coordination/results/UNIVERSAL-BUS-01.md line 3 title still reads 'actuate-anchor Atomic CLI Executor', contradicting its own section 4.2 - retitle to remove the CLI Executor claim. (2) docs/coordination/results/UNIVERSAL-CONTROL-LOOP-01.md line 67 states CircuitServer is 'exposing HandleSnapshotRequest over named-pipe IPC and in-process hosts', contradicting section 4.1 - actual method is HandleSnapshotRequestAsync (CircuitServer.cs:27), has no pipe host and no production caller. (3) same file line 65 claims 'zero heap allocations in under 1 millisecond' with no benchmark - either attach a measurement or restate as a design intent. Optional precision: UNIVERSAL-BUS-01.md line 64 'exact cli_invocation string' should note no such CLI verb exists yet (section 4.2). Claim remains ACTIVE until these are corrected and re-verified by the coordinator.",
       "release_note": "Coordinator gate passed 2026-11-15 after cfbffaf (substantive corrections) and 8a949cb (three residual documentation overclaims plus one optional precision note). Independently re-verified by the root session: commit scope limited to the 5 owned paths; WadIndexService.cs diff docstring-only with 0 behavior change; MCP read tools early-return verified on the real handler path without mocks; propose tools still functional (deadman HOLD_LEASE_INACTIVE, anchor registry validation); 28/28 Python MCP tests; black clean; compileall OK; dotnet format whitespace and analyzers --verify-no-changes exit 0; board 30 workstreams valid; report counts 3/24/28/28/78 and Rust 78 match coordinator runs. Release covers documentation truthfulness only: the circuit scaffold remains unwired and requires a future coordinator claim for host IPC, CLI verb and production IActuator."
+    },
+    {
+      "task_id": "TEXT-ENCODING-REPAIR-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101TravelCard.cs",
+        "docs/HEADLESS_CLI.md",
+        "docs/ASSISTANT_CONTEXT.md",
+        "docs/coordination/gemini/QUEUE.md",
+        "docs/coordination/gemini/STATUS.md",
+        "docs/coordination/gemini/TO_GEMINI.md",
+        "docs/coordination/results/GIT-CHECKPOINT-56.md",
+        "docs/coordination/results/W101-CHARACTER-27.md",
+        "docs/coordination/results/W101-RESOURCES-50.md",
+        "docs/coordination/results/W101-STATS-53.md",
+        "docs/coordination/results/W101-STATS-54.md",
+        "docs/coordination/results/W101-TRAVEL-30.md",
+        "tools/check_text_encoding.py",
+        "tools/tests/test_text_encoding.py",
+        "MaelstromToolkit/README.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
+        "docs/TOOLKIT_PHASE1_SPEC.md",
+        "docs/coordination/results/W101-RAMP-127.md"
+      ],
+      "notes": "Coordinator-owned repair of raw cp1252 bytes and mojibake in tracked text files, authorized by the owner 2026-11-16. Scope: 20 raw bytes (0x96 x6, 0x97 x14) across 10 files, 4 mojibake sequences, and 4 files carrying U+FFFD (including a user-facing CLI help string in JobDeckRoutines.cs) (C3+U+2014 x2 in ASSISTANT_CONTEXT.md; C2+U+00B7 x2 in W101-RESOURCES-50.md). Character-level repair only: no wording, count or meaning changes. W101TravelCard.cs is production source (user-facing message '1-8 pages'); verify the diff is character-only and the warnaserror build still passes. EXCLUDED from scope: ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/** (vendored upstream sources - read-only reference, never rewritten) and ProjectMaelstrom/tmp_master/** (tracked junk; separate cleanup task). Gate: tools/check_text_encoding.py plus a unittest so the standard tools/tests discovery fails on any new non-UTF-8 tracked text file. Path transfer: 5 paths received from W101-CHARACTER-27 (owner root) to avoid an overlapping active claim."
+    },
+    {
+      "task_id": "GEM-REPORT-HONESTY-AUDIT-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/results/GEM-HONESTY-AUDIT-01.md"
+      ],
+      "notes": "Report-only audit of every Gemini-authored result document and the gemini/QUEUE.md backlog for headline-level overclaims, using the UNIVERSAL-BUS-CORRECTION-01 method: verify each report's title/executive summary and every quoted count, path, API name and test result against the committed source or an executed command. No edits to Gemini reports (their owners revise them via LIA), no source changes, no build/live/desktop authority. Output is a single audit report listing each false/stale/unverifiable claim with file, line and primary-source evidence."
     }
   ]
 }
