@@ -3,8 +3,8 @@
 **Date**: 2026-11-15  
 **Workstream**: CORE-DELIVERY / W101-MINIGAME  
 **Task ID**: `GEM-DANCE-REPLAY-SCOPE-144`  
-**Reference Directives**: `LIA-0103`, `LIA-0104`  
-**Baseline Commit**: `7888cf251388dd904bac3977c70f73d0a6a31424` (HEAD)  
+**Reference Directives**: `LIA-0103`, `LIA-0104`, `LIA-0121`  
+**Baseline Commit**: `6dd15e5` (`maelstrom/rust-architecture-v1`; audited pre-145 initial draft at `7888cf251`)  
 **Evidence Input**: `docs/coordination/results/DANCE-REPLAY-PAIRING-143.md`, `.local/dance-visit-replay-heartbeat-20261115.json`, `.local/dance-draft-replay-heartbeat-20261115.json`  
 **Scope**: Bounded read-only static analysis and architectural specification. Zero production or test code modified; zero uncoordinated test or build executions; zero live game or desktop input interactions.
 
@@ -131,6 +131,9 @@ if (args.Length > 0 && args[0] == "--replay-routine")
 - Does not print the Graph SHA, Events SHA, Routine ID, Session ID, or `live_qualified = false` boundary.
 
 ### 3.2 UI: `SessionTimelineForm.cs:302–312`
+
+> [!NOTE]
+> **Pre-145 Snapshot (Superseded)**: This section describes the pre-145 baseline when this audit was drafted. Root subsequently implemented `RoutineReplay.RunDetailed` in `REPLAY-DIAGNOSTICS-145.md` (commit `6afa0f5` / `LIA-0106`), surfacing routine/session IDs, stop reasons, proposal/receipt counts, graph/event hash prefixes, and `Live qualified: no`.
 ```csharp
 private void Replay()
 {
@@ -150,6 +153,9 @@ private void Replay()
 - Displays no SHA-256 hashes, no session ID, and no scope distinction.
 
 ### 3.3 UI: `RecordedCardReviewForm.cs:42–57`
+
+> [!NOTE]
+> **Pre-145 Snapshot (Superseded)**: This section describes the pre-145 baseline. Root subsequently implemented `RoutineReplay.RunDetailed` in `REPLAY-DIAGNOSTICS-145.md`, updating `RecordedCardReviewForm` with the detailed diagnostic banner.
 ```csharp
 replay.Click += async (_, _) =>
 {
@@ -196,6 +202,9 @@ else
 To address these deficits without disrupting existing binary contracts, the replay engine should expose a structured result type, and the UI/CLI consumers should format and display this result.
 
 ### 4.1 Typed Replay Result Envelope: `RoutineReplaySummary`
+
+> [!NOTE]
+> **Implemented in Task 145**: The proposed typed summary pattern below was implemented by root in `REPLAY-DIAGNOSTICS-145.md` via `RoutineReplay.RunDetailed` returning `RoutineReplaySummary`.
 Currently, `RoutineReplay.Run` writes a rich anonymous object to disk (lines 94–103) and returns a bare `bool` (line 106).
 
 A non-breaking enhancement introduces a typed summary record returned by `RoutineReplay.RunDetailed` (with `RoutineReplay.Run` delegating to it and returning `summary.Completed`):

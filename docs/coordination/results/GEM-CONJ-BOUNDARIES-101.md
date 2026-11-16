@@ -4,7 +4,7 @@
 **Workstream**: `W101-CONJURATION`  
 **Author**: Gemini  
 **Date**: 2026-11-14T22:10:00-05:00  
-**Repository Revision**: `7888cf251388dd904bac3977c70f73d0a6a31424` (`maelstrom/rust-architecture-v1`)  
+**Repository Revision**: `6dd15e5` (`maelstrom/rust-architecture-v1`; audited baseline `7888cf251388dd904bac3977c70f73d0a6a31424`)  
 **Status**: VERIFIED & FORMATTED OFFLINE TEST IMPLEMENTATION (4/4 PASS IN ROOT SLOT)  
 **Owned Outputs**:  
 - `tools/tests/test_conjuration_boundary_contract.py`  
@@ -53,7 +53,7 @@ The four authored tests target critical boundary conditions in `tools/conjuratio
 ## 3. Detailed Trace & Nonredundancy Mapping
 
 ### 3.1 Test 1: `test_pending_flip_with_missing_or_unknown_reveal_withholds_further_action`
-- **Location**: `tools/tests/test_conjuration_boundary_contract.py:17-69`.
+- **Location**: `tools/tests/test_conjuration_boundary_contract.py:18-73`.
 - **Underlying Source Code Traced**:
   - [conjuration_memory.py:133-137](file:///F:/Modlists/AutoWizard101/tools/conjuration_memory.py#L133-L137):
     ```python
@@ -78,7 +78,7 @@ The four authored tests target critical boundary conditions in `tools/conjuratio
 ---
 
 ### 3.2 Test 2: `test_too_many_visible_face_up_cards_blocks_engine`
-- **Location**: `tools/tests/test_conjuration_boundary_contract.py:71-94`.
+- **Location**: `tools/tests/test_conjuration_boundary_contract.py:74-98`.
 - **Underlying Source Code Traced**:
   - [conjuration_memory.py:177-178](file:///F:/Modlists/AutoWizard101/tools/conjuration_memory.py#L177-L178):
     ```python
@@ -101,7 +101,7 @@ The four authored tests target critical boundary conditions in `tools/conjuratio
 ---
 
 ### 3.3 Test 3: `test_board_reset_clears_blocked_error_and_rejects_identical_id`
-- **Location**: `tools/tests/test_conjuration_boundary_contract.py:96-130`.
+- **Location**: `tools/tests/test_conjuration_boundary_contract.py:100-136`.
 - **Underlying Source Code Traced**:
   - [conjuration_memory.py:63-68](file:///F:/Modlists/AutoWizard101/tools/conjuration_memory.py#L63-L68):
     ```python
@@ -112,7 +112,7 @@ The four authored tests target critical boundary conditions in `tools/conjuratio
     ```
 - **Scenario Tested**:
   1. The solver is forced into an irrecoverable blocked state (`too-many-visible-selected-cards`).
-  2. Calling `reset("board-reset-test", 2)` with the **same** board ID raises `ValueError("A reset requires a new board identifier")`, proving that callers cannot silently reset internal state without establishing a fresh board context.
+  2. Calling `reset("board-reset-test", 2)` with the **same** board ID raises `ValueError` (asserted via `with self.assertRaises(ValueError)`), proving that callers cannot silently reset internal state without establishing a fresh board context.
   3. Calling `reset` with invalid IDs (`""`, `"   "`, `None`, or $>128$ chars) raises `ValueError` / `TypeError`.
   4. Calling `reset("board-reset-clean", 2)` with a distinct valid ID cleanly clears `_blocked`, resets `reason` to `"waiting-for-board"`, empties `memory`, and allows fresh observations to proceed to `"ready"` and emit proposals.
 - **Nonredundancy vs. `test_conjuration_memory.py`**: Existing tests verified that old proposals fail after reset, but did not test error recovery from an active `_blocked` latch, whitespace-only board IDs, or ID length boundaries.
@@ -120,7 +120,7 @@ The four authored tests target critical boundary conditions in `tools/conjuratio
 ---
 
 ### 3.4 Test 4: `test_known_pair_with_contradictory_second_card_reveal_blocks_solver`
-- **Location**: `tools/tests/test_conjuration_boundary_contract.py:132-192`.
+- **Location**: `tools/tests/test_conjuration_boundary_contract.py:138-196`.
 - **Underlying Source Code Traced**:
   - [conjuration_memory.py:109-113](file:///F:/Modlists/AutoWizard101/tools/conjuration_memory.py#L109-L113):
     ```python

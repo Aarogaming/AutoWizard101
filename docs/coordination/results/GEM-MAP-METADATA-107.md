@@ -26,7 +26,7 @@ Under directives `LIA-0058` through `LIA-0069`, this report reviews repository a
 ### 2.1 Current Zone Identification
 - **Inspected Legacy Source (`wizwalker`)**:
   - `Client.zone_name()` (`wizwalker/client.py:140–146`): Awaits `ClientZone.zone_name()`.
-  - `ClientZone.zone_name()` (`wizwalker/memory/memory_objects/client_zone.py:15–20`): Reads a null-terminated string at offset `88` from the `ClientZone` base pointer in the inspected library copy.
+  - `ClientZone.zone_name()` (`wizwalker/memory/memory_objects/client_zone.py:27–31`): Reads a null-terminated string at offset `88` from the `ClientZone` base pointer in the inspected library copy.
 - **Native Implementation (`ProjectMaelstrom`)**:
   - `ZoneTopologyService.cs`: Implements a static dictionary mapping 55 WizardCity internal paths to semantic zone IDs (e.g., `"WizardCity/WC_Hub"` $\leftrightarrow$ `"COMMONS"`, `"WizardCity/WC_Streets/Interiors/WC_PET_Park"` $\leftrightarrow$ `"PET_PAVILION"`).
 - **Crucial Boundary & Live Evidence**:
@@ -68,7 +68,7 @@ Direct inspection of repository source files and root's installed-archive eviden
   $$\text{Zone Path} = \texttt{"WizardCity/WC\_Streets/Interiors/WC\_PET\_Park"}$$
 - Provenance:
   1. `ProjectMaelstrom/ProjectMaelstrom/Utilities/ZoneTopologyService.cs:37`: `{ "WizardCity/WC_Streets/Interiors/WC_PET_Park", "PET_PAVILION" }`
-  2. `Automatus-v2-master/data/locations.py:33`: `"WizardCity/WC_Streets/Interiors/WC_PET_Park" : "PET_PAVILION"`
+  2. `Automatus-v2-master/data/locations.py:53`: `"WizardCity/WC_Streets/Interiors/WC_PET_Park" : "PET_PAVILION"`
   3. Installed WAD filename: `WizardCity-WC_Streets-Interiors-WC_PET_Park.wad`
 
 ---
@@ -166,6 +166,7 @@ Static inspection of root's candidate bindings (`.local/nav-binding-108/`, `.loc
 
 ### 7.1 Gap 1: Large Elevation Steps & Collision Primitive Validation along Edges 183 $\rightarrow$ 192 and 199 $\rightarrow$ 209
 - **Candidate Path Evidence & Elevation Bottlenecks (`nav-binding-109`)**:
+  *(Note: The following numeric metrics derive from uncommitted local coordinator evidence in `.local/nav-binding-109/`)*
   - The direct Commons path from vertex 89 to 209 spans 14 vertices and $7,471.86$ units.
   - Steep segments measured by root:
     - Edge $183 \rightarrow 192$: Rises $\Delta Z = +137.786$ over $\Delta XY = 565.550$ (slope $\approx 0.244$, or $\sim 13.7^\circ$).
@@ -230,7 +231,7 @@ To support destination-name navigation without duplicating Task 104 parser or Ta
 
 ### Task 2: Offline Collision Primitive Parser & Transform Ordering Audit
 - **Objective**: Implement a standalone offline parser for `collision.bcd` based on `Deimos/src/collision.py`, mathematically resolving matrix layout (row vs. column major), transform order, and scale application against known stationary geometry.
-- **Verification**: Test against the 218 KiB `WC_Hub` and 32 KiB `WC_PET_Park` collision payloads; confirm floor mesh alignment beneath candidate nav vertices.
+- **Verification**: Test against the 213 KiB (218,391 bytes) `WC_Hub` and 32 KiB `WC_PET_Park` collision payloads; confirm floor mesh alignment beneath candidate nav vertices.
 
 ### Task 3: Paired In-Game Map Calibration Data-Collection Harness (Specification Only)
 - **Objective**: Author the schema and observation recorder contract for collecting the paired $(X, Y, Z) \leftrightarrow (u, v)$ points specified in Section 5, ensuring all samples record client resolution, map variant, and avatar yaw.

@@ -4,7 +4,7 @@
 **Workstream**: `W101-NAVIGATION`  
 **Author**: Gemini  
 **Date**: 2026-11-14T11:50:00-05:00 (Revised per coordinator review `LIA-0040`)  
-**Repository Revision**: `7888cf251388dd904bac3977c70f73d0a6a31424` (`maelstrom/rust-architecture-v1`, working tree contains coordinator offline primed-capture test additions)  
+**Repository Revision**: `6dd15e5` (`maelstrom/rust-architecture-v1`; audited baseline `7888cf251388dd904bac3977c70f73d0a6a31424`)  
 **Status**: READ-ONLY AUDIT & PROPOSED CONTRACT SPECIFICATION (UNRUN / PENDING INTEGRATION)  
 **Owned Output**: `docs/coordination/results/GEM-EXPLORATION-CONTRACT-86.md`  
 
@@ -33,8 +33,8 @@ The codebase contains established, tested components that provide the mathematic
 | `WaypointFeedback` | [WaypointFeedback.cs#L9-L48](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom/Utilities/WaypointFeedback.cs#L9-L48) | Forward motion feedback: speed adaptation, low-progress stall detection ($\ge 2$ stalls), elevation change guard ($|\Delta Z| > 10$), large displacement guard ($> 120$). | Controller feedback during playback. Tolerances ($10$, $120$) are controller safety guards, not universal recording limits. |
 | `HeadingFeedback` | [HeadingFeedback.cs#L9-L76](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom/Utilities/HeadingFeedback.cs#L9-L76) | Turn motion feedback: rate adaptation, translation during turn guard ($> 20$), large angular delta guard ($> 1.8\text{ rad}$), direction mismatch guard. | Controller feedback during orientation turns. Tolerances ($20$, $1.8\text{ rad}$) are controller safety guards, not universal recording limits. |
 | `W101NavigationTransition` | [W101NavigationTransition.cs#L5-L65](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationTransition.cs#L5-L65) | `WalkAsync` (loading detection halting walk), `WaitAsync` (loading screen timeout and clear verification). | Reusable model for recording and gating cross-zone loading edges. |
-| `LoadingTransitionGate` | [LoadingTransitionGate.cs#L6-L45](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom/Utilities/LoadingTransitionGate.cs#L6-L45) | State machine for loading onset, blackout detection, and clear confirmation. | Gating cross-zone transitions during recording and playback. |
-| `w101_pose_reader.py` | [w101_pose_reader.py#L36-L79](file:///F:/Modlists/AutoWizard101/tools/w101_pose_reader.py#L36-L79) | Bounded memory reader: reads parent, marker `0x474 == 8`, pose $(X, Y, Z, \text{pitch}, \text{roll}, \text{yaw})$. | Bounded read-only pose observation producer (under approved W101 client-side exception). |
+| `LoadingTransitionGate` | [LoadingTransitionGate.cs](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom/Utilities/LoadingTransitionGate.cs) (35 lines) | State machine for loading onset, blackout detection, and clear confirmation. | Gating cross-zone transitions during recording and playback. |
+| `w101_pose_reader.py` | [w101_pose_reader.py#L71](file:///F:/Modlists/AutoWizard101/tools/w101_pose_reader.py#L71) (`read_pose`) | Bounded memory reader: reads parent, marker `0x474 == 8`, pose $(X, Y, Z, \text{pitch}, \text{roll}, \text{yaw})$. | Bounded read-only pose observation producer (under approved W101 client-side exception). |
 | `CardPrototype` / `CardQualification` | [CardPrototype.cs](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom/Utilities/CardPrototype.cs), [CardQualification.cs](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom/Utilities/CardQualification.cs) | Declarative offline card prototype and qualification ledger. Replay testing currently wired to `review.routine`. | Provides hashing and offline qualification evidence model. Does not provide automatic route promotion or execution permission. |
 
 ---
@@ -153,8 +153,8 @@ To implement an Exploration Recorder cleanly, several production telemetry and c
 
 | Required Capability | Existing Producer / Artifact | Current Status & Availability | Identified Architectural Gap |
 | :--- | :--- | :--- | :--- |
-| **Live 5D Pose Stream** | `w101_pose_reader.py` / `W101UiTreeOperation.ReadOwnedAsync` | **Offline / Polled**. Python reader requires subprocess or UI tree poll. | High-frequency native asynchronous pose reader without full UI tree traversal overhead. |
-| **Zone Identification** | UI tree zone attributes / legacy `client.zone_name()` | **Partial**. Exposed in offline tools; not exposed on native scheduler. | Native C# reader for current zone string (`WizardCity/WC_Hub`). |
+| **Live 5D Pose Stream** | `W101PoseStreamConsumer.cs` / `w101_pose_reader.py#L71` | **Consumer Available; End-to-End Unwired**. Bounded native stream consumer integrated at HEAD (Task 132); end-to-end follower still has no production caller. | Wire verified stream consumer into an autonomous production navigation controller. |
+| **Zone Identification** | `ZoneTopologyService.cs` / `W101ZoneObserver` | **Available; Unqualified in Navigation**. 55 WizardCity internal paths mapped in native dictionary; continuous zone fence integration into active movement loop remains open. | Active zone fence callback wired to cancel in-flight movement pulses on unpredicted zone boundary crossings. |
 | **Loading State** | `W101NavigationTransition.WalkAsync` / `LoadingTransitionGate` | **Implemented** in `ProjectMaelstrom.Utilities`. | Event callback when loading blackout begins and clears. |
 | **Passive Input Observation** | `GameInputLease.Current` | **Implemented** for active ownership. | Passive observation hook to record user-driven movement without seizing input ownership. |
 | **Overworld Navigation Finalizer** | `PetDanceNativeIdle` (Dance-specific) / `W101IdleCycleOperation` | **Dance-specific or cycle-only**. | General overworld Idle routine (Escape-to-Idle failsafe verified for overworld navigation). |

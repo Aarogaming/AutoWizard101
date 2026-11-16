@@ -4,7 +4,7 @@
 **Workstream**: `W101-DANCE`  
 **Author**: Gemini  
 **Date**: 2026-11-14T21:00:00-05:00  
-**Repository Revision**: `7888cf251388dd904bac3977c70f73d0a6a31424` (`maelstrom/rust-architecture-v1`)  
+**Repository Revision**: `6dd15e5` (`maelstrom/rust-architecture-v1`; audited baseline `7888cf251388dd904bac3977c70f73d0a6a31424`)  
 **Status**: READ-ONLY AUDIT & REVISED ENTRY RUNTIME WIRING PLAN (PENDING COORDINATOR REVIEW)  
 **Owned Output**: `docs/coordination/results/GEM-DANCE-ENTRY-WIRING-97.md`  
 
@@ -127,7 +127,7 @@ internal sealed class PetDanceProductionRuntime : IPetDanceVisitRuntime, IAsyncD
 ### 3.1 Stage 1: Dance Sigil Detection (`PetDanceScene.DanceSigil`)
 - **Observation Sources**:
   1. Capture frame via `WindowObserver.ReadTimestampedAsync(latestOnly: true)`.
-  2. OCR text extraction via `PetDanceMenuOcr.ExtractText(image)`.
+  2. OCR text extraction via `PetDanceMenuOcr.ReadAsync(image, token)`.
   3. Base scene classification via `PetDancePostGameClassifier.Classify(text)` returning `OutsideAfterGame`.
   4. Supplemental sigil title bounding box `VerifiedSigilTitleBounds`:
      - *Qualification*: [provenance.json](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/PetDance/Entry/provenance.json#L28-L34) explicitly states that `sigil-title-unread` is a *"Conservative manual title bounds from saved image; not an automatic title detector."* It does **not** qualify a readable title.
@@ -212,7 +212,7 @@ internal sealed class PetDanceProductionRuntime : IPetDanceVisitRuntime, IAsyncD
 | 1 | PetDanceMenuInput Action & Key Allowlist  | PetDanceMenuInput.cs:29-35        | Blocker       |
 | 2 | Unresolved Control Geometry               | W101DanceEntryContext.cs:7-9      | Specification |
 | 3 | Primed Capture / Play Handoff Seam        | PetDanceLiveTrial.cs:393-399      | Architectural |
-| 4 | Energy Approval Policy vs Numerical Text  | PetDanceVisitObservation.cs:8     | Policy Gate   |
+| 4 | Energy Approval Policy vs Numerical Text  | PetDanceVisit.cs:5-9 (PetDanceVisitObservation) | Policy Gate   |
 | 5 | Production IPetDanceVisitRuntime Class    | PetDanceScheduledVisitTests.cs:27 | Infrastructure|
 +---+-------------------------------------------+-----------------------------------+---------------+
 ```
@@ -453,6 +453,6 @@ public sealed class PetDanceProductionRuntimeTests
 ## 7. Coordination & Verification Record
 
 - **Reviewed Directives**: `LIA-0049` (activation), `LIA-0050` (precision review corrections), `GEM-0053` (initial handback).
-- **Git HEAD Verified**: `7888cf251388dd904bac3977c70f73d0a6a31424`.
+- **Git HEAD Verified**: `6dd15e5` (`maelstrom/rust-architecture-v1`).
 - **Zero Modification Invariant**: No `.cs`, `.py`, or `.json` production or test files modified; zero tests or builds executed; zero game interaction performed.
 - **Deliverable**: Revised wiring plan delivered to [`docs/coordination/results/GEM-DANCE-ENTRY-WIRING-97.md`](file:///F:/Modlists/AutoWizard101/docs/coordination/results/GEM-DANCE-ENTRY-WIRING-97.md).

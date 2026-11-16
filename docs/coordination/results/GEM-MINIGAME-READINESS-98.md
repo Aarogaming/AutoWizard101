@@ -1,22 +1,22 @@
-# GEM-MINIGAME-READINESS-98 — Minigame Readiness & Next Playable Integrations Audit
+# GEM-MINIGAME-READINESS-98 — Minigame Readiness & Next Playable Integrations Audit (Corrected Baseline)
 
 **Task ID**: `GEM-MINIGAME-READINESS-98`  
 **Workstream**: `W101-DANCE`  
 **Author**: Gemini  
-**Date**: 2026-11-14T21:45:00-05:00  
-**Repository Revision**: `7888cf251388dd904bac3977c70f73d0a6a31424` (`maelstrom/rust-architecture-v1`)  
-**Status**: READ-ONLY AUDIT & CANDIDATE INTEGRATION RANKING (PENDING COORDINATOR REVIEW)  
+**Date**: 2026-11-16T12:25:00-05:00 (Revised per coordinator audit `GEM-HONESTY-AUDIT-01` / `LIA-0121`)  
+**Repository Revision**: HEAD `6dd15e5` (`maelstrom/rust-architecture-v1`)  
+**Status**: READ-ONLY AUDIT & CANDIDATE INTEGRATION RANKING (CORRECTED)  
 **Owned Output**: `docs/coordination/results/GEM-MINIGAME-READINESS-98.md`  
 
 ---
 
 ## 1. Executive Summary & Scope
 
-This report fulfills directive `LIA-0051`. It provides an exhaustive, evidence-backed readiness audit and ranking of the next candidate minigames in `ProjectMaelstrom` beyond Pet Dance.
+This report fulfills directive `LIA-0051` and incorporates corrections from honesty audit `LIA-0121` (`GEM-HONESTY-AUDIT-01`). It provides an evidence-backed readiness audit and ranking of candidate minigames in `ProjectMaelstrom` beyond Pet Dance.
 
 ### 1.1 Scope Boundaries & Current Workstream Separation
 - **Pet Dance Retained by Root**: Root coordinator owns the active live Dance qualification lane and production wiring. Pet Dance is excluded from this ranking as it is already in live qualification.
-- **Strict Distinction**: Every component is rigorously categorized as either an **offline planner/model** (pure logic, memory, vision feature matcher, synthetic tests) or a **live runner** (scheduler lease, window capture, input dispatch, process lifecycle).
+- **Strict Distinction**: Every component is categorized as either an **offline planner/model** (pure logic, memory, vision feature matcher, synthetic tests) or a **live runner** (scheduler lease, window capture, input dispatch, process lifecycle).
 - **Excluded Non-Viable Adapters**:
   - `ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/GrubNinja-master/`: Third-party Electron utility that makes HTTP requests to KingsIsle servers (`buyEnergy.js`, `feedSnack.js`). This violates Maelstrom's core boundary excluding network manipulation and traffic forgery (`AGENTS.md`).
   - `ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/Deimos-Wizard101/src/auto_pet.py`: Standalone script utilizing unhedged direct process memory writing (`pymem`, `dance_game_hook`). It lacks scheduler integration, input lease gating, and cancellation recovery.
@@ -69,7 +69,7 @@ Conjuration Concentration is the most mature non-Dance minigame in the codebase.
   - `tools/fixtures/conjuration_vision/provenance.json` (RGB test conversions and negative instructions).
   - `tools/fixtures/conjuration_collection/plan-v1.json` (collection schema).
 - **Unit Test Suites**:
-  - `tools/tests/test_conjuration_memory.py` (12 tests passing: shuffled layouts, delayed reveals, animations, uncertain dispatch, memory resets).
+  - `tools/tests/test_conjuration_memory.py` (21 tests passing: preview phases, seeded random pairs/triples, separate proposals/receipts/removals, uncertain dispatch, rejected dispatch recovery, stale/wrong receipts, animation/unknown resilience, identity conflicts, board resets, invisible labels, group size bounds, and result phase gating).
   - `tools/tests/test_conjuration_vision.py` (profile loading, descriptor hashing, ambiguity checks).
   - `tools/tests/test_conjuration_observation_fixtures.py`.
   - `tools/tests/test_conjuration_collection.py`.
@@ -91,33 +91,33 @@ Conjuration Concentration is the most mature non-Dance minigame in the codebase.
 
 [POTION-PLANNER-01.md](file:///F:/Modlists/AutoWizard101/docs/coordination/results/POTION-PLANNER-01.md) | [PotionMotionBoard.cs](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom/Utilities/PotionMotionBoard.cs)
 
-Potion Motion is an essential utility minigame: scoring ~1,000–1,200 points in Potion Motion completely refills player potion bottles and mana without spending gold or waiting. It possesses fully implemented offline grid solvers in both C# and Python.
+Potion Motion is an essential utility minigame: scoring sufficient points in Potion Motion refills player potion bottles and mana without spending gold or waiting. (Note: community advice commonly cites ~1,000–1,200 points, but `docs/MINIGAME_RESEARCH.md:30` labels exact refill thresholds as unverified and inconsistent; completion must be verified against actual pre/post potion state rather than an assumed score).
 
 #### A. Existing Runnable Components (Offline)
-- **Native C# Move Planner & Board Solver**:
+- **Native C# Row-Slide Evaluator**:
   - File: [ProjectMaelstrom/ProjectMaelstrom/Utilities/PotionMotionBoard.cs](file:///F:/Modlists/AutoWizard101/ProjectMaelstrom/ProjectMaelstrom/Utilities/PotionMotionBoard.cs)
-  - Core Symbols: `PotionMotionBoard`, `PotionMotionMove`, `FindMatches`, `FindAllValidMoves`, `BestMove`.
-  - Capabilities: Full C# port compiled into the main assembly. Evaluates rectangular grids (default 7x7), detects 4-neighbor connected groups of $\ge 3$ matching bottles (including bent L and T shapes), models row/column slide displacements with optional wrapping, and scores prospective moves deterministically.
-- **Python Board Solver & Gravity Simulator**:
+  - Core Symbols: `PotionMotionBoard`, `PotionMotionMove`, `FindMatches`, `ApplyRowSlide`, `FindBestMove`.
+  - Capabilities: Evaluates rectangular grids of string tokens, detects 4-neighbor connected groups of $\ge 3$ matching bottles (including bent L and T shapes), models row slide displacements (`ApplyRowSlide`) with optional wrapping, and finds the highest-scoring row move (`FindBestMove`). *Note*: C# implementation does not evaluate column slides, lacks parameterless 7x7 constructors, and is a partial row-only port.
+- **Python Board Evaluator & Move Planner**:
   - File: `tools/potion_motion_board.py`
-  - Core Symbols: `PotionBoard`, `PotionMotionBoard`, `find_matches`, `score_matches`, `apply_gravity`, `find_all_valid_moves`, `best_move`.
-  - Capabilities: Pure functional solver supporting 1-ply and 2-ply lookahead, gravity collapse simulation, and match detection.
+  - Core Symbols: `PotionMotionBoard`, `MoveProposal`, `shift_row`, `shift_col`, `find_connected_groups`, `evaluate_board`, `find_best_moves`.
+  - Capabilities: Evaluates rectangular grids, finds 4-connected components of $\ge 3$ matching cells (including bent L/T shapes), simulates single row and column shifts with optional wrapping, and ranks top single-step move proposals via `find_best_moves`. (No 2-ply lookahead or gravity collapse simulation is implemented).
 
 #### B. Verified Test Fixtures & Test Coverage
 - **Fixtures**:
   - `tools/fixtures/potion_motion/board-schema-v1.json` (board serialization schema).
   - `tools/fixtures/potion_motion/synthetic-cases.json` (pre-configured challenge boards).
 - **Unit Test Suite**:
-  - `tools/tests/test_potion_motion_board.py` (9 tests passing: bounds safety, horizontal/vertical matches, L/T intersections, scoring rules, gravity settling, valid move generation, optimal move selection, row/col wrapping).
+  - `tools/tests/test_potion_motion_board.py` (9 tests passing: bounds safety, horizontal/vertical matches, L/T intersections, scoring rules, single row/col shifts, valid move generation, optimal move selection, row/col wrapping).
 
 #### C. Entry, Exit & Input Ownership Model
-- **Entry & Exit**: Fairground sigil entry. Gameplay terminates once score exceeds the refill threshold (~1,050 points), followed by exit to Commons.
+- **Entry & Exit**: Fairground sigil entry. Gameplay terminates once score reaches the unverified refill threshold, followed by exit to Commons.
 - **Input Dispatch**: Requires **drag gestures**. Unlike Dance or Conjuration (which use single clicks or key taps), Potion Motion slides an entire row or column. Dispatch requires mouse-down at a cell center, smooth dragging across cell pitch (horizontal or vertical), hold, and mouse-up under `GameInputLease`.
 
 #### D. Concrete Missing Production Bindings
 1. **Live Grid Vision Classifier**: No recognizer exists to map game screen pixels to the 7x7 cell matrix and classify potion bottle colors (red, blue, green, yellow, purple, orange).
 2. **Drag Gesture Dispatcher**: `PetDanceMenuInput` only supports single-point clicks and keyboard taps; it lacks drag-and-drop primitives with physical release confirmation.
-3. **Score & Timer OCR**: Monitoring real-time score to identify when the 1,050 refill threshold is reached.
+3. **Score & Timer OCR**: Monitoring real-time score and timer.
 4. **Refill State Verification**: Confirming potion bottle fullness before and after the game via client memory or UI tree observation.
 
 ---
@@ -162,14 +162,14 @@ Dueling Diego is a side-scrolling platformer. While visual observation tools exi
 A critical finding of this audit is that **all three minigames currently have offline planners/analyzers, but zero production live runners**:
 
 ```
-+---------------------------+-----------------------------------+-----------------------------------+
-| Minigame                  | Offline Planner / Solver (Exists) | Live Runner / Dispatcher (Missing)|
-+---------------------------+-----------------------------------+-----------------------------------+
-| Conjuration Concentration | tools/conjuration_memory.py       | No C# ScheduledVisit / Lease link |
-| Potion Motion             | PotionMotionBoard.cs (C#)         | No live vision / No drag dispatch |
-| Dueling Diego             | tools/diego_vision.py             | No real-time reactive controller  |
-| Pet Dance (Reference)     | PetDanceVisit.cs / Trial (C#)     | ScheduledVisit (Wired in Task 97) |
-+---------------------------+-----------------------------------+-----------------------------------+
++---------------------------+-----------------------------------+---------------------------------------------------+
+| Minigame                  | Offline Planner / Solver (Exists) | Live Runner / Dispatcher (Missing)                |
++---------------------------+-----------------------------------+---------------------------------------------------+
+| Conjuration Concentration | tools/conjuration_memory.py       | No C# ScheduledVisit / Lease link                 |
+| Potion Motion             | PotionMotionBoard.cs (partial C#) | No live vision / No drag dispatch                 |
+| Dueling Diego             | tools/diego_vision.py             | No real-time reactive controller                  |
+| Pet Dance (Reference)     | PetDanceVisit.cs / Trial (C#)     | Specialist trial only; IPetDanceVisitRuntime open |
++---------------------------+-----------------------------------+---------------------------------------------------+
 ```
 
 ---
@@ -181,14 +181,14 @@ A critical finding of this audit is that **all three minigames currently have of
    - Why: Highest return on investment. The memory state machine is completely solved and tested; the gameplay is discrete and turn-based (no physics or timing hazards); and the input is simple point-and-click matching the existing `PetDanceMenuInput` click engine.
    - Next Task: Port or wrap `conjuration_memory.py` / `conjuration_vision.py` into a C# `ConjurationScheduledVisit` and capture real client card assets.
 3. **Second Expansion Target — Potion Motion**:
-   - Why: Provides immediate utility (free full potion refills). Native C# solver is already written (`PotionMotionBoard.cs`).
+   - Why: Provides utility (potential potion refills). Row-slide solver exists in C# (`PotionMotionBoard.cs`).
    - Next Task: Implement a drag-and-drop input helper in C# and build a 7x7 cell color classifier.
 
 ---
 
 ## 6. Coordination & Verification Record
 
-- **Reviewed Directives**: `LIA-0051` (activation), `GEM-0055` (task ACK).
-- **Git HEAD Verified**: `7888cf251388dd904bac3977c70f73d0a6a31424`.
+- **Reviewed Directives**: `LIA-0051` (activation), `GEM-0055` (task ACK), `LIA-0121` (`GEM-HONESTY-AUDIT-01`).
+- **Git HEAD Verified**: HEAD `6dd15e5` (`maelstrom/rust-architecture-v1`).
 - **Zero Modification Invariant**: No production/test code edited; zero tests/builds executed; zero live game interaction.
 - **Deliverable**: Audit report delivered to [`docs/coordination/results/GEM-MINIGAME-READINESS-98.md`](file:///F:/Modlists/AutoWizard101/docs/coordination/results/GEM-MINIGAME-READINESS-98.md).

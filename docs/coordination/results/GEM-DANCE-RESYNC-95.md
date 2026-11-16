@@ -1,9 +1,10 @@
-# GEM-DANCE-RESYNC-95: Pet Dance Queued-Key, Phase Recognition, and Focus Resynchronization Audit (Revised)
+# GEM-DANCE-RESYNC-95: Pet Dance Queued-Key, Phase Recognition, and Focus Resynchronization Audit (Corrected Baseline)
 
 **Author**: Gemini  
-**Date**: 2026-11-14  
-**Directive**: LIA-0047 / LIA-0048 / GEM-DANCE-RESYNC-95  
-**Status**: REVISED (READY_FOR_REVIEW)  
+**Date**: 2026-11-16 (Revised per coordinator audit `GEM-HONESTY-AUDIT-01` / `LIA-0121`)  
+**Repository Revision**: HEAD `6dd15e5` (`maelstrom/rust-architecture-v1`)  
+**Directive**: LIA-0047 / LIA-0048 / LIA-0121 / GEM-DANCE-RESYNC-95  
+**Status**: REVISED (CORRECTED BASELINE)  
 **Operating Rules**: Read-only static review; zero source edits; zero builds/tests executed; no live game or desktop interaction.
 
 ---
@@ -22,14 +23,14 @@ Directive `LIA-0048` reviews `GEM-0049` and requests targeted revisions to `GEM-
 ## 2. Static Architecture Trace: Queued Keys, Phase Recognition, and Primed Capture
 
 ### 2.1 Trace of `PetDanceSpecialistControl.InputReady` Call Sites
-`PetDanceSpecialistControl` is an immutable record defined in `PetDanceLiveTrial.cs:88`:
+`PetDanceSpecialistControl` is an immutable record defined in `PetDanceLiveTrial.cs:92`:
 ```csharp
 internal sealed record PetDanceSpecialistControl(nuint InputTag, long InitialRevision,
     Func<bool> ObservationReady, Func<bool> InputReady, Func<long> ActivityRevision,
     Func<bool> NoKeysHeld, Func<double> QuietMs);
 ```
 It does **not** intrinsically stub `InputReady`. The delegate is supplied by the caller:
-- **Call Site 1 (`PetDanceLiveTrial.cs:242–245`)**:
+- **Call Site 1 (`PetDanceLiveTrial.cs:246–250`)**:
   ```csharp
   var control = new PetDanceSpecialistControl(tag, baseline,
       () => monitor.Installed && !monitor.EscapeRequested && FrameTimeline.TimestampMs() - Volatile.Read(ref heartbeat) < 1500,
@@ -43,21 +44,21 @@ It does **not** intrinsically stub `InputReady`. The delegate is supplied by the
   Synthetic contract tests construct `PetDanceSpecialistControl` passing mock delegates (`() => true` or counting delegates) for offline assertion.
 
 ### 2.2 Primed Capture Lifecycle (`PetDancePrimedCapture.cs`)
-- **Initialization**: `PetDancePrimedCapture.StartAsync` (`PetDanceLiveTrial.cs:395–396`) initiates frame capture *before* dispatching the entry Play click.
-- **In-Flight Enforcement**: `primed.CheckDispatch()` (`line 420`) verifies bounded dispatch. If `primed.Pending == true`, key dispatch is blocked (`lines 421, 622`).
-- **Disposal & Release**: The `finally` block (`lines 707–712`) calls `await primed.FinishAsync()`. If unconfirmed, `releases.MarkUncertain()` marks release uncertain.
+- **Initialization**: `PetDancePrimedCapture.StartAsync` (`PetDanceLiveTrial.cs:403`) initiates frame capture *before* dispatching the entry Play click.
+- **In-Flight Enforcement**: `primed.CheckDispatch()` (`line 428`) verifies bounded dispatch. If `primed.Pending == true`, key dispatch is blocked (`lines 429, 630`).
+- **Disposal & Release**: The `finally` block (`lines 715–720`) calls `await primed.FinishAsync()`. If unconfirmed, `releases.MarkUncertain()` marks release uncertain.
 
-### 2.3 Phase Recognition & Frame Gate (`PetDanceLiveTrial.cs:422–520`)
+### 2.3 Phase Recognition & Frame Gate (`PetDanceLiveTrial.cs:430–528`)
 - **Frame Reading**: `observer.ReadTimestampedAsync(latestOnly: true)` $\to$ `PetDanceObservationRead.ReadAsync`.
 - **Admission Gate**: `PetDanceTrialFrameGate.Inspect(capturedMs, last, now, ...)` ensures capture timestamps are fresh (`PetDanceFrameAdmission.Fresh`).
-- **Vision Extraction**: `vision.Extract(frame.Image)` $\to$ `vision.Read(panel, time)` yields `DanceObservation(Phase, Cue, FadeOf, Opacity, ...)`.
+- **Vision Extraction**: `vision.Extract(frame.Image)` $\to$ `vision.Read(panel, time)` yields `DancePanelObservation(Phase, Cue, FadeOf, Opacity, ...)`.
 - **Recognized Phases**: `DancePhase.Ready`, `DancePhase.Loading`, `DancePhase.Watch`, `DancePhase.Go`, `DancePhase.Resolving`, `DancePhase.Success`, `DancePhase.Failure`.
 
-### 2.4 Queued-Key State & Response Window (`PetDanceLiveTrial.cs:536–680`)
-- **Queue Variable**: `Queue<string> pending` (`line 353`).
-- **Enqueuing**: When `selectedResponse.Accepted && !roundRejected`, cues are enqueued into `pending` (`line 580`).
-- **Response Window Watchdog**: `responseWindow.Estimate(now, pending.Count, nextKey).Expired` (`line 427`). If elapsed time since `Go` onset exceeds 5000ms, `RejectRound(now, ...)` is called.
-- **Inter-Round Boundary Guard**: `PetDanceTrialFrameGate.Pending(observation.Phase, ...)` (`lines 615–620`): Discards old keys if `DancePhase.Watch` appears before feedback.
+### 2.4 Queued-Key State & Response Window (`PetDanceLiveTrial.cs:544–688`)
+- **Queue Variable**: `Queue<string> pending` (`line 361`).
+- **Enqueuing**: When `selectedResponse.Accepted && !roundRejected`, cues are enqueued into `pending` (`line 588`).
+- **Response Window Watchdog**: `responseWindow.Estimate(now, pending.Count, nextKey).Expired` (`line 435`). If elapsed time since `Go` onset exceeds 5000ms, `RejectRound(now, ...)` is called.
+- **Inter-Round Boundary Guard**: `PetDanceTrialFrameGate.Pending(observation.Phase, ...)` (`lines 623–628`): Discards old keys if `DancePhase.Watch` appears before feedback.
 
 ---
 
@@ -65,7 +66,7 @@ It does **not** intrinsically stub `InputReady`. The delegate is supplied by the
 
 A critical safety invariant is determining **whether a failed active pulse releases before entering any focus wait**:
 
-In `PetDanceLiveTrial.cs:651–658`:
+In `PetDanceLiveTrial.cs:659–666`:
 ```csharp
 try
 {
@@ -81,14 +82,15 @@ Tracing `DodgeInputPulse.RunAsync` (`DodgeInputPulse.cs:27–88`):
    - If capture age exceeds 200ms (`"stale-or-invalid-frame"`), if target client size mismatches, or if `responseDeadlineMs` is exceeded before key-down, the pulse returns immediately without sending key-down (`DownMs == null, UpMs == null`).
    - *Safety*: No physical input was sent. Release is trivially confirmed. It is safe to discard the round or enter a focus wait.
 2. **Post-Down Key Release (`DownMs != null`)**:
-   - Once `sink.KeyDown(key)` is invoked (`line 73`), the pulse executes a `finally` block (`lines 76–84`):
+   - Once `sink.KeyDown(key)` is invoked (`line 74`), the pulse executes a `finally` block (`lines 76–84`):
      ```csharp
      try { sink.KeyUp(key); up = _clock(); }
      catch (Exception ex)
      {
          status = "release-failed";
+         reason = ex.Message;
          try { sink.KeyUp(key); up = _clock(); status = "release-retried"; }
-         catch (Exception retry) { GameInputLease.Current?.RequireRecovery(reason); }
+         catch (Exception retry) { reason += "; retry: " + retry.Message; GameInputLease.Current?.RequireRecovery(reason); }
      }
      ```
    - If `sink.KeyUp` succeeds on the first attempt or retry, `up` is timestamped (`UpMs != null`). The key was physically released.

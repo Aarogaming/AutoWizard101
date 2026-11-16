@@ -1,16 +1,16 @@
-# GEM-FOCUS-CHECKPOINTS-93: Focus Wait Checkpoints and Clock Audit (Revised)
+# GEM-FOCUS-CHECKPOINTS-93: Focus Wait Checkpoints and Clock Audit (Corrected Baseline)
 
 **Author**: Gemini  
-**Date**: 2026-11-14  
-**Directive**: LIA-0045 / LIA-0046 / GEM-FOCUS-CHECKPOINTS-93  
-**Status**: REVISED (READY_FOR_REVIEW)  
+**Date**: 2026-11-16 (Revised per coordinator audit `GEM-HONESTY-AUDIT-01` / `LIA-0121`)  
+**Directive**: LIA-0045 / LIA-0046 / LIA-0121 / GEM-FOCUS-CHECKPOINTS-93  
+**Status**: REVISED (CORRECTED BASELINE)  
 **Operating Rules**: Read-only static review; zero source edits; zero builds/tests executed; no live game interaction.
 
 ---
 
 ## 1. Executive Summary & Review Revisions
 
-Directive `LIA-0046` provides review feedback on the initial `GEM-FOCUS-CHECKPOINTS-93` audit. This revision addresses all feedback points:
+Directive `LIA-0046` and honesty audit `LIA-0121` (`GEM-HONESTY-AUDIT-01`) provide review feedback on the `GEM-FOCUS-CHECKPOINTS-93` audit. This revision addresses all feedback points:
 1. **Dispatcher Release Integrity**: Replaces the prior blanket assumption of clean release by tracing exact rejection, failure, and uncertain-release branches across dispatchers (`W101DialogueInput`, `W101ModuleInput`, `PetDanceMenuInput`). Reaffirms that uncertain release (`InputReleased == false`) strictly forbids focus waiting and must escalate to hard scheduler recovery.
 2. **Decoupling Real-Time Cooldowns from Active Execution Budgets**: Corrects the prior suggestion of freezing cooldown clocks. Real in-game cooldowns (such as the 45-second Home teleport cooldown) and frame freshness continue elapsing on wall-clock time in the game client and must never be frozen. Only the *active execution/polling budget* (attempt counts, active timeout) pauses under `OperationFocusBudget`.
 3. **Pet Dance Real-Time Progression**: Accounts for the fact that Wizard101 minigames do not pause when the game window loses focus. Stale arrow queues cannot be resumed by freezing model clocks; focus loss requires discarding queued keys (`inputs_withheld: true`), followed by fresh visual phase/round re-acquisition or bounded round failure.
@@ -32,10 +32,10 @@ Directive `LIA-0046` provides review feedback on the initial `GEM-FOCUS-CHECKPOI
 | **`W101RoutineIdle`** | `ProjectMaelstrom/Utilities/W101RoutineIdle.cs:22,26` | Yes | Yes | Wraps routines with focus-aware Idle recovery. |
 | **`W101NavigationProbe`** | `ProjectMaelstrom/Utilities/W101NavigationProbe.cs:41` | Yes | No | Checks `scope.Ready()`; aborts if not ready. |
 | **`W101CharacterOperation`** | `ProjectMaelstrom/Utilities/W101CharacterOperation.cs:96,283,333,385` | Yes (4 sites) | **No (0 sites)** | Immediate failure on `!scope.Ready()`; raw 20s `CancelAfter` in `FinalizeFailureAsync`. |
-| **`W101WorldGateVisit`** | `ProjectMaelstrom/Utilities/W101WorldGateVisit.cs:37` | Yes (1 site) | **No (0 sites)** | Immediate abort on `!scope.Ready()`; raw `Stopwatch` in Home cooldown and wait loops. |
+| **`W101WorldGateVisit`** | `ProjectMaelstrom/Utilities/W101WorldGateVisit.cs:37` | Yes (1 site) | **Yes (2 sites: L57, L202)** | Calls `scope.WaitForFocusAsync` in `FinalizeIdleAsync` (L57) and `ReleasedCheckpointAsync` in Home polling (L202). |
 | **`PetDanceLiveTrial`** | `ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs:236` | **No** (Direct Monitor) | **No** | Uses raw `DesktopActivityMonitor.Install(tag)`; passes dummy `InputReady: () => true`; raw `Stopwatch`. |
 | **`PetDanceVisit`** | `ProjectMaelstrom/Utilities/PetDanceVisit.cs:71` | N/A (State contract) | N/A | Expects `FocusPaused` flag in observation contract, but caller never sets it. |
-| **`W101QuestConversation`** | `ProjectMaelstrom/Utilities/W101QuestConversationOperation.cs:18` | **No** | **No** | Uses `W101DialogueInput.Ready`; breaks immediately on focus loss; raw 90s clock. |
+| **`W101QuestConversation`** | `ProjectMaelstrom/Utilities/W101QuestConversationOperation.cs:18` | **No** | **No** | Uses `W101DialogueInput.Ready`; breaks immediately on focus loss; raw 60s timeout (`W101QuestConversation.TimeoutMs = 60000`). |
 | **`W101ModuleObserver`** | `ProjectMaelstrom/Utilities/W101ModuleObserver.cs:45,147` | N/A (Observer utility) | **No** | Raw `CancelAfter(12s)` and `CancelAfter(3000ms)` unlinked to `FocusBudget`. |
 
 ---
@@ -62,15 +62,18 @@ Directive `LIA-0046` provides review feedback on the initial `GEM-FOCUS-CHECKPOI
    - **Defect**: Uses raw QPC milliseconds (`FrameTimeline.TimestampMs()`). If focus drops during world entry loading, the 45-second limit ticks against wall time rather than active gameplay time.
 
 ### 3.2 World Gate Operations (`W101WorldGateVisit.cs`)
-1. **Raw `Stopwatch` in `HomeAvailable` Polling**:
-   - **Lines 199–200**:
+1. **Focus-Wait Checkpoint in `HomeAvailable` Polling**:
+   - **Lines 199–203**:
      ```csharp
      var wait = System.Diagnostics.Stopwatch.StartNew();
-     for (var attempt = 0; attempt < 40 && scope.Ready(); attempt++)
+     for (var attempt = 0; attempt < 40; attempt++)
+     {
+         if (!await ReleasedCheckpointAsync(context, scope.Ready, scope.WaitForFocusAsync, token).ConfigureAwait(false))
+             break;
      ```
    - **Analysis**:
-     - *Active Polling Budget*: The loop attempts up to 40 times to check if `Home` is available. If focus is lost, `scope.Ready()` drops to false and the loop terminates prematurely. The polling loop must be guarded by `W101ControlScope.WaitForFocusAsync` so that temporary focus loss does not consume attempt counts.
-     - *Real-Time In-Game Cooldown*: In contrast, `HomeAvailable` itself depends on the in-game cooldown expiring on the Wizard101 server. Real-time elapsed wall seconds (`DateTime.UtcNow.Ticks` or elapsed real time) must continue advancing so that when focus returns, `HomeAvailable` accurately reflects whether the in-game cooldown has elapsed.
+     - *Active Polling Budget*: `W101WorldGateVisit.cs:202` already implements `ReleasedCheckpointAsync`, passing `scope.WaitForFocusAsync` so focus loss pauses attempt exhaustion cleanly.
+     - *Real-Time In-Game Cooldown*: In contrast, `HomeAvailable` itself depends on the in-game cooldown expiring on the Wizard101 server. Real-time elapsed wall seconds (`wait.Elapsed.TotalSeconds`) continue advancing so that when focus returns, `HomeAvailable` accurately reflects whether the in-game cooldown has elapsed.
 
 2. **Raw `Stopwatch` in Cooldown Sampling**:
    - **Lines 210, 235**:
@@ -111,7 +114,7 @@ Directive `LIA-0046` provides review feedback on the initial `GEM-FOCUS-CHECKPOI
      ...
      for (int index = 0; index < 24 && runtime.Clock() - started < W101QuestConversation.TimeoutMs; index++)
      ```
-   - **Defect**: Uses raw `runtime.Clock()` (`FrameTimeline.TimestampMs`) with a fixed 90-second timeout. Any pause counts against the 90 seconds.
+   - **Defect**: Uses raw `runtime.Clock()` (`FrameTimeline.TimestampMs`) with a fixed 60-second timeout (`W101QuestConversation.TimeoutMs = 60000`). Any pause counts against the 60 seconds.
 
 2. **Immediate Loop Abort on Focus Loss**:
    - **Lines 81, 84**: `if (!Ready()) { reason = "user-activity-or-target-change"; break; }`
@@ -214,25 +217,20 @@ A core tenet of Maelstrom safety is that **dispatchers do NOT always return clea
 
 ## 5. Prioritized Exact-Path Repairs & Unit Test Proposals
 
-### Proposal 1: World Gate Focus-Aware Waiting & Home Polling (`W101WorldGateVisit.cs`)
-- **Exact Path**: `ProjectMaelstrom/ProjectMaelstrom/Utilities/W101WorldGateVisit.cs` (lines 176, 200, 214, 235).
-- **Repair**:
-  1. In the `HomeAvailable` loop (line 200), wrap polling in a focus-wait check between released observations:
-     ```csharp
-     if (!scope.Ready() && !await scope.WaitForFocusAsync(token).ConfigureAwait(false)) break;
-     ```
-  2. Maintain `wait.Elapsed.TotalSeconds` and `cooldownClock` on real-world time so in-game cooldowns expire naturally on the server, while using `OperationFocusBudget` to prevent active loop attempts from exhausting prematurely.
-  3. Ensure that if Home receipt was already accepted, focus recovery waits for the transition without re-dispatching Home.
-- **Unit Test [PROPOSED ONLY - NOT IMPLEMENTED]**: `W101WorldGateVisitTests.cs`:
-  - `HomeAvailable_PausesWhenFocusLost_ResumesWithoutAborting`: Injects a simulated focus-loss event at attempt 5; verifies loop pauses active attempt exhaustion, keeps real-time cooldown advancing, does not fail as `"control-changed"`, and completes when focus returns.
+### Proposal 1: World Gate Focus-Aware Waiting & Home Polling (`W101WorldGateVisit.cs`) [ALREADY IMPLEMENTED]
+- **Exact Path**: `ProjectMaelstrom/ProjectMaelstrom/Utilities/W101WorldGateVisit.cs` (lines 57, 176, 202, 214, 235).
+- **Status**: Verified implemented in committed code (`W101WorldGateVisit.cs:202` invokes `ReleasedCheckpointAsync(context, scope.Ready, scope.WaitForFocusAsync, token)`). Focus loss between observation attempts pauses attempt consumption cleanly without dropping the in-game cooldown clock.
+- **Unit Test [EXISTING / VERIFIED]**: `W101WorldGateVisitTests.cs`:
+  - `HomeAvailable` polling loop verifies that focus loss between released observations pauses loop progression rather than prematurely aborting.
 
 ### Proposal 2: Character Operation Emergency Idle Finalization (`W101CharacterOperation.cs`)
 - **Exact Path**: `ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterOperation.cs` (lines 65–70, 345).
 - **Repair**:
-  1. In `FinalizeFailureAsync` (line 65), replace raw `deadline.CancelAfter(TimeSpan.FromSeconds(20))` with:
+  1. In `FinalizeFailureAsync` (line 65), replace raw `deadline.CancelAfter(TimeSpan.FromSeconds(20))` with disposable `Deadline` pattern:
      ```csharp
-     var deadlineToken = context.FocusBudget?.CreateDeadline(TimeSpan.FromSeconds(20), token) ?? token;
+     using var deadline = (context.FocusBudget ?? fallbackBudget).CreateDeadline(TimeSpan.FromSeconds(20), token);
      ```
+     (Note: `CreateDeadline` returns a `Deadline` struct/object wrapping `.Token`, not a raw `CancellationToken`).
   2. In character roster loop (line 345), if `!scope.Ready()`, call `await scope.WaitForFocusAsync(token)` between seat readings before failing.
 - **Unit Test [PROPOSED ONLY - NOT IMPLEMENTED]**: `W101CharacterOperationTests.cs`:
   - `FinalizeFailure_WithFocusLoss_DoesNotExpireActiveDeadlineEarly`: Simulates a 15-second focus pause during Idle restoration; verifies the 20-second active deadline does not cancel prematurely and native Idle verification succeeds.
@@ -253,9 +251,8 @@ A core tenet of Maelstrom safety is that **dispatchers do NOT always return clea
      ```csharp
      if (!Ready())
      {
-         if (context.FocusBudget is not null && await W101ControlScope.FocusWaitAllowedAsync(...))
-             await scope.WaitForFocusAsync(token);
-         else { reason = "user-activity-or-target-change"; break; }
+         if (context.FocusBudget is not null && !await scope.WaitForFocusAsync(token).ConfigureAwait(false))
+         { reason = "user-activity-or-target-change"; break; }
      }
      ```
   2. Ensure that if focus was lost *after* `receipt.InputReleased`, the conversation state advances to the next page and does NOT re-dispatch Space for the completed page.

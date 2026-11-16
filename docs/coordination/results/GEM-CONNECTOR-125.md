@@ -1,7 +1,7 @@
 # GEM-CONNECTOR-125: Dynamic Navigation Connector Geometry & Atlas Planning Audit (Revised v13)
 
 **Task ID**: `GEM-CONNECTOR-125`  
-**Claim Owner**: `gemini` (Active in `docs/coordination/claims.json`)  
+**Claim State**: Released in `docs/coordination/claims.json` per `LIA-0102` (owner: `gemini`)  
 **Status**: Read-only static review and architectural gap audit; offline analysis only.  
 **Deliverable Path**: `docs/coordination/results/GEM-CONNECTOR-125.md`  
 **Revision Directives**: Revised per `LIA-0082` through `LIA-0101` to:
@@ -21,7 +21,7 @@ This static audit reviews native connector geometry verification (`NavigationCon
 
 ### 1.1 Task 141 Empirical Trial Evidence (`W101-CONNECTOR-TRIAL-141.md`)
 - **Closed-Loop Alignment Evidence**:
-  - Run 1 (`6ac08ac7cf324929af24c927d176627b`): Four turns ($\le 100\text{ms}$) shifted yaw $5.53338 \to 4.43005\text{ rad}$ at unchanged XYZ; turn-budget exhausted with observed late response $\approx 2.71\text{ rad/s}$. Idle independently verified.
+  - Run 1 (`6ac08ac7cf324929af24c927d176627b`): Four turns ($\le 100\text{ms}$) shifted yaw $5.53338 \to 4.43005\text{ rad}$ at unchanged XYZ; turn-budget exhausted with uncorroborated late response $\approx 2.71\text{ rad/s}$ (derived nominal rate $\approx 2.76\text{ rad/s}$). Idle independently verified.
   - Run 2 (`4fb4ec931ae64c169b4417777fe75d29`): Bounded $140\text{ms}$ A turn reached yaw $3.9776608944\text{ rad}$ against client target $4.0166074897\text{ rad}$ (angular error $0.0389466\text{ rad}$, confirmed twice). XYZ unchanged; native Idle verified.
 - **Empirical Forward Step Evidence (`afb00f8890094cbb82160f465b9ec574`)**:
   - Dispatched $W$ 60ms through the shared owner under `W101NavigationVisit`.
@@ -110,7 +110,7 @@ foreach (var (edge, owners) in edges)
 - **Factual Determination**:
   1. The code explicitly notes that using full dimensions as half-extents is provisional (`"# Retain full dimensions as half-extents until conventions qualify."`).
   2. Ground-truth engine documentation for whether BCD box `params` represent full side lengths or half-extents is **not found** in repository or vendor sources.
-  3. Deimos `cube_to_vertices` halves dimensions but also swaps width and length axes ($X/Y$). Cherry-picking halving while ignoring axis swapping is mathematically unsound.
+  3. Deimos commented-out dead code `cube_to_vertices` (`collision_math.py:25`) halves dimensions but also swaps width and length axes ($X/Y$). Treating commented-out dead code as live or cherry-picking halving while ignoring axis swapping is mathematically unsound.
   4. Proxy 88 clearance across the remainder of the connector can only be verified empirically or through ground-truth disassembly of the client's shape builder.
 
 ---
@@ -119,7 +119,7 @@ foreach (var (edge, owners) in edges)
 
 ### Finding 1: Variable ActorBody Height Semantics and Unmeasured Physical Capsule Profile
 - **Exact Call Chain & Evidence**:
-  - `tools/w101_pose_reader.py:13–41` (`read_dimensions`): Reads offset 132.
+  - `tools/w101_pose_reader.py:16–48` (`read_dimensions`): Reads offset 132.
   - `W101-CONNECTOR-TRIAL-141.md:14–17`: Live readings fluctuate between $175.7524$ and $213.8564$ across motion on the same character at scale 1.0.
   - `wizwalker/memory_objects/actor_body.py:97–104`: Contains only `"This body's height"`.
 - **Mechanism & Architectural Impact**:
@@ -134,7 +134,7 @@ foreach (var (edge, owners) in edges)
 
 ### Finding 2: Unresolved BCD Box Parameter Conventions & Remaining Segment to Vertex 113
 - **Exact Call Chain & Evidence**:
-  - `tools/w101_bcd_evidence.py:40–45`: Encloses boxes using full dimensions as half-extents (`factor = 1.0`), flagging Proxy 88 as an obstruction.
+  - `tools/w101_bcd_evidence.py:40–45`: Encloses boxes using full dimensions as conservative half-extents. Broad-phase overlap with Proxy 88 does not unconditionally flag an obstruction; as established in `W101-CONNECTOR-CLEARANCE-137.md:19`, Proxy 88 requires a narrow-phase assessment before its broad-phase hit can be evaluated as a real obstruction.
   - `W101-CONNECTOR-TRIAL-141.md:10`: The live forward step advanced $39.0\text{ units}$, leaving $\approx 198\text{ units}$ of the dynamic connector unverified.
 - **Mechanism & Architectural Impact**:
   1. Whether Proxy 88 is an obstruction remains mathematically unprovable from static metadata without ground-truth box parameter conventions.

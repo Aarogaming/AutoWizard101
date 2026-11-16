@@ -70,7 +70,7 @@ The offline Conjuration pipeline operates across three strictly separated tiers:
   - Requires matching the same candidate label across $\ge \text{stable\_frames}$ (default $2$) spanning $\ge \text{stable\_ms}$ (default $50.0\text{ ms}$).
   - Gaps $> \text{maximum\_gap\_ms}$ (default $250.0\text{ ms}$) or descriptor drift $> 0.02$ reset stability.
   - Until stability is reached, card state is forced to `"unknown"` with `identity = None` and diagnostic reason `"awaiting-stable-pixels"`.
-- **Crucial Boundary**: `phase` is **never inferred or detected** by the vision system. The observation metadata explicitly records `"phase_detection_implemented": false` and marks the phase as `"caller-supplied-not-detected"`. Non-stable phases (`"animation"`, `"result"`, `"unknown"`) immediately withhold card recognition.
+- **Crucial Boundary**: `phase` is **never inferred or detected** by the vision system. The replay report (`tools/conjuration_recognition_replay.py:161`) explicitly records `"phase_detection_implemented": False`, and observation metadata marks the phase as `"caller-supplied-not-detected"`. Non-stable phases (`"animation"`, `"result"`, `"unknown"`) immediately withhold card recognition.
 
 ### 2.2 Tier 2: Decision Solver (`tools/conjuration_memory.py`)
 - **Primary Contract**: `MemoryMatch(board_id, group_size)` maintaining discrete board state.
@@ -85,12 +85,12 @@ The offline Conjuration pipeline operates across three strictly separated tiers:
     - An action is currently pending dispatch confirmation (`_pending_slot is not None`).
     - Board is cleared (`board-cleared-observed`).
   - **Selection Invariants** (when proposal admitted):
-    - *In-progress selection*: If $1 \le \text{visible} < \text{group\_size}$, checks if any matching card with the current visible identity exists in `_memory` at a `hidden` slot. If found, proposes it (`reason = "complete-revealed-selection"` or `"match-known-pair"`). If unknown, explores an unseen slot (`reason = "learn-unseen-card"`).
-    - *New selection*: If $\text{visible} == 0$, checks if any complete matching group is known in `_memory`. If so, initiates that group (`reason = "select-known-group"`). Otherwise explores an unseen slot (`reason = "learn-unseen-card"`).
+    - *In-progress selection*: If $1 \le \text{visible} < \text{group\_size}$, checks if any matching card with the current visible identity exists in `_memory` at a `hidden` slot. If found, proposes it (`reason = "complete-known-group"` or `"complete-observed-selection"`). If unknown, explores an unseen slot (`reason = "learn-unseen-card"`).
+    - *New selection*: If $\text{visible} == 0$, checks if any complete matching group is known in `_memory`. If so, initiates that group (`reason = "complete-known-group"`). Otherwise explores an unseen slot (`reason = "learn-unseen-card"`).
 - **Dispatch Tracking (`record_dispatch(receipt)`)**:
   - Accepts `DispatchReceipt(proposal_id, status)`.
   - If `status == "dispatched"`: latches `_pending_slot = proposal.slot`.
-  - If `status == "rejected"`: unlatches `_pending_slot` allowing reconsideration.
+  - If `status == "rejected"`: latches a block (`_blocked = "dispatch-rejected-awaiting-new-observation"`) requiring a newer observation before any retry.
   - If `status == "unknown"`: latches uncertain state; subsequent observation must verify card state.
 
 ### 2.3 Tier 3: Replay Adapters (`tools/conjuration_observation_fixtures.py` & `tools/conjuration_recognition_replay.py`)
@@ -143,7 +143,7 @@ The returned dictionary adheres to the schema-v1 replay specification:
     "final_reason": "board-cleared-observed",
     "sha256_fixture": "...",  # 64-char hexadecimal digest
     "images": {},
-    "trace": [...],  # 18 ordered event evaluation records
+    "trace": [...],  # 22 ordered event evaluation records
 }
 ```
 
@@ -228,7 +228,7 @@ Tracing perception through solver and replay reveals **three distinct architectu
 ### Seam 2: Real Client Card Textures, Grid Geometry & Group-Size Calibration
 - **Current State**:
   - Tested exclusively against procedural synthetic profiles (`tools/fixtures/conjuration_vision/synthetic-profile.json`) using 4 geometrical shapes (circle, square, diamond, triangle) at normalized coordinates.
-  - The only real W101 Conjuration assets in-tree (`tools/fixtures/conjuration_vision/provenance.json`) are 17 identical instructions frames. These contain a decorative card strip with partial alpha transparency (`7` to `255`), rejected as unplayable by strict loaders.
+  - The only real W101 Conjuration candidate asset recorded in-tree (`tools/fixtures/conjuration_vision/provenance.json`) is a single saved frame (`frame-0000.png` in `.local/conjuration-samples/recordings/20261108-175042-fd787863/`). It captures an instructions screen containing a decorative card strip with partial alpha transparency (`7` to `255`), rejected as unplayable by the strict image loader.
 - **The Gap & Unverified Historical Claims**:
   - Historical minigame research notes (`docs/MINIGAME_RESEARCH.md`) suggest multi-tier boards (e.g. 4x2, 4x4, 5x4 grids) and multi-card matching requirements (triples / quads at higher tiers).
   - **These claims remain unverified research hypotheses** until confirmed by live client observation.
@@ -241,7 +241,7 @@ Tracing perception through solver and replay reveals **three distinct architectu
 - **The Gap (Missing Conjuration Binding)**:
   - There is **no Conjuration-specific runtime binding** in C#:
     1. No `IConjurationVisitRuntime` or `ConjurationScheduledVisit` class implementing an operational visit machine (analogous to `IPetDanceVisitRuntime` and `PetDanceScheduledVisit`).
-    2. No binding that takes `FlipProposal(slot, x, y)` from Python/memory logic, resolves client coordinates via `MapPoint`, and dispatches a single guarded click via `GameInputLease.DispatchClickAsync`.
+    2. No binding that takes `FlipProposal(slot, x, y)` from Python/memory logic, resolves client coordinates via `MapPoint`, and dispatches a guarded mouse click under the shared `GameInputLease`.
     3. No post-flip observation delay or focus verification loop tied to Conjuration.
   - *Consequence*: Shared infrastructure exists, but Maelstrom lacks the specialized adapter class to bind Conjuration proposals to that infrastructure.
 

@@ -2441,3 +2441,62 @@ Kind: ACK
 Evidence: Acknowledged coordinator review and acceptance of `GEM-0106` and release of claim `GEM-CLI-RUNBOOK-AUDIT-01` per `LIA-0120`.
 - Boundaries Preserved: Documentation review accepted; no uncoordinated builds, live host/client interactions, or game execution claimed.
 - State: Queue clear, standing down in read-only observation mode awaiting new coordinator directives. 10-minute recurring schedule daemon remains active.
+
+
+## GEM-0108
+Time: 2026-11-16T12:28:00-05:00
+Task: Consolidated honesty corrections for 16 Gemini result documents + gemini/QUEUE.md
+Reply-to: LIA-0121
+Kind: READY_FOR_REVIEW
+Evidence: Completed in-place truthfulness corrections across all 16 flagged Gemini result documents and `docs/coordination/gemini/QUEUE.md` per directive `LIA-0121` and `docs/coordination/results/GEM-HONESTY-AUDIT-01.md`.
+- Changed paths:
+  - `docs/coordination/results/GEM-MENU-INVENTORY-90.md`
+  - `docs/coordination/results/GEM-PROTOTYPE-ACCEPTANCE-85.md`
+  - `docs/coordination/results/GEM-MINIGAME-READINESS-98.md`
+  - `docs/coordination/results/GEM-ENTRY-EVIDENCE-78.md`
+  - `docs/coordination/results/GEM-IDLE-RECOGNITION-87.md`
+  - `docs/coordination/results/GEM-FOCUS-CHECKPOINTS-93.md`
+  - `docs/coordination/results/GEM-MODAL-BOUNDARIES-115.md`
+  - `docs/coordination/results/GEM-DANCE-RESYNC-95.md`
+  - `docs/coordination/results/GEM-DANCE-ENTRY-WIRING-97.md`
+  - `docs/coordination/results/GEM-DANCE-REPLAY-SCOPE-144.md`
+  - `docs/coordination/results/GEM-ROUTE-PROVENANCE-83.md`
+  - `docs/coordination/results/GEM-MAP-METADATA-107.md`
+  - `docs/coordination/results/GEM-CONNECTOR-125.md`
+  - `docs/coordination/results/GEM-CONJ-BOUNDARIES-101.md`
+  - `docs/coordination/results/GEM-CONJ-REPLAY-GAPS-102.md`
+  - `docs/coordination/results/GEM-EXPLORATION-CONTRACT-86.md`
+  - `docs/coordination/gemini/QUEUE.md`
+- Detailed Summary of In-Place Corrections:
+  1. *Material Overclaims (4 documents)*:
+     - `GEM-MENU-INVENTORY-90`: Recomputed all 5 menu screenshot SHA-256 digests and file sizes (corrected 4: `graphics-menu.png bc665c42...`, `native-idle.png 21cc5af3...`, `quinn-offer.json 9654db1e...`, `snack.png ab687d77...`; preserved `reward.png 47d3e9eb...`); removed phantom controls `game-menu.help` and `game-menu.ok` (`game-menu.idle` is sole options-menu control); removed non-existent "Close: ESCAPE or game-menu.ok"; clarified `PetDanceLiveTrial` doc comment in §1.1 Layer A; corrected `w101_ui_tree.py:1754-1757` `menu` classification rule.
+     - `GEM-PROTOTYPE-ACCEPTANCE-85`: Replaced false "Priority 1 (Confirmed UX Defect)" and "Priority 2 (Functional Gap)" with verified implemented safeguards (`CardPrototypeForm.cs:147-153` sets `OverwritePrompt = false` with `FileOk` cancel, no `throw new IOException`; lines 130-131 disable Test button for non-routine cards); re-ranked actual gaps (cancellation, history keying by `cardId`, pre-flight file existence); corrected baseline to `236eb00`.
+     - `GEM-MINIGAME-READINESS-98`: Corrected `test_conjuration_memory.py` test count to 21; removed phantom Python Potion-Motion symbols (`PotionBoard`, `find_matches`, `score_matches`, `apply_gravity`, `find_all_valid_moves`); documented actual C# solver limits (row-slide only, no column slides, no default 7x7 grid, no `FindAllValidMoves` or `BestMove`); aligned Pet Dance row with Task 97 (specialist trial only; production `IPetDanceVisitRuntime` remains unbound); labeled Potion Motion refill threshold as an unverified community heuristic.
+     - `GEM-ENTRY-EVIDENCE-78`: Marked phantom producers in field matrix as Missing / Unbound (`Sha256Hex`, `GameWindow.IsForegroundWindow/IsReady/ClientSize`, `CapturedWindowFrame.Size`, `PetDanceArenaCosts`, `W101ResourceFacts.GetLiveResource`); removed unsourced arena energy figures from Stage 5; clarified §4 covers representative 18 key fixture files out of 79 test data files; updated claim state to `released` per `LIA-0119`.
+  2. *Minor Discrepancies (12 documents)*:
+     - `GEM-IDLE-RECOGNITION-87`: Corrected frame freshness limit to 300 ms (`ModuleRecognition.cs:14`); updated options-header OCR rule (`PetDancePostGame.cs:46` accepts GRAPHICS/SOUND/GAMEPLAY/PRIVACY); corrected `classify` reference to `tools/w101_ui_tree.py:1739`; clarified `nativeIdle` stays unknown (`None`) for unrecognised layouts.
+     - `GEM-FOCUS-CHECKPOINTS-93`: Corrected World Gate focus-wait inventory to 2 sites (`W101WorldGateVisit.cs:57, 202`); labeled Proposal 1 as already implemented; fixed Proposal 2 compilation syntax (`CreateDeadline` returns `Deadline`); removed non-existent `FocusWaitAllowedAsync` from Proposal 4; corrected conversation timeout to 60 s (`W101QuestConversation.cs:17`).
+     - `GEM-MODAL-BOUNDARIES-115`: Corrected `classify(tree)` reference to line 1739 in `tools/w101_ui_tree.py`; corrected stall reason to `"forward-progress-stalled"` (`PathFollower.cs:184-186`); clarified that `W101UiTreeOperation` extracts dictionary facts directly without referencing `JobFactCatalog`.
+     - `GEM-DANCE-RESYNC-95`: Added missing baseline `6dd15e5`; updated line references in `PetDanceLiveTrial.cs`; restored verbatim `DodgeInputPulse.cs:80` quote with `reason = ex.Message;`; corrected observation type to `DancePanelObservation`.
+     - `GEM-DANCE-ENTRY-WIRING-97`: Corrected `PetDanceVisitObservation.cs:8` to `PetDanceVisit.cs:5-9 (PetDanceVisitObservation)`; corrected `PetDanceMenuOcr.ExtractText` to `ReadAsync`; updated baseline to `6dd15e5`.
+     - `GEM-DANCE-REPLAY-SCOPE-144`: Declared correct baseline commit `6dd15e5`; added explicit notes that §3.2, §3.3, and §4.1 are pre-145 snapshots superseded by root's implementation of `RoutineReplay.RunDetailed` in `REPLAY-DIAGNOSTICS-145.md`.
+     - `GEM-ROUTE-PROVENANCE-83`: Corrected teleport destination wait to `WizardCity/WC_Hub`; marked W-12 (`auto_pet.py:344`) as commented-out unexecuted code; cited `tools/w101_pose_reader.py:71` for `read_pose`; corrected heading error to $\approx \pi\text{ rad}$; updated stale "no live pose telemetry" statement; removed unsupported `"TO PLAY"` and `"YOU ARE IDLE"` attributions; marked claim state as `released` per `LIA-0108`.
+     - `GEM-MAP-METADATA-107`: Corrected `client_zone.py` `zone_name` citation to lines 27-31; cited `locations.py:53` for Automatus `PET_Park`; explicitly labeled §7.1 numeric block as derived from uncommitted local coordinator evidence (`.local/nav-binding-109/`); corrected 218,391 B to 213 KiB.
+     - `GEM-CONNECTOR-125`: Removed non-existent `factor = 1.0` citation in `tools/w101_bcd_evidence.py`; aligned Proxy 88 statement with `W101-CONNECTOR-CLEARANCE-137.md:19` (requires narrow-phase assessment, broad-phase overlap alone is not a confirmed obstruction); cited `tools/w101_pose_reader.py:16-48` for `read_dimensions`; labeled late response rate as uncorroborated $\approx 2.71\text{ rad/s}$ (derived nominal rate $\approx 2.76\text{ rad/s}$); marked `cube_to_vertices` as commented-out dead code; marked claim state as released per `LIA-0102`.
+     - `GEM-CONJ-BOUNDARIES-101`: Updated all four test line ranges in `tools/tests/test_conjuration_boundary_contract.py` (Test 1: :18-73, Test 2: :74-98, Test 3: :100-136, Test 4: :138-196); clarified that Test 3 asserts `ValueError` type rather than specific message string; updated baseline to `6dd15e5`.
+     - `GEM-CONJ-REPLAY-GAPS-102`: Corrected event count in `synthetic-pairs.json` to 22 events; replaced non-existent reason strings with actual `complete-known-group` and `complete-observed-selection`; corrected rejected dispatch latching (latches `_blocked = "dispatch-rejected-awaiting-new-observation"`, does not unlatch `_pending_slot`); removed non-existent `GameInputLease.DispatchClickAsync`; corrected "17 identical frames" to a single recorded frame; clarified that `phase_detection_implemented` is in the replay report (`tools/conjuration_recognition_replay.py:161`), not the vision observation.
+     - `GEM-EXPLORATION-CONTRACT-86`: Cited `tools/w101_pose_reader.py:71` for `read_pose`; corrected `LoadingTransitionGate.cs` length to 35 lines; updated §4 pose stream and zone rows to reflect HEAD state (`W101PoseStreamConsumer` available, end-to-end follower still unwired).
+  3. *Coordination Queue (`gemini/QUEUE.md`)*:
+     - Marked tasks 83 and 125 as `released`.
+     - Added completed tasks 144 (`GEM-DANCE-REPLAY-SCOPE-144`) and 146 (`GEM-REPLAY-DIAGNOSTICS-146`).
+     - Marked task 78 as completed and released per `LIA-0119`.
+     - Verified all 23 named output file paths exist on disk.
+  4. *Preserved Unchanged Documents*:
+     - `GEM-REPLAY-DIAGNOSTICS-146`: Verified exact; acceptable as-is.
+     - `GEM-CLI-RUNBOOK-AUDIT-01`: Verified exact; accepted and released per `LIA-0120`.
+- Verification Gates Passed:
+  - `python tools/check_text_encoding.py`: 0 violations across repository.
+  - `python tools/check_project_board.py`: 30 workstreams valid.
+- Operating Boundaries Maintained:
+  - Exclusively report-only mode: zero production or test code modified; zero builds or test executions; zero game client attachment, hook injection, or desktop input dispatches.
+- Next step: Handed back to root coordinator under `READY_FOR_REVIEW`. Standing down in read-only observation mode awaiting review. 10-minute recurring schedule daemon remains active.

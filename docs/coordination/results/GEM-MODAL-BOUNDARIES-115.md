@@ -1,17 +1,13 @@
-# GEM-MODAL-BOUNDARIES-115: Modal and Navigation Interruption Boundary Audit (Revised v2)
+# GEM-MODAL-BOUNDARIES-115: Modal and Navigation Interruption Boundary Audit (Corrected Baseline)
 
 **Task ID**: `GEM-MODAL-BOUNDARIES-115`  
 **Claim Owner**: `gemini` (Active in `docs/coordination/claims.json`)  
-**Status**: Read-only static review and architectural gap audit; offline analysis only.  
+**Status**: Read-only static review and architectural gap audit; offline analysis only (CORRECTED BASELINE).  
 **Deliverable Path**: `docs/coordination/results/GEM-MODAL-BOUNDARIES-115.md`  
-**Revision Directives**: Revised per `LIA-0073` to:
-1. Correct line reference in `tools/w101_ui_tree.py`: character offset 66807 is line 1672; cite lines 1672–1715.
-2. Distinguish verified source facts from hypothetical popup names (e.g. unverified `TutorialTipWin` vs. inspected `WizardPatchingWindow` in `STRUCTURAL_LEAVES:52`).
-3. Trace actual `BoundModule`/runtime callers for `w101.interact`: verify that it runs through `W101ModuleBindings.Bundle("sigil")` (`SigilConfiguration`), requiring verified prompt recognition and transition to `InteractionMenu`, not completing on transport alone.
-4. Replace overly broad global dialogue gating with action-specific mode contracts (avoiding rejection of intentional dialogue or menu actions).
-5. Recognize that interactions opening dialogue can be valid and intentional; eliminate unconfigured auto-advance, auto-close, or quest transfer proposals.
-6. Refine focus return revalidation: anchor game fact revalidation in routine checkpoints rather than expanding OS-level `W101ControlScope` into a universal game classifier.
-7. Constrain audit strictly to at most three proven gaps with exact call-chain evidence and proposed pure unit tests.
+**Revision Directives**: Revised per `LIA-0073` and `LIA-0121` (`GEM-HONESTY-AUDIT-01`):
+1. Correct line reference in `tools/w101_ui_tree.py`: `classify(tree)` is defined at line 1739.
+2. Correct reason string in `PathFollower.cs:186`: `"forward-progress-stalled"`.
+3. Clarify fact flow: `W101UiTreeOperation` extracts UI state dictionaries directly; `JobFactCatalog` defines trusted fact vocabulary independently.
 
 ---
 
@@ -43,7 +39,7 @@ The centralized catalog defines trusted facts with strict types and producers:
 - `area` (string, producer `unavailable`, false): Current area (marked unavailable pending live qualification).
 - `quest.objective`, `quest.action`, `quest.area`, `quest.target`: Parsed intent facts from quest text.
 
-### 2.2 UI Tree Classification (`tools/w101_ui_tree.py:1672–1715`)
+### 2.2 UI Tree Classification (`tools/w101_ui_tree.py:1739–1785`)
 The Python observation helper extracts node trees from the client's root window and classifies them in `classify(tree)`:
 ```python
 def classify(tree):
@@ -128,7 +124,7 @@ Structural leaves cataloged in `tools/w101_ui_tree.py:47–58` include:
     1. The game client locks avatar movement.
     2. Because `sample.Focused == true` (OS window remains focused) and `sample.Loading == false`, `PathFollower` continues emitting active movement intents (`PathMotion.State == "active"`).
     3. The avatar's spatial coordinates $(X, Y, Z)$ remain stationary, causing `_stalledMs += delta` to accumulate.
-    4. When `_stalledMs > _options.StuckMs` (1500ms), `PathFollower` invalidates the route with `"route-stalled-progress-timeout"` or `"route-wall-budget-exhausted"`.
+    4. When `_stalledMs > _options.StuckMs` (1500ms), `PathFollower` invalidates the route with `"forward-progress-stalled"` (`PathFollower.cs:184–186`) or `"route-wall-budget-exhausted"`.
   - **Impact**: In-game modal pauses are misclassified as physical geometric collisions or stuck conditions, triggering erroneous route invalidation while input leases continue dispatching against blocked controls.
 - **Smallest Reusable Repair**:
   Add an optional, action-specific blocking property to `PathObservation` (e.g. `bool LocomotionBlocked = false`). When asserted by the navigation observer (e.g., when `dialogue == true`, `menu == true`, or combat context is active), `PathFollower.Observe` transitions to `Hold("paused", "locomotion-blocked")` without accumulating `_stalledMs`, mirroring the existing `Focused == false` handling until the modal is resolved or the outer routine budget expires.
@@ -139,8 +135,8 @@ Structural leaves cataloged in `tools/w101_ui_tree.py:47–58` include:
 
 ### Gap 2: Incomplete Modal Window Classification in `tools/w101_ui_tree.py`
 - **Exact Call Chain & Evidence**:
-  - `tools/w101_ui_tree.py:1672–1715` (`classify(tree)`) $\rightarrow$ `ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs:133–145` $\rightarrow$ `JobFactCatalog.cs:13–16`.
-  - In `tools/w101_ui_tree.py:1672–1715`, `classify` sets:
+  - `tools/w101_ui_tree.py:1739–1785` (`classify(tree)`) $\rightarrow$ `ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs:133–145`.
+  - In `tools/w101_ui_tree.py:1739–1785`, `classify` sets:
     - `values["interactionPrompt"] = "NPCRangeWin" in names`
     - `values["dialogue"] = bool(names & {"wndDialogMain", "NPCServicesWin"})`
     - `values["menu"] = bool(names & {"shopGUI", "PayToPlay", "NPCServicesWin"}) or any(...) or {...} <= visible_names`
@@ -150,7 +146,7 @@ Structural leaves cataloged in `tools/w101_ui_tree.py:47–58` include:
     2. Upstream mapping in `W101ModuleBindings.Map` evaluates `State("dialogue", false) && State("menu", false) && State("nativeIdle", false)`.
     3. The system falsely classifies the scene as `OutsideReady`, concluding the character is free to navigate, open menus, or interact, even though a blocking modal window is actively capturing input.
 - **Smallest Reusable Repair**:
-  In `tools/w101_ui_tree.py:1672–1715`, check for known structural modal leaves (such as `WizardPatchingWindow`) under `Root` or `WorldView`, setting `values["menu"] = True` (or setting an explicit `modal` fact) so that downstream consumers do not infer `OutsideReady` when the viewport is obstructed.
+  In `tools/w101_ui_tree.py:1739–1785`, check for known structural modal leaves (such as `WizardPatchingWindow`) under `Root` or `WorldView`, setting `values["menu"] = True` (or setting an explicit `modal` fact) so that downstream consumers do not infer `OutsideReady` when the viewport is obstructed.
 - **Proposed Pure Unit Test**:
   `test_classify_structural_leaf_patching_window_sets_menu` in `tools/tests/test_w101_ui_tree.py`
 
@@ -199,12 +195,14 @@ To address these three proven gaps without expanding scope, creating new schedul
 
 ## 6. Handback & Next Steps
 
-This revised report incorporates all corrections from `LIA-0073`:
-- Corrected line references to lines 1672–1715 in `tools/w101_ui_tree.py`.
+This revised report incorporates all corrections from `LIA-0073` and `LIA-0121` (`GEM-HONESTY-AUDIT-01`):
+- Corrected line references to line 1739 in `tools/w101_ui_tree.py`.
+- Corrected reason string to `"forward-progress-stalled"` (`PathFollower.cs:186`).
+- Clarified that `W101UiTreeOperation` extracts dictionary facts directly without calling `JobFactCatalog`.
 - Clarified `w101.interact` sigil protocol and post-condition requirements.
 - Replaced global dialogue gating with action-specific mode contracts.
 - Refined focus return revalidation to routine stage checkpoints rather than OS scope.
 - Scoped audit to exactly three proven gaps with full call-chain evidence.
 
 - **Delivered**: `docs/coordination/results/GEM-MODAL-BOUNDARIES-115.md`.
-- **Next Step**: Append `GEM-0079` (`Kind: READY_FOR_REVIEW`) to `docs/coordination/gemini/FROM_GEMINI.md` and stand down awaiting root coordinator review.
+- **Next Step**: Append `GEM-0079` / `GEM-0108` (`Kind: READY_FOR_REVIEW`) to `docs/coordination/gemini/FROM_GEMINI.md` and stand down awaiting root coordinator review.

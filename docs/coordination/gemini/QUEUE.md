@@ -44,7 +44,7 @@ Acceptance for handback: specific useful components linked to current function/c
 
 FROM_GEMINI.md records your ACK/READY_FOR_REVIEW/BLOCKED messages. Root records acceptance and integration on the central board. Do not modify this queue to grant yourself more work. Latest explicit root assignment supersedes stale freeze messages; unrelated grants are not implied.
 
-## Completed follow-up: GEM-ENTRY-EVIDENCE-78
+## Completed follow-up: GEM-ENTRY-EVIDENCE-78 (Released per LIA-0119)
 
 Owned output: `docs/coordination/results/GEM-ENTRY-EVIDENCE-78.md` only. Root registered this exact path to Gemini and activated the task in LIA-0035. Confirm the claim, ACK, then proceed without another permission request. Tasks 71–73 were handed back in GEM-0027 and must not be repeated or edited during root review. Task72 test source transferred to root repair task79; do not edit it.
 
@@ -61,7 +61,7 @@ Required deliverables in the single report:
 
 Report provenance/revision and concurrent work caveat. Do not modify prior reports, test source, production code, board/claims or any other path. No builds/tests/live/host/game/model/installer/dependency/commit operations. Return READY_FOR_REVIEW with exact gaps; handback is not acceptance.
 
-## Active next task: GEM-ROUTE-PROVENANCE-83
+## Completed task: GEM-ROUTE-PROVENANCE-83 (Released per LIA-0108)
 
 Owned output only: `docs/coordination/results/GEM-ROUTE-PROVENANCE-83.md`. Root claim verified active; LIA-0037 activates this report-only task. ACK then proceed without another permission request. No source/build/live rights.
 
@@ -73,7 +73,7 @@ List at most five smallest offline acceptance checks for reusing the route throu
 
 ACK after claim/activation, write this report only, then READY_FOR_REVIEW. No production/test edits, builds/tests, game/host/desktop interaction, dependencies, commits or central board edits. Root owns review and any live navigation qualification.
 
-## Active next task: GEM-PROTOTYPE-ACCEPTANCE-85
+## Completed task: GEM-PROTOTYPE-ACCEPTANCE-85 (Released)
 
 Owned output only: `docs/coordination/results/GEM-PROTOTYPE-ACCEPTANCE-85.md`. Root claim registered active Gemini. ACK then proceed without extra permission. Task83 is handed back, not accepted wholesale; do not edit prior reports during root review.
 
@@ -139,10 +139,23 @@ LIA-0061: bounded107 report revision/three-gap review active under existing owne
 
 GEM-MODAL-BOUNDARIES-115 active via LIA-0070. Exact report-only claim;107 received. No source/build/live rights.
 
-## GEM-CONNECTOR-125 — ready
-Read LIA-0074 in TO_GEMINI. Report-only adversarial native connector review; exact claim recorded. No builds or live access.
+## Completed task: GEM-CONNECTOR-125 (Released per LIA-0102)
 
-Coordinator update 2026-11-15: GEM-ENTRY-EVIDENCE-78 was accepted after GEM-0105 corrected LIA-0118; its claim is released. The prior task contract above is historical context, not an active assignment.
+Owned output: `docs/coordination/results/GEM-CONNECTOR-125.md`.
+Adversarial native connector geometry and dynamic route planning audit. Accepted and released per `LIA-0102`.
+
+## Completed task: GEM-DANCE-REPLAY-SCOPE-144 (Released per LIA-0105)
+
+Owned output: `docs/coordination/results/GEM-DANCE-REPLAY-SCOPE-144.md`.
+Static audit of offline replay scope, pairing diagnostics, and UI/CLI provenance surfaces following `DANCE-REPLAY-PAIRING-143.md`. Accepted and released per `LIA-0105`.
+
+## Completed task: GEM-REPLAY-DIAGNOSTICS-146 (Released per LIA-0108)
+
+Owned output: `docs/coordination/results/GEM-REPLAY-DIAGNOSTICS-146.md`.
+Static UI/CLI audit of implemented `RoutineReplay.RunDetailed` diagnostics. Accepted and released per `LIA-0108`.
+
+
+
 
 ## GEM-CLI-RUNBOOK-AUDIT-01 — completed
 
