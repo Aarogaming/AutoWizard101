@@ -3728,13 +3728,24 @@
     },
     {
       "task_id": "GEM-REPORT-HONESTY-AUDIT-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         "docs/coordination/results/GEM-HONESTY-AUDIT-01.md"
       ],
-      "notes": "Report-only audit of every Gemini-authored result document and the gemini/QUEUE.md backlog for headline-level overclaims, using the UNIVERSAL-BUS-CORRECTION-01 method: verify each report's title/executive summary and every quoted count, path, API name and test result against the committed source or an executed command. No edits to Gemini reports (their owners revise them via LIA), no source changes, no build/live/desktop authority. Output is a single audit report listing each false/stale/unverifiable claim with file, line and primary-source evidence."
+      "notes": "Report-only audit of every Gemini-authored result document and the gemini/QUEUE.md backlog for headline-level overclaims, using the UNIVERSAL-BUS-CORRECTION-01 method: verify each report's title/executive summary and every quoted count, path, API name and test result against the committed source or an executed command. No edits to Gemini reports (their owners revise them via LIA), no source changes, no build/live/desktop authority. Output is a single audit report listing each false/stale/unverifiable claim with file, line and primary-source evidence.",
+      "release_note": "Audit complete 2026-11-16: 17 Gemini result documents plus gemini/QUEUE.md checked claim-by-claim against the committed tree - 4 material overclaims, 13 minor discrepancies, 1 clean (GEM-REPLAY-DIAGNOSTICS-146), 1 coordination drift. Coordinator spot-verified SHA-256 digests, phantom API symbols, numeric limits and claim states directly. Report: docs/coordination/results/GEM-HONESTY-AUDIT-01.md. Corrections routed to report owners via LIA-0121 (GEM-HONESTY-AUDIT-LIA-01); the coordinator does not edit Gemini reports."
+    },
+    {
+      "task_id": "GEM-HONESTY-AUDIT-LIA-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/gemini/TO_GEMINI.md"
+      ],
+      "notes": "Coordinator-issued correction routing LIA-0121 after GEM-HONESTY-AUDIT-01. LIA entries are appended by root; the liaison replies in FROM_GEMINI.md and report owners revise their own reports. No Gemini source/test/build/live authority is granted or implied."
     }
   ]
 }
