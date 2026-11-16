@@ -3700,7 +3700,7 @@
     },
     {
       "task_id": "TEXT-ENCODING-REPAIR-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
@@ -3723,7 +3723,8 @@
         "docs/TOOLKIT_PHASE1_SPEC.md",
         "docs/coordination/results/W101-RAMP-127.md"
       ],
-      "notes": "Coordinator-owned repair of raw cp1252 bytes and mojibake in tracked text files, authorized by the owner 2026-11-16. Scope: 20 raw bytes (0x96 x6, 0x97 x14) across 10 files, 4 mojibake sequences, and 4 files carrying U+FFFD (including a user-facing CLI help string in JobDeckRoutines.cs) (C3+U+2014 x2 in ASSISTANT_CONTEXT.md; C2+U+00B7 x2 in W101-RESOURCES-50.md). Character-level repair only: no wording, count or meaning changes. W101TravelCard.cs is production source (user-facing message '1-8 pages'); verify the diff is character-only and the warnaserror build still passes. EXCLUDED from scope: ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/** (vendored upstream sources - read-only reference, never rewritten) and ProjectMaelstrom/tmp_master/** (tracked junk; separate cleanup task). Gate: tools/check_text_encoding.py plus a unittest so the standard tools/tests discovery fails on any new non-UTF-8 tracked text file. Path transfer: 5 paths received from W101-CHARACTER-27 (owner root) to avoid an overlapping active claim."
+      "notes": "Coordinator-owned repair of raw cp1252 bytes and mojibake in tracked text files, authorized by the owner 2026-11-16. Scope: 20 raw bytes (0x96 x6, 0x97 x14) across 10 files, 4 mojibake sequences, and 4 files carrying U+FFFD (including a user-facing CLI help string in JobDeckRoutines.cs) (C3+U+2014 x2 in ASSISTANT_CONTEXT.md; C2+U+00B7 x2 in W101-RESOURCES-50.md). Character-level repair only: no wording, count or meaning changes. W101TravelCard.cs is production source (user-facing message '1-8 pages'); verify the diff is character-only and the warnaserror build still passes. EXCLUDED from scope: ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/** (vendored upstream sources - read-only reference, never rewritten) and ProjectMaelstrom/tmp_master/** (tracked junk; separate cleanup task). Gate: tools/check_text_encoding.py plus a unittest so the standard tools/tests discovery fails on any new non-UTF-8 tracked text file. Path transfer: 5 paths received from W101-CHARACTER-27 (owner root) to avoid an overlapping active claim.",
+      "release_note": "Completed 2026-11-16: 16 files repaired (20 raw cp1252 bytes, 4 mojibake sequences, 4 U+FFFD), vendored Scripts/Library and tmp_master excluded and reported. Verified: full native suite 3048 passed / 0 failed with -warnaserror, 890 Python tests pass, encoding gate 0 violations, board valid after a documented path transfer from W101-CHARACTER-27. Gate tools/check_text_encoding.py plus its unittest now prevent reintroduction."
     },
     {
       "task_id": "GEM-REPORT-HONESTY-AUDIT-01",
