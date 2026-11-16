@@ -49,8 +49,10 @@ internal sealed class RecordedCardReviewForm : Form
             try
             {
                 if (File.Exists(output.FileName)) throw new IOException("Choose a new report filename.");
-                var complete = await Task.Run(() => RoutineReplay.Run(graph.FileName, session.FileName, output.FileName, card, definitions));
-                status.Text = $"Recording test {(complete ? "passed" : "did not pass")}. Requirements were checked before each action. See the saved report for details.";
+                var result = await Task.Run(() => RoutineReplay.RunDetailed(graph.FileName, session.FileName, output.FileName, card, definitions));
+                status.Text = $"Offline replay {(result.Completed ? "completed" : "stopped")}: {result.RoutineId} / {result.SessionId}. " +
+                    $"Reason: {result.Reason ?? "observed completion"}. {result.ProposalCount} proposals, {result.ReceiptCount} receipts. " +
+                    $"Graph {result.GraphSha256[..12]}, events {result.EventsSha256[..12]}. Live qualified: no. Report: {result.ReportPath}";
             }
             catch (Exception e) { status.Text = e.Message; }
             finally { review.Enabled = replay.Enabled = true; }

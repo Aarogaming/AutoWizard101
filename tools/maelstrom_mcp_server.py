@@ -408,6 +408,171 @@ class MaelstromMcpServer:
                 },
             },
             {
+                "name": "maelstrom_list_target_windows",
+                "description": "List candidate desktop windows from the existing native Maelstrom owner. Read-only discovery only; it does not connect to a game, change focus, capture frames, or send input. Requires the configured local owner.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "name": "maelstrom_connect_observation_target",
+                "description": "Bind the existing native owner to one exact window identity for read-only W101 observation. Requires explicit client-observation and UI-tree opt-ins. Quest actions, travel actions, and resource observation remain disabled. Does not start observation, change focus, or send input. A restarted/replaced window must be rediscovered and rebound.",
+                "inputSchema": {
+                    "type": "object",
+                    "required": [
+                        "handle",
+                        "process_id",
+                        "started_utc_ticks",
+                        "enable_client_observation",
+                        "enable_ui_tree",
+                    ],
+                    "properties": {
+                        "handle": {"type": "integer", "minimum": 1},
+                        "process_id": {"type": "integer", "minimum": 1},
+                        "started_utc_ticks": {"type": "integer", "minimum": 1},
+                        "enable_client_observation": {"type": "boolean"},
+                        "enable_ui_tree": {"type": "boolean"},
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "name": "maelstrom_observe_connected_target",
+                "description": "Queue one read-only UI-tree observation on the already connected exact target. Requires confirm_read_only_observation=true. The native observer may read current quest/dialogue context; resource observation remains off. A queued operation is not a completed reading. No focus change or game input.",
+                "inputSchema": {
+                    "type": "object",
+                    "required": ["confirm_read_only_observation"],
+                    "properties": {
+                        "confirm_read_only_observation": {"type": "boolean"},
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "name": "maelstrom_check_observation_progress",
+                "description": "Check whether one exact native observation request is still active. A missing/different active ID returns outcome_unknown; it never means success. This reads native owner state only and does not fetch uncorrelated facts, wait, cancel, or dispatch work.",
+                "inputSchema": {
+                    "type": "object",
+                    "required": ["operation_id"],
+                    "properties": {
+                        "operation_id": {
+                            "type": "string",
+                            "pattern": "^[0-9a-fA-F]{32}$",
+                        },
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "name": "maelstrom_disconnect_observation_target",
+                "description": "Disconnect the native observation target when the owner is idle. The native owner rejects this while work or cleanup is active. Does not stop an operation or send input.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "name": "maelstrom_read_circuit_snapshot",
+                "description": "Read the sub-millisecond Layer 1 Circuit Snapshot (64-bit WorldBits status word, lease state, focus, Bazaar open, gold, and visible rows) from the native perceptual engine. Pure sensory read; sends no game input.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "lease_active": {
+                            "type": "boolean",
+                            "description": "Optional simulation override for lease state",
+                        },
+                        "client_focused": {
+                            "type": "boolean",
+                            "description": "Optional simulation override for focus state",
+                        },
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "name": "maelstrom_propose_bazaar_action",
+                "description": "Evaluate BazaarSniper combinational logic against a CircuitSnapshot and policy. Returns a signed, bounded executive proposal (e.g. click anchor or select row) without performing input. Python acts purely as a declarative decision router.",
+                "inputSchema": {
+                    "type": "object",
+                    "required": ["snapshot", "target_item", "max_unit_price"],
+                    "properties": {
+                        "snapshot": {
+                            "type": "object",
+                            "description": "CircuitSnapshot from maelstrom_read_circuit_snapshot",
+                        },
+                        "target_item": {
+                            "type": "string",
+                            "description": "Target reagent or card name",
+                        },
+                        "max_unit_price": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Max acceptable unit price in gold",
+                        },
+                        "min_gold_reserve_floor": {
+                            "type": "integer",
+                            "default": 10000,
+                            "description": "Financial safety floor",
+                        },
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "name": "maelstrom_read_circuit_bus",
+                "description": "Read the Layer 1 64-bit WorldBits status word, active bit names, and numeric registers from the native perceptual engine. Pure sensory read; sends no game input.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "lease_active": {
+                            "type": "boolean",
+                            "description": "Optional simulation override for lease state",
+                        },
+                        "client_focused": {
+                            "type": "boolean",
+                            "description": "Optional simulation override for focus state",
+                        },
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            {
+                "name": "maelstrom_propose_anchor_actuation",
+                "description": "Validate and propose an atomic anchor actuation transaction (Layer 3) against the Layer 1 circuit bus and Layer 4 lease. Verifies anchors exist in ui_anchors.v1.json, verifies LeaseActive is held, and returns the bounded executive command intent.",
+                "inputSchema": {
+                    "type": "object",
+                    "required": ["anchor_id", "receipt_anchor_id"],
+                    "properties": {
+                        "anchor_id": {
+                            "type": "string",
+                            "description": "Target anchor in ui_anchors.v1.json",
+                        },
+                        "receipt_anchor_id": {
+                            "type": "string",
+                            "description": "Receipt verification anchor in ui_anchors.v1.json",
+                        },
+                        "expected_ocr": {
+                            "type": "string",
+                            "default": "",
+                            "description": "Expected OCR token in receipt anchor",
+                        },
+                        "timeout_ms": {
+                            "type": "integer",
+                            "default": 2000,
+                            "description": "Receipt timeout in milliseconds",
+                        },
+                        "bus_snapshot": {
+                            "type": "object",
+                            "description": "Optional CircuitSnapshot from maelstrom_read_circuit_bus",
+                        },
+                    },
+                    "additionalProperties": False,
+                },
+            },
+            {
                 "name": "compile_macro_demonstration",
                 "description": "Compile raw user inputs and telemetry snapshots into a robust, deterministic macro graph (waypoints, UI triggers, combat gates).",
                 "inputSchema": {
@@ -526,6 +691,158 @@ class MaelstromMcpServer:
                     "error": "Capability discovery takes no arguments.",
                 }
             return call_deck("capabilities", {})
+        elif name == "maelstrom_list_target_windows":
+            from maelstrom_deck_client import call_deck
+
+            if args:
+                return {
+                    "ok": False,
+                    "error": "Target-window discovery takes no arguments.",
+                }
+            return call_deck("windows", {})
+        elif name == "maelstrom_connect_observation_target":
+            from maelstrom_deck_client import call_deck
+
+            required = {
+                "handle",
+                "process_id",
+                "started_utc_ticks",
+                "enable_client_observation",
+                "enable_ui_tree",
+            }
+            if set(args) != required:
+                return {
+                    "ok": False,
+                    "error": "Provide exactly one window identity and both opt-ins.",
+                }
+            identity = (args["handle"], args["process_id"], args["started_utc_ticks"])
+            if any(
+                not isinstance(value, int) or isinstance(value, bool) or value <= 0
+                for value in identity
+            ):
+                return {
+                    "ok": False,
+                    "error": "Window handle, process ID and start ticks must be positive integers.",
+                }
+            if (
+                args["enable_client_observation"] is not True
+                or args["enable_ui_tree"] is not True
+            ):
+                return {
+                    "ok": False,
+                    "error": "Explicit client-observation and UI-tree opt-ins are required.",
+                }
+            return call_deck(
+                "connect",
+                {
+                    "handle": args["handle"],
+                    "processId": args["process_id"],
+                    "startedUtcTicks": args["started_utc_ticks"],
+                    "workspace": str(self.root_dir.resolve()),
+                    "enableClientObservation": True,
+                    "enableUiTree": True,
+                    "enableQuestActions": False,
+                    "enableTravelActions": False,
+                    "enableResourceObservation": False,
+                },
+            )
+        elif name == "maelstrom_observe_connected_target":
+            from maelstrom_deck_client import call_deck
+
+            if args != {"confirm_read_only_observation": True}:
+                return {
+                    "ok": False,
+                    "error": "Explicit read-only observation confirmation is required.",
+                }
+            return call_deck("observe", {})
+        elif name == "maelstrom_check_observation_progress":
+            from maelstrom_deck_client import call_deck
+
+            if set(args) != {"operation_id"}:
+                return {
+                    "ok": False,
+                    "error": "Provide exactly one native observation operation ID.",
+                }
+            operation_id = args["operation_id"]
+            if (
+                not isinstance(operation_id, str)
+                or len(operation_id) != 32
+                or any(
+                    character not in "0123456789abcdefABCDEF"
+                    for character in operation_id
+                )
+            ):
+                return {
+                    "ok": False,
+                    "error": "Operation ID must be 32 hexadecimal characters.",
+                }
+            reply = call_deck("state", {})
+            if not isinstance(reply, dict) or reply.get("ok") is not True:
+                return (
+                    reply
+                    if isinstance(reply, dict)
+                    else {
+                        "ok": False,
+                        "error": "Native owner state response is unavailable; outcome remains unknown.",
+                    }
+                )
+            result = reply.get("result")
+            active_id = (
+                result.get("observerOperation") if isinstance(result, dict) else None
+            )
+            if (
+                isinstance(active_id, str)
+                and active_id.casefold() == operation_id.casefold()
+            ):
+                return {
+                    "ok": True,
+                    "operation_id": operation_id,
+                    "status": "active",
+                    "outcome_known": False,
+                }
+            return {
+                "ok": True,
+                "operation_id": operation_id,
+                "status": "outcome_unknown",
+                "outcome_known": False,
+                "note": "The native owner does not retain a correlated terminal observation receipt. Do not infer completion from current facts or from this request no longer being active.",
+            }
+        elif name == "maelstrom_disconnect_observation_target":
+            from maelstrom_deck_client import call_deck
+
+            if args:
+                return {"ok": False, "error": "Disconnect takes no arguments."}
+            return call_deck("disconnect", {})
+        elif name == "maelstrom_read_circuit_snapshot":
+            from maelstrom_deck_client import call_deck
+
+            return call_deck("circuit-snapshot", args)
+        elif name == "maelstrom_read_circuit_bus":
+            from maelstrom_deck_client import call_deck
+
+            reply = call_deck("circuit-snapshot", args)
+            if not isinstance(reply, dict) or not reply.get("ok"):
+                return reply
+            snap = (
+                reply.get("snapshot") or reply.get("result", {}).get("snapshot") or {}
+            )
+            return {
+                "ok": True,
+                "world_bits_raw": snap.get(
+                    "world_bits_raw", snap.get("WorldBitsRaw", 0)
+                ),
+                "active_bit_names": snap.get(
+                    "active_bit_names", snap.get("ActiveBitNames", [])
+                ),
+                "registers": snap.get("registers", snap.get("Registers", {})),
+                "timestamp_utc_ticks": snap.get(
+                    "timestamp_utc_ticks", snap.get("TimestampUtcTicks", 0)
+                ),
+            }
+        elif name == "maelstrom_propose_bazaar_action":
+            return self._propose_bazaar_action(args)
+        elif name == "maelstrom_propose_anchor_actuation":
+            return self._propose_anchor_actuation(args)
         elif name in {
             "maelstrom_get_alias_register",
             "maelstrom_get_session_telemetry",
@@ -626,6 +943,194 @@ class MaelstromMcpServer:
 
         else:
             raise ValueError(f"Unknown tool: '{name}'")
+
+    @staticmethod
+    def _propose_bazaar_action(args: Dict[str, Any]) -> Dict[str, Any]:
+        """Declarative Layer 2 combinational evaluator for Bazaar sniping."""
+        snapshot = args.get("snapshot") or {}
+        target_item = (args.get("target_item") or "").strip().lower()
+        max_price = int(args.get("max_unit_price", 0))
+        gold_floor = int(args.get("min_gold_reserve_floor", 10000))
+
+        if not target_item or max_price <= 0:
+            return {
+                "ok": False,
+                "error": "target_item and positive max_unit_price are required.",
+            }
+
+        lease_active = bool(snapshot.get("lease_active", False))
+        client_focused = bool(snapshot.get("client_focused", False))
+        bazaar_open = bool(snapshot.get("bazaar_open", False))
+        confirm_modal = bool(snapshot.get("confirm_modal_open", False))
+        player_gold = int(snapshot.get("player_gold", 0))
+        rows = snapshot.get("rows") or []
+
+        # 1. Deadman switch: lease active?
+        if not lease_active:
+            return {
+                "ok": True,
+                "status": "HOLD_LEASE_INACTIVE",
+                "proposed_action": None,
+                "reason": "User input lease not held (deadman switch open). Human takeover priority preserved.",
+            }
+
+        # 2. Window focus
+        if not client_focused:
+            return {
+                "ok": True,
+                "status": "HOLD_CLIENT_UNFOCUSED",
+                "proposed_action": None,
+                "reason": "Target client window is not in the foreground.",
+            }
+
+        # 3. Gold reserve floor
+        if player_gold <= gold_floor:
+            return {
+                "ok": True,
+                "status": "ABORT_GOLD_FLOOR",
+                "proposed_action": None,
+                "reason": f"Current gold ({player_gold}) is at or below the safety reserve floor ({gold_floor}).",
+            }
+
+        # 4. Confirm purchase modal active?
+        if confirm_modal:
+            return {
+                "ok": True,
+                "status": "CONFIRM_PURCHASE",
+                "proposed_action": {
+                    "action_type": "click_anchor",
+                    "anchor_id": "bazaar_buy_confirm_dialog_button",
+                },
+                "reason": "Purchase confirmation dialog is active. Confirming transaction.",
+            }
+
+        # 5. Shop open?
+        if not bazaar_open:
+            return {
+                "ok": True,
+                "status": "VERIFY_SHOP_OPEN",
+                "proposed_action": {
+                    "action_type": "click_anchor",
+                    "anchor_id": "bazaar_refresh_button",
+                },
+                "reason": "Bazaar buy tab not verified. Proposing refresh click to synchronize.",
+            }
+
+        # 6. Evaluate visible rows
+        candidate = None
+        for row in rows:
+            name = (row.get("ItemName") or row.get("item_name") or "").strip().lower()
+            qty = int(row.get("Quantity") or row.get("quantity") or 0)
+            price = int(row.get("UnitPriceGold") or row.get("unit_price_gold") or 0)
+            conf = float(row.get("Confidence") or row.get("confidence") or 0.0)
+
+            if conf >= 0.88 and qty > 0 and name == target_item and price <= max_price:
+                candidate = row
+                break
+
+        if candidate:
+            row_idx = candidate.get("RowIndex") or candidate.get("row_index") or 0
+            row_bounds = candidate.get("RowBounds") or candidate.get("row_bounds")
+            return {
+                "ok": True,
+                "status": "SELECT_TARGET_ROW",
+                "proposed_action": {
+                    "action_type": "click_row",
+                    "row_index": row_idx,
+                    "row_bounds": row_bounds,
+                    "anchor_id": "bazaar_buy_more_button",
+                },
+                "reason": f"Found candidate listing matching {target_item} at {candidate.get('UnitPriceGold', price)} gold (<= {max_price}).",
+            }
+
+        # 7. No candidate found: refresh
+        return {
+            "ok": True,
+            "status": "REFRESH_LISTING",
+            "proposed_action": {
+                "action_type": "click_anchor",
+                "anchor_id": "bazaar_refresh_button",
+            },
+            "reason": f"No candidate row matching '{target_item}' <= {max_price} gold. Refreshing listing.",
+        }
+
+    def _propose_anchor_actuation(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate declarative anchors and propose Layer 3 atomic CLI execution."""
+        anchor_id = (args.get("anchor_id") or "").strip()
+        receipt_anchor_id = (args.get("receipt_anchor_id") or "").strip()
+        expected_ocr = str(args.get("expected_ocr", ""))
+        timeout_ms = int(args.get("timeout_ms", 2000))
+        bus = args.get("bus_snapshot") or {}
+
+        # 1. Load anchor definitions from manifest
+        anchors_path = (
+            self.root_dir
+            / "ProjectMaelstrom"
+            / "ProjectMaelstrom"
+            / "Resources"
+            / "ui_anchors.v1.json"
+        )
+        if not anchors_path.exists():
+            anchors_path = self.root_dir / "Resources" / "ui_anchors.v1.json"
+
+        anchors = {}
+        if anchors_path.exists():
+            try:
+                with open(anchors_path, "r", encoding="utf-8") as f:
+                    manifest = json.load(f)
+                    anchors = manifest.get("anchors", {})
+            except Exception as ex:
+                return {
+                    "ok": False,
+                    "error": f"Failed to load ui_anchors.v1.json: {ex}",
+                }
+
+        if anchor_id not in anchors:
+            return {
+                "ok": False,
+                "error": f"Unknown target anchor_id '{anchor_id}'. Must exist in ui_anchors.v1.json.",
+            }
+        if receipt_anchor_id not in anchors:
+            return {
+                "ok": False,
+                "error": f"Unknown receipt_anchor_id '{receipt_anchor_id}'. Must exist in ui_anchors.v1.json.",
+            }
+
+        # 2. Layer 4 deadman switch check
+        active_bits = bus.get("active_bit_names") or []
+        lease_active = bool(bus.get("lease_active", False)) or (
+            "LeaseActive" in active_bits
+        )
+        if not lease_active:
+            return {
+                "ok": True,
+                "status": "HOLD_LEASE_INACTIVE",
+                "action_permitted": False,
+                "reason": "User input lease not held (deadman switch open). Refusing actuation.",
+            }
+
+        target_spec = anchors[anchor_id]
+        receipt_spec = anchors[receipt_anchor_id]
+        ocr = expected_ocr or receipt_spec.get("expected_ocr", "")
+
+        return {
+            "ok": True,
+            "status": "READY_FOR_EXECUTION",
+            "action_permitted": True,
+            "executive_intent": {
+                "command": "actuate-anchor",
+                "anchor_id": anchor_id,
+                "anchor_bounds": target_spec.get("rect"),
+                "receipt_anchor_id": receipt_anchor_id,
+                "expected_ocr": ocr,
+                "timeout_ms": timeout_ms,
+            },
+            "cli_invocation": (
+                f"Maelstrom.exe --cli actuate-anchor --anchor {anchor_id} "
+                f'--receipt-anchor {receipt_anchor_id} --expected-ocr "{ocr}" '
+                f"--timeout-ms {timeout_ms} --output <new-receipt.json>"
+            ),
+        }
 
     def handle_request(self, request: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         req_id = request.get("id")

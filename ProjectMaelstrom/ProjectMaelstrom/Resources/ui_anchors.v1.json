@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "client_version": "2026.11",
+  "aspect_ratio": "16:9",
+  "anchors": {
+    "bazaar_refresh_button": {
+      "rect": [0.285, 0.210, 0.045, 0.038],
+      "expected_ocr": "",
+      "fallback_image_hash": "a91c4f08d2e1b89401f5e3b09c8a72d11408f9e2c3a4b5d6e7f8091a2b3c4d5e",
+      "description": "Refresh icon button in the top header of the Bazaar buy tab"
+    },
+    "bazaar_reagent_tab": {
+      "rect": [0.335, 0.210, 0.048, 0.038],
+      "expected_ocr": "",
+      "description": "Tab selector button for Reagents category"
+    },
+    "bazaar_item_table": {
+      "rect": [0.260, 0.275, 0.420, 0.440],
+      "row_count": 10,
+      "row_stride_y": 0.044,
+      "columns": {
+        "name": [0.00, 0.58],
+        "quantity": [0.59, 0.74],
+        "price": [0.75, 1.00]
+      },
+      "description": "Main scrollable item listings table"
+    },
+    "bazaar_buy_more_button": {
+      "rect": [0.415, 0.745, 0.110, 0.042],
+      "expected_ocr": "BUY MORE",
+      "description": "Action button to open quantity purchase modal for selected row"
+    },
+    "bazaar_buy_confirm_dialog_button": {
+      "rect": [0.440, 0.580, 0.095, 0.042],
+      "expected_ocr": "BUY",
+      "description": "Final confirmation button inside the modal dialog"
+    },
+    "bazaar_player_gold_label": {
+      "rect": [0.540, 0.750, 0.120, 0.035],
+      "expected_ocr": "",
+      "description": "Player gold display label in the bottom-right of the Bazaar window"
+    },
+    "native_idle_banner": {
+      "rect": [0.350, 0.450, 0.300, 0.100],
+      "expected_ocr": "YOU ARE IDLE",
+      "description": "Standard native idle overlay banner"
+    }
+  }
+}

@@ -50,6 +50,240 @@ class MaelstromMcpServerTests(unittest.TestCase):
             [t["name"] for t in self.server.get_tool_definitions()],
         )
 
+    def test_target_window_discovery_uses_native_owner_without_connecting(self):
+        result = {
+            "ok": True,
+            "windows": [
+                {
+                    "handle": 1234,
+                    "processId": 5678,
+                    "startedUtcTicks": 9012,
+                    "processName": "WizardGraphicalClient",
+                    "title": "Wizard101",
+                }
+            ],
+        }
+        with mock.patch(
+            "maelstrom_deck_client.call_deck", return_value=result
+        ) as bridge:
+            self.assertEqual(
+                result,
+                self.server.handle_tool_call("maelstrom_list_target_windows", {}),
+            )
+            bridge.assert_called_once_with("windows", {})
+
+        unavailable = {"ok": False, "error": "owner unavailable"}
+        with mock.patch(
+            "maelstrom_deck_client.call_deck", return_value=unavailable
+        ) as bridge:
+            self.assertEqual(
+                unavailable,
+                self.server.handle_tool_call("maelstrom_list_target_windows", {}),
+            )
+            bridge.assert_called_once_with("windows", {})
+
+        with mock.patch("maelstrom_deck_client.call_deck") as bridge:
+            reply = self.server.handle_tool_call(
+                "maelstrom_list_target_windows", {"connect": True}
+            )
+            self.assertFalse(reply["ok"])
+            bridge.assert_not_called()
+
+        definition = next(
+            tool
+            for tool in self.server.get_tool_definitions()
+            if tool["name"] == "maelstrom_list_target_windows"
+        )
+        self.assertTrue(definition["inputSchema"]["additionalProperties"] is False)
+        self.assertIn("does not connect", definition["description"])
+
+    def test_observation_session_requires_explicit_target_binding_and_opt_ins(self):
+        args = {
+            "handle": 1234,
+            "process_id": 5678,
+            "started_utc_ticks": 9012,
+            "enable_client_observation": True,
+            "enable_ui_tree": True,
+        }
+        expected = {
+            "handle": 1234,
+            "processId": 5678,
+            "startedUtcTicks": 9012,
+            "workspace": str(ROOT.resolve()),
+            "enableClientObservation": True,
+            "enableUiTree": True,
+            "enableQuestActions": False,
+            "enableTravelActions": False,
+            "enableResourceObservation": False,
+        }
+        result = {"ok": True, "status": "connected"}
+        with mock.patch(
+            "maelstrom_deck_client.call_deck", return_value=result
+        ) as bridge:
+            self.assertEqual(
+                result,
+                self.server.handle_tool_call(
+                    "maelstrom_connect_observation_target", args
+                ),
+            )
+            bridge.assert_called_once_with("connect", expected)
+
+        invalid_args = [
+            {key: value for key, value in args.items() if key != "handle"},
+            {**args, "enable_ui_tree": False},
+            {**args, "enable_client_observation": False},
+            {**args, "handle": True},
+            {**args, "process_id": 0},
+            {**args, "extra": "reject"},
+        ]
+        for invalid in invalid_args:
+            with self.subTest(invalid=invalid), mock.patch(
+                "maelstrom_deck_client.call_deck"
+            ) as bridge:
+                reply = self.server.handle_tool_call(
+                    "maelstrom_connect_observation_target", invalid
+                )
+                self.assertFalse(reply["ok"])
+                bridge.assert_not_called()
+
+    def test_observation_session_requires_confirmation_and_preserves_native_results(
+        self,
+    ):
+        for args in ({}, {"confirm_read_only_observation": False}, {"extra": True}):
+            with self.subTest(args=args), mock.patch(
+                "maelstrom_deck_client.call_deck"
+            ) as bridge:
+                reply = self.server.handle_tool_call(
+                    "maelstrom_observe_connected_target", args
+                )
+                self.assertFalse(reply["ok"])
+                bridge.assert_not_called()
+
+        queued = {"ok": True, "status": "Queued", "completed": False}
+        with mock.patch(
+            "maelstrom_deck_client.call_deck", return_value=queued
+        ) as bridge:
+            self.assertEqual(
+                queued,
+                self.server.handle_tool_call(
+                    "maelstrom_observe_connected_target",
+                    {"confirm_read_only_observation": True},
+                ),
+            )
+            bridge.assert_called_once_with("observe", {})
+
+    def test_observation_disconnect_is_explicit_and_does_not_stop_operations(self):
+        with mock.patch(
+            "maelstrom_deck_client.call_deck",
+            return_value={"ok": False, "error": "operation active"},
+        ) as bridge:
+            reply = self.server.handle_tool_call(
+                "maelstrom_disconnect_observation_target", {}
+            )
+            self.assertEqual(reply["error"], "operation active")
+            bridge.assert_called_once_with("disconnect", {})
+
+        with mock.patch("maelstrom_deck_client.call_deck") as bridge:
+            reply = self.server.handle_tool_call(
+                "maelstrom_disconnect_observation_target", {"force": True}
+            )
+            self.assertFalse(reply["ok"])
+            bridge.assert_not_called()
+
+    def test_observation_progress_only_reports_exact_active_id(self):
+        operation_id = "a" * 32
+        with mock.patch(
+            "maelstrom_deck_client.call_deck",
+            return_value={"ok": True, "result": {"observerOperation": operation_id}},
+        ) as bridge:
+            reply = self.server.handle_tool_call(
+                "maelstrom_check_observation_progress",
+                {"operation_id": operation_id},
+            )
+            self.assertEqual(reply["status"], "active")
+            self.assertFalse(reply["outcome_known"])
+            bridge.assert_called_once_with("state", {})
+
+        with mock.patch(
+            "maelstrom_deck_client.call_deck",
+            return_value={"ok": True, "result": {"observerOperation": operation_id}},
+        ):
+            reply = self.server.handle_tool_call(
+                "maelstrom_check_observation_progress",
+                {"operation_id": operation_id.upper()},
+            )
+            self.assertEqual(reply["status"], "active")
+
+        for native in (
+            {"ok": True, "result": {"observerOperation": None}},
+            {"ok": True, "result": {"observerOperation": "b" * 32}},
+            {"ok": True, "result": {}},
+        ):
+            with self.subTest(native=native), mock.patch(
+                "maelstrom_deck_client.call_deck", return_value=native
+            ) as bridge:
+                reply = self.server.handle_tool_call(
+                    "maelstrom_check_observation_progress",
+                    {"operation_id": operation_id},
+                )
+                self.assertEqual(reply["status"], "outcome_unknown")
+                self.assertFalse(reply["outcome_known"])
+                self.assertIn("does not retain", reply["note"])
+                bridge.assert_called_once_with("state", {})
+
+    def test_observation_progress_rejects_bad_ids_and_preserves_owner_errors(self):
+        for args in (
+            {},
+            {"operation_id": "not-an-id"},
+            {"operation_id": "g" * 32},
+            {"operation_id": "a" * 32, "extra": True},
+        ):
+            with self.subTest(args=args), mock.patch(
+                "maelstrom_deck_client.call_deck"
+            ) as bridge:
+                reply = self.server.handle_tool_call(
+                    "maelstrom_check_observation_progress", args
+                )
+                self.assertFalse(reply["ok"])
+                bridge.assert_not_called()
+
+        unavailable = {"ok": False, "error": "owner unavailable"}
+        with mock.patch(
+            "maelstrom_deck_client.call_deck", return_value=unavailable
+        ) as bridge:
+            self.assertEqual(
+                unavailable,
+                self.server.handle_tool_call(
+                    "maelstrom_check_observation_progress",
+                    {"operation_id": "a" * 32},
+                ),
+            )
+            bridge.assert_called_once_with("state", {})
+
+    def test_observation_tool_schemas_are_strict_and_descriptions_are_bounded(self):
+        definitions = {
+            tool["name"]: tool for tool in self.server.get_tool_definitions()
+        }
+        for name in (
+            "maelstrom_connect_observation_target",
+            "maelstrom_observe_connected_target",
+            "maelstrom_check_observation_progress",
+            "maelstrom_disconnect_observation_target",
+        ):
+            self.assertFalse(definitions[name]["inputSchema"]["additionalProperties"])
+        self.assertIn(
+            "exact window identity",
+            definitions["maelstrom_connect_observation_target"]["description"],
+        )
+        self.assertIn(
+            "not a completed reading",
+            definitions["maelstrom_observe_connected_target"]["description"],
+        )
+        self.assertIn(
+            "never means success",
+            definitions["maelstrom_check_observation_progress"]["description"],
+        )
+
     def test_combat_planner_does_not_default_missing_facts(self):
         response = self.server.handle_request(
             {
@@ -343,6 +577,189 @@ class MaelstromMcpServerTests(unittest.TestCase):
         self.assertEqual(payload["macro_graph"]["title"], "mcp-test-macro")
         self.assertGreaterEqual(payload["node_count"], 1)
         self.assertIn("summary", payload)
+
+    def test_read_circuit_snapshot_proxies_to_native_pipe(self):
+        snapshot_result = {
+            "ok": True,
+            "schemaVersion": 1,
+            "snapshot": {
+                "status_word": 3,
+                "lease_active": True,
+                "client_focused": True,
+                "player_gold": 50000,
+            },
+        }
+        with mock.patch(
+            "maelstrom_deck_client.call_deck", return_value=snapshot_result
+        ) as bridge:
+            res = self.server.handle_tool_call(
+                "maelstrom_read_circuit_snapshot", {"lease_active": True}
+            )
+            self.assertEqual(snapshot_result, res)
+            bridge.assert_called_once_with("circuit-snapshot", {"lease_active": True})
+
+    def test_propose_bazaar_action_respects_deadman_switch(self):
+        snapshot = {
+            "status_word": 0,
+            "lease_active": False,
+            "client_focused": True,
+            "bazaar_open": True,
+            "player_gold": 100000,
+        }
+        res = self.server.handle_tool_call(
+            "maelstrom_propose_bazaar_action",
+            {
+                "snapshot": snapshot,
+                "target_item": "Sunstone",
+                "max_unit_price": 3000,
+            },
+        )
+        self.assertTrue(res["ok"])
+        self.assertEqual("HOLD_LEASE_INACTIVE", res["status"])
+        self.assertIsNone(res["proposed_action"])
+
+    def test_propose_bazaar_action_gold_floor_aborts(self):
+        snapshot = {
+            "lease_active": True,
+            "client_focused": True,
+            "bazaar_open": True,
+            "player_gold": 5000,
+        }
+        res = self.server.handle_tool_call(
+            "maelstrom_propose_bazaar_action",
+            {
+                "snapshot": snapshot,
+                "target_item": "Sunstone",
+                "max_unit_price": 3000,
+                "min_gold_reserve_floor": 10000,
+            },
+        )
+        self.assertTrue(res["ok"])
+        self.assertEqual("ABORT_GOLD_FLOOR", res["status"])
+        self.assertIsNone(res["proposed_action"])
+
+    def test_propose_bazaar_action_selects_row_and_confirms(self):
+        snapshot = {
+            "lease_active": True,
+            "client_focused": True,
+            "bazaar_open": True,
+            "confirm_modal_open": False,
+            "player_gold": 50000,
+            "rows": [
+                {
+                    "row_index": 2,
+                    "item_name": "Sunstone",
+                    "quantity": 10,
+                    "unit_price_gold": 2400,
+                    "confidence": 0.95,
+                    "row_bounds": {"x": 0.26, "y": 0.36, "w": 0.42, "h": 0.044},
+                }
+            ],
+        }
+        res = self.server.handle_tool_call(
+            "maelstrom_propose_bazaar_action",
+            {
+                "snapshot": snapshot,
+                "target_item": "Sunstone",
+                "max_unit_price": 3000,
+            },
+        )
+        self.assertTrue(res["ok"])
+        self.assertEqual("SELECT_TARGET_ROW", res["status"])
+        self.assertEqual(2, res["proposed_action"]["row_index"])
+
+        # When modal is open, it confirms
+        snapshot["confirm_modal_open"] = True
+        res_modal = self.server.handle_tool_call(
+            "maelstrom_propose_bazaar_action",
+            {
+                "snapshot": snapshot,
+                "target_item": "Sunstone",
+                "max_unit_price": 3000,
+            },
+        )
+        self.assertEqual("CONFIRM_PURCHASE", res_modal["status"])
+        self.assertEqual(
+            "bazaar_buy_confirm_dialog_button",
+            res_modal["proposed_action"]["anchor_id"],
+        )
+
+    def test_read_circuit_bus_returns_raw_bits_and_registers(self):
+        snapshot_result = {
+            "ok": True,
+            "snapshot": {
+                "world_bits_raw": 17,
+                "active_bit_names": ["LeaseActive", "BazaarOpen"],
+                "registers": {"gold": 85000, "energy": 50},
+                "timestamp_utc_ticks": 638670000000000000,
+            },
+        }
+        with mock.patch(
+            "maelstrom_deck_client.call_deck", return_value=snapshot_result
+        ) as bridge:
+            res = self.server.handle_tool_call("maelstrom_read_circuit_bus", {})
+            self.assertTrue(res["ok"])
+            self.assertEqual(17, res["world_bits_raw"])
+            self.assertIn("LeaseActive", res["active_bit_names"])
+            self.assertEqual(85000, res["registers"]["gold"])
+            bridge.assert_called_once_with("circuit-snapshot", {})
+
+    def test_propose_anchor_actuation_verifies_anchors_and_lease(self):
+        # 1. Unknown target anchor rejects
+        bad_target = self.server.handle_tool_call(
+            "maelstrom_propose_anchor_actuation",
+            {
+                "anchor_id": "non_existent_button",
+                "receipt_anchor_id": "native_idle_banner",
+            },
+        )
+        self.assertFalse(bad_target["ok"])
+        self.assertIn("Unknown target anchor_id", bad_target["error"])
+
+        # 2. Unknown receipt anchor rejects
+        bad_receipt = self.server.handle_tool_call(
+            "maelstrom_propose_anchor_actuation",
+            {
+                "anchor_id": "bazaar_refresh_button",
+                "receipt_anchor_id": "non_existent_banner",
+            },
+        )
+        self.assertFalse(bad_receipt["ok"])
+        self.assertIn("Unknown receipt_anchor_id", bad_receipt["error"])
+
+        # 3. Deadman switch: Lease inactive -> HOLD_LEASE_INACTIVE
+        held = self.server.handle_tool_call(
+            "maelstrom_propose_anchor_actuation",
+            {
+                "anchor_id": "bazaar_buy_confirm_dialog_button",
+                "receipt_anchor_id": "bazaar_item_table",
+                "bus_snapshot": {
+                    "lease_active": False,
+                    "active_bit_names": [],
+                },
+            },
+        )
+        self.assertTrue(held["ok"])
+        self.assertEqual("HOLD_LEASE_INACTIVE", held["status"])
+        self.assertFalse(held["action_permitted"])
+
+        # 4. Valid anchors + Lease active -> READY_FOR_EXECUTION
+        ready = self.server.handle_tool_call(
+            "maelstrom_propose_anchor_actuation",
+            {
+                "anchor_id": "bazaar_buy_confirm_dialog_button",
+                "receipt_anchor_id": "bazaar_player_gold_label",
+                "bus_snapshot": {
+                    "lease_active": True,
+                    "active_bit_names": ["LeaseActive"],
+                },
+            },
+        )
+        self.assertTrue(ready["ok"])
+        self.assertEqual("READY_FOR_EXECUTION", ready["status"])
+        self.assertTrue(ready["action_permitted"])
+        self.assertEqual("actuate-anchor", ready["executive_intent"]["command"])
+        self.assertIn("actuate-anchor", ready["cli_invocation"])
 
 
 if __name__ == "__main__":
