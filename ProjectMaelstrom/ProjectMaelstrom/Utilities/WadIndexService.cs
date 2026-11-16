@@ -65,7 +65,7 @@ internal static class WadIndexService
     }
 
     /// <summary>
-    /// Best-effort asset listing using bundled wizwad/wizard101-wad-reader Python scripts if available.
+    /// In-process WAD asset manifest generator using native WadArchiveReader.
     /// Writes per-wad asset manifests to logs/wads/assets_{wad}.json.
     /// </summary>
     public static void BuildAssetManifests()

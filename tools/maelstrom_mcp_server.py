@@ -476,7 +476,7 @@ class MaelstromMcpServer:
             },
             {
                 "name": "maelstrom_read_circuit_snapshot",
-                "description": "Read the sub-millisecond Layer 1 Circuit Snapshot (64-bit WorldBits status word, lease state, focus, Bazaar open, gold, and visible rows) from the native perceptual engine. Pure sensory read; sends no game input.",
+                "description": "[SCAFFOLD - UNWIRED] Read the sub-millisecond Layer 1 Circuit Snapshot (64-bit WorldBits status word, lease state, focus, Bazaar open, gold, and visible rows). Returns ok:false because native JobDeckHost does not implement 'circuit-snapshot' command switch handler.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -494,7 +494,7 @@ class MaelstromMcpServer:
             },
             {
                 "name": "maelstrom_propose_bazaar_action",
-                "description": "Evaluate BazaarSniper combinational logic against a CircuitSnapshot and policy. Returns a signed, bounded executive proposal (e.g. click anchor or select row) without performing input. Python acts purely as a declarative decision router.",
+                "description": "Pure declarative offline evaluator: evaluates BazaarSniper combinational logic against a supplied CircuitSnapshot dictionary and policy. Returns a signed, bounded executive proposal (e.g. click anchor or select row) without performing input. Python acts purely as a declarative decision router.",
                 "inputSchema": {
                     "type": "object",
                     "required": ["snapshot", "target_item", "max_unit_price"],
@@ -523,7 +523,7 @@ class MaelstromMcpServer:
             },
             {
                 "name": "maelstrom_read_circuit_bus",
-                "description": "Read the Layer 1 64-bit WorldBits status word, active bit names, and numeric registers from the native perceptual engine. Pure sensory read; sends no game input.",
+                "description": "[SCAFFOLD - UNWIRED] Read the Layer 1 64-bit WorldBits status word, active bit names, and numeric registers. Returns ok:false because native JobDeckHost does not implement 'circuit-snapshot' command switch handler.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -541,7 +541,7 @@ class MaelstromMcpServer:
             },
             {
                 "name": "maelstrom_propose_anchor_actuation",
-                "description": "Validate and propose an atomic anchor actuation transaction (Layer 3) against the Layer 1 circuit bus and Layer 4 lease. Verifies anchors exist in ui_anchors.v1.json, verifies LeaseActive is held, and returns the bounded executive command intent.",
+                "description": "Pure declarative offline validator: validates and proposes an atomic anchor actuation transaction (Layer 3) against the supplied Layer 1 circuit bus dictionary and Layer 4 lease. Verifies anchors exist in ui_anchors.v1.json, verifies LeaseActive is held, and returns the bounded executive command intent.",
                 "inputSchema": {
                     "type": "object",
                     "required": ["anchor_id", "receipt_anchor_id"],
@@ -813,31 +813,10 @@ class MaelstromMcpServer:
             if args:
                 return {"ok": False, "error": "Disconnect takes no arguments."}
             return call_deck("disconnect", {})
-        elif name == "maelstrom_read_circuit_snapshot":
-            from maelstrom_deck_client import call_deck
-
-            return call_deck("circuit-snapshot", args)
-        elif name == "maelstrom_read_circuit_bus":
-            from maelstrom_deck_client import call_deck
-
-            reply = call_deck("circuit-snapshot", args)
-            if not isinstance(reply, dict) or not reply.get("ok"):
-                return reply
-            snap = (
-                reply.get("snapshot") or reply.get("result", {}).get("snapshot") or {}
-            )
+        elif name in {"maelstrom_read_circuit_snapshot", "maelstrom_read_circuit_bus"}:
             return {
-                "ok": True,
-                "world_bits_raw": snap.get(
-                    "world_bits_raw", snap.get("WorldBitsRaw", 0)
-                ),
-                "active_bit_names": snap.get(
-                    "active_bit_names", snap.get("ActiveBitNames", [])
-                ),
-                "registers": snap.get("registers", snap.get("Registers", {})),
-                "timestamp_utc_ticks": snap.get(
-                    "timestamp_utc_ticks", snap.get("TimestampUtcTicks", 0)
-                ),
+                "ok": False,
+                "error": "unwired_circuit_scaffold: native JobDeckHost does not implement 'circuit-snapshot' command switch handler",
             }
         elif name == "maelstrom_propose_bazaar_action":
             return self._propose_bazaar_action(args)

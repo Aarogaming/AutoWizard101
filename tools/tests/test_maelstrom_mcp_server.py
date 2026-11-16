@@ -578,25 +578,12 @@ class MaelstromMcpServerTests(unittest.TestCase):
         self.assertGreaterEqual(payload["node_count"], 1)
         self.assertIn("summary", payload)
 
-    def test_read_circuit_snapshot_proxies_to_native_pipe(self):
-        snapshot_result = {
-            "ok": True,
-            "schemaVersion": 1,
-            "snapshot": {
-                "status_word": 3,
-                "lease_active": True,
-                "client_focused": True,
-                "player_gold": 50000,
-            },
-        }
-        with mock.patch(
-            "maelstrom_deck_client.call_deck", return_value=snapshot_result
-        ) as bridge:
-            res = self.server.handle_tool_call(
-                "maelstrom_read_circuit_snapshot", {"lease_active": True}
-            )
-            self.assertEqual(snapshot_result, res)
-            bridge.assert_called_once_with("circuit-snapshot", {"lease_active": True})
+    def test_read_circuit_snapshot_returns_unwired_scaffold_error(self):
+        res = self.server.handle_tool_call(
+            "maelstrom_read_circuit_snapshot", {"lease_active": True}
+        )
+        self.assertFalse(res["ok"])
+        self.assertIn("unwired_circuit_scaffold", res["error"])
 
     def test_propose_bazaar_action_respects_deadman_switch(self):
         snapshot = {
@@ -684,25 +671,10 @@ class MaelstromMcpServerTests(unittest.TestCase):
             res_modal["proposed_action"]["anchor_id"],
         )
 
-    def test_read_circuit_bus_returns_raw_bits_and_registers(self):
-        snapshot_result = {
-            "ok": True,
-            "snapshot": {
-                "world_bits_raw": 17,
-                "active_bit_names": ["LeaseActive", "BazaarOpen"],
-                "registers": {"gold": 85000, "energy": 50},
-                "timestamp_utc_ticks": 638670000000000000,
-            },
-        }
-        with mock.patch(
-            "maelstrom_deck_client.call_deck", return_value=snapshot_result
-        ) as bridge:
-            res = self.server.handle_tool_call("maelstrom_read_circuit_bus", {})
-            self.assertTrue(res["ok"])
-            self.assertEqual(17, res["world_bits_raw"])
-            self.assertIn("LeaseActive", res["active_bit_names"])
-            self.assertEqual(85000, res["registers"]["gold"])
-            bridge.assert_called_once_with("circuit-snapshot", {})
+    def test_read_circuit_bus_returns_unwired_scaffold_error(self):
+        res = self.server.handle_tool_call("maelstrom_read_circuit_bus", {})
+        self.assertFalse(res["ok"])
+        self.assertIn("unwired_circuit_scaffold", res["error"])
 
     def test_propose_anchor_actuation_verifies_anchors_and_lease(self):
         # 1. Unknown target anchor rejects
