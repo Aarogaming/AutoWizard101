@@ -398,7 +398,7 @@
       "task_id": "W101-COMBAT-OBS-02",
       "workstream_id": "W101-COMBAT",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "tools/w101_combat_snapshot.py",
         "tools/tests/test_w101_combat_snapshot.py",
@@ -1858,53 +1858,34 @@
       "owner": "root",
       "state": "active",
       "owned_paths": [
-        "tools/w101_ui_tree.py",
-        "tools/tests/test_w101_ui_tree.py",
-        "tools/fixtures/w101_ui_tree_review.json",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterSwitch.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CharacterSwitchTests.cs",
         "docs/HEADLESS_CLI.md",
         "docs/coordination/results/W101-CHARACTER-27.md",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationInput.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationProbe.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationInputTests.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycleOperation.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationTransition.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationTransitionTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationPrompt.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationPromptTests.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleInput.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/DesktopActivityMonitor.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/AppPreferences.cs",
         "ProjectMaelstrom/ProjectMaelstrom/ResearchSettingsForm.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/AppPreferencesTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ControlScopeTests.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101WorldGateVisit.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101WorldGateVisitTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLifecycle.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuInput.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101TravelCard.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101TravelCardTests.cs",
         "docs/coordination/results/W101-TRAVEL-30.md",
-        "ProjectMaelstrom/ProjectMaelstrom/JobDeckForm.cs",
         "docs/coordination/results/W101-COOLDOWN-33.md",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ActionStartNotice.cs",
         "docs/coordination/results/W101-CONTROL-34.md",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
         "docs/coordination/results/W101-CONTROL-35.md",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RoutineControl.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RoutineControlTests.cs"
       ],
-      "notes": "W101-TRAVEL-30 slice complete: reusable configured Travel card in deck/API/CLI; one Zafaria/Home/Idle run verified with countdown. 2478 native/64 reader tests and scoped checks pass. Live paging/cooldown waits remain qualification limits. No active processes or installation; original character-switch orchestration remains pending."
+      "notes": "W101-TRAVEL-30 slice complete: reusable configured Travel card in deck/API/CLI; one Zafaria/Home/Idle run verified with countdown. 2478 native/64 reader tests and scoped checks pass. Live paging/cooldown waits remain qualification limits. No active processes or installation; original character-switch orchestration remains pending. Root transferred overlapping current integration paths to tasks80/82 on 2026-11-14; other reservations preserved."
     },
     {
       "task_id": "RUST-PORT-AUDIT-30",
@@ -2700,11 +2681,11 @@
       "task_id": "GEM-ENTRY-EVIDENCE-78",
       "workstream_id": "W101-DANCE",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-ENTRY-EVIDENCE-78.md"
       ],
-      "notes": "Bounded read-only entry producer and fixture inventory; no builds or live."
+      "notes": "Accepted corrected report handback GEM-0105 under LIA-0119. Result-screen producer remains explicitly unbound; victory/score remain unverified. Report-only; no builds or live."
     },
     {
       "task_id": "DANCE-FOCUS-79",
@@ -2716,6 +2697,926 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/GeminiDanceVisitContractTests.cs"
       ],
       "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+    },
+    {
+      "task_id": "DANCE-ENTRY-80",
+      "workstream_id": "W101-DANCE",
+      "owner": "bridge_repair",
+      "state": "active",
+      "owned_paths": [
+        "tools/w101_ui_tree.py",
+        "tools/tests/test_w101_ui_tree.py"
+      ],
+      "notes": "Bounded task; root owns build/live slot. No new dependencies."
+    },
+    {
+      "task_id": "CARD-PROTOTYPE-81",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/CardPrototypeForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/CardPrototype.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/CardPrototypeTests.cs",
+        "docs/CARD_PROTOTYPING.md",
+        "docs/coordination/results/CARD-WORKSHOP-FIT-81.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Root continues offline workshop integration. Added active-display working-area sizing and a pure geometry regression case after offscreen render identified 720p overflow. Focused build/test and updated render stalled before results; remain active and do not claim verified sizing."
+    },
+    {
+      "task_id": "DANCE-CAPTURE-82",
+      "workstream_id": "W101-DANCE",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDancePrimedCapture.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDancePrimedCaptureTests.cs",
+        "docs/coordination/CODEX_WORK.md",
+        "docs/coordination/results/DANCE-INTEGRATION-82.md",
+        "ProjectMaelstrom/ProjectMaelstrom/JobDeckForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTree.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101DanceEntryContext.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101DanceEntryContextTests.cs",
+        "tools/fixtures/w101_ui_tree_review.json",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101HeadingCliTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceSpecialistContractTests.cs"
+      ],
+      "notes": "Bounded task; root owns build/live slot. No new dependencies."
+    },
+    {
+      "task_id": "GEM-ROUTE-PROVENANCE-83",
+      "workstream_id": "W101-DANCE",
+      "owner": "gemini",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/GEM-ROUTE-PROVENANCE-83.md"
+      ],
+      "notes": "Accepted bounded artifact-provenance review from GEM-0031. Historical route artifacts only; no route/clearance qualification. No source/build/live."
+    },
+    {
+      "task_id": "NAV-HEADING-84",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "bridge_repair",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/HeadingFeedback.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/HeadingFeedbackTests.cs"
+      ],
+      "notes": "Bounded heading feedback reuse owner/probe/pose, no builds or live."
+    },
+    {
+      "task_id": "GEM-PROTOTYPE-ACCEPTANCE-85",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-PROTOTYPE-ACCEPTANCE-85.md"
+      ],
+      "notes": "Static userjourney/review exact new nativeprototype files; no source/build/live."
+    },
+    {
+      "task_id": "GEM-EXPLORATION-CONTRACT-86",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-EXPLORATION-CONTRACT-86.md"
+      ],
+      "notes": "Static reuse audit of exploration evidence/route contracts only; no builds/live/source edits."
+    },
+    {
+      "task_id": "GEM-IDLE-RECOGNITION-87",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-IDLE-RECOGNITION-87.md"
+      ],
+      "notes": "Static Idle recognition gap audit; no source/build/live."
+    },
+    {
+      "task_id": "IDLE-RECOVERY-88",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RoutineIdle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RoutineIdleTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDancePostGame.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuOcr.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDancePostGameTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ActionStartNotice.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101HeadingVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FeedbackVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleFailsafe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycleOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationSchedulerTests.cs"
+      ],
+      "notes": "Retry verified clean observation interruptions; preserve user cancel and uncertain cleanup. Offline first."
+    },
+    {
+      "task_id": "W101-MENU-MAP-89",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "docs/W101_MENU_MAP.md"
+      ],
+      "notes": "Shared menu atlas contract and staged inventory, no independent input controller."
+    },
+    {
+      "task_id": "GEM-MENU-INVENTORY-90",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-MENU-INVENTORY-90.md"
+      ],
+      "notes": "Offline menu evidence inventory only."
+    },
+    {
+      "task_id": "FOCUS-BUDGET-91",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "focus_lifecycle_audit",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationFocusBudget.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationFocusBudgetTests.cs"
+      ],
+      "notes": "Five-minute cumulative focus allowance separate from active nested deadlines; no build/live."
+    },
+    {
+      "task_id": "TEACHER-PROTOTYPE-92",
+      "workstream_id": "CORE-DELIVERY",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeacherActionReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
+        "docs/coordination/results/TEACHER-PROTOTYPE-92.md"
+      ],
+      "notes": "Connect verified teacher export to undealt native replay prototype; offline only."
+    },
+    {
+      "task_id": "GEM-FOCUS-CHECKPOINTS-93",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-FOCUS-CHECKPOINTS-93.md"
+      ],
+      "notes": "Static remaining pause/checkpoint audit, no source/build/live."
+    },
+    {
+      "task_id": "GATE-FOCUS-FINALIZER-94",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101WorldGateVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101WorldGateVisitTests.cs"
+      ],
+      "notes": "Connect World Gate cleanup to shared released-input focus wait; offline only."
+    },
+    {
+      "task_id": "GEM-DANCE-RESYNC-95",
+      "workstream_id": "W101-DANCE",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-DANCE-RESYNC-95.md"
+      ],
+      "notes": "Offline exact-symbol audit of fresh Dance phase acquisition after focus loss; report only."
+    },
+    {
+      "task_id": "DANCE-SEQUENCE-INTERRUPT-96",
+      "workstream_id": "W101-DANCE",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceVisualSequence.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceSoundSequence.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceSequenceInterruptionTests.cs"
+      ],
+      "notes": "Explicit preview invalidation and fresh boundary requirement; offline prerequisite for runtime resumption."
+    },
+    {
+      "task_id": "GEM-DANCE-ENTRY-WIRING-97",
+      "workstream_id": "W101-DANCE",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-DANCE-ENTRY-WIRING-97.md"
+      ],
+      "notes": "Exact production entry wiring proposal against current contracts; no source/build/live."
+    },
+    {
+      "task_id": "GEM-MINIGAME-READINESS-98",
+      "workstream_id": "W101-DANCE",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-MINIGAME-READINESS-98.md"
+      ],
+      "notes": "Next-game runnable binding audit, offline report only while root qualifies Dance."
+    },
+    {
+      "task_id": "DANCE-PRIMED-HANDOFF-99",
+      "workstream_id": "W101-DANCE",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceScheduledVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceScheduledVisitTests.cs"
+      ],
+      "notes": "Agent handback integrated; root owns follow-up primed handoff evidence regression coverage. Offline only."
+    },
+    {
+      "task_id": "W101-COMMONS-PORT-100",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationProbe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs"
+      ],
+      "notes": "Bounded End/Commons port via existing Home transition and Idle path; qualify arrival independently."
+    },
+    {
+      "task_id": "GEM-CONJ-BOUNDARIES-101",
+      "workstream_id": "W101-CONJURATION",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "tools/tests/test_conjuration_boundary_contract.py",
+        "docs/coordination/results/GEM-CONJ-BOUNDARIES-101.md"
+      ],
+      "notes": "New disjoint pure offline regression tests against existing memory engine only; no execution/build/live."
+    },
+    {
+      "task_id": "GEM-CONJ-REPLAY-GAPS-102",
+      "workstream_id": "W101-CONJURATION",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-CONJ-REPLAY-GAPS-102.md"
+      ],
+      "notes": "Bounded actual perception-to-memory integration audit; no source/build/live."
+    },
+    {
+      "task_id": "W101-NAV-AUDIT-103",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "released",
+      "owned_paths": [
+        "docs/coordination/results/W101-NAV-AUDIT-103.md"
+      ],
+      "notes": "Audit delivered; docs only. Installed graphs structurally inspected read-only. Navigation implementation remains pending."
+    },
+    {
+      "task_id": "W101-NAV-MAP-104",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/NavigationMap.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationMapTests.cs"
+      ],
+      "notes": "Pure bounded zone.nav parser and graph planner; no builds/live."
+    },
+    {
+      "task_id": "W101-MOVING-POSE-105",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "tools/w101_moving_pose.py",
+        "tools/tests/test_w101_moving_pose.py"
+      ],
+      "notes": "Separate opt-in moving-pose candidate decoder; stationary reader unchanged. No live/build."
+    },
+    {
+      "task_id": "W101-NAV-FOLLOWER-106",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PathFollower.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/PathFollowerTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/NavigationAtlas.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationAtlasTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationArchive.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationArchiveTests.cs",
+        "docs/DESTINATION_NAVIGATION.md"
+      ],
+      "notes": "Internal agent handbacks integrated; root owns all listed files again. Offline parser/atlas/follower checks passed; live qualification remains pending."
+    },
+    {
+      "task_id": "GEM-MAP-METADATA-107",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-MAP-METADATA-107.md"
+      ],
+      "notes": "Static map/zone/entity API evidence audit, no game or build."
+    },
+    {
+      "task_id": "W101-NAV-SESSION-108",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101PathSession.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101PathSessionTests.cs"
+      ],
+      "notes": "Root integration of existing owned UI observer with optional pose qualification window; preserve all earlier edits and source pins."
+    },
+    {
+      "task_id": "W101-ZONE-CANDIDATE-109",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "tools/w101_zone_reader.py",
+        "tools/tests/test_w101_zone_reader.py"
+      ],
+      "notes": "Pure bounded source-layout zone decoder, no process/hooks/build/live."
+    },
+    {
+      "task_id": "W101-MOVING-PROBE-110",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101MovingProbe.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101MovingProbeTests.cs"
+      ],
+      "notes": "Bounded same-owner observation-ready handshake and existing motion dispatch. Root build/live only."
+    },
+    {
+      "task_id": "W101-NAV-ARRIVAL-111",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/NavigationArrival.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationArrivalTests.cs"
+      ],
+      "notes": "Pure typed post-release arrival verifier; no build/live. Root integrates session."
+    },
+    {
+      "task_id": "W101-NAV-STREAM-112",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/tasks/ARGON-NAV-REVIEW-112.md",
+        "docs/coordination/results/W101-NAV-STREAM-112.md"
+      ],
+      "notes": "Argon offline review brief; existing root source claims retained for UI/CLI integration."
+    },
+    {
+      "task_id": "W101-NAV-ARRIVAL-TEST-113",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101PathArrivalIntegrationTests.cs"
+      ],
+      "notes": "Offline regressions for typed session handoff and cancelled cleanup. Root owns builds."
+    },
+    {
+      "task_id": "W101-NAV-STREAM-TEST-114",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "tools/tests/test_w101_pose_stream_owner.py"
+      ],
+      "notes": "Offline fake-scope UiClient.pose stream lifecycle regressions; no live. Root owns test slot."
+    },
+    {
+      "task_id": "GEM-MODAL-BOUNDARIES-115",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "gemini",
+      "state": "active",
+      "owned_paths": [
+        "docs/coordination/results/GEM-MODAL-BOUNDARIES-115.md"
+      ],
+      "notes": "Read-only source audit of modal/navigation interruption reuse. No code/build/live."
+    },
+    {
+      "task_id": "W101-ARCHIVE-METADATA-116",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        ".local/introspection/wad-member-inventory.json",
+        ".local/introspection/archive_inventory.py"
+      ],
+      "notes": "Bounded read-only two-zone WAD index and metadata inspection; no live or build."
+    },
+    {
+      "task_id": "W101-COLLISION-117",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        ".local/introspection/bcd-alignment-and-corridor-report.json",
+        ".local/introspection/collision_inspect.py"
+      ],
+      "notes": "Bounded read-only imported decoder study/two zone payloads. No live/build."
+    },
+    {
+      "task_id": "W101-PATH-INPUT-118",
+      "workstream_id": "W101-NAVIGATION",
+      "owner": "root",
+      "state": "active",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101PathInput.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101PathInputTests.cs"
+      ],
+      "notes": "Existing-owner path intent to existing navigation dispatch adapter. Offlineimplementation; rootbuild/live."
+    },
+    {
+      "task_id": "W101-ARCHIVE-DIRECTORY-120",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        ".local/introspection/wad-directory-candidates-120.json"
+      ],
+      "notes": "Bounded read-only directory search; no payload extraction or live client access."
+    },
+    {
+      "task_id": "W101-ZONEMAP-121",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        ".local/introspection/decode_zonemap.py",
+        ".local/introspection/master-zone-map-121.json"
+      ],
+      "notes": "Decoded exact EOF: 3517 nodes/names,10742 directed edges; Commons3270/Pavilion3327 reciprocal edges; candidate only. Five synthetic parser checks passed. No live or production change."
+    },
+    {
+      "task_id": "W101-ZONE-ROUTING-122",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "tools/w101_zone_route.py",
+        "tools/tests/test_w101_zone_route.py",
+        ".local/introspection/commons-pavilion-route-122.json"
+      ],
+      "notes": "Offline name-to-zone planner using extracted graph and existing local binding evidence; no input or production execution authority."
+    },
+    {
+      "task_id": "W101-CONNECTOR-123",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "tools/w101_connector.py",
+        "tools/tests/test_w101_connector.py",
+        "docs/coordination/results/W101-CONNECTOR-123.md"
+      ],
+      "notes": "Pure offline dynamic selection; route122 remains root owned. Unknown geometry blocks qualification."
+    },
+    {
+      "task_id": "W101-NATIVE-CONNECTOR-124",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/NavigationConnectorGeometry.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationConnectorGeometryTests.cs"
+      ],
+      "notes": "Offline conservative box/floor geometry and native atlas selector; existing Atlas root ownership retained."
+    },
+    {
+      "task_id": "GEM-CONNECTOR-125",
+      "state": "released",
+      "owner": "gemini",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/GEM-CONNECTOR-125.md"
+      ],
+      "notes": "LIA-0102 accepted revised v13 as bounded static review only; route/clearance still unqualified."
+    },
+    {
+      "task_id": "W101-SETTLED-126",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/NavigationSettledPose.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationSettledPoseTests.cs",
+        ".local/introspection/bcd-evidence-126.json"
+      ],
+      "notes": "Offline settled-position fence and world triangle export; no live control."
+    },
+    {
+      "task_id": "W101-RAMP-127",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "tools/w101_bcd_evidence.py",
+        "tools/tests/test_w101_bcd_evidence.py",
+        "docs/coordination/results/W101-RAMP-127.md",
+        ".local/introspection/bcd-classification-127.json"
+      ],
+      "notes": "Offline ramp/primitive evidence conversion and existing root-owned native geometry/read bindings. Grizzleheim secondary; no live actions."
+    },
+    {
+      "task_id": "W101-SEAMS-128",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-SEAMS-128.md",
+        ".local/introspection/bcd-classification-128.json"
+      ],
+      "notes": "Continue root-owned geometry/converter tests; exact convex seam support and conservative primitive bounds. Offline."
+    },
+    {
+      "task_id": "W101-FLOOR-SHEET-129",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/NavigationFloorSheet.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationFloorSheetTests.cs",
+        "docs/coordination/results/W101-FLOOR-SHEET-129.md"
+      ],
+      "notes": "Offline connected manifold floor trace; root-owned geometry/atlas tests reused; no live."
+    },
+    {
+      "task_id": "W101-OLDETOWN-130",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-OLDETOWN-130.md",
+        ".local/oldetown-observe-130.json"
+      ],
+      "notes": "24 offline reader checks passed; authorized two-second observation only no input/focus. Collision-role source audit."
+    },
+    {
+      "task_id": "W101-STREAM-BIND-131",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-STREAM-BIND-131.md"
+      ],
+      "notes": "Root existing-owned reader/native files: producer stream identity/sequence and native decoder; offline only."
+    },
+    {
+      "task_id": "W101-STREAM-CONSUMER-132",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101PoseStreamConsumer.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101PoseStreamConsumerTests.cs",
+        "docs/coordination/results/W101-STREAM-CONSUMER-132.md"
+      ],
+      "notes": "Pure native bound stream state and lifecycle invalidation; offline first."
+    },
+    {
+      "task_id": "W101-TRACE-TRANSPORT-133",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101TraceTail.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101TraceTailTests.cs",
+        "docs/coordination/results/W101-TRACE-TRANSPORT-133.md"
+      ],
+      "notes": "Bounded incremental trace transport, offline first; shared worker remains root-owned."
+    },
+    {
+      "task_id": "W101-STREAM-INTEGRATION-134",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101PoseStreamObservation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101PoseStreamObservationTests.cs",
+        "docs/coordination/results/W101-STREAM-INTEGRATION-134.md"
+      ],
+      "notes": "Production observation-only stream attachment, host-pinned stream identity, offline faults then bounded live observation; existing root reader/worker paths reused."
+    },
+    {
+      "task_id": "W101-POSE-OWNER-135",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "tools/w101_identity.py",
+        "tools/tests/test_w101_identity.py",
+        "docs/coordination/results/W101-POSE-OWNER-135.md"
+      ],
+      "notes": "Guarded registry equality for pose parent; root-owned UI reader integration and offline tests before live observation."
+    },
+    {
+      "task_id": "W101-CONTINUOUS-OWNER-136",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-CONTINUOUS-OWNER-136.md"
+      ],
+      "notes": "Continue existing root-owned stream and tests: owner fence each sample, native subject latch, offline first, authorized Commons transition."
+    },
+    {
+      "task_id": "W101-CONNECTOR-CLEARANCE-137",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        ".local/introspection/connector_clearance_137.py",
+        ".local/introspection/connector-clearance-137.json",
+        "docs/coordination/results/W101-CONNECTOR-CLEARANCE-137.md",
+        ".local/introspection/connector-floor-137.json",
+        ".local/introspection/bcd-classification-137.json"
+      ],
+      "notes": "Bounded saved-geometry inspection from Commons arrival; no input until clearance evidence supports it."
+    },
+    {
+      "task_id": "W101-NARROW-CLEARANCE-138",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "tools/w101_shape_clearance.py",
+        "tools/tests/test_w101_shape_clearance.py",
+        "docs/coordination/results/W101-NARROW-CLEARANCE-138.md",
+        ".local/introspection/shape-clearance-138.json"
+      ],
+      "notes": "Pure oriented shape and explicit body-envelope diagnostics, offline first; live route contingent on clearance."
+    },
+    {
+      "task_id": "W101-SHAPE-ORDER-139",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-SHAPE-ORDER-139.md",
+        ".local/introspection/bcd-classification-139.json"
+      ],
+      "notes": "Completed: BCD cylinder order correction and offline source audit. Deimos supports full-dimension box construction; runtime role/body clearance remains unqualified."
+    },
+    {
+      "task_id": "W101-BODY-PROFILE-140",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-BODY-PROFILE-140.md"
+      ],
+      "notes": "Existing root-owned pose reader: bounded height/scale candidates, tests then observation only; no collision semantics assumed."
+    },
+    {
+      "task_id": "W101-CONNECTOR-TRIAL-141",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-CONNECTOR-TRIAL-141.md"
+      ],
+      "notes": "Completed: bounded feedback alignment and W60ms connector approach; native Idle verified; collision/route qualification remains open."
+    },
+    {
+      "task_id": "CARD-REPLAY-FIXTURE-CHECK-142",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/CODEX_WORK.md"
+      ],
+      "notes": "Offline replay completed; CODEX_WORK path overlapped active DANCE-CAPTURE-82 and was not retained."
+    },
+    {
+      "task_id": "DANCE-REPLAY-PAIRING-143",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-DANCE",
+      "owned_paths": [
+        "docs/coordination/results/DANCE-REPLAY-PAIRING-143.md"
+      ],
+      "notes": "Offline mismatch/replay diagnosis recorded; board validation passed."
+    },
+    {
+      "task_id": "GEM-DANCE-REPLAY-SCOPE-144",
+      "state": "released",
+      "owner": "gemini",
+      "workstream_id": "W101-DANCE",
+      "owned_paths": [
+        "docs/coordination/results/GEM-DANCE-REPLAY-SCOPE-144.md"
+      ],
+      "notes": "LIA-0105 accepted report-only audit; proposed UI changes remain unimplemented."
+    },
+    {
+      "task_id": "REPLAY-DIAGNOSTICS-145",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineReplay.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/RoutineReplayTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/RecordedCardReviewForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/SessionTimelineForm.cs",
+        "docs/coordination/results/REPLAY-DIAGNOSTICS-145.md"
+      ],
+      "notes": "Implementation and focused verification recorded in REPLAY-DIAGNOSTICS-145; board passed."
+    },
+    {
+      "task_id": "GEM-REPLAY-DIAGNOSTICS-146",
+      "state": "released",
+      "owner": "gemini",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/results/GEM-REPLAY-DIAGNOSTICS-146.md"
+      ],
+      "notes": "Accepted report-only replay UI/CLI scope audit from GEM-0102. CLI change remains blocked by DANCE-CAPTURE-82 ownership. No source/tests/build/live."
+    },
+    {
+      "task_id": "W101-REATTACH-147",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-REATTACH-147.md",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "New process identity, observation, bounded coordinate waypoint and Idle evidence documented; board validated."
+    },
+    {
+      "task_id": "W101-LIVE-DISCOVERY-148",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-LIVE-DISCOVERY-148.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Discovery documented: GUI sees W101/PID, Observe button geometry failed, and subsequent focus handoff coincided with an unexpected game menu; attribution unknown. No further input."
+    },
+    {
+      "task_id": "BACKEND-CONTROL-PLANE-149",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/BACKEND_CONTROL_PLANE.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Completed source audit of CLI/local API/MCP/UI ownership and documented backend-first operation contract, current parity gaps, and delivery gates in docs/BACKEND_CONTROL_PLANE.md; linked from CORE-DELIVERY. Documentation-only, no source changes, desktop use, or live actions."
+    },
+    {
+      "task_id": "BACKEND-MCP-WINDOWS-153",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "docs/coordination/results/BACKEND-MCP-WINDOWS-153.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Added MCP target-window discovery by proxying native host windows; empty-argument validation and exact pass-through tested. 16 MCP Python tests and AST syntax check pass. Black stalled and was cancelled; no native host/live window query or game/desktop actions. See BACKEND-MCP-WINDOWS-153.md."
+    },
+    {
+      "task_id": "BACKEND-MCP-SESSION-154",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "docs/coordination/results/BACKEND-MCP-SESSION-154.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json"
+      ],
+      "notes": "Completed explicit MCP connect/observe/disconnect flow through native owner. Exact HWND/PID/start-ticks and opt-ins required; quest/travel/resource capabilities forced off; strict args and queued-result fidelity tested. MCP suite 20/20 passes. See BACKEND-MCP-SESSION-154.md. Mocked offline only; no host/live/game/desktop/input or packaging."
+    },
+    {
+      "task_id": "BACKEND-OBSERVATION-STATUS-155",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/BACKEND_CONTROL_PLANE.md",
+        "docs/coordination/results/BACKEND-OBSERVATION-STATUS-155.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/CODEX_WORK.md"
+      ],
+      "notes": "Updated backend control-plane audit for MCP target-window and observation-session surfaces. Source trace confirms active observer ID is transient; no durable terminal result correlated by request ID. Defined next bounded native receipt contract. Static audit only, no code/build/tests/host/game/desktop/live calls or packaging. See BACKEND-OBSERVATION-STATUS-155.md."
+    },
+    {
+      "task_id": "BACKEND-MCP-PROGRESS-156",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "docs/BACKEND_CONTROL_PLANE.md",
+        "docs/coordination/results/BACKEND-MCP-PROGRESS-156.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/CODEX_WORK.md"
+      ],
+      "notes": "Added maelstrom_check_observation_progress: exact ID is active only while native observerOperation matches; all cleared/mismatched states return outcome_unknown. Never infers completion from global facts. 22 MCP tests pass. See BACKEND-MCP-PROGRESS-156.md. Mocked offline only; no native owner, game, desktop, or live calls."
+    },
+    {
+      "task_id": "BACKEND-MCP-ID-CASE-157",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "docs/coordination/results/BACKEND-MCP-ID-CASE-157.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/CODEX_WORK.md"
+      ],
+      "notes": "Progress checker now compares hexadecimal operation IDs case-insensitively, matching its schema. The 22-test MCP suite and compileall pass; report BACKEND-MCP-ID-CASE-157. Offline only; no live owner/game/desktop calls."
+    },
+    {
+      "task_id": "LEGACY-AUTOMATUS-WAYPOINT-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/AutomatusWaypointMapImporter.cs",
+        "docs/AUTOMATUS_ROUTE_IMPORT.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/LEGACY-AUTOMATUS-WAYPOINT-01.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/CODEX_WORK.md"
+      ],
+      "notes": "Ported Automatus v2 text route-map data into a bounded, hashed, candidate-only importer. Special marker semantics are preserved as opaque values; no controller or game inputs. Offline source review only; tests/build not run."
+    },
+    {
+      "task_id": "LEGACY-AUTOMATUS-WAYPOINT-TEST-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/AutomatusWaypointMapImporterTests.cs",
+        "docs/coordination/results/LEGACY-AUTOMATUS-WAYPOINT-01.md",
+        "docs/coordination/claims.json",
+        "docs/coordination/workstreams.json",
+        "docs/coordination/CODEX_WORK.md"
+      ],
+      "notes": "Added focused conformance coverage. The filtered test command compiled app/test assemblies but stalled after test discovery without case output; cancelled after ~40s, no pass/failure claimed. See LEGACY-AUTOMATUS-WAYPOINT-01.md."
+    },
+    {
+      "task_id": "CLI-AGENT-RUNBOOK-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/CLI_AGENT_OPERATING_PROCEDURES.md",
+        "docs/INDEX.md"
+      ],
+      "notes": "Added source-backed CLI operating procedures and handoff guide, linked from INDEX and CORE-DELIVERY evidence. No runtime actions or builds."
+    },
+    {
+      "task_id": "GEM-CLI-RUNBOOK-AUDIT-01",
+      "state": "released",
+      "owner": "gemini",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/results/GEM-CLI-RUNBOOK-AUDIT-01.md"
+      ],
+      "notes": "Accepted GEM-0106 static audit: no material discrepancies against CLI source and HEADLESS_CLI. Report-only; no runtime qualification."
     }
   ]
 }

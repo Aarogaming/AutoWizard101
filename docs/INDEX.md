@@ -31,6 +31,7 @@
 - [Loading transitions and shared routines](W101_LOADING_TRANSITION_20261110.md) — six demonstrated zone loading periods, bounded CLI watch, optional shared loading conditions, offline integration and remaining live gates.
 - [Optional W101 UI tree](W101_UI_TREE_20261110.md) — bounded root-hook observer, staggered loading/UI reads, candidate screen states, restoration checks and qualification status.
 - [Headless commands](HEADLESS_CLI.md) — window discovery, saved run status and bounded opt-in checks without desktop input.
+- [CLI agent operating procedures](CLI_AGENT_OPERATING_PROCEDURES.md) — safe invocation, exact target selection, cancellation, receipt reading and current handoff notes.
 - [Wizwalker live qualification](WIZWALKER_LIVE_20261110.md) — dependency repair, two successful idle-state reads and clean disconnect; positive loading-transition qualification remains open.
 - [W101 client-side exception](W101_CLIENT_SIDE_EXCEPTION_20261110.md) — owner-approved functional reuse of reviewed client-side hooks, injection and memory reads/writes; network manipulation excluded; source dispositions and next integration gates.
 - [Earlier W101 telemetry review](W101_TELEMETRY_REVIEW_20261110.md) — historical read-only interpretation, independently tested skeleton and unresolved provider issues; the expanded decision above supersedes its scope.
@@ -79,6 +80,7 @@
 - [W101 UI-only boundary](W101_UI_ONLY_BOUNDARY.md) — application admission checks for legacy launch paths and the separate, disabled memory-observation capability.
 - [Memory-observation research](W101_MEMORY_OBSERVATION_RESEARCH.md) and [desktop input options](DESKTOP_INPUT_OPTIONS.md) — sourced limits; no driver or protection changes.
 - [Legacy work packages](W101_LEGACY_WORK_PACKAGES.md) — dependencies, owners, reuse alternatives and acceptance gates across all 25 root archives.
+- [Automatus route import](AUTOMATUS_ROUTE_IMPORT.md) — how its waypoint files enter Maelstrom as hashed, candidate-only route evidence.
 - [Pet snack research](W101_PET_SNACK_RESEARCH_20261108.md) and [configuration proposal](W101_PET_SNACK_CONFIGURATION.md) — separate training/Happiness choices, inventory reserves and proposed transaction rules.
 - [Read-only snack planner](PET_SNACK_PLANNER.md) — deterministic suggestions from supplied observations, with separate goals, reserves and budgets; no feeding.
 - [Game knowledge database](GAME_KNOWLEDGE_DATABASE.md) — tested local schema, source chronology, conflicting claims and staged domain imports; application integration pending.

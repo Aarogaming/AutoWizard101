@@ -1122,21 +1122,65 @@
       "owner": "/root",
       "verification": {
         "review": "architecture_cards_reuse_and_knowledge_audited_20261111",
-        "code": "w101_semantic_module_bindings_trusted_runtime_card_factory_source",
-        "offline": "2601_native_72_observer_14_profile_3_resource_tests_scoped_format_analyzers_passed",
+        "code": "Replay detailed summary exposed IDs, hashes, stop reason, counts and live qualification boundary to existing editor review surfaces; bool replay API preserved.",
+        "offline": "15 focused RoutineReplayTests pass; scoped whitespace/analyzers pass; warnings-as-errors build pass. No install; CLI remains exit-code-only.",
         "live": "stats54probe4:12 UI-correlated resource facts/aliases; exact-build globe maxima and PotionButton agreement; cleanup verified/no inputs/no install"
       },
       "lineage": [
         "LP11"
       ],
-      "next_task": "Prioritize complete Dance runtime binding and teaching workflow per CODEX_WORK.md;review Gemini preassigned queue. Installed62 verified;source63-70 repairs await integrated release. Broader client field qualification remains secondary.",
+      "next_task": "After active DANCE-CAPTURE-82 releases its JobDeckHost reservation, add bounded native observation-operation receipts keyed by operation ID, then expose the same progress/terminal-result contract through the local API, CLI, and MCP. Do not infer completion from observer disappearance or global facts. Next, move teaching capture/review behind the same headless owner and qualify teach → pack → replay → bounded-run.",
       "acceptance_criteria": [
         "Show the actual method and qualification scope.",
         "Provide clear Start/Stop and resource/cleanup outcomes.",
         "Preserve user packs and reports through update/uninstall.",
-        "Do not label a menu entry as a complete player."
+        "Do not label a menu entry as a complete player.",
+        "Every user-visible operation has one backend contract and is callable through supported headless surfaces before the UI presents it as operational.",
+        "CLI, local API, MCP and UI share operation IDs, typed arguments, scheduler ownership, cancellation, and truthful outcome receipts."
       ],
       "evidence": [
+        {
+          "kind": "architecture",
+          "path": "docs/BACKEND_CONTROL_PLANE.md",
+          "scope": "Backend-first operation contract, current CLI/API/MCP/UI coverage audit, and staged parity plan; audit only, no implementation or live qualification claimed.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-MCP-WINDOWS-153.md",
+          "scope": "Read-only target-window discovery added to MCP through the existing native owner; 16 Python tests pass. No process attachment, live window query, or input qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-MCP-SESSION-154.md",
+          "scope": "Explicitly confirmed MCP connect/observe/disconnect workflow through the native owner; exact target identity and opt-ins, forced-off quest/travel/resource operations, strict argument checks; 20 MCP Python tests pass. Mocked only; no host, client, desktop, or live observation call.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-OBSERVATION-STATUS-155.md",
+          "scope": "Source trace finds queued observer ID and transient active state but no durable terminal receipt correlated by request ID; defines bounded native receipt as next parity contract. Static audit only, no build/tests/live calls.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-MCP-PROGRESS-156.md",
+          "scope": "MCP adds exact-operation active check via existing owner state and returns outcome_unknown after the request clears; 22 focused Python tests pass. Mocked only; durable terminal receipt still missing.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-MCP-ID-CASE-157.md",
+          "scope": "Progress polling now compares hexadecimal UUID text case-insensitively to match its accepted schema; same 22 focused MCP tests pass. Mocked only; terminal receipt remains missing.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CARD-WORKSHOP-FIT-81.md",
+          "scope": "Offscreen source audit found fixed 790px window exceeds a 720p working area; sizing helper and pure regression case added. Focused .NET test/build and updated render stalled before output, so repair is pending verification; no install/live use.",
+          "path_status": "existing"
+        },
         {
           "kind": "reference",
           "path": "docs/SHARED_OPERATIONS.md",
@@ -1484,6 +1528,30 @@
           "path": "docs/coordination/results/INPUT-BUDGET-70.md",
           "path_status": "existing",
           "scope": "Bounded input/prediction JSON ingestion;4tests/Black/compileall;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHER-PROTOTYPE-92.md",
+          "scope": "Native undealt prototype exported from verified single teacher trace;27 focused checks;not independent validation or live learning.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/REPLAY-DIAGNOSTICS-145.md",
+          "scope": "Detailed replay status and user-facing session/routine provenance; synthetic replay is not live qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "review",
+          "path": "docs/coordination/results/GEM-REPLAY-DIAGNOSTICS-146.md",
+          "scope": "Accepted static review: UI scope is explicit; CLI remains terse and blocked by active Program.cs ownership. No gameplay qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "documentation",
+          "path": "docs/CLI_AGENT_OPERATING_PROCEDURES.md",
+          "scope": "Source-backed CLI quick-start and agent handoff, statically audited against MaelstromCli.cs, Program.cs, and HEADLESS_CLI.md with no material discrepancies (GEM-0106/LIA-0120). Existing detailed HEADLESS_CLI options remain the command reference; no installed-build or runtime qualification claimed.",
+          "path_status": "existing"
         }
       ],
       "depends_on": [
@@ -1823,14 +1891,14 @@
       "verification": {
         "review": "native_player_with_partial_live_evidence",
         "code": "screen_modules_and_existing_scheduler_integrated_source",
-        "offline": "2696 native tests passed20261114; scoped whitespace/analyzers and board validation pass. Full live visit remains unqualified.",
-        "live": "new_source_not_installed_or_live_qualified"
+        "offline": "2837 full native tests passed before seven additional scheduler regressions;28 focused scheduled-visit tests now pass. Scoped whitespace/analyzers clean. Source only, full live visit unqualified.",
+        "live": "Commons and approach motions verified separately; Pavilion crossing released movement but client stuck loading. Arrival/Idle and Dance energy cost unverified."
       },
       "lineage": [
         "LP02",
         "LP11"
       ],
-      "next_task": "Connect real entry observation/dispatch runtime and first-Watch continuity; qualify route then bounded full live visit. Scheduler/specialist seam exists but default deck adapter remains unavailable. Gemini78 inventories verified producer/fixture gaps. See CODEX_WORK.md.",
+      "next_task": "Finish production entry runtime and native selection geometry; await usable client for energy and full visit qualification. Primed capture/first-Watch binding remains offline tested; no automatic card promotion. See CODEX_WORK.md.",
       "acceptance_criteria": [
         "Verify presented and sent sequences, feedback and complete-game result.",
         "Return native Idle only after verified valid completion, not user stop.",
@@ -1879,6 +1947,18 @@
           "path": "docs/coordination/results/DANCE-COURSE-74.md",
           "path_status": "existing",
           "scope": "Roadmap/queues reconciled,69Dance tests pass;current passive live readiness check only,no gameplay."
+        },
+        {
+          "kind": "review",
+          "path": "docs/coordination/results/GEM-ROUTE-PROVENANCE-83.md",
+          "path_status": "existing",
+          "scope": "Accepted historical artifact-provenance audit; does not qualify current navigation, route clearance, or a live Dance visit."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/CODEX_WORK.md",
+          "path_status": "existing",
+          "scope": "Task99 primed-handoff evidence rejection checks28pass; live approach/loading failure separately recorded; no full Dance qualification."
         }
       ],
       "depends_on": [],
@@ -2075,15 +2155,16 @@
       "owner": "root",
       "verification": {
         "review": "available",
-        "code": "Configured w101.travel card shared by deck/API/CLI: exact world selection with marker verification, bounded page calibration, timer-aware Home availability, house-origin checks, shared Idle fail-safe and opt-in ownership.",
-        "offline": "2478 native and64 Python reader tests pass; scoped formatting/analyzers, warnings-as-errors compilation, Black/compileall and board validation pass 20261112.",
-        "live": "One configured Zafaria travel-card round trip c87172cb completed: exact world selection verified, loading both ways, Home readiness checked, house origin and final native Idle verified. Prior foreground failure stopped before input. Multi-page selection and actual cooldown waiting not live qualified."
+        "code": "Bounded candidate continuous pose stream, canonical heading conversion, typed coordinate/prompt/portal arrival gates and scheduler handoff; persistent qualified live follower binding still pending.",
+        "offline": "2912 native tests and18 moving-pose Python tests passed. Installed readonly graphs contain candidate paths89->209 Commons and50->5 Pavilion; no connector/clearance/arrival proof. Final scheduler pause/stall correction6focused tests passed; scoped whitespace/analyzers and board validation passed.",
+        "live": "141: one bounded39-unit step toward candidate113, Idle verified. 147: after restart, explicit windows enumeration/rebind to new PID/start ticks; two read-only observations found stable nativeIdle and candidate Commons pose/owner. Feedback waypoint moved ~96.2 planar units and returned Idle; coordinate-arrival only, arrivalVerified=false, routeQualified=false. Source review supports full-dimension BCD box construction as a candidate; collision role and player-body clearance remain unqualified. 148: desktop observer found W101 at Ravenwood/Golem Court with Idle banner and quest progress2/3. Maelstrom GUI selector found PID120576, but Observe failed out-of-bounds and repo-shell CLI returned no windows. A later screenshot showed Monstrology Tome open; cause and current Idle state unknown. No navigation input dispatched.",
+        "tests": "2941 native tests passed;83 UI reader,28 pure moving-reader and10 stream-owner Python checks tracked in task112; scoped formatting/analyzers verified."
       },
       "lineage": [
         "LP06",
         "LP09"
       ],
-      "next_task": "Qualify reverse house doorway/repeated named route; test deliberate focus pause/resume and caption visibility. Then Wizard City/Commons/Pet Pavilion/Dance composition; do not replay consequential actions blindly.",
+      "next_task": "Resolve Maelstrom's desktop focus/target routing and qualify Observe without any game input; confirm native Idle through the shared owner before resuming experiments. Then continue fresh-pose empirical connector qualification using bounded feedback and verified Idle. Corroborate sourced BCD full-dimension construction, classify collider roles, and resolve player-body clearance. Do not claim graph vertex or portal arrival from local coordinate-arrival.",
       "acceptance_criteria": [
         "Wrong-world, obstruction, loading and arrival replays.",
         "Map labels are not teleport controls.",
@@ -2257,6 +2338,60 @@
           "path": "docs/coordination/results/W101-CONTROL-34.md",
           "path_status": "existing",
           "scope": "Focused keyboard policy and released-checkpoint pause, live waypoint/Idle success, center-path house entry/loading/Idle success. Reverse edge rejected beforeinput; full repeatable route pending."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-NAV-AUDIT-103.md",
+          "path_status": "existing",
+          "scope": "Full runtime/legacy/map/data audit; two installed navigation graphs structurally parsed; prototype direction counterexample despite11passingtests. Proposed integration roadmap, no autonomous route qualification."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/DESTINATION_NAVIGATION.md",
+          "scope": "Tasks104\u2013108: actual candidate binding results, pure follower and scheduler tests; live navigation still pending.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-NAV-STREAM-112.md",
+          "path_status": "existing",
+          "scope": "Live24-sample observation and moving-window trial with Idle; typed arrival tests; no autonomous graph-route qualification."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-CONNECTOR-TRIAL-141.md",
+          "path_status": "existing",
+          "scope": "Bounded connector heading/translation receipts and variable actor height; full route unqualified."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-REATTACH-147.md",
+          "scope": "Fresh identity enumeration/rebind after client restart, read-only pose/Idle observation, bounded local waypoint motion and cleanup. Full route remains unqualified.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-LIVE-DISCOVERY-148.md",
+          "scope": "Current W101 desktop observation and mismatch with repository-shell CLI window enumeration; no input dispatched.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/AutomatusWaypointMapImporter.cs",
+          "scope": "Bounded Automatus v2 waypoint-file import to candidate-only data; legacy markers remain opaque and no controller is imported.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/LEGACY-AUTOMATUS-WAYPOINT-01.md",
+          "scope": "Source crosswalk and unqualified navigation gates; no build or tests run in this slice.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "test_source",
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/AutomatusWaypointMapImporterTests.cs",
+          "scope": "Conformance cases authored; filtered runner compiled assemblies but stalled after test discovery, so no case result is available.",
+          "path_status": "existing"
         }
       ],
       "depends_on": [],
