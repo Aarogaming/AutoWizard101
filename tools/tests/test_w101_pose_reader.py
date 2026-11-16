@@ -5,10 +5,30 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from w101_pose_reader import LAYOUT_ID, read_pose, player_hook
+from w101_pose_reader import LAYOUT_ID, read_pose, player_hook, read_dimensions
 
 
 class PoseReaderTests(unittest.IsolatedAsyncioTestCase):
+    async def test_dimensions_remain_unqualified_and_reject_mutation(self):
+        for mutate in (False, True):
+            calls = 0
+
+            async def read(address, count):
+                nonlocal calls
+                if count == 8:
+                    return struct.pack("<Q", 0x20000)
+                calls += 1
+                return struct.pack(
+                    "<6f", 1, 0, 0, 0, 0, 101 if mutate and calls == 2 else 100
+                )
+
+            value = await read_dimensions(read, 0x10000)
+            self.assertFalse(value["collisionQualified"])
+            self.assertEqual("unknown" if mutate else "candidate", value["status"])
+            if not mutate:
+                self.assertEqual(100, value["heightField"])
+                self.assertEqual(64, value["readBytes"])
+
     async def test_hook_preserves_flags_and_register_on_both_paths(self):
         hook = player_hook(object)()
         code = await hook.bytecode_generator(

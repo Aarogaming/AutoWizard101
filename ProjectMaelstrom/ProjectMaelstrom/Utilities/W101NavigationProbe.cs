@@ -60,7 +60,7 @@ internal static class W101NavigationProbe
                                 (pressed, release) => W101NavigationInput.Send(target, pressed, release), FrameTimeline.TimestampMs, cancellation, continuing),
                             scope.Ready, cancellation).ConfigureAwait(false);
                     var untilLoading = proposal.Action?.ControlId == "w101.walk-until-loading";
-                    var home = proposal.Action == W101CharacterOperation.GoHome;
+                    var home = proposal.Action == W101CharacterOperation.GoHome || proposal.Action == W101CharacterOperation.GoCommons;
                     var assisted = proposal.Action?.ControlId == "w101.assisted-navigation" || untilLoading || home;
                     var index = 0;
                     var loadingLaunch = launch with { Worker = Path.Combine(Path.GetDirectoryName(launch.Worker)!, "wizwalker_adapter.py") };
@@ -75,6 +75,25 @@ internal static class W101NavigationProbe
                     }
                     Task<RoutineReceipt> Move(Func<bool> continuing) => W101NavigationInput.DispatchAsync(proposal, owner, owner.Request.Target, ready,
                         (pressed, release) => W101NavigationInput.Send(target, pressed, release), FrameTimeline.TimestampMs, cancellation, continuing);
+                    if (proposal.Action is { ControlId: "w101.navigation", DurationMs: <= 150 } &&
+                        owner.Request.Pins.Keys.Any(p => Path.GetFileName(p) == "w101_pose_reader.py"))
+                    {
+                        var trace = Path.Combine(owner.Directory, "read-23", "ui-observations.jsonl");
+                        bool SamplingReady()
+                        {
+                            if (!scope.Ready() || !File.Exists(trace)) return false;
+                            using var file = new FileStream(trace, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                            if (file.Length > 4 * 1024 * 1024) return false;
+                            using var text = new StreamReader(file);
+                            return W101MovingProbe.WindowReady(text.ReadToEnd(), DateTime.UtcNow.Ticks);
+                        }
+                        return await W101MovingProbe.RunAsync(
+                            async ct => { await W101UiTreeOperation.ReadOwnedAsync(owner, target, launch, 23, ct, true, movingPoseSeconds: 2).ConfigureAwait(false); },
+                            SamplingReady, scope.Ready,
+                            () => W101NavigationInput.DispatchAsync(proposal, owner, owner.Request.Target, SamplingReady,
+                                (pressed, release) => W101NavigationInput.Send(target, pressed, release), FrameTimeline.TimestampMs, cancellation, scope.Ready),
+                            new(proposal.ProposalId!, proposal.ActionId!, FrameTimeline.TimestampMs(), false, true), cancellation).ConfigureAwait(false);
+                    }
                     W101NavigationTransition.WalkResult? walk = null;
                     RoutineReceipt receipt;
                     if (untilLoading)

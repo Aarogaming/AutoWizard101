@@ -13,6 +13,41 @@ from w101_combat_reader import _Reader, _Rejected, _address
 LAYOUT_ID = "archived-wizwalker-actor-body"
 
 
+async def read_dimensions(read_bytes, body_address):
+    """Archived height132/scale112 candidates; not collision dimensions.
+
+    Four bounded reads (64 bytes), with parent equality and repeated values.
+    Caller separately owns target/build, actor marker and registry verification.
+    """
+    reader = _Reader(read_bytes, None)
+    result = dict(status="unknown", collisionQualified=False)
+    try:
+        body = _address(body_address, 8)
+        parent = await reader.get(body + 72, 8)
+        _address(struct.unpack("<Q", parent)[0], 8)
+        raw = await reader.get(body + 112, 24)
+        scale, height = (
+            struct.unpack_from("<f", raw)[0],
+            struct.unpack_from("<f", raw, 20)[0],
+        )
+        if (
+            not math.isfinite(scale)
+            or not math.isfinite(height)
+            or not 0 < scale <= 100
+            or not 0 <= height <= 100000
+        ):
+            raise _Rejected("invalid-body-dimensions")
+        if raw != await reader.get(body + 112, 24) or parent != await reader.get(
+            body + 72, 8
+        ):
+            raise _Rejected("body-dimensions-changed")
+        result.update(status="candidate", heightField=height, scaleField=scale)
+    except _Rejected as error:
+        result["reason"] = str(error)
+    result.update(readCalls=reader.calls, readBytes=reader.bytes)
+    return result
+
+
 def player_hook(base):
     """Capture candidate ActorBody while preserving RCX and original flags.
 

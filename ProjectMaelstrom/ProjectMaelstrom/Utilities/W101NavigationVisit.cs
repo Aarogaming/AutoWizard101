@@ -20,24 +20,27 @@ internal static class W101NavigationVisit
 
     internal static PreparedDeckJob Prepare(WizwalkerSession session, WizwalkerLaunch launch, bool enabled,
         string key, int durationMs, W101NavigationVisitRuntime? runtime = null, WizwalkerRuntime? validation = null, W101VisitPolicy? policy = null,
-        bool measurePose = false, int waypointDistance = 0, bool feedbackWaypoint = false, bool assistedHold = false, bool walkUntilLoading = false, string? untilInteraction = null)
+        bool measurePose = false, int waypointDistance = 0, bool feedbackWaypoint = false, bool assistedHold = false, bool walkUntilLoading = false, string? untilInteraction = null, double? headingRadians = null)
     {
         if (untilInteraction is not null && (!assistedHold || walkUntilLoading || string.IsNullOrWhiteSpace(untilInteraction) || untilInteraction.Length > 160 || untilInteraction.Any(char.IsControl)))
             throw new InvalidDataException("Exact interaction destination requires assisted movement without loading-walk mode.");
         if (walkUntilLoading && !assistedHold) throw new InvalidDataException("Loading walk requires assisted measured movement.");
         if (assistedHold && (!measurePose || key is not ("W" or "S") || waypointDistance != 0 || feedbackWaypoint || durationMs < (untilInteraction is not null ? 0 : 1) || durationMs > (untilInteraction is not null ? 30000 : walkUntilLoading ? 15000 : 3000)))
             throw new InvalidDataException("Assisted holds require a measured forward visit, maximum three seconds, without feedback replay.");
-        if (key == "HOME" && (durationMs != 40 || !measurePose || assistedHold)) throw new InvalidDataException("Home calibration requires one measured 40 ms Home command.");
+        if ((key is "HOME" or "END") && (durationMs != 40 || !measurePose || assistedHold)) throw new InvalidDataException("Home/Commons calibration requires one measured 40 ms Home command.");
+        if (headingRadians is { } heading && (!double.IsFinite(heading) || heading < 0 || heading >= Math.Tau ||
+            !measurePose || key is not ("A" or "D") || durationMs is < 20 or > 300 || assistedHold || feedbackWaypoint || waypointDistance != 0))
+            throw new InvalidDataException("Heading feedback needs one bounded measured turn visit.");
         policy ??= new();
         policy.Validate();
         if (feedbackWaypoint && (!measurePose || waypointDistance is < 20 or > 100 || key != "W" || durationMs is < 20 or > 100))
             throw new InvalidDataException("Feedback requires a measured 20–100 unit forward waypoint and a 20–100 ms maximum pulse.");
         if (waypointDistance != 0 && (!measurePose || key != "W" || waypointDistance is < 20 or > 100))
-            throw new InvalidDataException("Waypoint trials require measured forward movement and a 20â€“100 unit target.");
+            throw new InvalidDataException("Waypoint trials require measured forward movement and a 20–100 unit target.");
         // Reuse exactly the same selection validation, reviewed hashes and pins.
         // Preparing does not execute or create another scheduler/control owner.
-        var admitted = W101NavigationProbe.Prepare(session, launch, enabled, key == "HOME" ? "W" : key, Math.Clamp(durationMs, 1, 3000), validation: validation, assistedHold: assistedHold).Request;
-        var request = admitted with { Operation = Id, Version = Version, TimeoutSeconds = feedbackWaypoint || assistedHold || key == "HOME" ? 125 : 85 };
+        var admitted = W101NavigationProbe.Prepare(session, launch, enabled, (key is "HOME" or "END") ? "W" : key, Math.Clamp(durationMs, 1, 3000), validation: validation, assistedHold: assistedHold).Request;
+        var request = admitted with { Operation = Id, Version = Version, TimeoutSeconds = feedbackWaypoint || assistedHold || (key is "HOME" or "END") || headingRadians != null ? 125 : 85 };
         if (measurePose)
         {
             var pins = request.Pins.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -50,23 +53,23 @@ internal static class W101NavigationVisit
             request = request with { Pins = pins };
         }
         var actionId = key switch { "W" => "game.move-forward", "S" => "game.move-backward", "A" => "game.turn-left", _ => "game.turn-right" };
-        var action = key == "HOME" ? W101CharacterOperation.GoHome : new ModuleAction(actionId, "keyboard-pulse", key, durationMs, untilInteraction is not null ? "w101.walk-until-interaction:" + untilInteraction : walkUntilLoading ? "w101.walk-until-loading" : assistedHold ? "w101.assisted-navigation" : "w101.navigation");
+        var action = (key is "HOME" or "END") ? (key == "END" ? W101CharacterOperation.GoCommons : W101CharacterOperation.GoHome) : new ModuleAction(actionId, "keyboard-pulse", key, durationMs, untilInteraction is not null ? "w101.walk-until-interaction:" + untilInteraction : walkUntilLoading ? "w101.walk-until-loading" : assistedHold ? "w101.assisted-navigation" : "w101.navigation");
         return new(request, async (context, token) =>
         {
             if (runtime is not null) return await RunOwnedAsync(context, runtime, policy, token).ConfigureAwait(false);
             var target = session.Target;
-            await using var scope = await W101ControlScope.CreateAsync(context, target.Window, GameWindows.ClientSize(target.Window), token, policy.ActivateWhenQuiet, resumable: feedbackWaypoint).ConfigureAwait(false);
+            await using var scope = await W101ControlScope.CreateAsync(context, target.Window, GameWindows.ClientSize(target.Window), token, policy.ActivateWhenQuiet, resumable: feedbackWaypoint || headingRadians != null).ConfigureAwait(false);
             var geometry = WindowObserver.GetCaptureSize(target.Window);
             var idle = W101IdleCycleOperation.CreateRuntime(target, launch, scope, geometry);
             var pulse = W101NavigationProbe.CreateRuntime(target, launch, scope, geometry);
             var live = new W101NavigationVisitRuntime(scope.Ready,
                 (owner, mode, cancellation) => W101IdleCycleOperation.RunOwnedAsync(owner, target, idle, cancellation, mode),
-                (owner, cancellation) => feedbackWaypoint ? W101FeedbackVisit.RunAsync(owner, target, launch, scope, pulse, waypointDistance, durationMs, cancellation) : measurePose ? MeasureAsync(owner, scope.Ready,
+                (owner, cancellation) => headingRadians is { } desiredHeading ? W101HeadingVisit.RunAsync(owner, target, launch, scope, pulse, desiredHeading, durationMs, cancellation) : feedbackWaypoint ? W101FeedbackVisit.RunAsync(owner, target, launch, scope, pulse, waypointDistance, durationMs, cancellation) : measurePose ? MeasureAsync(owner, scope.Ready,
                     (index, ct) => W101UiTreeOperation.ReadOwnedAsync(owner, target, launch, index, ct, true),
                     ct => W101NavigationProbe.RunOwnedAsync(owner, target, action, pulse, ct), cancellation, waypointDistance) :
                     W101NavigationProbe.RunOwnedAsync(owner, target, action, pulse, cancellation),
                 scope.ResumeAfterQuietAsync, scope.WaitForFocusAsync);
-            return await RunOwnedAsync(context, live, policy, token, feedbackWaypoint || assistedHold || key == "HOME" ? 60 : measurePose ? 24 : 12).ConfigureAwait(false);
+            return await RunOwnedAsync(context, live, policy, token, headingRadians != null ? 70 : feedbackWaypoint || assistedHold || (key is "HOME" or "END") ? 60 : measurePose ? 24 : 12).ConfigureAwait(false);
         });
     }
 
@@ -128,14 +131,15 @@ internal static class W101NavigationVisit
             Directory.CreateDirectory(directory);
             var child = parent with { Directory = directory,
                 Request = parent.Request with { Id = stageId, TimeoutSeconds = budgetSeconds } };
-            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token, stageToken);
+            using var parentCancellation = CancellationTokenSource.CreateLinkedTokenSource(token, stageToken);
+            using var fallbackBudget = parent.FocusBudget is null ? new OperationFocusBudget() : null;
+            using var deadline = (parent.FocusBudget ?? fallbackBudget!).CreateDeadline(TimeSpan.FromSeconds(budgetSeconds), parentCancellation.Token);
             // No action is in flight here. Keep Ready synchronous so held keys
             // are released immediately, and wait only at this released checkpoint.
             var admitted = Ready();
             if (!admitted && runtime.WaitForFocus is not null && parent.Input is { CanDispatch: true } &&
                 ReferenceEquals(parent.Input, GameInputLease.Current))
                 admitted = await runtime.WaitForFocus(deadline.Token).ConfigureAwait(false) && Ready();
-            deadline.CancelAfter(TimeSpan.FromSeconds(budgetSeconds));
             OperationOutcome outcome;
             try
             {
@@ -151,7 +155,7 @@ internal static class W101NavigationVisit
                 outcome = outcome with { State = OperationState.CleanupFailed };
             else if (token.IsCancellationRequested)
                 outcome = outcome with { State = OperationState.Cancelled };
-            else if (deadline.IsCancellationRequested)
+            else if (deadline.Token.IsCancellationRequested)
                 outcome = outcome with { State = OperationState.TimedOut };
             var stage = new Stage(name, stageId, directory, budgetSeconds, outcome);
             stages.Add(stage);
