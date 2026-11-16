@@ -1,6 +1,6 @@
 # Work Package Result: `UNIVERSAL-BUS-01`
 
-**Title:** 4-Layer Universal Control Loop: Scaffolded Architecture & Contracts (`circuit-read` Sensory API $\rightarrow$ MCP Declarative Router $\rightarrow$ `actuate-anchor` Atomic CLI Executor)  
+**Title:** 4-Layer Universal Control Loop: Scaffolded Architecture & Contracts (`circuit-read` Sensory API $\rightarrow$ MCP Declarative Router $\rightarrow$ Unwired `actuate-anchor` Actuator Model)  
 **Date:** 2026-11-15 (Revised 2026-11-15 per `UNIVERSAL-BUS-CORRECTION-01`)  
 **Target:** `.NET 9` (`net9.0-windows10.0.22621.0`) + MCP Server (`tools/maelstrom_mcp_server.py`)
 
@@ -61,7 +61,7 @@ This decouples sensory perception from decision routing and physical actuation:
 - **`maelstrom_propose_anchor_actuation`**:
   - Validates `anchor_id` and `receipt_anchor_id` against `ui_anchors.v1.json`.
   - Asserts `LeaseActive` in the supplied circuit snapshot.
-  - Emits bounded `executive_intent` and exact `cli_invocation` string.
+  - Emits bounded `executive_intent` and proposed `cli_invocation` string syntax (note: no such CLI verb is yet implemented in `MaelstromCli.cs`).
 - **`maelstrom_propose_bazaar_action`**:
   - Declarative combinational ladder logic evaluating `CircuitSnapshot` against user policy (`target_item`, `max_unit_price`, `min_gold_reserve_floor`).
 

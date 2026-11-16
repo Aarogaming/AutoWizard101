@@ -59,12 +59,12 @@ This decouples sensory perception from decision routing and physical actuation, 
    - Supports table row slicing via `row_stride_y` and column bounds (`name`, `quantity`, `price`).
 2. **`CircuitSnapshot.cs`**:
    - Immutable Layer 1 sensory packet containing the 64-bit `WorldBits` status word, discrete flags (`LeaseActive`, `ClientFocused`, `BazaarOpen`, `ConfirmModalOpen`, `NativeIdleBanner`), numeric registers (`PlayerGold`, `PlayerEnergy`, `VisibleRowsCount`), and parsed row structs.
-   - Sub-millisecond JSON serialization/deserialization.
+   - Fast JSON serialization/deserialization with explicit bit names.
 3. **`FastPerceptualAdapter.cs`**:
    - Implements `IWorldState` (`ReadAnchorTextAsync`, `ReadBazaarRowsAsync`, `WaitForReceiptAsync`) and `ICircuitFeed`.
-   - Produces `CircuitSnapshot` with zero heap allocations in under 1 millisecond.
+   - Designed for low-overhead, allocation-friendly `CircuitSnapshot` projection from sensory observations.
 4. **`CircuitServer.cs`**:
-   - Server handler exposing `HandleSnapshotRequest` over named-pipe IPC and in-process hosts.
+   - Standalone handler (`HandleSnapshotRequestAsync`) awaiting integration into `JobDeckHost.cs`; currently has no active pipe host and no production caller.
 
 ### Layer 2: Declarative MCP Server (`tools/maelstrom_mcp_server.py`)
 1. **`maelstrom_read_circuit_snapshot` & `maelstrom_read_circuit_bus`**:
