@@ -45,6 +45,7 @@ internal sealed class JobDeckForm : Form
         AddButton("Deck limits", EditLimits); AddButton("Connect W101", Connect);
         AddButton("Observe once", () => ShowResult(_host.Handle(Request("observe"))));
         AddButton("New", AddCard); AddButton("Load card", ImportCard); AddButton("Export", Export); AddButton("Import", Import);
+        AddButton("Workshop", () => { using var editor = new CardPrototypeForm(_host.DataRoot, _host.Deck.State.Deck.GameId); editor.ShowDialog(this); });
         toolbar.Controls.Add(_count);
         var footer = new Panel { Dock = DockStyle.Bottom, Height = 84 }; footer.Controls.Add(_status);
         Controls.Add(_cards); Controls.Add(footer); Controls.Add(toolbar); Controls.Add(header);
@@ -197,6 +198,7 @@ internal sealed class JobCardView : UserControl
     private readonly IReadOnlyList<JobFactDefinition> _factDefinitions;
     private readonly Action<JobCardSpec> _save;
     private readonly Action _duplicate;
+    private readonly bool _prototypeMode;
     private readonly Panel _back = new() { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Color.FromArgb(45, 31, 64), Padding = new Padding(12) };
     private readonly System.Windows.Forms.Timer _flip = new() { Interval = 16 };
     private readonly ToolTip _tip = new() { AutoPopDelay = 15000 };
@@ -212,9 +214,9 @@ internal sealed class JobCardView : UserControl
     internal string RoutineId => _info.Id;
     internal bool ShowingBack => _showBack && !_flip.Enabled;
     internal void PreviewFlip() => Flip();
-    internal JobCardView(JobCardSpec card, JobRoutineInfo info, Action<JobCardSpec> save, Action duplicate, IReadOnlyList<JobFactDefinition>? factDefinitions = null)
+    internal JobCardView(JobCardSpec card, JobRoutineInfo info, Action<JobCardSpec> save, Action duplicate, IReadOnlyList<JobFactDefinition>? factDefinitions = null, bool prototypeMode = false)
     {
-        _card = card; _info = info; _save = save; _duplicate = duplicate;
+        _card = card; _info = info; _save = save; _duplicate = duplicate; _prototypeMode = prototypeMode;
         _factDefinitions = factDefinitions ?? JobFactCatalog.All;
         Size = new Size(330, 540); Margin = new Padding(10, 8, 10, 12); DoubleBuffered = true;
         AccessibleName = card.Title; AccessibleDescription = info.Description; TabStop = true;
@@ -228,7 +230,7 @@ internal sealed class JobCardView : UserControl
         MouseClick += (_, e) =>
         {
             if (_showBack || _flip.Enabled) return;
-            if (e.Y > Height - 53) _save(_card with { InDeck = !_card.InDeck }); else Flip();
+            if (!_prototypeMode && e.Y > Height - 53) _save(_card with { InDeck = !_card.InDeck }); else Flip();
         };
         KeyDown += (_, e) => { if (e.KeyCode is Keys.Enter or Keys.Space) { Flip(); e.Handled = true; } };
     }
@@ -315,7 +317,7 @@ internal sealed class JobCardView : UserControl
         var duplicate = new Button { Text = "Make another card", AutoSize = true }; duplicate.Click += (_, _) => _duplicate(); flow.Controls.Add(duplicate);
         var test = new Button { Text = "Test recording...", AutoSize = true };
         test.Click += (_, _) => { using var review = new RecordedCardReviewForm(_card, _factDefinitions, _info.GameId); review.ShowDialog(this); };
-        flow.Controls.Add(test);
+        if (!_prototypeMode) flow.Controls.Add(test); else test.Dispose();
         var export = new Button { Text = "Export...", AutoSize = true };
         export.Click += (_, _) =>
         {
@@ -324,7 +326,7 @@ internal sealed class JobCardView : UserControl
             try { using var output = new FileStream(file.FileName, FileMode.CreateNew); JsonSerializer.Serialize(output, _card, JobDeckRules.Json); }
             catch (Exception e) { MessageBox.Show(this, e.Message, "Save card"); }
         };
-        flow.Controls.Add(export);
+        if (!_prototypeMode) flow.Controls.Add(export); else export.Dispose();
         Label("Save changes before testing.");
         _back.Controls.Add(flow);
     }
@@ -350,7 +352,7 @@ internal sealed class JobCardView : UserControl
         DrawEmblem(g, new Rectangle(Width / 2 - 33, 97, 66, 66), _info.Icon, ink);
         g.DrawString(_card.Title, serif, ink, new RectangleF(24, 184, Width - 48, 62), centered);
         g.DrawLine(frame, 38, 252, Width - 38, 252);
-        var status = !_info.Available ? "PREPARATION ONLY" : !_card.InDeck ? "COLLECTION" : _progress.Status == "Running" ? "PLAYING" :
+        var status = _prototypeMode ? "UNQUALIFIED PROTOTYPE" : !_info.Available ? "PREPARATION ONLY" : !_card.InDeck ? "COLLECTION" : _progress.Status == "Running" ? "PLAYING" :
             _progress.Completed >= _card.Runs ? "COMPLETED" : _eligibility?.Ready == true ? "READY" : "WAITING";
         g.DrawString(status, small, ink, new RectangleF(26, 258, Width - 52, 22), centered);
         g.DrawString($"{_progress.Completed}/{_card.Runs} copies · {_progress.Attempts}/{_card.AttemptLimit} attempts", body, ink, new RectangleF(25, 284, Width - 50, 21), centered);
@@ -361,7 +363,7 @@ internal sealed class JobCardView : UserControl
         g.DrawString("" + _info.Qualification, body, ink, new RectangleF(24, 462, Width - 48, 28));
         g.FillRectangle(purple, 15, Height - 47, Width - 64, 31);
         using var cream = new SolidBrush(Color.FromArgb(249, 227, 173));
-        g.DrawString(_card.InDeck ? "✓  IN ROUTINE DECK" : "+  DEAL THIS CARD", small, cream, new RectangleF(15, Height - 47, Width - 64, 31), centered);
+        g.DrawString(_prototypeMode ? "PROTOTYPE · EDIT CARD" : _card.InDeck ? "✓  IN ROUTINE DECK" : "+  DEAL THIS CARD", small, cream, new RectangleF(15, Height - 47, Width - 64, 31), centered);
         g.Restore(state);
     }
     private static void DrawEmblem(Graphics g, Rectangle bounds, string id, Brush ink)

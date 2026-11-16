@@ -13,7 +13,7 @@ internal sealed record OperationOutcome(OperationState State, string Message, st
     public static OperationOutcome Completed(string message, params string[] artifacts) => new(OperationState.Completed, message, artifacts);
 }
 internal sealed record OperationReceipt(OperationRequest Request, OperationState State, DateTime UpdatedUtc, string Message, string[] Artifacts, int SchemaVersion = 1);
-internal sealed record OperationContext(OperationRequest Request, string Directory, GameInputLease? Input);
+internal sealed record OperationContext(OperationRequest Request, string Directory, GameInputLease? Input, OperationFocusBudget? FocusBudget = null);
 internal sealed class OperationTicket(OperationRequest request, Task<OperationReceipt> completion, Action cancel)
 {
     public OperationRequest Request { get; } = request;
@@ -237,8 +237,9 @@ internal sealed class OperationScheduler : IAsyncDisposable
             }
             using var deadline = new CancellationTokenSource();
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(deadline.Token, work.Cancel.Token);
-            using var timer = new System.Threading.Timer(_ => CancelSafely(work, deadline), null,
-                TimeSpan.FromSeconds(work.Request.TimeoutSeconds), Timeout.InfiniteTimeSpan);
+            using var focusBudget = new OperationFocusBudget();
+            using var timer = focusBudget.Register(TimeSpan.FromSeconds(work.Request.TimeoutSeconds),
+                () => CancelSafely(work, deadline));
             OperationOutcome? outcome = null;
             GameInputLease? input = null;
             try
@@ -255,7 +256,7 @@ internal sealed class OperationScheduler : IAsyncDisposable
                 try
                 {
                     Save(work, OperationState.Running, "Running with pinned inputs and a finite budget.", []);
-                    outcome = ValidateOutcome(work.Request, await work.Execute(new(work.Request, Folder(work), input), linked.Token).ConfigureAwait(false));
+                    outcome = ValidateOutcome(work.Request, await work.Execute(new(work.Request, Folder(work), input, focusBudget), linked.Token).ConfigureAwait(false));
                     if (outcome.State == OperationState.CleanupFailed) input?.RequireRecovery(outcome.Message);
                 }
                 finally { await FinishCancellationAsync(work, timer).ConfigureAwait(false); }
@@ -322,7 +323,7 @@ internal sealed class OperationScheduler : IAsyncDisposable
         catch (Exception error) { work.CancellationFailure = Diagnostic(error.Message); }
         finally { completion.TrySetResult(); }
     }
-    private static async Task FinishCancellationAsync(Work work, System.Threading.Timer timer)
+    private static async Task FinishCancellationAsync(Work work, IDisposable timer)
     {
         timer.Dispose();
         Task? callbacks;

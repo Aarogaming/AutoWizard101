@@ -88,7 +88,7 @@ internal sealed class W101ControlScope : IAsyncDisposable
             GameExperiments.WriteAtomic(Path.Combine(context.Directory, "control-policy.json"),
                 new { keyboardOnlyTakeover = true, keyboardTakeoverRequiresTargetFocus = true, escapeRequiresTargetFocus = true, foregroundRequired = true });
             await ActionStartNotice.ShowAsync(target, scope.Ready,
-                preferences.ActionCountdownSound, token, context.Directory).ConfigureAwait(false);
+                preferences.ActionCountdownSound, token, context.Directory, () => FocusWaitAllowed(scope.InspectReadiness()), () => context.FocusBudget?.Pause()).ConfigureAwait(false);
             if (!scope.Ready()) throw new InvalidOperationException("W101 changed during the start countdown.");
             if (preferences.W101RunningCaption) scope._runningNotice = await W101RunningNotice.StartAsync(target, () => scope._operator.Stopped ? "Stopping" : scope.Ready() ? "Running" : "Paused", token,
                 resumable ? scope._operator.Resume : null, resumable ? scope._operator.Pause : null, scope._operator.Stop).ConfigureAwait(false);
@@ -117,22 +117,30 @@ internal sealed class W101ControlScope : IAsyncDisposable
     // Only call after input release; never replace the immediate Ready input guard.
     internal async Task<bool> WaitForFocusAsync(CancellationToken token)
     {
+        var initial = InspectReadiness();
+        if (!FocusWaitAllowed(initial)) return false;
+        IDisposable? pause = null;
         var timer = System.Diagnostics.Stopwatch.StartNew();
         double? stableSince = null;
-        while (timer.Elapsed.TotalSeconds < 60)
+        try
         {
-            token.ThrowIfCancellationRequested();
-            var state = InspectReadiness();
-            if (!FocusWaitAllowed(state)) return false;
-            if (state.Ready && !DesktopActivityMonitor.AnyKeyHeld(true))
+            while (timer.Elapsed.TotalSeconds < 300)
             {
-                stableSince ??= timer.Elapsed.TotalMilliseconds;
-                if (timer.Elapsed.TotalMilliseconds - stableSince >= 500) return Ready();
+                token.ThrowIfCancellationRequested();
+                var state = InspectReadiness();
+                if (!FocusWaitAllowed(state)) return false;
+                if (!state.Ready) pause ??= _context.FocusBudget?.Pause();
+                if (state.Ready && !DesktopActivityMonitor.AnyKeyHeld(true))
+                {
+                    stableSince ??= timer.Elapsed.TotalMilliseconds;
+                    if (timer.Elapsed.TotalMilliseconds - stableSince >= 500) return Ready();
+                }
+                else stableSince = null;
+                await Task.Delay(100, token).ConfigureAwait(false);
             }
-            else stableSince = null;
-            await Task.Delay(100, token).ConfigureAwait(false);
+            return false;
         }
-        return false;
+        finally { pause?.Dispose(); }
     }
 
     private async Task ActivateAfterQuietAsync(CancellationToken token)

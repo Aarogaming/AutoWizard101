@@ -9,6 +9,31 @@ public sealed class PetDanceSpecialistContractTests : IDisposable
     private OperationContext Context(GameInputLease? lease) => new(new("test", "w101.dance-specialist", "v1", 120,
         true, ModuleOwnedInput.TargetId(Target), new Dictionary<string, string>()), _root, lease);
 
+    [Theory]
+    [InlineData("Loading", 100, 125, true)]
+    [InlineData("Ready", 100, 250, true)]
+    [InlineData("Loading", 100, 251, false)]
+    [InlineData("Unknown", 100, 125, false)]
+    [InlineData("Watch", 100, 125, false)]
+    [InlineData("Ready", -1, 125, false)]
+    [InlineData("Ready", 125, 125, false)]
+    public void PrimedHandoffNeedsObservedFirstWatchBoundary(string prior, double previous, double watch, bool expected)
+        => Assert.Equal(expected, PetDanceTrialFrameGate.HasWatchOnset(Enum.Parse<DancePhase>(prior), previous, watch));
+
+    [Fact]
+    public async Task WatchHandoffWithoutPrimedPlayIsRejectedBeforeCapture()
+    {
+        using var lease = GameInputLease.Acquire("test", _root);
+        using var scope = GameInputLease.EnterScope(lease);
+        var called = false;
+        var control = new PetDanceSpecialistControl(1, 0, () => true, () => true,
+            () => 0, () => true, () => 500);
+        await Assert.ThrowsAsync<ArgumentException>(() => PetDanceLiveTrial.RunSpecialistAsync(Context(lease),
+            Target, new(1280, 720), "absent", _root, control, CancellationToken.None,
+            firstWatchObserved: (_, _) => called = true));
+        Assert.False(called);
+    }
+
     [Fact]
     public void SpecialistUsesExistingOwnerWithoutAcquiringAnotherLease()
     {

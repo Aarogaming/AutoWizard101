@@ -307,7 +307,9 @@ internal sealed class SessionTimelineForm : Form
         var folder = Path.Combine(_root, "reports", "timeline-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
         var graphPath = Path.Combine(folder, "routine.json"); var report = Path.Combine(folder, "replay.json");
         File.WriteAllText(graphPath, JsonSerializer.Serialize(graph, RoutineGraphs.Json));
-        var completed = RoutineReplay.Run(graphPath, picker.FileName, report);
-        _status.Text = (completed ? "Replay contract completed." : "Replay incomplete or rejected; inspect missing observations/receipts.") + " No game input sent. Report: " + report;
+        var result = RoutineReplay.RunDetailed(graphPath, picker.FileName, report);
+        _status.Text = $"Offline replay {(result.Completed ? "completed" : "stopped")}: {result.RoutineId} / {result.SessionId}. " +
+            $"Reason: {result.Reason ?? "observed completion"}. {result.ProposalCount} proposals, {result.ReceiptCount} receipts. " +
+            $"Graph {result.GraphSha256[..12]}, events {result.EventsSha256[..12]}. Live qualified: no. No game input sent. Report: {result.ReportPath}";
     }
 }

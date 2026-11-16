@@ -29,6 +29,7 @@ internal sealed class PetDanceVisualSequence
     private DanceCue _candidate = DanceCue.Unknown, _held = DanceCue.Unknown;
     private bool _candidateHandled, _rearmed, _transitionSeen, _responseObserved, _goHandled, _outcomeUnconfirmed;
     private int? _selectedLength;
+    private bool _awaitBoundary;
     public int Expected { get; private set; }
     public bool NewPreview { get; private set; }
     public double? WatchStartMs { get; private set; }
@@ -42,6 +43,16 @@ internal sealed class PetDanceVisualSequence
         Expected = _observedLength = expected;
     }
 
+    /// <summary>Discard an interrupted preview without inventing feedback or
+    /// resetting the timestamp watermark. A known non-Watch phase must be seen
+    /// before a later Watch can begin another sequence. Sends no input.</summary>
+    public void InterruptPreview()
+    {
+        ClearPreview(); WatchStartMs = null; _selectedLength = null;
+        _responseObserved = _goHandled = _outcomeUnconfirmed = false;
+        _observedLength = Expected; NewPreview = false; _awaitBoundary = true;
+    }
+
     public PetDanceVisualSequenceResult? Observe(PetDanceVisualSample sample)
     {
         NewPreview = false;
@@ -50,6 +61,13 @@ internal sealed class PetDanceVisualSequence
             throw new InvalidDataException("Invalid or non-increasing visual observation.");
         var gap = _lastTime >= 0 && sample.QpcMs - _lastTime > MaximumGapMs;
         _lastTime = sample.QpcMs;
+        if (_awaitBoundary)
+        {
+            if (sample.Phase is DancePhase.Ready or DancePhase.Loading or DancePhase.Go or
+                DancePhase.Resolving or DancePhase.Success or DancePhase.Failure)
+                _awaitBoundary = false;
+            return null;
+        }
         if (sample.Phase is DancePhase.Success or DancePhase.Failure or DancePhase.Loading or DancePhase.Ready)
         {
             if (_selectedLength is { } selected && sample.Phase is DancePhase.Success or DancePhase.Failure)

@@ -6,6 +6,20 @@ namespace ProjectMaelstrom.Tests;
 public sealed class W101UiTreeOperationTests : IDisposable
 {
     [Fact]
+    public void CleanCancellationRequiresRestorationAndExactIdentity()
+    {
+        var now = DateTime.UtcNow.Ticks;
+        var result = new W101UiTreeResult(1, "test", W101UiTreeOperation.Version, WizwalkerOperation.SourceSha256,
+            _target, "cancelled", "test", false, States(), now, now, 1000, true, true, 4, 2, 0, States());
+        Assert.True(W101UiTreeOperation.VerifiedCleanNonObservation(result, _target, "test"));
+        Assert.False(W101UiTreeOperation.VerifiedCleanNonObservation(result with { HookRestored = false }, _target, "test"));
+        Assert.False(W101UiTreeOperation.VerifiedCleanNonObservation(result with { CleanupConfirmed = false }, _target, "test"));
+        Assert.False(W101UiTreeOperation.VerifiedCleanNonObservation(result, _target, "other-run"));
+        Assert.False(W101UiTreeOperation.VerifiedCleanNonObservation(result with { SourceSha256 = "wrong" }, _target, "test"));
+        Assert.False(W101UiTreeOperation.VerifiedCleanNonObservation(result with { Status = "observed" }, _target, "test"));
+    }
+
+    [Fact]
     public async Task ResourceOptInExportsTheSameRegistryProjectionAsCards()
     {
         await using var scheduler = new OperationScheduler(_root, Locks);

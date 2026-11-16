@@ -9,7 +9,15 @@ namespace ProjectMaelstrom.Utilities;
 /// receipts, opens a game, loads input modules or waits for wall-clock time.</summary>
 internal static class RoutineReplay
 {
+    internal sealed record Summary(string RoutineId, string GameId, string SessionId, string EvidenceMode,
+        bool Completed, bool Stopped, string? Reason, string GraphSha256, string ManifestSha256,
+        string EventsSha256, int ProposalCount, int ReceiptCount, bool LiveQualified, string ReportPath);
+
     public static bool Run(string graphPath, string sessionPath, string reportPath,
+        JobCardSpec? card = null, IReadOnlyList<JobFactDefinition>? definitions = null)
+        => RunDetailed(graphPath, sessionPath, reportPath, card, definitions).Completed;
+
+    public static Summary RunDetailed(string graphPath, string sessionPath, string reportPath,
         JobCardSpec? card = null, IReadOnlyList<JobFactDefinition>? definitions = null)
     {
         var graphBytes = ReadBounded(graphPath, 65536);
@@ -91,19 +99,27 @@ internal static class RoutineReplay
             else ignored++;
         }
         var status = runner.Status;
+        var completed = status.Completed && conditionBlock == null;
+        var stopped = status.Stopped || conditionBlock != null;
+        var reason = conditionBlock ?? status.Reason;
+        var graphDigest = Digest(graphBytes);
+        var manifestDigest = Digest(manifestBytes);
+        var eventsDigest = Digest(eventBytes);
+        var sessionId = root.GetProperty("session_id").GetString()!;
         var report = new
         {
             schema_version = 1, routine_id = graph.Id, game_id = graph.GameId,
-            session_id = root.GetProperty("session_id").GetString(), evidence_mode = "labelled-state-replay",
-            completed = status.Completed && conditionBlock == null, stopped = status.Stopped || conditionBlock != null, reason = conditionBlock ?? status.Reason,
+            session_id = sessionId, evidence_mode = "labelled-state-replay",
+            completed, stopped, reason,
             card_hash = card == null ? null : RecordedCardReview.Hash(card), conditions_checked = card != null,
             desktop_dispatch_count = 0, live_qualified = false, proposal_count = proposals, receipt_count = receipts,
-            ignored_events = ignored, sha256_graph = Digest(graphBytes), sha256_manifest = Digest(manifestBytes),
-            sha256_events = Digest(eventBytes), trace
+            ignored_events = ignored, sha256_graph = graphDigest, sha256_manifest = manifestDigest,
+            sha256_events = eventsDigest, trace
         };
         using var output = new FileStream(reportPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
         JsonSerializer.Serialize(output, report, RoutineGraphs.Json);
-        return status.Completed && conditionBlock == null;
+        return new(graph.Id, graph.GameId, sessionId, "labelled-state-replay", completed, stopped, reason,
+            graphDigest, manifestDigest, eventsDigest, proposals, receipts, false, Path.GetFullPath(reportPath));
     }
 
     internal static string? ConditionBlock(JobCardSpec card, string game, RoutineObservation frame,

@@ -24,15 +24,16 @@ public sealed class PetDanceScheduledVisitTests
             plan with { Arena = PetDanceArena.Krokotopia }, result, 500));
     }
 
-    private sealed class Runtime : IPetDanceVisitRuntime
+    private class Runtime : IPetDanceVisitRuntime
     {
         public bool UsesGameInput => false;
         public IReadOnlyDictionary<string, string> Pins => new Dictionary<string, string>();
         public bool Countdown = true, Accept = true, SpecialistComplete = true, Released = true;
         public int Dispatches, SpecialistCalls, Cleanups;
         public List<string> Calls = [];
+        public List<PetDanceLifecycleAction> DispatchedActions = [];
         private int _index;
-        private double _time;
+        protected double _time;
         private static readonly PetDanceScene[] Scenes = [PetDanceScene.DanceSigil,
             PetDanceScene.InstructionsUnselected, PetDanceScene.InstructionsReady, PetDanceScene.Watch,
             PetDanceScene.GameResult, PetDanceScene.SnackOffer, PetDanceScene.OutsideAfterGame,
@@ -54,7 +55,7 @@ public sealed class PetDanceScheduledVisitTests
                 EntryCostApproved: true, WatchStartVerified: true, SpecialistQualified: true, WholeGameResultVerified: true));
         }
         public Task<PetDanceVisitDispatch> DispatchAsync(OperationContext context, PetDanceVisitPlan plan, CancellationToken token)
-        { Dispatches++; Calls.Add("dispatch"); return Task.FromResult(new PetDanceVisitDispatch(plan.ProposalId!, plan.Action, _time + 1, Accept, true)); }
+        { Dispatches++; DispatchedActions.Add(plan.Action); Calls.Add("dispatch"); return Task.FromResult(new PetDanceVisitDispatch(plan.ProposalId!, plan.Action, _time + 1, Accept, true)); }
         public Task<PetDanceSpecialistReceipt> PlayAsync(OperationContext context, PetDanceVisitPlan plan, CancellationToken token)
         {
             SpecialistCalls++; return Task.FromResult(new PetDanceSpecialistReceipt(plan.ProposalId!, _time + 1,
@@ -62,6 +63,95 @@ public sealed class PetDanceScheduledVisitTests
         }
         public Task<PetDanceVisitCleanup> FinishAsync(OperationContext context, bool idleAlreadyVerified, CancellationToken token)
         { Cleanups++; return Task.FromResult(new PetDanceVisitCleanup(idleAlreadyVerified, Released, "fixture cleanup")); }
+    }
+
+    private sealed class PrimedRuntime(string mode) : Runtime, IPrimedPetDanceVisitRuntime
+    {
+        public int CompositeCalls, CallbackCalls;
+        public async Task<PetDanceSpecialistReceipt> PlayPrimedAsync(OperationContext context, PetDanceVisitPlan playPlan,
+            Func<PetDanceVisitDispatch, PetDanceVisitObservation, PetDanceVisitPlan> bindHandoff, CancellationToken token)
+        {
+            CompositeCalls++;
+            Calls.Add("prime-capture");
+            var dispatch = new PetDanceVisitDispatch(playPlan.ProposalId!, PetDanceLifecycleAction.Play,
+                _time + 1, true, mode != "unreleased-play");
+            Calls.Add("play-released");
+            var watch = await ObserveAsync(context, token);
+            watch = mode switch
+            {
+                "wrong-target" => watch with { TargetId = "other" },
+                "stale-watch" => watch with { Fresh = false },
+                "wrong-context" => watch with { ContextId = "other-visit" },
+                "wrong-geometry" => watch with { Geometry = new(1280, 720) },
+                "focus-paused" => watch with { FocusPaused = true },
+                "user-takeover" => watch with { UserActive = true },
+                "unowned-input" => watch with { InputOwned = false },
+                "invalid-image" => watch with { ImageSha256 = "not-evidence" },
+                "early-watch" => watch with { TimeMs = dispatch.ReleasedMs },
+                "wrong-scene" => watch with { Scene = PetDanceScene.Go },
+                "unverified-onset" => watch with { WatchStartVerified = false },
+                _ => watch
+            };
+            if (mode == "missing-callback")
+                return new("invented", _time + 1, "target", new(1282, 760), "visit", PetDanceArena.WizardCity, true, true, true);
+            CallbackCalls++;
+            var handoff = bindHandoff(dispatch, watch);
+            Calls.Add("handoff-bound");
+            if (mode == "duplicate")
+            {
+                CallbackCalls++;
+                // Even swallowing the rejected duplicate cannot promote success.
+                Assert.Throws<InvalidOperationException>(() => bindHandoff(dispatch, watch));
+            }
+            return new(mode == "wrong-proposal" ? "invented" : handoff.ProposalId!, _time + 1,
+                "target", new(1282, 760), "visit", PetDanceArena.WizardCity, true, mode != "incomplete", true);
+        }
+    }
+
+    [Theory]
+    [InlineData("complete", "Completed")]
+    [InlineData("wrong-target", "Failed")]
+    [InlineData("stale-watch", "Failed")]
+    [InlineData("wrong-context", "Failed")]
+    [InlineData("wrong-geometry", "Failed")]
+    [InlineData("focus-paused", "Failed")]
+    [InlineData("user-takeover", "Failed")]
+    [InlineData("unowned-input", "Failed")]
+    [InlineData("invalid-image", "Failed")]
+    [InlineData("early-watch", "Failed")]
+    [InlineData("wrong-scene", "Failed")]
+    [InlineData("unverified-onset", "Failed")]
+    [InlineData("unreleased-play", "Failed")]
+    [InlineData("duplicate", "Failed")]
+    [InlineData("missing-callback", "Failed")]
+    [InlineData("wrong-proposal", "Failed")]
+    [InlineData("incomplete", "Failed")]
+    [InlineData("cleanup", "CleanupFailed")]
+    public async Task PrimedPlayBindsRealEntryBeforeOneSpecialistAndPreservesCleanup(string mode, string expected)
+    {
+        var folder = Path.Combine(Path.GetTempPath(), "dance-primed-scheduler-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var runtime = new PrimedRuntime(mode) { Released = mode != "cleanup" };
+            var job = PetDanceScheduledVisit.Prepare(new("target", new(1282, 760), "visit", PetDanceArena.WizardCity, true), runtime);
+            await using (var scheduler = new OperationScheduler(folder))
+            {
+                var receipt = await scheduler.Submit(job.Request, job.Execute).Completion;
+                Assert.Equal(expected, receipt.State.ToString());
+            }
+            Assert.Equal(1, runtime.CompositeCalls);
+            Assert.Equal(0, runtime.SpecialistCalls);
+            Assert.DoesNotContain(PetDanceLifecycleAction.Play, runtime.DispatchedActions);
+            Assert.Equal(1, runtime.Cleanups);
+            Assert.True(runtime.Calls.IndexOf("prime-capture") < runtime.Calls.IndexOf("play-released"));
+            if (mode == "complete")
+            {
+                Assert.Equal(1, runtime.CallbackCalls);
+                Assert.Equal(6, runtime.Dispatches);
+                Assert.True(runtime.Calls.IndexOf("play-released") < runtime.Calls.IndexOf("handoff-bound"));
+            }
+        }
+        finally { if (Directory.Exists(folder)) Directory.Delete(folder, true); }
     }
 
     [Fact]

@@ -66,7 +66,17 @@ class IdentityTests(unittest.IsolatedAsyncioTestCase):
             BASE,
             options.get("image_size", identity.IMAGE_SIZE),
             options.get("expected_stats", STATS),
+            expected_owner=options.get("expected_owner"),
         )
+
+    async def test_pose_parent_must_equal_registry_owner(self):
+        good = await self.result(Memory(), expected_owner=OWNER)
+        self.assertEqual("observed", good["status"])
+        self.assertTrue(good["ownerMatched"])
+        wrong = await self.result(Memory(), expected_owner=OWNER + 8)
+        self.assertEqual("unknown", wrong["status"])
+        self.assertEqual("local-owner-mismatch", wrong["reason"])
+        self.assertIsNone(wrong["characterKey"])
 
     async def test_stable_owned_character_is_hashed_without_raw_identity(self):
         memory = Memory()

@@ -34,7 +34,7 @@ internal static class W101WorldGateVisit
         return new(request, async (context, token) =>
         {
             var target = session.Target;
-            await using var scope = await W101ControlScope.CreateAsync(context, target.Window, GameWindows.ClientSize(target.Window), token, true).ConfigureAwait(false);
+            await using var scope = await W101ControlScope.CreateAsync(context, target.Window, GameWindows.ClientSize(target.Window), token, true, resumable: true).ConfigureAwait(false);
             var geometry = WindowObserver.GetCaptureSize(target.Window);
             OperationContext Stage(string name)
             {
@@ -54,8 +54,8 @@ internal static class W101WorldGateVisit
             async Task<OperationOutcome> RestoreIdle()
             {
                 idleAttempted = true;
-                var finalizer = await W101IdleFailsafe.RunAsync(context, new(), scope.Ready,
-                    (attempt, cancellation) => W101IdleCycleOperation.RunOwnedAsync(Stage("idle-attempt-" + attempt), target, idleRuntime, cancellation, "idle"), null, token).ConfigureAwait(false);
+                var finalizer = await FinalizeIdleAsync(context, scope.Ready, scope.WaitForFocusAsync,
+                    (attempt, cancellation) => W101IdleCycleOperation.RunOwnedAsync(Stage("idle-attempt-" + attempt), target, idleRuntime, cancellation, "idle"), token).ConfigureAwait(false);
                 GameExperiments.WriteAtomic(Path.Combine(context.Directory, "idle-finalizer.json"), finalizer);
                 return finalizer.Outcome ?? new(OperationState.Failed, finalizer.SkippedReason ?? "Idle not observed.", [context.Directory]);
             }
@@ -197,8 +197,12 @@ internal static class W101WorldGateVisit
                 if (arrived && options?.ReturnHome == true)
                 {
                     var wait = System.Diagnostics.Stopwatch.StartNew();
-                    for (var attempt = 0; attempt < 40 && scope.Ready(); attempt++)
+                    for (var attempt = 0; attempt < 40; attempt++)
                     {
+                        if (!await ReleasedCheckpointAsync(context, scope.Ready, scope.WaitForFocusAsync, token).ConfigureAwait(false))
+                        { homeReason = "focus-resume-unavailable"; break; }
+                        // Cooldown time continues during focus loss; acquire a new reading
+                        // after resumption rather than reusing pre-pause button evidence.
                         var child = Stage("home-ready-" + attempt);
                         var state = await W101UiTreeOperation.ReadOwnedAsync(child, target, launch, 0, token).ConfigureAwait(false);
                         var available = state.Loading == false && state.States.GetValueOrDefault("menu") == false && state.States.GetValueOrDefault("dialogue") == false
@@ -267,4 +271,23 @@ internal static class W101WorldGateVisit
             finally { if (!idleAttempted) await RestoreIdle().ConfigureAwait(false); }
         });
     }
+    // No input may remain held at this checkpoint. Focus return is not evidence
+    // that the target is still usable: recheck readiness and recovery afterwards.
+    internal static async Task<bool> ReleasedCheckpointAsync(OperationContext context, Func<bool> ready,
+        Func<CancellationToken, Task<bool>> waitForFocus, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (context.Input is not { CanDispatch: true } || !ReferenceEquals(context.Input, GameInputLease.Current)) return false;
+        if (!ready() && !await waitForFocus(token).ConfigureAwait(false)) return false;
+        token.ThrowIfCancellationRequested();
+        return context.Input is { CanDispatch: true } && ReferenceEquals(context.Input, GameInputLease.Current) && ready();
+    }
+
+    // Called only after travel inputs have drained. Resume cleanup from a new
+    // observation; never repeat X, world selection, teleport or Home dispatch.
+    internal static Task<W101IdleFailsafeResult> FinalizeIdleAsync(OperationContext context, Func<bool> ready,
+        Func<CancellationToken, Task<bool>> waitForFocus,
+        Func<int, CancellationToken, Task<OperationOutcome>> attempt, CancellationToken token) =>
+        W101IdleFailsafe.RunAsync(context, new() { ResumeAfterQuiet = true }, ready, attempt,
+            (_, cancellation) => waitForFocus(cancellation), token);
 }

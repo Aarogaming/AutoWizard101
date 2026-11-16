@@ -26,6 +26,7 @@ internal sealed class PetDanceSoundSequence
     private int _observedLength, _minimumAtGo, _maximumAtGo;
     /// <summary>Length from the starting configuration or explicit feedback. A recovered preview may
     /// establish its own length without inventing the previous round's outcome.</summary>
+    private bool _awaitBoundary;
     public int Expected { get; private set; }
     public bool NewPreview { get; private set; }
     public double? WatchStartMs => _watchStart;
@@ -41,6 +42,17 @@ internal sealed class PetDanceSoundSequence
     /// evidence. Fresh Watch after a response also starts a new window when feedback
     /// was missed; qualified audio may have the last observed length or one more.
     /// Only explicit feedback updates Expected, once, from the accepted preview length.</summary>
+    /// <summary>Discard an interrupted preview without inventing feedback or
+    /// resetting the timestamp watermark. A known non-Watch phase must be seen
+    /// before a later Watch can begin another sequence. Sends no input.</summary>
+    public void InterruptPreview()
+    {
+        _visual.Clear(); _watchStart = null; _audioOnsetBoundary = null; _previousSample = null;
+        _goHandled = _acceptedProposal = _responseObserved = _outcomeUnconfirmed = false;
+        _minimumAtGo = _maximumAtGo = 0;
+        _observedLength = Expected; NewPreview = false; _awaitBoundary = true;
+    }
+
     public PetDanceSoundSequenceResult? Observe(PetDanceSoundVisualSample sample, IReadOnlyList<PetDanceAudioObservation> audio)
     {
         NewPreview = false;
@@ -50,6 +62,13 @@ internal sealed class PetDanceSoundSequence
         var previousSample = _previousSample;
         _previousSample = sample;
         _lastTime = sample.QpcMs;
+        if (_awaitBoundary)
+        {
+            if (sample.Phase is DancePhase.Ready or DancePhase.Loading or DancePhase.Go or
+                DancePhase.Resolving or DancePhase.Success or DancePhase.Failure)
+                _awaitBoundary = false;
+            return null;
+        }
         if (sample.Phase is DancePhase.Success or DancePhase.Failure or DancePhase.Loading or DancePhase.Ready)
         {
             if (_acceptedProposal && sample.Phase is DancePhase.Success or DancePhase.Failure)

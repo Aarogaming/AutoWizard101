@@ -43,12 +43,13 @@ internal static class PetDancePostGameClassifier
             petHeader.Value.Left - feedHeader.Value.Right <= Math.Max(feedHeader.Value.Height, petHeader.Value.Height) * 8)
             return new(PetDanceScene.SnackOffer, finish, "snack-offer-and-finish");
 
+        var optionsHeader = new[] { "GRAPHICS", "SOUND", "GAMEPLAY", "PRIVACY" }.Any(label => Phrase(label, header) is not null);
         var idle = Phrase("IDLE", controls);
         var help = Phrase("HELP", controls);
         var ok = Phrase("OK", controls);
-        if (Phrase("GRAPHICS", header) is not null && idle is not null && help is not null && ok is not null &&
+        if (optionsHeader && idle is not null && help is not null && ok is not null &&
             SameRow([idle.Value, help.Value, ok.Value]) && idle.Value.Right < help.Value.Left && help.Value.Right < ok.Value.Left)
-            return new(PetDanceScene.MenuObserved, idle, "graphics-menu-and-idle-control");
+            return new(PetDanceScene.MenuObserved, idle, "options-menu-and-idle-control");
 
         var press = Phrase("PRESS", bottom);
         var play = Phrase("TO PLAY", bottom);
@@ -56,7 +57,7 @@ internal static class PetDancePostGameClassifier
         // This is only an outside *candidate*: the coordinator may use it solely after
         // this visit's verified Reward -> Snack -> acknowledged Finish transition.
         var modalHeader = Phrase("YOUR REWARD", header) is not null || feedHeader is not null ||
-            Phrase("GRAPHICS", header) is not null || Phrase("DANCE GAME", header) is not null;
+            optionsHeader || Phrase("DANCE GAME", header) is not null;
         if (!modalHeader && press is not null && play is not null && SameRow([press.Value, play.Value]) &&
             play.Value.Left > press.Value.Right && play.Value.Left - press.Value.Right <= Math.Max(press.Value.Height, play.Value.Height) * 10)
             return new(PetDanceScene.OutsideAfterGame, null, "bottom-interaction-prompt-requires-finish-transition");

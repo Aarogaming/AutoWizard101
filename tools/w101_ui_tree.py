@@ -20,6 +20,7 @@ import re
 import struct
 import sys
 import time
+import uuid
 
 VERSION = "w101-ui-tree-v1"
 COMMON_SHA256 = "70f38c0f875bce43d78f2b94e7933cf27a9051eaadad2a73f7743a3dd23f2d19"
@@ -27,9 +28,13 @@ COMBAT_READER_SHA256 = (
     "a405acdadd9b983a512e853155d832e6a1126439dcd783cffe393992b2b97c74"
 )
 DUEL_READER_SHA256 = "632a826d1aee0757a01dbe442d61b3045eecc0f274d5a94650d6f0048c060165"
-POSE_READER_SHA256 = "a6c9957f9aa209f6a14f1c24df0ca81e6035e7d400037416427f1ccc45baab77"
+POSE_READER_SHA256 = "d6463168ad2342747655d06d265a12c67cf2d3bbe9bbf960e75b9e833463e9af"
+NAVIGATION_READERS = {
+    "w101_zone_reader": "1e7ddcfae9bd825cfc864b86dfdab9af5a89501eb4c4de577c15883fd2712a42",
+    "w101_moving_pose": "785c4a62b9934a0c00644d8788fc592fdfee4e3ac63cc1baca2f946a61f1fbe9",
+}
 IDENTITY_READER_SHA256 = (
-    "f1ddc2fb6a89b92ce3210792308df4acb5d4703cadba05d177bea9e7543f4691"
+    "6c72c951986eb84713ba3e6b78914e5038f24469ca798a881d7bb9e3cddc2bd8"
 )
 MAX_NODES = 384
 MAX_DEPTH = 16
@@ -80,6 +85,13 @@ COMBAT_HAND = COMBAT_PLANNING + (
 )
 COMBAT_BUTTONS = {"Focus", "Draw", "Flee", "DefeatedPassButton", "DefeatedFleeButton"}
 MAX_COMBAT_CONTROLS = 64
+# Historical Deimos PetGameTracks paths are discovery hints, not live qualification.
+DANCE_ENTRY_ROOT = ("Root", "WorldView", "PetGameTracks")
+DANCE_ENTRY_TEXT = {
+    DANCE_ENTRY_ROOT + ("wndBkgEnergy", "txtEnergyCost"),
+    DANCE_ENTRY_ROOT + ("wndBkgEnergy", "txtYourEnergy"),
+}
+MAX_DANCE_ENTRY_CONTROLS = 96
 # Reviewed Deimos-Wizard101/wizwalker development definitions, retrieved 2026-11-10.
 # Limited to this independently scanned executable; never infer new registers/offsets.
 CURRENT_IMAGE_SHA256 = (
@@ -192,6 +204,22 @@ def pose_reader_module():
     spec = importlib.util.spec_from_file_location("maelstrom_pose_fields", path)
     module = importlib.util.module_from_spec(spec)
     exec(compile(raw, str(path), "exec"), module.__dict__)
+    # The isolated worker has no tools directory on sys.path. Expose the already
+    # hash-checked module to the moving decoder instead of importing an unpinned copy.
+    sys.modules["w101_pose_reader"] = module
+    return module
+
+
+def navigation_reader_module(name):
+    """Pinned candidate helpers, available only within explicit pose observation."""
+    path = Path(__file__).with_name(name + ".py")
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != NAVIGATION_READERS[name]:
+        raise ValueError("Reviewed navigation reader changed")
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    exec(compile(raw, str(path), "exec"), module.__dict__)
     return module
 
 
@@ -231,10 +259,26 @@ def validate_request(request):
         raise ValueError("Combat context requires a boolean opt-in")
     if type(request.get("includeResourceContext", False)) is not bool:
         raise ValueError("Resource context requires boolean opt-in")
+    if type(request.get("includeDanceEntryContext", False)) is not bool:
+        raise ValueError("Dance entry context requires a boolean opt-in")
     if type(request.get("includePoseContext", False)) is not bool:
         raise ValueError("Pose context requires a boolean opt-in")
     if type(request.get("stopAfterTwoTrees", False)) is not bool:
         raise ValueError("Two-tree snapshot requires a boolean opt-in")
+    stream_seconds = request.get("movingPoseSeconds", 0)
+    stream_id = request.get("poseStreamId")
+    if stream_id is not None and (
+        not isinstance(stream_id, str)
+        or len(stream_id) != 32
+        or any(c not in "0123456789abcdef" for c in stream_id)
+    ):
+        raise ValueError("Invalid owner stream identity")
+    if (
+        type(stream_seconds) is not int
+        or not 0 <= stream_seconds <= 3
+        or (stream_seconds and not request.get("includePoseContext"))
+    ):
+        raise ValueError("Moving stream requires pose opt-in and 1 through 3 seconds")
     duration = request.get("durationSeconds")
     if type(duration) is not int or not 1 <= duration <= 60:
         raise ValueError("Bound UI observation to 1 through 60 seconds")
@@ -244,10 +288,13 @@ def validate_request(request):
         if k
         not in (
             "durationSeconds",
+            "movingPoseSeconds",
+            "poseStreamId",
             "uiTreeEnabled",
             "includeQuestContext",
             "includeCombatContext",
             "includePoseContext",
+            "includeDanceEntryContext",
             "includeResourceContext",
             "stopAfterTwoTrees",
         )
@@ -395,11 +442,13 @@ class UiClient:
         include_quest_context=False,
         include_combat_context=False,
         include_resource_context=False,
+        include_dance_entry_context=False,
     ):
         from wizwalker import Client
         from wizwalker.memory.hooks import RootWindowHook
 
         self.image_sha256 = target["imageSha256"]
+        self.include_dance_entry_context = include_dance_entry_context
         self.include_resource_context = include_resource_context
         self.resource_labels = {}
         self.include_quest_context = include_quest_context
@@ -451,6 +500,9 @@ class UiClient:
             include_combat_context=self.include_combat_context,
             combat_reader=self.combat_reader,
             include_resource_context=self.include_resource_context,
+            include_dance_entry_context=getattr(
+                self, "include_dance_entry_context", False
+            ),
         )
         if self.include_resource_context:
             self.resource_globes = tree.get("resourceGlobes", {})
@@ -651,10 +703,37 @@ class UiClient:
         finally:
             await scope.close()
 
+    async def pose_owner(self, read, parent):
+        """Compare the actor parent directly with the guarded local registry owner.
+
+        This establishes an endpoint association, not continuous scene identity.
+        No pointers are returned or cached for use by another observer.
+        """
+        if getattr(self, "image_sha256", None) != ARCHIVED_LAYOUT_IMAGE_SHA256:
+            return dict(status="unknown", reason="owner-profile-unreviewed")
+        try:
+            from pymem.process import module_from_name
+
+            module = module_from_name(
+                self.client._pymem.process_handle, "WizardGraphicalClient.exe"
+            )
+            reader = identity_reader_module()
+            stats = struct.unpack("<Q", await read(parent + reader.STATS_OFFSET, 8))[0]
+            return await reader.read_identity(
+                read,
+                module.lpBaseOfDll,
+                module.SizeOfImage,
+                stats,
+                expected_owner=parent,
+            )
+        except Exception:
+            return dict(status="unknown", reason="pose-owner-unavailable")
+
     async def pose(self):
         """Serialize hooks; never let two hooks share the scratch block."""
         from wizwalker.memory.hooks import PlayerHook
 
+        self.pose_stage = "reader-load"
         reader = pose_reader_module()
         await self.scope.close()
         scope = RootScope(
@@ -666,17 +745,182 @@ class UiClient:
         # Retain the new scope even if open fails, so outer cleanup retries it.
         self.scope = scope
         try:
+            self.pose_stage = "player-hook-open"
             await scope.open()
             await asyncio.sleep(0.25)
+            self.pose_stage = "player-export"
             address = await scope.root()
+            self.pose_stage = "stationary-pose"
             value = await reader.read_pose(
                 self.client.hook_handler.read_bytes, address, layout_id=reader.LAYOUT_ID
             )
+            self.pose_stage = "navigation-readers"
+            zone_reader = navigation_reader_module("w101_zone_reader")
+            moving_reader = navigation_reader_module("w101_moving_pose")
+            read = self.client.hook_handler.read_bytes
+            self.pose_stage = "zone-candidate"
+            parent_raw = await read(address + 72, 8)
+            parent = struct.unpack("<Q", parent_raw)[0]
+            owner_before = await self.pose_owner(read, parent)
+            zone = await zone_reader.read_zone(
+                read, parent, layout_id=zone_reader.LAYOUT_ID
+            )
+            # Parent-as-ClientObject remains a hypothesis. Never publish this as
+            # a current-zone fact or use it to authorize navigation.
+            zone["ownerBinding"] = "actor-parent-unqualified"
+            stream_id = getattr(self, "pose_stream_id", None) or uuid.uuid4().hex
+            sequence = 0
+            context = moving_reader.PoseContext(
+                str(self.client.process_id),
+                stream_id,
+                zone.get("zoneName") or "unqualified-zone",
+                owner_before.get("characterKey") or "unqualified-wizard",
+            )
+            self.pose_stage = "moving-window"
+            ready = getattr(self, "pose_window_ready", None)
+            # Recheck after hook setup, before permitting the owner handshake.
+            if await self.loading() is not False or await scope.root() != address:
+                raise ValueError("Navigation readiness changed")
+            if getattr(self, "pose_stream_current", lambda: True)() is not True:
+                raise ValueError("Navigation owner changed")
+            stream_seconds = getattr(self, "moving_pose_seconds", 0)
+            if stream_seconds:
+
+                async def refresh():
+                    nonlocal context
+                    if not self.pose_stream_current() or await scope.root() != address:
+                        raise ValueError("Navigation owner changed")
+                    current_owner = await self.pose_owner(read, parent)
+                    if (
+                        current_owner.get("status") != "observed"
+                        or current_owner.get("ownerMatched") is not True
+                        or current_owner.get("characterKey")
+                        != owner_before.get("characterKey")
+                    ):
+                        raise ValueError("Navigation wizard changed or unverified")
+                    loading = await self.loading()
+                    current_zone = await zone_reader.read_zone(
+                        read, parent, layout_id=zone_reader.LAYOUT_ID
+                    )
+                    context = moving_reader.PoseContext(
+                        str(self.client.process_id),
+                        stream_id,
+                        current_zone.get("zoneName") or "unqualified-zone",
+                        current_owner["characterKey"],
+                        loading is not False,
+                    )
+
+                async def sample(value):
+                    nonlocal sequence
+                    sequence += 1
+                    await self.pose_stream_emit(
+                        dict(
+                            kind="moving-pose-candidate",
+                            streamId=stream_id,
+                            sequence=sequence,
+                            binding=getattr(self, "pose_stream_binding", None),
+                            observedUtcTicks=common.utc_ticks(),
+                            sampleAgeMs=max(
+                                0, (time.perf_counter() - value["started"]) * 1000
+                            ),
+                            sample=value,
+                            zone=context.zone,
+                            wizardKey=context.wizard,
+                            wizardOwnerChecked=True,
+                            contextQualified=False,
+                        )
+                    )
+
+                async def invalidated(value):
+                    await self.pose_stream_emit(
+                        dict(
+                            kind="moving-pose-invalidated",
+                            observedUtcTicks=common.utc_ticks(),
+                            reason=value.get("reason", "stream-ended"),
+                        )
+                    )
+
+                await refresh()
+                if context.loading or context.zone != zone.get("zoneName"):
+                    raise ValueError("Navigation readiness changed")
+                if ready is not None:
+                    await ready()
+                window = await moving_reader.stream_moving_pose(
+                    read,
+                    address,
+                    layout_id=reader.LAYOUT_ID,
+                    expected_context=context,
+                    get_context=lambda: context,
+                    refresh_context=refresh,
+                    limits=moving_reader.MovingPoseStreamLimits(
+                        2000,
+                        1000,
+                        20,
+                        sample_count=stream_seconds * 12,
+                        max_duration_seconds=stream_seconds,
+                    ),
+                    clock=time.perf_counter,
+                    on_sample=sample,
+                    on_invalidated=invalidated,
+                )
+            else:
+                if ready is not None:
+                    await ready()
+                window = await moving_reader.read_moving_pose(
+                    read,
+                    address,
+                    layout_id=reader.LAYOUT_ID,
+                    expected_context=context,
+                    get_context=lambda: context,
+                    limits=moving_reader.MovingPoseLimits(
+                        2000, 1000, 20, sample_count=8
+                    ),
+                    clock=time.perf_counter,
+                )
+            zone_after = await zone_reader.read_zone(
+                read, parent, layout_id=zone_reader.LAYOUT_ID
+            )
+            owner_after = await self.pose_owner(read, parent)
+            owner_pair = qualify_identity_pair(owner_before, owner_after)
+            zone["wizardOwnership"] = owner_pair
+            dimensions_reader = getattr(reader, "read_dimensions", None)
+            if dimensions_reader is not None:
+                zone["bodyDimensionsCandidate"] = await dimensions_reader(read, address)
+            zone["ownerBinding"] = (
+                "registry-owner-endpoints-matched"
+                if owner_pair.get("status") == "observed"
+                and owner_before.get("ownerMatched") is True
+                and owner_after.get("ownerMatched") is True
+                else "actor-parent-unqualified"
+            )
+            if (
+                parent_raw != await read(address + 72, 8)
+                or zone.get("zoneName") != zone_after.get("zoneName")
+                or await self.loading()
+            ):
+                raise ValueError("Navigation context changed")
+            value["zoneCandidate"] = zone
+            window["contextQualified"] = False
+            window["limitsSource"] = "experimental-rejection-bounds-not-calibration"
+            value["movingWindowCandidate"] = window
             if await scope.root() != address:
                 raise ValueError("Player export changed")
             return dict(value, observedUtcTicks=common.utc_ticks())
         finally:
-            await scope.close()
+            try:
+                if getattr(self, "moving_pose_seconds", 0):
+                    await asyncio.wait_for(
+                        self.pose_stream_emit(
+                            dict(
+                                kind="moving-pose-ended",
+                                observedUtcTicks=common.utc_ticks(),
+                                currentAuthority=False,
+                            )
+                        ),
+                        0.1,
+                    )
+            finally:
+                await scope.close()
 
 
 # Exact-build named scalar candidates. Static registration + imported type semantics.
@@ -877,12 +1121,14 @@ async def snapshot(
     include_combat_context=False,
     combat_reader=None,
     include_resource_context=False,
+    include_dance_entry_context=False,
 ):
     """Bounded visible tree; batched headers and child vectors, no unsafe text API."""
     nodes, seen = [], set()
     resource_globes = {}
     resource_potions = None
     combat_bindings = []
+    dance_entry_count = 0
     pending = [(pointer(root), None, 0, True, ())]
     total_bytes = 0
 
@@ -961,6 +1207,16 @@ async def snapshot(
         if private or not visible:
             continue
         path = (*ancestors, name)
+        dance_entry_node = include_dance_entry_context and path[:3] == DANCE_ENTRY_ROOT
+        if path == DANCE_ENTRY_ROOT and not include_dance_entry_context:
+            node["childrenSkipped"] = True
+            continue
+        if dance_entry_node:
+            dance_entry_count += 1
+            if dance_entry_count > MAX_DANCE_ENTRY_CONTROLS:
+                raise ValueError("Dance entry control budget exceeded")
+            rectangle = list(struct.unpack_from("<iiii", header, 80))
+            node["rawRectangle"] = rectangle if valid_raw_rectangle(rectangle) else None
         # Geometry for reviewed gate controls only; raw parent-relative layout units.
         if (
             "optionWindow" in ancestors
@@ -1083,6 +1339,9 @@ async def snapshot(
             or path in selection_paths
             or path == INTERACTION_TITLE
             or resource_text
+            or include_dance_entry_context
+            and current_layout
+            and path in DANCE_ENTRY_TEXT
             or include_quest_context
             and path in (QUEST_OBJECTIVE, QUEST_DIALOGUE)
         ):
@@ -1161,6 +1420,7 @@ async def snapshot(
         ),
         questContextIncluded=include_quest_context,
         combatContextIncluded=include_combat_context,
+        danceEntryContextIncluded=include_dance_entry_context,
         combatFieldCandidates=fields,
         resourceGlobes=resource_globes,
         resourcePotions=resource_potions,
@@ -1291,6 +1551,92 @@ def combat_context(tree):
         controls=controls,
         fieldCandidates=tree.get("combatFieldCandidates"),
         duelCandidates=tree.get("duelCandidates"),
+    )
+
+
+def dance_entry_context(tree, observed_ticks):
+    """Bounded structural candidates, never selected/approved controls or pixels.
+
+    Visibility/enabled come from the existing header flags and ancestor chain.
+    No reviewed selection field is available; selected stays explicitly unknown.
+    Static text is allowlisted to the historical energy labels only.
+    """
+    if (
+        tree.get("complete") is not True
+        or tree.get("danceEntryContextIncluded") is not True
+        or tree.get("layout")
+        not in (CURRENT_IMAGE_SHA256, ARCHIVED_LAYOUT_IMAGE_SHA256)
+        or type(observed_ticks) is not int
+        or observed_ticks <= 0
+    ):
+        return None
+    raw = tree.get("nodes")
+    if not isinstance(raw, list) or not 1 <= len(raw) <= MAX_NODES:
+        return None
+    nodes = {}
+    for n in raw:
+        if (
+            not isinstance(n, dict)
+            or type(n.get("index")) is not int
+            or not 0 <= n["index"] < MAX_NODES
+            or n["index"] in nodes
+            or "parent" not in n
+            or n["parent"] is not None
+            and type(n["parent"]) is not int
+            or not isinstance(n.get("name"), str)
+            or len(n["name"]) > 128
+            or any(ord(c) < 32 for c in n["name"])
+            or type(n.get("visible")) is not bool
+            or type(n.get("enabled")) is not bool
+        ):
+            return None
+        nodes[n["index"]] = n
+    controls = []
+    for n in raw:
+        chain, seen = [], set()
+        cursor = n
+        while cursor is not None:
+            if cursor["index"] in seen or len(chain) > MAX_DEPTH:
+                return None
+            seen.add(cursor["index"])
+            chain.append(cursor)
+            parent = cursor["parent"]
+            if parent is not None and parent not in nodes:
+                return None
+            cursor = nodes.get(parent)
+        path = tuple(item["name"] for item in reversed(chain))
+        if path[:3] != DANCE_ENTRY_ROOT or any(
+            PRIVATE_BRANCH.search(name) or name == "[excluded]" for name in path
+        ):
+            continue
+        if len(controls) >= MAX_DANCE_ENTRY_CONTROLS or n.get("childrenSkipped"):
+            return None
+        text = n.get("text") if path in DANCE_ENTRY_TEXT else None
+        if text is not None and (not isinstance(text, str) or len(text) > 160):
+            return None
+        rect = n.get("rawRectangle")
+        controls.append(
+            dict(
+                index=n["index"],
+                parent=n["parent"],
+                path=list(path),
+                name=n["name"],
+                text=text,
+                visible=all(item["visible"] for item in chain),
+                enabled=all(item["enabled"] for item in chain),
+                rawRectangle=rect.copy() if valid_raw_rectangle(rect) else None,
+                selected=None,
+                selectionReason="selection-field-unqualified",
+            )
+        )
+    if sum(control["path"] == list(DANCE_ENTRY_ROOT) for control in controls) > 1:
+        return None
+    return dict(
+        schemaVersion=1,
+        observedUtcTicks=observed_ticks,
+        qualification="structural-unqualified",
+        geometrySpace="raw-parent-layout-unqualified",
+        controls=controls,
     )
 
 
@@ -1480,6 +1826,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
         interactionTitle=None,
         stableInteractionTitle=None,
         combatContext=None,
+        danceEntryContext=None,
     )
     client = None
     previous = None
@@ -1503,6 +1850,31 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
             raise ValueError("Preparation no longer current")
         result["cleanupConfirmed"] = False
         client = factory(request["target"])
+        if request.get("includePoseContext", False):
+
+            async def pose_window_ready():
+                await emit(
+                    dict(
+                        kind="pose-window-ready",
+                        observedUtcTicks=common.utc_ticks(),
+                        safe=result.get("loading") is False
+                        and all(
+                            result.get("states", {}).get(name) is False
+                            for name in ("nativeIdle", "menu", "dialogue")
+                        ),
+                    )
+                )
+
+            client.pose_window_ready = pose_window_ready
+            client.moving_pose_seconds = request.get("movingPoseSeconds", 0)
+            client.pose_stream_id = request.get("poseStreamId")
+            client.pose_stream_emit = emit
+            client.pose_stream_binding = dict(
+                runId=request["runId"], target=dict(request["target"])
+            )
+            client.pose_stream_current = lambda: not stop() and identity(
+                request["target"]
+            )
         await client.open()
         if time.monotonic() - started >= request["timeoutSeconds"]:
             raise TimeoutError("Setup budget exceeded")
@@ -1548,6 +1920,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                         interactionTitle=None,
                         stableInteractionTitle=None,
                         combatContext=None,
+                        danceEntryContext=None,
                     )
                 await emit(
                     dict(
@@ -1555,7 +1928,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                         observedUtcTicks=common.utc_ticks(),
                         loading=latest_loading,
                         **(
-                            {"combatContext": None}
+                            {"combatContext": None, "danceEntryContext": None}
                             if latest_loading is not False
                             else {}
                         ),
@@ -1605,6 +1978,11 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                     if request.get("includeCombatContext")
                     else None
                 )
+                dance_entry = (
+                    dance_entry_context(tree, stamp)
+                    if request.get("includeDanceEntryContext")
+                    else None
+                )
                 result.update(
                     states=values,
                     stableStates=stable,
@@ -1616,6 +1994,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                     interactionTitle=title,
                     stableInteractionTitle=stable_title,
                     combatContext=combat,
+                    danceEntryContext=dance_entry,
                 )
                 result["treeSamples"] += 1
                 await emit(
@@ -1630,6 +2009,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                         interactionTitle=title,
                         stableInteractionTitle=stable_title,
                         combatContext=combat,
+                        danceEntryContext=dance_entry,
                         **tree,
                     )
                 )
@@ -1659,6 +2039,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                     interactionTitle=None,
                     stableInteractionTitle=None,
                     combatContext=None,
+                    danceEntryContext=None,
                 )
                 await emit(
                     dict(
@@ -1682,6 +2063,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                         observedUtcTicks=common.utc_ticks(),
                         states=result["states"],
                         combatContext=None,
+                        danceEntryContext=None,
                     )
                 )
         else:
@@ -1710,6 +2092,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
             interactionTitle=None,
             stableInteractionTitle=None,
             combatContext=None,
+            danceEntryContext=None,
         )
     finally:
         if client is not None:
@@ -1723,10 +2106,24 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                 ):
                     try:
                         result["poseCandidate"] = await asyncio.wait_for(
-                            client.pose(), 3
+                            client.pose(), 3 + request.get("movingPoseSeconds", 0)
                         )
-                    except Exception:
+                    except Exception as error:
                         result["poseCandidate"] = None
+                        result["poseFailure"] = {
+                            "stage": getattr(client, "pose_stage", "unknown"),
+                            "kind": (
+                                type(error).__name__
+                                if type(error).__name__
+                                in {
+                                    "ValueError",
+                                    "TimeoutError",
+                                    "ModuleNotFoundError",
+                                    "AttributeError",
+                                }
+                                else "observation-failed"
+                            ),
+                        }
                 if (
                     request.get("includeResourceContext", False)
                     and result["status"] == "observed"
@@ -1762,6 +2159,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                                 interactionTitle=None,
                                 stableInteractionTitle=None,
                                 combatContext=None,
+                                danceEntryContext=None,
                             )
                     except Exception:
                         result.update(
@@ -1789,6 +2187,7 @@ async def observe(request, factory, identity, stop, emit, prepare=lambda: None):
                     interactionTitle=None,
                     stableInteractionTitle=None,
                     combatContext=None,
+                    danceEntryContext=None,
                 )
         result["durationMs"] = int((time.monotonic() - started) * 1000)
     return result
@@ -1825,6 +2224,7 @@ def main():
                     request.get("includeQuestContext", False),
                     request.get("includeCombatContext", False),
                     request.get("includeResourceContext", False),
+                    request.get("includeDanceEntryContext", False),
                 ),
                 common.current_target,
                 lambda: (directory / "stop.request").exists(),

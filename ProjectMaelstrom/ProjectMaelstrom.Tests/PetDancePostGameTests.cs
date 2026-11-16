@@ -224,6 +224,19 @@ public class PetDancePostGameTests
 public class PetDancePostGameClassifierTests
 {
     private static readonly Size Geometry = new(1282, 760);
+    [Theory]
+    [InlineData("GRAPHICS")]
+    [InlineData("SOUND")]
+    [InlineData("GAMEPLAY")]
+    [InlineData("PRIVACY")]
+    public void OptionsTabsRequireTheSameVerifiedIdleButtonRow(string heading)
+    {
+        var words = Menu.Select(word => word.Text == "GRAPHICS" ? word with { Text = heading } : word).ToArray();
+        Assert.Equal(PetDanceScene.MenuObserved, Read(words).Scene);
+        Assert.Equal(PetDanceScene.Unknown, Read(words.Where(word => word.Text != "IDLE").ToArray()).Scene);
+        Assert.Equal(PetDanceScene.Unknown, Read(words.Select(word => word.Text == heading ? word with { Text = "SHOP" } : word).ToArray()).Scene);
+    }
+
     private static PetDanceMenuWord Word(string text, float x, float y, float width, float height = 15) =>
         new(text, new(x, y, width, height));
     private static PetDancePostGameScene Read(params PetDanceMenuWord[] words) =>

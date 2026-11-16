@@ -14,6 +14,7 @@ internal sealed record JobRoutineValidation(bool Valid, bool Confirmed, string[]
 internal sealed class JobDeckHost : IAsyncDisposable
 {
     private readonly string _dataRoot;
+    internal string DataRoot => _dataRoot;
     private readonly OperationScheduler _scheduler;
     private readonly object _gate = new();
     private readonly CancellationTokenSource _stop = new();

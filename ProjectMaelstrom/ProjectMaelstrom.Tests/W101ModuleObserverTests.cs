@@ -5,6 +5,24 @@ namespace ProjectMaelstrom.Tests;
 
 public sealed class W101ModuleObserverTests : IDisposable
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task CancellationOnlyAvoidsRecoveryWithTypedCleanupEvidence(bool verified)
+    {
+        using var lease = GameInputLease.Acquire("test", _root);
+        using var scope = GameInputLease.EnterScope(lease);
+        var runtime = Runtime("fresh") with
+        {
+            Read = (_, _, _, _, token) => verified
+                ? throw new W101UiObservationCancelledException("Confirmed restoration", token)
+                : throw new OperationCanceledException("Missing cleanup receipt")
+        };
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => W101ModuleObserver.ReadAsync(
+            Context(lease), _target, _launch, 0, Binding, _geometry, () => true, default, runtime));
+        Assert.Equal(!verified, lease.RecoveryRequired);
+    }
+
     [Fact]
     public async Task LoadingWithoutTreeIsPausedEvidenceNotTimestampFailure()
     {

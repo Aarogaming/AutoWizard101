@@ -21,6 +21,41 @@ public sealed class TeacherActionReplayTests
         }));
     }
     [Theory]
+    [InlineData(false, 1)]
+    [InlineData(true, 2)]
+    public void BatchLinksDistinctActionsButDoesNotCountDuplicateLogs(bool independent, int expected)
+    {
+        using var doc = Evidence();
+        var report = System.Text.Json.Nodes.JsonNode.Parse(doc.RootElement.GetRawText())!;
+        var later = System.Text.Json.Nodes.JsonNode.Parse(doc.RootElement.GetRawText())!["events"]!.AsArray();
+        if (independent)
+        {
+            later[0]!["observed"]!["TimeMs"] = 300;
+            later[0]!["decision"]!["ProposalId"] = "second";
+            later[1]!["receipt"]!["ProposalId"] = "second";
+            later[1]!["receipt"]!["TimeMs"] = 350;
+            later[2]!["observed"]!["TimeMs"] = 400;
+        }
+        foreach (var item in later) report["events"]!.AsArray().Add(item!.DeepClone());
+        using var combined = JsonDocument.Parse(report.ToJsonString());
+        Assert.Equal(expected, TeacherActionReplay.LinkAll(combined.RootElement).Length);
+    }
+
+    [Fact]
+    public void ConflictingProposalReuseCannotBecomeRepetitionEvidence()
+    {
+        using var doc = Evidence();
+        var report = System.Text.Json.Nodes.JsonNode.Parse(doc.RootElement.GetRawText())!;
+        var later = System.Text.Json.Nodes.JsonNode.Parse(doc.RootElement.GetRawText())!["events"]!.AsArray();
+        later[0]!["observed"]!["TimeMs"] = 300;
+        later[1]!["receipt"]!["TimeMs"] = 350;
+        later[2]!["observed"]!["TimeMs"] = 400;
+        foreach (var item in later) report["events"]!.AsArray().Add(item!.DeepClone());
+        using var combined = JsonDocument.Parse(report.ToJsonString());
+        Assert.Throws<InvalidDataException>(() => TeacherActionReplay.LinkAll(combined.RootElement));
+    }
+
+    [Theory]
     [InlineData(false, true, true)]
     [InlineData(true, false, true)]
     [InlineData(true, true, false)]
@@ -118,6 +153,14 @@ public sealed class TeacherActionReplayTests
                 VideoSha256 = GameExperiments.Digest(video)
             }));
             var output = Path.Combine(folder, "export"); TeacherActionReplay.Export(report, inputs, output);
+            var routines = JobDeckRoutines.Create().ToDictionary(routine => routine.Info.Id, StringComparer.Ordinal);
+            var prototype = CardPrototype.Load(Path.Combine(output, "prototype.json"), routines);
+            Assert.False(prototype.Card.InDeck);
+            Assert.Equal("review.routine", prototype.Card.RoutineId);
+            Assert.Equal(Path.GetFullPath(Path.Combine(output, "routine.json")), prototype.Card.Settings!["graphFile"]);
+            Assert.Equal(Path.GetFullPath(Path.Combine(output, "session.json")), prototype.Card.Settings["sessionFile"]);
+            Assert.Empty(CardPrototype.History(folder, prototype.Card.Id));
+            _ = CardPrototype.ReplayBinding(prototype, routines);
             using var replay = JsonDocument.Parse(File.ReadAllText(Path.Combine(output, "replay.json")));
             Assert.True(replay.RootElement.GetProperty("completed").GetBoolean());
             Assert.Equal(1, replay.RootElement.GetProperty("receipt_count").GetInt32());

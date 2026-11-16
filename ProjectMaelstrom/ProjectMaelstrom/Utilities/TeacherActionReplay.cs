@@ -25,11 +25,19 @@ internal static class TeacherActionReplay
         facts == null ? null : new { game_id = "wizard101", target_id = observation.Binding.TargetId,
             context_id = observation.Binding.ContextId, observed_time_ms = observation.TimeMs - origin, values = facts };
 
-    internal static LinkedAction Link(JsonElement report)
+    internal static LinkedAction Link(JsonElement report) => LinkAll(report).FirstOrDefault()
+        ?? throw new InvalidDataException("No accepted/released keyboard action with a fresh, changed outcome was found.");
+
+    /// <summary>Bounded non-overlapping actions; duplicate logs are not independent evidence.</summary>
+    internal static LinkedAction[] LinkAll(JsonElement report)
     {
+        var links = new List<LinkedAction>();
+        var seen = new Dictionary<string, LinkedAction>(StringComparer.Ordinal);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         if (!report.GetProperty("finalIdleVerified").GetBoolean()) throw new InvalidDataException("Teacher did not verify return to Idle.");
-        var events = report.GetProperty("events").EnumerateArray().ToArray();
+        var rawEvents = report.GetProperty("events");
+        if (rawEvents.GetArrayLength() > 4096) throw new InvalidDataException("Teacher event budget exceeded.");
+        var events = rawEvents.EnumerateArray().ToArray();
         for (var i = 0; i + 2 < events.Length; i++)
         {
             if (events[i].GetProperty("kind").GetString() != "observation" || events[i + 1].GetProperty("kind").GetString() != "receipt") continue;
@@ -52,10 +60,20 @@ internal static class TeacherActionReplay
                     !double.IsFinite(before.TimeMs) || !double.IsFinite(receipt.TimeMs) || !double.IsFinite(after.TimeMs) ||
                     receipt.TimeMs < before.TimeMs || after.TimeMs <= receipt.TimeMs || after.TimeMs - before.TimeMs > 15000 ||
                     before.Scene is "Unknown" or "Loading" || after.Scene is "Unknown" or "Loading" || after.Scene == before.Scene) continue;
-                return new(before, receipt, after, action, decision.ProposalId, Facts(events[i]), Facts(events[j]));
+                var linked = new LinkedAction(before, receipt, after, action, decision.ProposalId, Facts(events[i]), Facts(events[j]));
+                if (seen.TryGetValue(decision.ProposalId, out var previous))
+                {
+                    if (previous.Before != before || previous.Receipt != receipt || previous.After != after || previous.Action != action)
+                        throw new InvalidDataException("Conflicting evidence reuses a teacher proposal identity.");
+                    break;
+                }
+                if (links.Count >= 64 || links.Count > 0 && before.TimeMs < links[^1].After.TimeMs)
+                    throw new InvalidDataException("Teacher actions exceed the bounded non-overlapping sequence.");
+                seen.Add(decision.ProposalId, linked); links.Add(linked);
+                break;
             }
         }
-        throw new InvalidDataException("No accepted/released keyboard action with a fresh, changed outcome was found.");
+        return links.ToArray();
     }
 
     public static void Export(string teacherPath, string inputPath, string outputDirectory)
@@ -96,5 +114,20 @@ internal static class TeacherActionReplay
         });
         if (!RoutineReplay.Run(Path.Combine(outputDirectory, "routine.json"), Path.Combine(outputDirectory, "session.json"), Path.Combine(outputDirectory, "replay.json")))
             throw new InvalidDataException("Derived card did not complete evidence replay; inspect the report.");
+        // Reconstruction on the discovery trace is not independent validation.
+        // Export an editable, undealt draft; never insert or qualify a live card.
+        var routines = JobDeckRoutines.Create().ToDictionary(routine => routine.Info.Id, StringComparer.Ordinal);
+        var title = "Observed " + linked.Action.ActionId;
+        var prototype = CardPrototype.Create("review.routine", "wizard101", title[..Math.Min(title.Length, 90)], routines);
+        prototype = prototype with { Card = prototype.Card with
+        {
+            InDeck = false,
+            Settings = new Dictionary<string, string>
+            {
+                ["graphFile"] = Path.GetFullPath(Path.Combine(outputDirectory, "routine.json")),
+                ["sessionFile"] = Path.GetFullPath(Path.Combine(outputDirectory, "session.json"))
+            }
+        } };
+        CardPrototype.Save(Path.Combine(outputDirectory, "prototype.json"), prototype, routines);
     }
 }

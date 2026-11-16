@@ -5,6 +5,16 @@ namespace ProjectMaelstrom.Tests;
 
 public sealed class MaelstromCliTests : IDisposable
 {
+    [Fact]
+    public void ContinuousPoseSamplingRequiresExplicitBoundedObservation()
+    {
+        var args = CheckArgs(); args[1] = "ui-tree-watch";
+        args = [.. args, "--enable-ui-tree", "--include-pose-context"];
+        Assert.Equal(3, MaelstromCli.Parse([.. args, "--moving-pose-seconds", "3"], _root).MovingPoseSeconds);
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args, "--moving-pose-seconds", "4"], _root));
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args.Where(a => a != "--include-pose-context"), "--moving-pose-seconds", "2"], _root));
+    }
+
     [Theory]
     [InlineData("world-gate-inspect")]
     [InlineData("world-gate-close")]
@@ -26,13 +36,15 @@ public sealed class MaelstromCliTests : IDisposable
         Assert.Throws<ArgumentException>(() => MaelstromCli.Parse(ready.Where(a => a != "--enable-module-actions").ToArray(), _root));
     }
 
-    [Fact]
-    public void HomeCalibrationRequiresMeasuredVisitAndSinglePulse()
+    [Theory]
+    [InlineData("HOME")]
+    [InlineData("END")]
+    public void HomeCalibrationRequiresMeasuredVisitAndSinglePulse(string key)
     {
         var args = CheckArgs(); args[1] = "navigation-visit";
-        args = [.. args, "--enable-ui-tree", "--enable-module-actions", "--key", "HOME", "--pulse-ms", "40"];
+        args = [.. args, "--enable-ui-tree", "--enable-module-actions", "--key", key, "--pulse-ms", "40"];
         Assert.Throws<ArgumentException>(() => MaelstromCli.Parse(args, _root));
-        Assert.Equal("HOME", MaelstromCli.Parse([.. args, "--include-pose-context"], _root).NavigationKey);
+        Assert.Equal(key, MaelstromCli.Parse([.. args, "--include-pose-context"], _root).NavigationKey);
     }
 
     [Fact]

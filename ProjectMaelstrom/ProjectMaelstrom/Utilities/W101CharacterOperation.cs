@@ -5,6 +5,7 @@ namespace ProjectMaelstrom.Utilities;
 internal static class W101CharacterOperation
 {
     internal static readonly ModuleAction CharacterInfo = new("game.character-info", "keyboard-pulse", "C", 40, "w101.character-info");
+    internal static readonly ModuleAction GoCommons = new("game.go-commons", "keyboard-pulse", "END", 40, "w101.go-commons");
     internal static readonly ModuleAction GoHome = new("game.go-home", "keyboard-pulse", "HOME", 40, "w101.go-home");
     internal static long CaptureUtcTicks(double capturedMs, double nowMs, long utcTicks)
     {

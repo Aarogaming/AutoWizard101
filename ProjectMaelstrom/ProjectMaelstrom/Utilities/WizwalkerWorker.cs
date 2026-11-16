@@ -33,7 +33,8 @@ internal static class WizwalkerWorker
         await ExecuteJsonAsync<WizwalkerResult>(launch, request, context, token).ConfigureAwait(false);
 
     internal static async Task<TResult> ExecuteJsonAsync<TResult>(WizwalkerLaunch launch, object request,
-        OperationContext context, CancellationToken token, int maximumSeconds = 18, int maximumResultBytes = 16384) where TResult : class
+        OperationContext context, CancellationToken token, int maximumSeconds = 18, int maximumResultBytes = 16384,
+        Action<string>? traceRecord = null) where TResult : class
     {
         ValidateLimits(maximumSeconds, maximumResultBytes);
         if (context.Input?.CanDispatch != true) throw new InvalidOperationException("No shared control owner.");
@@ -42,6 +43,7 @@ internal static class WizwalkerWorker
         bool started = false;
         bool exited = false;
         var clock = Stopwatch.StartNew();
+        using var trace = traceRecord is null ? null : new W101TraceTail(Path.Combine(context.Directory, "ui-observations.jsonl"), traceRecord);
         try
         {
             token.ThrowIfCancellationRequested();
@@ -59,6 +61,9 @@ internal static class WizwalkerWorker
             long? stopAt = null;
             while (!process.HasExited)
             {
+                // Never deliver records after ownership loss/cancellation. The
+                // callback remains inside this worker's lifetime and cleanup.
+                if (!token.IsCancellationRequested && context.Input.CanDispatch) trace?.Poll();
                 bool memoryLimit;
                 try { process.Refresh(); memoryLimit = process.WorkingSet64 > 384L * 1024 * 1024; }
                 catch (InvalidOperationException) when (process.HasExited) { break; }

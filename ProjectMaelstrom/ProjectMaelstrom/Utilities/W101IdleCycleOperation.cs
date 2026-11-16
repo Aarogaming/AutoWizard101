@@ -5,7 +5,7 @@ namespace ProjectMaelstrom.Utilities;
 internal sealed record W101IdleCycleRuntime(Func<bool> Ready, Size Geometry,
     Func<OperationContext, int, RoutineBinding, CancellationToken, Task<W101ModuleObservation>> Read,
     Func<OperationContext, ModuleDecision, W101ModuleObservation, Func<bool>, CancellationToken, Task<RoutineReceipt>> Dispatch,
-    Func<double> Clock, Func<long> UtcTicks, Func<string>? ReadinessDiagnostic = null);
+    Func<double> Clock, Func<long> UtcTicks, Func<string>? ReadinessDiagnostic = null, Func<CancellationToken, Task<bool>>? WaitForFocus = null);
 
 /// <summary>One owned Idle/options/Idle visit. No navigation, quest advancement,
 /// purchases or unbounded retry. Real clicks use the existing tagged UI transport.</summary>
@@ -59,7 +59,7 @@ internal static class W101IdleCycleOperation
                     return await W101ModuleInput.DispatchAsync(proposal, owner, ready,
                         (key, release) => W101ModuleInput.Send(target, key, release), FrameTimeline.TimestampMs, cancellation,
                         continuing: scope.Ready).ConfigureAwait(false);
-                }, FrameTimeline.TimestampMs, () => DateTime.UtcNow.Ticks, () => scope.ReadinessReason);
+                }, FrameTimeline.TimestampMs, () => DateTime.UtcNow.Ticks, () => scope.ReadinessReason, scope.WaitForFocusAsync);
     }
 
     internal static RoutineObservation Observe(WizwalkerTarget target, W101ModuleObservation sample,
@@ -98,14 +98,21 @@ internal static class W101IdleCycleOperation
             "w101-idle-cycle.visit." + context.Request.Id);
         var cycle = new W101IdleCycle(binding, context.Request.Id, mode);
         var started = runtime.Clock(); var events = new List<object>();
+        var initialPause = context.FocusBudget?.PausedDuration.TotalMilliseconds ?? 0;
+        double PausedMs() => (context.FocusBudget?.PausedDuration.TotalMilliseconds ?? 0) - initialPause;
+        RoutineObservation Logical(RoutineObservation observation) => observation with { TimeMs = observation.TimeMs - PausedMs() };
         var state = OperationState.Unknown; var reason = "observation-budget-exhausted";
         bool Ready() => !token.IsCancellationRequested && context.Input is { CanDispatch: true } && ReferenceEquals(context.Input, GameInputLease.Current) &&
-            runtime.Ready() && double.IsFinite(runtime.Clock()) && runtime.Clock() >= started && runtime.Clock() - started < 60000;
+            runtime.Ready() && double.IsFinite(runtime.Clock()) && runtime.Clock() >= started && runtime.Clock() - started - PausedMs() < 60000;
         try
         {
             for (var index = 0; index < 16; index++)
             {
-                if (!Ready()) { reason = "target-takeover-or-deadline"; break; }
+                if (!Ready())
+                {
+                    if (runtime.WaitForFocus is null || !await runtime.WaitForFocus(token).ConfigureAwait(false) || !Ready())
+                    { reason = "target-takeover-or-deadline"; break; }
+                }
                 // The observer owns hook/capture cleanup and latches uncertain
                 // release itself. OCR, evidence-write and takeover failures after
                 // confirmed cleanup must not create a false recovery lock.
@@ -114,9 +121,13 @@ internal static class W101IdleCycleOperation
                 { context.Input!.RequireRecovery("Idle cycle hook cleanup is unconfirmed."); break; }
                 if (sample.Geometry != runtime.Geometry || sample.Recognition.Frame.Binding != binding)
                 { state = OperationState.Failed; reason = "capture-binding-or-geometry-changed"; break; }
-                if (!Ready()) { reason = "target-takeover-or-deadline"; break; }
+                if (!Ready())
+                {
+                    if (runtime.WaitForFocus is not null && await runtime.WaitForFocus(token).ConfigureAwait(false) && Ready()) continue;
+                    reason = "target-takeover-or-deadline"; break;
+                }
                 var observed = Observe(target, sample, binding, runtime.Clock(), runtime.UtcTicks());
-                var decision = cycle.Observe(observed);
+                var decision = cycle.Observe(Logical(observed));
                 events.Add(new { kind = "observation", sample, observed, decision });
                 if (decision.Completed) { state = OperationState.Completed; reason = mode == "wake" ? "awake-state-independently-observed" : "idle-state-independently-observed"; break; }
                 if (decision.Stopped) { state = OperationState.Failed; reason = decision.Reason; break; }
@@ -132,7 +143,7 @@ internal static class W101IdleCycleOperation
                 try { receipt = await runtime.Dispatch(context, decision, sample, FreshReady, token).ConfigureAwait(false); }
                 catch { context.Input!.RequireRecovery("Idle cycle transport returned no release receipt."); throw; }
                 if (!receipt.InputReleased) context.Input!.RequireRecovery("Idle cycle input release is unconfirmed.");
-                cycle.RecordReceipt(receipt); events.Add(new { kind = "receipt", receipt });
+                cycle.RecordReceipt(receipt with { TimeMs = receipt.TimeMs - PausedMs() }); events.Add(new { kind = "receipt", receipt });
                 if (cycle.Status.Stopped) { state = OperationState.Failed; reason = cycle.Status.Reason; break; }
             }
         }

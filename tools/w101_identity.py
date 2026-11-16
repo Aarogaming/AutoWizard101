@@ -93,7 +93,7 @@ class _Reader:
         return raw
 
 
-async def read_identity(read, base, image_size, expected_stats):
+async def read_identity(read, base, image_size, expected_stats, *, expected_owner=None):
     """Return a stable opaque identity only when its owner matches expected_stats.
 
     Unknown results contain fixed reason codes and counters. Cancellation
@@ -111,6 +111,8 @@ async def read_identity(read, base, image_size, expected_stats):
     try:
         _pointer(base)
         _pointer(expected_stats)
+        if expected_owner is not None:
+            _pointer(expected_owner)
         if (
             type(image_size) is not int
             or image_size != IMAGE_SIZE
@@ -164,6 +166,8 @@ async def read_identity(read, base, image_size, expected_stats):
         else:
             raise _Rejected("local-object-not-found")
         owner, control = _pointer(owner), _pointer(control)
+        if expected_owner is not None and owner != expected_owner:
+            raise _Rejected("local-owner-mismatch")
         if struct.unpack("<i", await reader.get(control + 8, 4))[0] <= 0:
             raise _Rejected("owner-expired")
         character_raw = await reader.get(owner + CHARACTER_ID_OFFSET, 8)
@@ -203,6 +207,7 @@ async def read_identity(read, base, image_size, expected_stats):
             characterKey=token,
             profileId=token[:32],
             statsMatched=True,
+            ownerMatched=expected_owner is not None,
         )
     except _Rejected as error:
         result["reason"] = str(error)

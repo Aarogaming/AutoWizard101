@@ -11,6 +11,40 @@ public sealed class OperationSchedulerTests : IDisposable
     private OperationReceipt Read(string id) => JsonSerializer.Deserialize<OperationReceipt>(File.ReadAllText(Path.Combine(_root, "operations", id, "receipt.json")))!;
 
     [Fact]
+    public async Task FocusPauseDoesNotConsumeActiveTimeoutOrReplayBody()
+    {
+        await using var scheduler = new OperationScheduler(_root, _root);
+        var calls = 0;
+        var ticket = scheduler.Submit(Request(timeout: 1), async (context, token) =>
+        {
+            calls++;
+            using (context.FocusBudget!.Pause()) await Task.Delay(1300, token);
+            token.ThrowIfCancellationRequested();
+            return OperationOutcome.Completed("resumed same invocation");
+        });
+        var result = await ticket.Completion.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Equal(OperationState.Completed, result.State);
+        Assert.Equal(1, calls);
+    }
+
+    [Fact]
+    public async Task UserCancellationStillEndsFocusPausedRun()
+    {
+        await using var scheduler = new OperationScheduler(_root, _root);
+        var entered = Signal();
+        var ticket = scheduler.Submit(Request(), async (context, token) =>
+        {
+            using var pause = context.FocusBudget!.Pause();
+            entered.SetResult();
+            await Task.Delay(Timeout.Infinite, token);
+            return OperationOutcome.Completed("unreachable");
+        });
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(3));
+        ticket.Cancel();
+        Assert.Equal(OperationState.Cancelled, (await ticket.Completion.WaitAsync(TimeSpan.FromSeconds(3))).State);
+    }
+
+    [Fact]
     public async Task RunsSequentiallyAndCancelsQueuedWorkImmediately()
     {
         await using var scheduler = new OperationScheduler(_root, _root);

@@ -9,7 +9,6 @@ namespace ProjectMaelstrom.Utilities;
 internal static class WadIndexService
 {
     private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
-    private static readonly string[] PythonCandidates = new[] { "python", "py" };
 
     /// <summary>
     /// Build an index of .wad files under the known Wizard101 install root.
@@ -17,7 +16,12 @@ internal static class WadIndexService
     public static string BuildIndex()
     {
         var root = GetDefaultWizardInstall();
-        var wadDir = root == null ? null : Path.Combine(root, "Wads");
+        string? wadDir = null;
+        if (root != null)
+        {
+            var gameData = Path.Combine(root, "Data", "GameData");
+            wadDir = Directory.Exists(gameData) ? gameData : Path.Combine(root, "Wads");
+        }
         var list = new List<WadEntry>();
 
         if (wadDir != null && Directory.Exists(wadDir))
@@ -75,20 +79,6 @@ internal static class WadIndexService
         var manifest = LoadIndex(wadIndexPath);
         if (manifest == null || manifest.Entries.Count == 0) return;
 
-        string? python = FindPython();
-        if (python == null)
-        {
-            DevTelemetry.Log("WAD", "Python not found; skipping asset manifests.");
-            return;
-        }
-
-        var wadScript = FindWadScript();
-        if (wadScript == null)
-        {
-            DevTelemetry.Log("WAD", "wizwad/wad.py not found; skipping asset manifests.");
-            return;
-        }
-
         var outDir = Path.Combine(AppContext.BaseDirectory, "logs", "wads");
         Directory.CreateDirectory(outDir);
 
@@ -99,53 +89,17 @@ internal static class WadIndexService
                 var outPath = Path.Combine(outDir, $"assets_{Path.GetFileNameWithoutExtension(entry.Name)}.json");
                 if (File.Exists(outPath)) continue; // avoid rework
 
-                var args = $"\"{wadScript}\" \"{entry.FullPath}\"";
-                var psi = new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = python,
-                    Arguments = args,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-                using var proc = System.Diagnostics.Process.Start(psi);
-                if (proc == null) continue;
-                string stdout = proc.StandardOutput.ReadToEnd();
-                string stderr = proc.StandardError.ReadToEnd();
-                if (!proc.WaitForExit(15000))
-                {
-                    try { proc.Kill(); } catch { }
-                    DevTelemetry.Log("WAD", $"Asset listing timed out for {entry.Name}");
-                    continue;
-                }
-
-                if (proc.ExitCode != 0)
-                {
-                    DevTelemetry.Log("WAD", $"Asset listing failed for {entry.Name}: {stderr.Trim()}");
-                    continue;
-                }
-
-                // Heuristic: keep first 1000 lines and only include useful asset extensions.
-                var lines = stdout.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                using var reader = new WadArchiveReader(entry.FullPath);
+                var assets = reader.Entries.Values
+                    .Where(e => e.Path.Length > 1 && HasUsefulExtension(e.Path))
                     .Take(1000)
-                    .Select(l => l.Trim())
-                    .Where(l => l.Length > 1)
-                    .Where(HasUsefulExtension)
-                    .ToList();
-
-                var assets = lines.Select(l =>
-                {
-                    var name = l;
-                    var comma = l.IndexOf(',');
-                    if (comma > 0) name = l[..comma].Trim();
-                    return new WadAssetEntry
+                    .Select(e => new WadAssetEntry
                     {
-                        Name = Path.GetFileName(name),
-                        Path = name,
-                        Size = 0
-                    };
-                }).ToList();
+                        Name = Path.GetFileName(e.Path),
+                        Path = e.Path,
+                        Size = e.Size
+                    })
+                    .ToList();
 
                 var assetIndex = new WadAssetIndex
                 {
@@ -174,42 +128,6 @@ internal static class WadIndexService
         {
             return null;
         }
-    }
-
-    private static string? FindPython()
-    {
-        foreach (var candidate in PythonCandidates)
-        {
-            try
-            {
-                var psi = new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = candidate,
-                    Arguments = "--version",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-                using var proc = System.Diagnostics.Process.Start(psi);
-                if (proc == null) continue;
-                if (!proc.WaitForExit(5000)) continue;
-                if (proc.ExitCode == 0) return candidate;
-            }
-            catch { /* ignore */ }
-        }
-        return null;
-    }
-
-    private static string? FindWadScript()
-    {
-        var roots = new[]
-        {
-            Path.Combine(StorageUtils.GetScriptLibraryPath(), "wizwad-main", "wizwad-main", "wizwad", "wad.py"),
-            Path.Combine(StorageUtils.GetScriptLibraryPath(), "wizard101-wad-reader", "wad.py"),
-            Path.Combine(StorageUtils.GetScriptLibraryPath(), "wiz-packet-map-main", "wiz-packet-map-main", "wiz_wad.py")
-        };
-        return roots.FirstOrDefault(File.Exists);
     }
 
     private static string? GetDefaultWizardInstall()

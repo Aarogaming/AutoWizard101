@@ -61,6 +61,7 @@ internal static class W101ModuleObserver
         W101UiTreeResult reading;
         try { reading = await runtime.Read(context, target, launch, index, deadline.Token).ConfigureAwait(false); }
         catch (W101UiObservationUnavailableException) { throw; }
+        catch (W101UiObservationCancelledException) { throw; }
         catch
         {
             context.Input!.RequireRecovery("Module UI reader ended without a cleanup receipt.");

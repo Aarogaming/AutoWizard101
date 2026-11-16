@@ -67,6 +67,33 @@ public class RoutineReplayTests : IDisposable
     }
 
     [Fact]
+    public void DetailedReplayExplainsRoutineSessionPairingAndKeepsOfflineScope()
+    {
+        var files = Prepare("dance");
+        var graph = RoutineGraphs.BuiltIn("pet-dance-visit-draft") with { Id = "pet-dance-visit" };
+        File.WriteAllText(files.Graph, JsonSerializer.Serialize(graph, RoutineGraphs.Json));
+        var output = Path.Combine(_directory, "pairing-mismatch.json");
+
+        var result = RoutineReplay.RunDetailed(files.Graph, files.Manifest, output);
+
+        Assert.Equal("pet-dance-visit", result.RoutineId);
+        Assert.Equal("routine-dance-synthetic", result.SessionId);
+        Assert.False(result.Completed);
+        Assert.True(result.Stopped);
+        Assert.Equal("dispatch-unconfirmed", result.Reason);
+        Assert.Equal(1, result.ProposalCount);
+        Assert.Equal(8, result.ReceiptCount);
+        Assert.False(result.LiveQualified);
+        Assert.Equal(64, result.GraphSha256.Length);
+        Assert.Equal(64, result.EventsSha256.Length);
+        Assert.Equal(Path.GetFullPath(output), result.ReportPath);
+        using var report = JsonDocument.Parse(File.ReadAllText(output));
+        Assert.Equal(result.RoutineId, report.RootElement.GetProperty("routine_id").GetString());
+        Assert.Equal(result.SessionId, report.RootElement.GetProperty("session_id").GetString());
+        Assert.Equal(result.GraphSha256, report.RootElement.GetProperty("sha256_graph").GetString());
+    }
+
+    [Fact]
     public void UserActivityAfterCompletionCannotEraseTheRecordedOutcomeOrRestartActions()
     {
         var files = Prepare("dance");

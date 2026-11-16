@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "adapter": "w101-ui-tree-v1",
-  "workerSha256": "50e548e9eb47a8f6c822324221a2193b831b9b92e9919071ba67b95786c09d87",
+  "workerSha256": "960f27532d91b87aa4cc4fac25afa1716926b05fd462d169460fa72967e00f73",
   "commonHelperSha256": "70f38c0f875bce43d78f2b94e7933cf27a9051eaadad2a73f7743a3dd23f2d19",
   "sourceSha256": "99f0eec7e15da862893bcf6aa3d89c3d1538c0a022c04f198d490cf383cdb2d1",
   "scope": "Image-pinned RootWindowHook with verified restoration; optional bounded source-layout combat and read-only duel candidates, no input or automatic live qualification; timestamps preserve acquisition start. Optional serialized PlayerHook candidate after root restoration; preserved RCX/flags; five-byte entry; no coordinate writes or movement authority. Optional serialized seven-byte PlayerStatHook candidate; two bounded reads and verified restoration; no automatic stats qualification.",
@@ -18,7 +18,7 @@
   "currentHandlerSha256": "df010aab8d536110ea1c8ad8bb5ab4d2e6199b04ccf09a082b8dc3f40bca76be",
   "combatFieldReaderSha256": "a405acdadd9b983a512e853155d832e6a1126439dcd783cffe393992b2b97c74",
   "duelReaderSha256": "632a826d1aee0757a01dbe442d61b3045eecc0f274d5a94650d6f0048c060165",
-  "poseReaderSha256": "a6c9957f9aa209f6a14f1c24df0ca81e6035e7d400037416427f1ccc45baab77",
+  "poseReaderSha256": "d6463168ad2342747655d06d265a12c67cf2d3bbe9bbf960e75b9e833463e9af",
   "archivedProfileImageSha256": "d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a",
   "archivedProfileScope": "R15 entry/3900-byte scratch; RTTI-checked offset712 for exact Idle text only. Quest/combat unqualified."
 }

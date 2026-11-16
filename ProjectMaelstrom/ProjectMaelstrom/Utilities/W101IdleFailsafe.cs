@@ -22,8 +22,8 @@ internal static class W101IdleFailsafe
             context.Input is { CanDispatch: true } && ReferenceEquals(context.Input, GameInputLease.Current);
         string? StopReason() => token.IsCancellationRequested ? "parent-cancelled" :
             context.Input?.RecoveryRequired == true ? "cleanup-uncertain" : !Owned() ? "input-owner-unavailable" : null;
-        using var budget = CancellationTokenSource.CreateLinkedTokenSource(token);
-        budget.CancelAfter(TimeSpan.FromSeconds(W101VisitPolicy.IdleBudgetSeconds));
+        using var fallbackBudget = context.FocusBudget is null ? new OperationFocusBudget() : null;
+        using var budget = (context.FocusBudget ?? fallbackBudget!).CreateDeadline(TimeSpan.FromSeconds(W101VisitPolicy.IdleBudgetSeconds), token);
         try
         {
             for (var index = 0; index <= policy.IdleRetries; index++)

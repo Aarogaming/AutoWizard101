@@ -17,6 +17,18 @@ internal interface IPetDanceVisitRuntime
     Task<PetDanceVisitCleanup> FinishAsync(OperationContext context, bool idleAlreadyVerified, CancellationToken token);
 }
 
+/// <summary>Optional capture-owning entry binding. Prime capture before Play, then
+/// synchronously bind the real released Play receipt and first qualified Watch
+/// before sending response keys. Invoke the callback exactly once; its returned
+/// teacher proposal owns the eventual specialist receipt. No second specialist,
+/// capture session or input owner may be started by this composite operation.</summary>
+internal interface IPrimedPetDanceVisitRuntime : IPetDanceVisitRuntime
+{
+    Task<PetDanceSpecialistReceipt> PlayPrimedAsync(OperationContext context, PetDanceVisitPlan playPlan,
+        Func<PetDanceVisitDispatch, PetDanceVisitObservation, PetDanceVisitPlan> bindHandoff,
+        CancellationToken token);
+}
+
 /// <summary>Runs the existing receipt/outcome visit machine under one scheduler job.
 /// Runtime availability and replay success are not live qualification or permission.</summary>
 internal static class PetDanceScheduledVisit
@@ -55,7 +67,7 @@ internal static class PetDanceScheduledVisit
         if (!options.Enabled) throw new InvalidOperationException("Explicit visit enablement is required.");
         _ = new PetDanceVisit(options); // Validate before enqueuing or acquiring input.
         var request = new OperationRequest(Guid.NewGuid().ToString("N"), "w101.pet-dance-visit",
-            "scheduled-visit-v1", (int)Math.Ceiling(options.TimeoutMs / 1000) + 20,
+            "scheduled-visit-v2", (int)Math.Ceiling(options.TimeoutMs / 1000) + 20,
             runtime.UsesGameInput, options.TargetId, new Dictionary<string, string>(runtime.Pins));
         return new(request, (context, token) => RunAsync(options, runtime, context, token));
     }
@@ -90,7 +102,13 @@ internal static class PetDanceScheduledVisit
                     if (plan.Stopped) { reason = plan.Reason; break; }
                     if (plan.IsProposal)
                     {
-                        if (plan.Action == PetDanceLifecycleAction.TeacherHandoff)
+                        if (plan.Action == PetDanceLifecycleAction.Play && runtime is IPrimedPetDanceVisitRuntime primed)
+                        {
+                            var receipt = await RunPrimedAsync(options, primed, context, visit, plan, trace, token).ConfigureAwait(false);
+                            trace.Add(new { specialist = receipt });
+                            visit.RecordSpecialist(receipt);
+                        }
+                        else if (plan.Action == PetDanceLifecycleAction.TeacherHandoff)
                         {
                             var receipt = await runtime.PlayAsync(context, plan, token).ConfigureAwait(false);
                             trace.Add(new { specialist = receipt });
@@ -125,4 +143,64 @@ internal static class PetDanceScheduledVisit
             completed = state == OperationState.Completed, state, reason, cleanup, trace });
         return new(state, reason, [report]);
     }
+
+    private static async Task<PetDanceSpecialistReceipt> RunPrimedAsync(PetDanceVisitOptions options,
+        IPrimedPetDanceVisitRuntime runtime, OperationContext context, PetDanceVisit visit,
+        PetDanceVisitPlan playPlan, List<object> trace, CancellationToken token)
+    {
+        var gate = new object();
+        var accepting = true;
+        var calls = 0;
+        string? invalid = null;
+        PetDanceVisitPlan? handoff = null;
+        PetDanceVisitPlan Bind(PetDanceVisitDispatch dispatch, PetDanceVisitObservation watch)
+        {
+            lock (gate)
+            {
+                token.ThrowIfCancellationRequested();
+                if (!accepting || ++calls != 1)
+                {
+                    invalid = "Primed Play handoff was repeated or arrived after completion.";
+                    throw new InvalidOperationException(invalid);
+                }
+                if (dispatch is null || watch is null || dispatch.ProposalId != playPlan.ProposalId ||
+                    dispatch.Action != PetDanceLifecycleAction.Play || !dispatch.Accepted || !dispatch.InputReleased ||
+                    !double.IsFinite(dispatch.ReleasedMs) || dispatch.ReleasedMs < 0 ||
+                    watch.Scene != PetDanceScene.Watch || !double.IsFinite(watch.TimeMs) || watch.TimeMs <= dispatch.ReleasedMs ||
+                    !watch.Fresh || !watch.TargetReady || !watch.ContextVerified || !watch.InputOwned ||
+                    !watch.WatchStartVerified || !watch.SpecialistQualified || watch.Cancelled || watch.UserActive || watch.FocusPaused ||
+                    watch.TargetId != options.TargetId || watch.Geometry != options.Geometry || watch.ContextId != options.ContextId ||
+                    !PetDanceEntryVision.IsImageHash(watch.ImageSha256))
+                {
+                    invalid = "Primed Play requires its released receipt and a fresh, bound first Watch.";
+                    throw new InvalidOperationException(invalid);
+                }
+                trace.Add(new { dispatch });
+                visit.RecordDispatch(dispatch.ProposalId, dispatch.Action, dispatch.ReleasedMs, dispatch.Accepted, dispatch.InputReleased);
+                handoff = visit.Observe(watch);
+                trace.Add(new { observation = watch, plan = handoff });
+                if (!handoff.IsProposal || handoff.Action != PetDanceLifecycleAction.TeacherHandoff ||
+                    handoff.Arena != options.Arena || string.IsNullOrWhiteSpace(handoff.ProposalId))
+                {
+                    invalid = "Primed Play did not produce the matching teacher handoff: " + handoff.Reason;
+                    throw new InvalidOperationException(invalid);
+                }
+                return handoff;
+            }
+        }
+
+        PetDanceSpecialistReceipt receipt;
+        try { receipt = await runtime.PlayPrimedAsync(context, playPlan, Bind, token).ConfigureAwait(false); }
+        finally { lock (gate) accepting = false; }
+        lock (gate)
+        {
+            // A runtime cannot swallow a rejected/duplicate callback and then
+            // promote a fabricated completion receipt to successful gameplay.
+            if (invalid is not null) throw new InvalidOperationException(invalid);
+            if (calls != 1 || handoff is null || receipt is null || receipt.ProposalId != handoff.ProposalId)
+                throw new InvalidOperationException("Primed Play completed without exactly one matching teacher handoff.");
+        }
+        return receipt;
+    }
+
 }

@@ -15,6 +15,10 @@ public sealed class W101RoutineIdleTests : IDisposable
     [InlineData("unclean", "CleanupFailed", 0)]
     [InlineData("exception", "CleanupFailed", 0)]
     [InlineData("cancelled", "Cancelled", 0)]
+    [InlineData("clean-body-interruption", "TimedOut", 1)]
+    [InlineData("clean-idle-interruption", "Completed", 2)]
+    [InlineData("unknown-idle-cancellation", "CleanupFailed", 1)]
+    [InlineData("focus-resume", "Completed", 1)]
     public async Task CompleteRoutineUsesOriginalOwnerAndPreservesBodyOutcome(string scenario, string expected, int attempts)
     {
         var ready = true; var calls = 0; var bodies = 0; GameInputLease? lease = null;
@@ -23,8 +27,9 @@ public sealed class W101RoutineIdleTests : IDisposable
         var body = new PreparedDeckJob(request, (context, _) =>
         {
             bodies++; lease = context.Input;
+            if (scenario == "clean-body-interruption") throw new W101UiObservationCancelledException("Observer restored", default);
             if (scenario == "exception") throw new IOException("synthetic escaped failure");
-            if (scenario == "takeover") ready = false;
+            if (scenario is "takeover" or "focus-resume") ready = false;
             return Task.FromResult(new OperationOutcome(scenario == "cancelled" ? OperationState.Cancelled : scenario == "unclean" ? OperationState.CleanupFailed :
                 scenario == "body-failed" ? OperationState.Failed : OperationState.Completed, "body result", []));
         });
@@ -34,16 +39,20 @@ public sealed class W101RoutineIdleTests : IDisposable
             Assert.NotEqual(request.Id, context.Request.Id);
             Assert.Equal(20, context.Request.TimeoutSeconds);
             Assert.Contains("idle-finalizer-", context.Directory);
+            if (scenario == "clean-idle-interruption" && calls == 1)
+                throw new W101UiObservationCancelledException("Observer restored", default);
+            if (scenario == "unknown-idle-cancellation") throw new OperationCanceledException("No receipt");
             return Task.FromResult(new OperationOutcome(scenario == "idle-failed" ? OperationState.Failed : OperationState.Completed,
                 "synthetic Idle observation", []));
         });
+        if (scenario == "focus-resume") runtime = runtime with { WaitForFocus = _ => { ready = true; return Task.FromResult(true); } };
         var job = W101RoutineIdle.Wrap(body, W101QuestConversationTests.Target, new("unused", "unused", "unused"), runtime);
         Assert.Equal(50, job.Request.TimeoutSeconds);
         await using var scheduler = new OperationScheduler(Path.Combine(_root, "runs"), Path.Combine(_root, "locks"));
         var result = await scheduler.Submit(job.Request, job.Execute).Completion;
         Assert.Equal(expected, result.State.ToString()); Assert.Equal(1, bodies); Assert.Equal(attempts, calls);
         using var report = JsonDocument.Parse(File.ReadAllText(Assert.Single(result.Artifacts)));
-        Assert.Equal(scenario is "success" or "body-failed", report.RootElement.GetProperty("idleVerified").GetBoolean());
+        Assert.Equal(scenario is "success" or "body-failed" or "clean-body-interruption" or "clean-idle-interruption" or "focus-resume", report.RootElement.GetProperty("idleVerified").GetBoolean());
     }
 
     public void Dispose() { if (Directory.Exists(_root)) Directory.Delete(_root, true); }

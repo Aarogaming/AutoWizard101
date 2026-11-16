@@ -882,6 +882,27 @@ class TreeTests(unittest.IsolatedAsyncioTestCase):
             ).hexdigest(),
         )
 
+    def test_navigation_helpers_load_from_pinned_modules_without_tools_search_path(
+        self,
+    ):
+        import sys
+
+        previous = list(sys.path)
+        try:
+            sys.path[:] = [
+                p
+                for p in sys.path
+                if Path(p).resolve() != Path(__file__).resolve().parents[1]
+            ]
+            pose = ui.pose_reader_module()
+            moving = ui.navigation_reader_module("w101_moving_pose")
+            zone = ui.navigation_reader_module("w101_zone_reader")
+            self.assertIs(sys.modules["w101_pose_reader"], pose)
+            self.assertEqual(pose.LAYOUT_ID, moving.LAYOUT_ID)
+            self.assertEqual("archived-wizwalker-client-zone", zone.LAYOUT_ID)
+        finally:
+            sys.path[:] = previous
+
     async def test_cycles_excessive_vectors_and_name_lengths_fail_closed(self):
         for fault in ("cycle", "vector", "name"):
             m = Memory()
@@ -1768,3 +1789,199 @@ class ResourceQualificationTests(unittest.TestCase):
         self.assertIsNone(ui.qualify_resources(stale, image, 100))
         candidate["uiResources"]["textHealth"] = "121"
         self.assertIsNone(ui.qualify_resources(candidate, image, 100))
+
+
+class DanceEntryContextTests(unittest.IsolatedAsyncioTestCase):
+    @staticmethod
+    def memory(*, parent_flags=1, tracks=1):
+        m = Memory()
+
+        def text(name, value):
+            node = m.node(name, text=value, text_offset=712)
+            function, vtable, typename = m.allocate(), m.allocate(), m.allocate()
+            m.put(typename, b"ControlText\0")
+            m.put(
+                function + 63,
+                bytes.fromhex("48 8d 0d") + struct.pack("<i", typename - function - 70),
+            )
+            m.put(vtable, struct.pack("<Q", function))
+            m.put(node, struct.pack("<Q", vtable))
+            return node
+
+        cost, energy = text("txtEnergyCost", "8"), text("txtYourEnergy", "55")
+        secret = text("txtAccountName", "Must not be read")
+        unrelated = text("txtEnergyCost", "Wrong branch")
+        play = m.node("btnNext", rectangle=(10, 20, 50, 40))
+        hidden = m.node("btnBack", flags=0)
+        game = m.node(
+            "PetGameTracks",
+            [
+                m.node(
+                    "wndBkgTracks",
+                    [
+                        m.node(
+                            "wndTracks", [m.node(f"btnTrack{i}") for i in range(tracks)]
+                        )
+                    ],
+                ),
+                m.node("wndBkgEnergy", [cost, energy]),
+                play,
+                hidden,
+                m.node("AccountPanel", [secret]),
+            ],
+            flags=parent_flags,
+        )
+        root = m.node(
+            "Root", [m.node("WorldView", [game, m.node("OtherGame", [unrelated])])]
+        )
+        return m, root, cost, energy, secret, unrelated
+
+    async def test_default_off_does_not_read_dance_descendants_or_text(self):
+        m, root, cost, energy, secret, unrelated = self.memory()
+        tree = await ui.snapshot(m.read, root, current_layout=True)
+        self.assertIsNone(ui.dance_entry_context(tree, 100))
+        addresses = {address for address, _ in m.reads}
+        for address in (cost, energy, secret):
+            self.assertNotIn(address + 80, addresses)
+            self.assertNotIn(address + 712, addresses)
+        self.assertNotIn(unrelated + 712, addresses)
+
+    async def test_candidates_preserve_paths_flags_text_and_unknown_selection(self):
+        m, root, cost, energy, secret, unrelated = self.memory(parent_flags=0x80000001)
+        tree = await ui.snapshot(
+            m.read, root, current_layout=True, include_dance_entry_context=True
+        )
+        result = ui.dance_entry_context(tree, 1234)
+        self.assertEqual(1234, result["observedUtcTicks"])
+        self.assertEqual("structural-unqualified", result["qualification"])
+        controls = {tuple(c["path"]): c for c in result["controls"]}
+        cost_path = ui.DANCE_ENTRY_ROOT + ("wndBkgEnergy", "txtEnergyCost")
+        self.assertEqual("8", controls[cost_path]["text"])
+        self.assertFalse(controls[cost_path]["enabled"])
+        play = controls[ui.DANCE_ENTRY_ROOT + ("btnNext",)]
+        self.assertEqual([10, 20, 50, 40], play["rawRectangle"])
+        self.assertIsNone(play["selected"])
+        self.assertFalse(controls[ui.DANCE_ENTRY_ROOT + ("btnBack",)]["visible"])
+        self.assertTrue(all(c["selected"] is None for c in controls.values()))
+        self.assertFalse(any("Account" in c["name"] for c in controls.values()))
+        reads = {address for address, _ in m.reads}
+        self.assertNotIn(secret + 80, reads)
+        self.assertNotIn(unrelated + 712, reads)
+
+    async def test_archived_reviewed_layout_keeps_structural_candidates_without_text(
+        self,
+    ):
+        m, root, cost, energy, *_ = self.memory()
+        tree = await ui.snapshot(
+            m.read, root, archived_profile=True, include_dance_entry_context=True
+        )
+        self.assertEqual(ui.ARCHIVED_LAYOUT_IMAGE_SHA256, tree["layout"])
+        candidate = ui.dance_entry_context(tree, 1234)
+        self.assertIsNotNone(candidate)
+        self.assertTrue(candidate["controls"])
+        self.assertTrue(
+            all(
+                c["text"] is None and c["selected"] is None
+                for c in candidate["controls"]
+            )
+        )
+        reads = {address for address, _ in m.reads}
+        for address in (cost, energy):
+            self.assertNotIn(address + 584, reads)
+            self.assertNotIn(address + 712, reads)
+
+    async def test_archived_dorm_tree_without_pet_tracks_is_empty_not_invalid(self):
+        # Sanitized reproduction of the saved dorm shape: a complete reviewed
+        # archived tree with no PetGameTracks branch is valid absence evidence.
+        m = Memory()
+        root = m.node(
+            "Root", [m.node("WorldView", [m.node("WindowDorm"), m.node("windowHUD")])]
+        )
+        tree = await ui.snapshot(
+            m.read, root, archived_profile=True, include_dance_entry_context=True
+        )
+        candidate = ui.dance_entry_context(tree, 1234)
+        self.assertIsNotNone(candidate)
+        self.assertEqual([], candidate["controls"])
+        self.assertEqual("structural-unqualified", candidate["qualification"])
+
+    async def test_budget_and_malformed_tree_fail_closed(self):
+        m, root, *_ = self.memory(tracks=100)
+        with self.assertRaisesRegex(ValueError, "Dance entry control budget"):
+            await ui.snapshot(
+                m.read, root, current_layout=True, include_dance_entry_context=True
+            )
+        m, root, *_ = self.memory()
+        tree = await ui.snapshot(
+            m.read, root, current_layout=True, include_dance_entry_context=True
+        )
+        for changed in (
+            dict(tree, complete=False),
+            dict(tree, layout="unknown"),
+            dict(tree, danceEntryContextIncluded=False),
+        ):
+            self.assertIsNone(ui.dance_entry_context(changed, 100))
+        broken = copy.deepcopy(tree)
+        broken["nodes"][-1]["parent"] = 999
+        self.assertIsNone(ui.dance_entry_context(broken, 100))
+        self.assertIsNone(ui.dance_entry_context(tree, 0))
+        self.assertIsNone(ui.dance_entry_context(tree, True))
+
+    def test_request_requires_boolean_opt_in(self):
+        for value in (1, "true", None, []):
+            with self.assertRaisesRegex(ValueError, "Dance entry"):
+                ui.validate_request(request() | dict(includeDanceEntryContext=value))
+        self.assertTrue(
+            ui.validate_request(request() | dict(includeDanceEntryContext=True))[
+                "includeDanceEntryContext"
+            ]
+        )
+
+    async def test_observer_candidate_timestamp_and_loading_invalidation(self):
+        m, root, *_ = self.memory()
+        tree = await ui.snapshot(
+            m.read, root, current_layout=True, include_dance_entry_context=True
+        )
+        client = Client()
+        events = []
+
+        async def read_tree():
+            return tree
+
+        async def emit(value):
+            events.append(value)
+            if value["kind"] == "tree":
+                client.value = True
+
+        client.tree = read_tree
+        result = await ui.observe(
+            request() | dict(includeDanceEntryContext=True, durationSeconds=1),
+            lambda _: client,
+            lambda _: True,
+            lambda: False,
+            emit,
+        )
+        frame = next(e for e in events if e["kind"] == "tree")
+        self.assertEqual(
+            frame["statesObservedUtcTicks"],
+            frame["danceEntryContext"]["observedUtcTicks"],
+        )
+        self.assertIsNone(result["danceEntryContext"])
+        self.assertTrue(client.closed)
+        self.assertTrue(
+            any(
+                e["kind"] == "loading" and e.get("danceEntryContext", "missing") is None
+                for e in events
+            )
+        )
+
+
+class MovingStreamRequestTests(unittest.TestCase):
+    def test_explicit_bounded_pose_stream(self):
+        value = request() | dict(includePoseContext=True, movingPoseSeconds=3)
+        self.assertEqual(3, ui.validate_request(value)["movingPoseSeconds"])
+        for seconds in (-1, 4, True, 1.5):
+            with self.subTest(seconds=seconds), self.assertRaises(ValueError):
+                ui.validate_request(value | dict(movingPoseSeconds=seconds))
+        with self.assertRaises(ValueError):
+            ui.validate_request(value | dict(includePoseContext=False))

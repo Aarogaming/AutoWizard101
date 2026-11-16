@@ -16,7 +16,7 @@ internal static class W101ModuleInput
             context.Input is { CanDispatch: true } && ReferenceEquals(context.Input, GameInputLease.Current) &&
             !token.IsCancellationRequested && (beforePress ? ready() : (continuing ?? ready)());
         var action = proposal.Action;
-        var allowed = action == W101CharacterOperation.CharacterInfo || action == W101CharacterOperation.GoHome || action == W101IdleCycle.Wake || action == W101IdleCycle.CloseMenu ||
+        var allowed = action == W101CharacterOperation.CharacterInfo || action == W101CharacterOperation.GoHome || action == W101CharacterOperation.GoCommons || action == W101IdleCycle.Wake || action == W101IdleCycle.CloseMenu ||
             action == new ModuleAction("game.interact", "keyboard-pulse", "X", 40, "w101.interaction") ||
             action == new ModuleAction("game.open-menu", "keyboard-pulse", "ESCAPE", 40, "outside-menu-command");
         if (!proposal.IsProposal || proposal.Stopped || proposal.Completed || action is null || !allowed ||
@@ -58,7 +58,7 @@ internal static class W101ModuleInput
     /// process instance. A successful send is a transport receipt, not an outcome.</summary>
     internal static bool Send(WizwalkerTarget target, string key, bool release)
     {
-        var code = key switch { "C" => (Virtual: 0x43u, Scan: 0x2Eu), "HOME" => (Virtual: 0x24u, Scan: 0x147u), "X" => (Virtual: 0x58u, Scan: 0x2Du), "ESCAPE" => (Virtual: 0x1Bu, Scan: 0x01u), _ => default };
+        var code = key switch { "C" => (Virtual: 0x43u, Scan: 0x2Eu), "END" => (Virtual: 0x23u, Scan: 0x14Fu), "HOME" => (Virtual: 0x24u, Scan: 0x147u), "X" => (Virtual: 0x58u, Scan: 0x2Du), "ESCAPE" => (Virtual: 0x1Bu, Scan: 0x01u), _ => default };
         if (code.Virtual == 0 || !target.IsCurrent()) return false;
         var flags = (code.Scan << 16) | 1u | (release ? 0xC0000000u : 0u);
         return SendMessageTimeoutW((nint)target.Handle, release ? 0x101u : 0x100u,

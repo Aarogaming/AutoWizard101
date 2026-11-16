@@ -151,7 +151,7 @@ internal static class PetDanceMenuOcrContrast
     {
         var area = new RectangleF(text.ImageSize.Width * .25f, text.ImageSize.Height * .12f,
             text.ImageSize.Width * .5f, text.ImageSize.Height * .4f);
-        return text.Words.Any(word => new string(word.Text.Where(char.IsLetterOrDigit).Select(char.ToUpperInvariant).ToArray()) == "GRAPHICS" &&
+        return text.Words.Any(word => new string(word.Text.Where(char.IsLetterOrDigit).Select(char.ToUpperInvariant).ToArray()) is "GRAPHICS" or "SOUND" or "GAMEPLAY" or "PRIVACY" &&
             PetDancePostGameClassifier.ValidBounds(word.Bounds, text.ImageSize) &&
             area.Contains(word.Bounds.Left + word.Bounds.Width / 2, word.Bounds.Top + word.Bounds.Height / 2));
     }

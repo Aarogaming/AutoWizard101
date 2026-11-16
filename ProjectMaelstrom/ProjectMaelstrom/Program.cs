@@ -47,7 +47,7 @@ internal static class Program
             catch (Exception ex) { Console.Error.WriteLine(ex.Message); Environment.ExitCode = 1; }
             return;
         }
-        if (args.Length > 0 && args[0] is "--deck-api" or "--deck-host" or "--render-job-deck")
+        if (args.Length > 0 && args[0] is "--deck-api" or "--deck-host" or "--render-job-deck" or "--render-card-workshop")
         {
             try { RunDeckCommandAsync(args).GetAwaiter().GetResult(); }
             catch (Exception ex) { Console.Error.WriteLine(ex.Message); Environment.ExitCode = 1; }
@@ -778,6 +778,30 @@ internal static class Program
 
     private static async Task RunDeckCommandAsync(string[] args)
     {
+        if (args[0] == "--render-card-workshop")
+        {
+            if (args.Length is not (3 or 4) || args.Length == 4 && args[3] != "back")
+                throw new ArgumentException("--render-card-workshop <new-data-root> <new-image.png> [back]");
+            if (Directory.Exists(args[1]) || File.Exists(args[2])) throw new IOException("Use new preview paths.");
+            ApplicationConfiguration.Initialize();
+            using var form = new CardPrototypeForm(args[1]);
+            using var surface = new Panel { Size = form.ClientSize, BackColor = form.BackColor, ForeColor = form.ForeColor };
+            foreach (var child in form.Controls.Cast<Control>().ToArray()) surface.Controls.Add(child);
+            void Layout(Control control) { control.CreateControl(); control.PerformLayout(); foreach (Control child in control.Controls) Layout(child); }
+            Layout(surface);
+            if (args.Length == 4)
+            {
+                IEnumerable<Control> Descendants(Control control) => control.Controls.Cast<Control>().SelectMany(c => new[] { c }.Concat(Descendants(c)));
+                var card = Descendants(surface).OfType<JobCardView>().Single(); card.PreviewFlip();
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+                while (!card.ShowingBack && timer.ElapsedMilliseconds < 2000) { Application.DoEvents(); Thread.Sleep(5); }
+                if (!card.ShowingBack) throw new InvalidOperationException("Card flip did not finish.");
+                Layout(surface);
+            }
+            using var image = new Bitmap(surface.Width, surface.Height);
+            surface.DrawToBitmap(image, new Rectangle(Point.Empty, surface.Size)); image.Save(args[2]);
+            return;
+        }
         if (args[0] == "--deck-api")
         {
             if (args.Length != 4) throw new ArgumentException("--deck-api <data-root> <request.json> <new-result.json>");

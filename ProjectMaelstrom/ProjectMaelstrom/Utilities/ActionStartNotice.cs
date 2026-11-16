@@ -18,7 +18,7 @@ internal sealed class ActionStartNotice : Form
     internal static Rectangle BannerBounds(Rectangle client) => new(client.Left + 16, client.Top + 16,
         Math.Max(1, client.Width - 32), Math.Clamp(client.Height / 6, 80, 160));
 
-    internal static Task ShowAsync(GameWindow target, Func<bool> ready, bool sound, CancellationToken token, string? evidenceDirectory = null)
+    internal static Task ShowAsync(GameWindow target, Func<bool> ready, bool sound, CancellationToken token, string? evidenceDirectory = null, Func<bool>? pauseAllowed = null, Func<IDisposable?>? pauseBudget = null)
     {
         var result = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var thread = new Thread(() =>
@@ -39,13 +39,27 @@ internal sealed class ActionStartNotice : Form
                 Exception? failure = null;
                 bool completed = false;
                 bool recorded = false;
+                IDisposable? budgetPause = null;
                 void Tick()
                 {
                     try
                     {
                         token.ThrowIfCancellationRequested();
-                        if (!ready() || !GameWindows.IsCurrent(target) || GameWindows.Minimized(target))
+                        if (!GameWindows.IsCurrent(target) || GameWindows.Minimized(target))
+                            throw new InvalidOperationException("Start countdown cancelled: target changed or minimized.");
+                        if (!ready())
+                        {
+                            if (pauseAllowed?.Invoke() == true)
+                            {
+                                budgetPause ??= pauseBudget?.Invoke();
+                                elapsed.Reset();
+                                window.Hide();
+                                return;
+                            }
                             throw new InvalidOperationException("Start countdown cancelled: game readiness or desktop ownership changed.");
+                        }
+                        budgetPause?.Dispose(); budgetPause = null;
+                        if (!elapsed.IsRunning) elapsed.Start();
                         if (!GetClientRect(target.Handle, out var rect)) throw new InvalidOperationException("Game bounds unavailable.");
                         var origin = new NativePoint();
                         if (!ClientToScreen(target.Handle, ref origin)) throw new InvalidOperationException("Game origin unavailable.");
@@ -80,7 +94,8 @@ internal sealed class ActionStartNotice : Form
                     timer.Start();
                 };
                 timer.Tick += (_, _) => Tick();
-                Application.Run(window);
+                try { Application.Run(window); }
+                finally { budgetPause?.Dispose(); }
                 if (failure is not null) result.TrySetException(failure);
                 else if (completed) result.TrySetResult();
                 else result.TrySetException(new InvalidOperationException("Start countdown closed before completion."));

@@ -42,6 +42,10 @@ internal static class PetDanceTrialFrameGate
             ? PetDanceFrameAdmission.Fresh : PetDanceFrameAdmission.Wait;
     }
 
+    internal static bool HasWatchOnset(DancePhase previous, double previousMs, double watchMs) =>
+        previous is DancePhase.Ready or DancePhase.Loading && double.IsFinite(previousMs) &&
+        double.IsFinite(watchMs) && previousMs >= 0 && watchMs > previousMs && watchMs - previousMs <= MaximumAgeMs;
+
     public static bool MayDispatch(double capturedMs, double nowMs)
         => DodgeLiveRun.IsFreshCapture(capturedMs, nowMs, MaximumAgeMs);
 
@@ -306,7 +310,9 @@ internal static class PetDanceLiveTrial
     /// No scheduler, activity hook, foreground activation or nested UI loop is created.</summary>
     internal static async Task<PetDanceSpecialistResult> RunSpecialistAsync(OperationContext context,
         GameWindow target, Size client, string profile, string output, PetDanceSpecialistControl control,
-        CancellationToken token, string? audioComparisonPath = null, Func<bool>? controlPermission = null)
+        CancellationToken token, string? audioComparisonPath = null, Func<bool>? controlPermission = null,
+        Func<CancellationToken, Task<PetDanceStartReceipt>>? startAfterCaptureReady = null,
+        Action<Bitmap, double>? firstWatchObserved = null)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(target);
@@ -317,6 +323,9 @@ internal static class PetDanceLiveTrial
         if (control.InputTag == 0 || control.ObservationReady is null || control.InputReady is null ||
             control.ActivityRevision is null || control.NoKeysHeld is null || control.QuietMs is null)
             throw new ArgumentException("Supply the enclosing operation's complete control observations.", nameof(control));
+        if (firstWatchObserved != null && startAfterCaptureReady == null)
+            throw new ArgumentException("A visit Watch handoff requires capture-primed Play.", nameof(firstWatchObserved));
+        var watchHandoffBound = firstWatchObserved == null;
         using var vision = new PetDancePanelVision(profile);
         var visualSequenceEnabled = vision.UsesShapeSequence;
         var audioRequired = audioComparisonPath != null;
@@ -328,12 +337,13 @@ internal static class PetDanceLiveTrial
         var audioEvents = new List<PetDanceAudioObservation>(); var audioGate = new object();
         var arming = new PetDanceTrialArming(modernSequence, control.InitialRevision);
         WindowObserver? observer = null;
+        PetDancePrimedCapture? primed = null;
         var sourceGeometry = Size.Empty;
         var sink = new WindowsDodgeKeySink(control.InputTag);
         PetDanceSelectedResponse? selectedResponse = null;
         bool ObserveAllowed() => !token.IsCancellationRequested && PetDanceSpecialistAdmission.OwnsInput(context, target) &&
             control.ObservationReady() && GameWindows.IsCurrent(target) && GameWindows.ClientSize(target) == client && !GameWindows.Minimized(target);
-        bool Permitted() => arming.Armed && ObserveAllowed() && control.InputReady() && control.ActivityRevision() == arming.Baseline && sink.Ready(target, client) &&
+        bool Permitted() => (primed == null || primed.Accepted) && arming.Armed && ObserveAllowed() && control.InputReady() && control.ActivityRevision() == arming.Baseline && sink.Ready(target, client) &&
             (!audioAvailability.Required || audio?.IsCapturing == true) &&
             (selectedResponse?.Source != "sound-fallback" || audioAvailability.Available && audio?.IsCapturing == true) &&
             (controlPermission?.Invoke() ?? true);
@@ -388,6 +398,13 @@ internal static class PetDanceLiveTrial
                         }
                     }).ConfigureAwait(false);
             }
+            if (startAfterCaptureReady != null)
+            {
+                primed = await PetDancePrimedCapture.StartAsync(() => observer.ReadTimestampedAsync(latestOnly: true),
+                    () => ObserveAllowed() && control.InputReady(), startAfterCaptureReady, FrameTimeline.TimestampMs, token).ConfigureAwait(false);
+                GameExperiments.WriteAtomic(Path.Combine(output, "capture-before-play.json"),
+                    new { primed.ReadyCaptureMs, sole_capture = true, dispatch_pending = primed.Pending });
+            }
             GameExperiments.WriteAtomic(Path.Combine(output, "running.json"), new { state = arming.Armed ? "observing" : "waiting-for-Watch-to-arm", started_utc = DateTime.UtcNow, focus_changes = false, audio_required = audioRequired });
             while (true)
             {
@@ -408,7 +425,8 @@ internal static class PetDanceLiveTrial
                     soundReason = "Optional audio stopped; only independently complete visual sequences may respond.";
                     nextProgress = 0;
                 }
-                if (!ObserveAllowed() || arming.Armed && !Permitted()) { reason = "desktop-activity-or-target-change"; break; }
+                primed?.CheckDispatch();
+                if (!ObserveAllowed() || arming.Armed && primed?.Pending != true && !Permitted()) { reason = "desktop-activity-or-target-change"; break; }
                 using var frame = await PetDanceObservationRead.ReadAsync(() => observer.ReadTimestampedAsync(latestOnly: true), token).ConfigureAwait(false);
                 var capturedMs = frame?.CaptureTime?.TotalMilliseconds;
                 var ahead = capturedMs.HasValue ? capturedMs.Value - FrameTimeline.TimestampMs() : 0;
@@ -448,6 +466,7 @@ internal static class PetDanceLiveTrial
                 }
                 var time = capturedMs!.Value;
                 if (frame == null) throw new InvalidDataException("Fresh-frame admission requires an actual frame.");
+                var previousFrameMs = last;
                 last = time;
                 if (!first.HasValue) { first = time; audio?.SetVideoOrigin(time, FrameTimeline.TimestampMs()); }
                 var compute = Stopwatch.StartNew();
@@ -463,6 +482,17 @@ internal static class PetDanceLiveTrial
                     GameExperiments.WriteAtomic(Path.Combine(output, "armed.json"), new { armed_qpc_ms = FrameTimeline.TimestampMs(), captured_ms = time, monitor_revision = arming.Baseline, quiet_required_ms = 500, no_focus_change = true });
                 clock.Advance(timer.Elapsed.TotalMilliseconds, observation.Phase == DancePhase.Loading,
                     arming.Armed && observation.Phase is (DancePhase.Watch or DancePhase.Go or DancePhase.Resolving or DancePhase.Success or DancePhase.Failure));
+                if (!watchHandoffBound && arming.Armed && observation.Phase == DancePhase.Watch && primed?.Accepted == true)
+                {
+                    // The frame is borrowed only for this synchronous callback. The
+                    // runtime binds its actual hash/time to the released Play receipt.
+                    if (!PetDanceTrialFrameGate.HasWatchOnset(scene, previousFrameMs, time))
+                    { reason = "primed-Watch-onset-unverified"; break; }
+                    firstWatchObserved!(frame.Image, time);
+                    watchHandoffBound = true;
+                }
+                if (!watchHandoffBound && observation.Phase == DancePhase.Go)
+                { reason = "primed-Watch-handoff-missing"; break; }
                 var priorScene = scene;
                 if (observation.Phase != scene)
                 {
@@ -609,7 +639,7 @@ internal static class PetDanceLiveTrial
                     RejectRound(time, "Fresh Watch appeared before feedback; old response keys discarded instead of crossing the round boundary.");
                     soundStatus = "old-response-discarded"; soundReason = "A fresh Watch cannot receive the previous round's keys."; nextProgress = 0;
                 }
-                if (pending.Count > 0 && FrameTimeline.TimestampMs() >= nextKey)
+                if (pending.Count > 0 && primed?.Pending != true && FrameTimeline.TimestampMs() >= nextKey)
                 {
                     var responseEstimate = responseWindow.Estimate(FrameTimeline.TimestampMs(), pending.Count, nextKey);
                     if (!responseEstimate.CanFinish)
@@ -694,6 +724,12 @@ internal static class PetDanceLiveTrial
         catch (Exception error) { reason = "error: " + error.Message; }
         finally
         {
+            if (primed != null)
+            {
+                if (!await primed.FinishAsync().ConfigureAwait(false))
+                { releases.MarkUncertain(); cleanupError = "Play dispatch cleanup unconfirmed."; }
+                primed.Dispose();
+            }
             if (audio != null)
                 try
                 {
