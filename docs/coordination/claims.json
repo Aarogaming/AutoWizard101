@@ -2772,31 +2772,34 @@
       "task_id": "GEM-PROTOTYPE-ACCEPTANCE-85",
       "workstream_id": "CORE-DELIVERY",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-PROTOTYPE-ACCEPTANCE-85.md"
       ],
-      "notes": "Static userjourney/review exact new nativeprototype files; no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Static userjourney/review exact new nativeprototype files; no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "GEM-EXPLORATION-CONTRACT-86",
       "workstream_id": "W101-NAVIGATION",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-EXPLORATION-CONTRACT-86.md"
       ],
-      "notes": "Static reuse audit of exploration evidence/route contracts only; no builds/live/source edits. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Static reuse audit of exploration evidence/route contracts only; no builds/live/source edits. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "GEM-IDLE-RECOGNITION-87",
       "workstream_id": "W101-NAVIGATION",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-IDLE-RECOGNITION-87.md"
       ],
-      "notes": "Static Idle recognition gap audit; no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Static Idle recognition gap audit; no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "IDLE-RECOVERY-88",
@@ -2836,11 +2839,12 @@
       "task_id": "GEM-MENU-INVENTORY-90",
       "workstream_id": "W101-NAVIGATION",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-MENU-INVENTORY-90.md"
       ],
-      "notes": "Offline menu evidence inventory only. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Offline menu evidence inventory only. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "FOCUS-BUDGET-91",
@@ -2870,11 +2874,12 @@
       "task_id": "GEM-FOCUS-CHECKPOINTS-93",
       "workstream_id": "W101-NAVIGATION",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-FOCUS-CHECKPOINTS-93.md"
       ],
-      "notes": "Static remaining pause/checkpoint audit, no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Static remaining pause/checkpoint audit, no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "GATE-FOCUS-FINALIZER-94",
@@ -2892,11 +2897,12 @@
       "task_id": "GEM-DANCE-RESYNC-95",
       "workstream_id": "W101-DANCE",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-DANCE-RESYNC-95.md"
       ],
-      "notes": "Offline exact-symbol audit of fresh Dance phase acquisition after focus loss; report only. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Offline exact-symbol audit of fresh Dance phase acquisition after focus loss; report only. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "DANCE-SEQUENCE-INTERRUPT-96",
@@ -2915,21 +2921,23 @@
       "task_id": "GEM-DANCE-ENTRY-WIRING-97",
       "workstream_id": "W101-DANCE",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-DANCE-ENTRY-WIRING-97.md"
       ],
-      "notes": "Exact production entry wiring proposal against current contracts; no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Exact production entry wiring proposal against current contracts; no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "GEM-MINIGAME-READINESS-98",
       "workstream_id": "W101-DANCE",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-MINIGAME-READINESS-98.md"
       ],
-      "notes": "Next-game runnable binding audit, offline report only while root qualifies Dance. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Next-game runnable binding audit, offline report only while root qualifies Dance. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "DANCE-PRIMED-HANDOFF-99",
@@ -2963,22 +2971,24 @@
       "task_id": "GEM-CONJ-BOUNDARIES-101",
       "workstream_id": "W101-CONJURATION",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "tools/tests/test_conjuration_boundary_contract.py",
         "docs/coordination/results/GEM-CONJ-BOUNDARIES-101.md"
       ],
-      "notes": "New disjoint pure offline regression tests against existing memory engine only; no execution/build/live. Owner-directed checkpoint commits (236eb00/2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "New disjoint pure offline regression tests against existing memory engine only; no execution/build/live. Owner-directed checkpoint commits (236eb00/2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "GEM-CONJ-REPLAY-GAPS-102",
       "workstream_id": "W101-CONJURATION",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-CONJ-REPLAY-GAPS-102.md"
       ],
-      "notes": "Bounded actual perception-to-memory integration audit; no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Bounded actual perception-to-memory integration audit; no source/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "W101-NAV-AUDIT-103",
@@ -3035,11 +3045,12 @@
       "task_id": "GEM-MAP-METADATA-107",
       "workstream_id": "W101-NAVIGATION",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-MAP-METADATA-107.md"
       ],
-      "notes": "Static map/zone/entity API evidence audit, no game or build. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Static map/zone/entity API evidence audit, no game or build. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "W101-NAV-SESSION-108",
@@ -3127,11 +3138,12 @@
       "task_id": "GEM-MODAL-BOUNDARIES-115",
       "workstream_id": "W101-NAVIGATION",
       "owner": "gemini",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/results/GEM-MODAL-BOUNDARIES-115.md"
       ],
-      "notes": "Read-only source audit of modal/navigation interruption reuse. No code/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Read-only source audit of modal/navigation interruption reuse. No code/build/live. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Coordinator verified the LIA-0121 in-place correction against the committed tree on 2026-11-16 (handback GEM-0108): phantom symbols removed or labelled missing, counts corrected (21 conjuration tests, 22 fixture events, 300 ms frame age, 60 s conversation timeout), citations re-pointed at HEAD, stale gaps marked closed or labelled uncommitted local evidence, and headline/summary revised with the body. Encoding gate 0 violations; board valid. Release covers documentation truthfulness only; no live or installed qualification is implied."
     },
     {
       "task_id": "W101-ARCHIVE-METADATA-116",
