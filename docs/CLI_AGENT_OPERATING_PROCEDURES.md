@@ -94,8 +94,7 @@ that the game objective succeeded.
   inputs. Quest progression has its separate `--enable-quest-actions` flag and
   explicit selection file. Do not add flags speculatively or infer live
   qualification from a command being available.
-- W101 commands require a fresh, exact target and commonly require W101 already
-  in the foreground. Maelstrom intentionally does not steal focus. A refused
+- All W101 commands require a fresh, exact target. **Read-only observation** (`wizwalker-check`, `wizwalker-watch`, `ui-tree-watch`, `module-observe`) verifies process identity (HWND/PID/start-ticks), **not focus**: a bounded 12-tree pass with zero W101-foreground samples completed with verified hook restoration on 2026-11-17 (receipt `d8c040db…`, `docs/coordination/results/W101-BG-QUAL-LIVE-01.md`). **Input-dispatching actions** (idle-cycle, navigation, quest, travel, character) still require W101 foreground and immediate takeover; `GameWindows.IsCurrent` is identity, while the action path adds separate focus guards. Maelstrom intentionally does not steal focus. A refused
   focus/target guard means no input was sent; do not retry in a loop.
 - A stop-file path may be supplied with `--stop-file`. It must not exist at
   launch; create that exact file while the operation is running to request

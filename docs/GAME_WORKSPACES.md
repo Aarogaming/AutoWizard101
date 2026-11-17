@@ -319,8 +319,7 @@ different process/window; Maelstrom must reconfirm the resulting target. It must
 never assume that the next foreground window is the game.
 
 For ordinary foreground keyboard/mouse input, Play pauses when the chosen game
-loses focus. Background-capable adapters require separate capability checks; they
-are not a blanket permission to control arbitrary windows.
+loses focus. **Read-only observation is background-capable on the reviewed W101 client adapter** (verified 2026-11-17: `ui-tree-watch` completed 12 trees with zero W101-foreground samples and clean hook restoration; see `docs/coordination/results/W101-BG-QUAL-LIVE-01.md`). That capability applies to observation only — it is not permission to dispatch input to an unfocused window. Other background-capable adapters still require separate capability checks; none is a blanket permission to control arbitrary windows.
 
 ## Hosting and presentation
 
