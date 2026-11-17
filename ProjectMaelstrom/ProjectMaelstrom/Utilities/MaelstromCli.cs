@@ -6,7 +6,7 @@ namespace ProjectMaelstrom.Utilities;
 internal sealed record MaelstromCliOptions(string Command, string Output, string DataRoot,
     string? Workspace = null, long Handle = 0, int ProcessId = 0, long StartedUtcTicks = 0, string? StopFile = null, int DurationSeconds = 15,
     bool IncludeQuestContext = false, string? SelectionPath = null, bool QuestActions = false, bool IncludeCombatContext = false,
-    bool ModuleActions = false, string? NavigationKey = null, int PulseMs = 0, string CycleMode = "round-trip", W101VisitPolicy? VisitPolicy = null, bool IncludePoseContext = false, int WaypointDistance = 0, bool FeedbackWaypoint = false, bool AssistedHold = false, bool WalkUntilLoading = false, string? UntilInteraction = null, bool IncludeResourceContext = false, bool IncludeDanceEntryContext = false, double? HeadingRadians = null, int MovingPoseSeconds = 0, bool SafeMode = false);
+    bool ModuleActions = false, string? NavigationKey = null, int PulseMs = 0, string CycleMode = "round-trip", W101VisitPolicy? VisitPolicy = null, bool IncludePoseContext = false, int WaypointDistance = 0, bool FeedbackWaypoint = false, bool AssistedHold = false, bool WalkUntilLoading = false, string? UntilInteraction = null, bool IncludeResourceContext = false, bool IncludeDanceEntryContext = false, double? HeadingRadians = null, int MovingPoseSeconds = 0, bool SafeMode = false, string? CaptureSession = null);
 
 internal sealed record MaelstromCliRuntime(Func<IReadOnlyList<GameWindow>> Windows,
     Func<MaelstromCliOptions, CancellationToken, Task<OperationReceipt>> Check);
@@ -27,10 +27,12 @@ internal static class MaelstromCli
         var values = new Dictionary<string, string>(StringComparer.Ordinal);
         bool resourceContext = false, danceEntryContext = false;
         bool enabled = false, uiEnabled = false, questContext = false, questActions = false, combatContext = false, moduleActions = false, poseContext = false, safeMode = false;
+        string? captureSession = null;
 
         for (int i = 2; i < args.Length; i++)
         {
             var name = args[i];
+            if (name == "--capture-session") { if (captureSession != null || command != "manual-capture" || i + 1 >= args.Length) throw new ArgumentException("Only manual-capture accepts --capture-session <folder>."); captureSession = Path.GetFullPath(args[++i]); continue; }
             if (name == "--safe-mode") { if (safeMode || command != "manual-capture") throw new ArgumentException("Only manual-capture accepts --safe-mode."); safeMode = true; continue; }
             if (name == "--include-dance-entry-context") { if (danceEntryContext) throw new ArgumentException("Duplicate Dance entry opt-in."); danceEntryContext = true; continue; }
             if (name == "--include-resource-context") { if (resourceContext) throw new ArgumentException("Duplicate resource opt-in."); resourceContext = true; continue; }
@@ -207,7 +209,7 @@ internal static class MaelstromCli
         if (values.TryGetValue("--moving-pose-seconds", out var movingText) &&
             (command != "ui-tree-watch" || !poseContext || !int.TryParse(movingText, out movingPoseSeconds) || movingPoseSeconds is < 1 or > 3))
             throw new ArgumentException("Moving sampling requires ui-tree-watch, pose opt-in and 1..3 seconds.");
-        return new(command, output, root, workspace, handle, pid, ticks, stop, duration, questContext, selection, questActions, combatContext, moduleActions, navigationKey, pulseMs, cycleMode, visitPolicy, poseContext, waypointDistance, feedbackWaypoint, assistedHold, walkUntilLoading, untilInteraction, resourceContext, danceEntryContext, headingRadians, movingPoseSeconds, safeMode);
+        return new(command, output, root, workspace, handle, pid, ticks, stop, duration, questContext, selection, questActions, combatContext, moduleActions, navigationKey, pulseMs, cycleMode, visitPolicy, poseContext, waypointDistance, feedbackWaypoint, assistedHold, walkUntilLoading, untilInteraction, resourceContext, danceEntryContext, headingRadians, movingPoseSeconds, safeMode, captureSession);
     }
 
     internal static async Task<int> RunAsync(string[] args, TextWriter error, CancellationToken token = default,
@@ -262,14 +264,19 @@ internal static class MaelstromCli
                     throw new InvalidOperationException("The selected client identity changed. Refresh the windows report.");
                 if (options.StopFile != null && File.Exists(options.StopFile)) throw new OperationCanceledException();
                 var mode = options.SafeMode ? ManualCaptureMode.Safe : ManualCaptureMode.Normal;
+                var timeline = options.CaptureSession == null ? null :
+                    new ManualCaptureTimeline(options.CaptureSession, DateTime.UtcNow.Ticks, options.Workspace);
                 await using var host = await ManualCaptureHost.StartAsync(selected, mode, token).ConfigureAwait(false);
+                timeline?.Add(host.Snapshot, DateTime.UtcNow.Ticks);
                 var deadline = DateTime.UtcNow.AddSeconds(options.DurationSeconds);
                 var reason = "duration-limit";
                 while (!token.IsCancellationRequested && DateTime.UtcNow < deadline &&
                        !(options.StopFile != null && File.Exists(options.StopFile)))
                 {
                     await Task.Delay(100, token).ConfigureAwait(false);
+                    timeline?.Add(host.Snapshot, DateTime.UtcNow.Ticks);
                 }
+                timeline?.Write();
                 if (token.IsCancellationRequested) reason = "cancelled";
                 else if (options.StopFile != null && File.Exists(options.StopFile)) reason = "stop-file";
                 var snapshot = host.Snapshot;

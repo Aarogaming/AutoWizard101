@@ -23,10 +23,14 @@ Date: 2026-11-16 · owner: root · workstream: `CORE-DELIVERY`
 
 `--cli manual-capture` now starts a bounded session: exact target identity required, NORMAL default, `--safe-mode` explicit opt-in, bounded by `--duration-seconds` (1–60) or a fresh stop-file, exit 0/3/2 semantics, and a JSON report containing mode, reason, target, registered hotkey count and the final gate snapshot. Two new CLI tests verify NORMAL default / SAFE opt-in and duration/identity bounds. Verification: focused 66/66, full suite **3,079 passed / 0 failed**, whitespace/analyzers exit 0, encoding/board green.
 
+## 2c. Capture-sync increment (committed after the above)
+
+`Utilities/ManualCaptureTimeline.cs` records bounded gate snapshots (max 1,200 at ≤5 Hz) against one UTC origin and writes `backend-timeline.jsonl` (compact JSONL) plus `cross-compare.json`, optionally referencing a front-end `TeachingRecording` session (`StartedUtc` + `TimeMs` are the front-end clock). `--cli manual-capture --capture-session <folder>` enables it; no input, no capture API, no inference. Three new tests caught and fixed two real bugs: negative offsets rounding to zero, and indented JSON being invalid JSONL. Verification: focused 69/69, full suite **3,082 passed / 0 failed**, whitespace/analyzers exit 0, encoding/board green.
+
 ## 3. Remaining work (claim stays active)
 
 1. ~~Headless `--manual-capture` CLI entry via `MaelstromCli.cs` / `Program.cs`~~ **DONE** (below).
-2. Front/back capture on one `SessionTimeline` clock (reuse `TeachingRecordingCli`).
+2. ~~Front/back capture on one `SessionTimeline` clock~~ **DONE** (below).
 3. Host-level tests where headless-safe (hotkey mapping, target invalidation) without launching UI in CI.
 4. Live rehearsal — separate owner authorization; not part of implementation.
 
