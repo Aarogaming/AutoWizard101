@@ -3918,13 +3918,14 @@
     },
     {
       "task_id": "W101-UI-NAMING-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
         "docs/coordination/results/W101-UI-NAMING-01.md"
       ],
-      "notes": "Report-only catalog of UI node names observed in the owner-authorized 25-tree read-only pass (auto-combat-nors-20261116-232238). Records candidate zone, node names/visibility across samples, dormant Dueling Diego nodes, and the operational finding that includeResourceContext forces a 2-tree snapshot in tools/w101_ui_tree.py:2019-2026. No qualification, no geometry, no input, no live work."
+      "notes": "Report-only catalog of UI node names observed in the owner-authorized 25-tree read-only pass (auto-combat-nors-20261116-232238). Records candidate zone, node names/visibility across samples, dormant Dueling Diego nodes, and the operational finding that includeResourceContext forces a 2-tree snapshot in tools/w101_ui_tree.py:2019-2026. No qualification, no geometry, no input, no live work.",
+      "release_note": "Report-only UI name catalog completed and corrected 2026-11-16. 25 trees/100 loading samples, hook restored, no input; zone candidate Khrysalis/KR_Z10_KondhaDesert with owner binding matched; 94 distinct candidate node names recorded. Operational finding: includeResourceContext forces a 2-tree snapshot in tools/w101_ui_tree.py:2019-2026; omitting it yielded 25 trees. Owner corrected the draft's inference that hidden Diego nodes implied the minigame; correction logged in docs/coordination/results/W101-UI-NAMING-01.md. Unresolved gap recorded: combat readiness saw no combat although the owner reports being in combat. No qualification or further live work."
     }
   ]
 }
