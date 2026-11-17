@@ -1,7 +1,11 @@
 # MANUAL-CAPTURE-CONTROLLER-01 — design brief (PROPOSED, not a reservation for implementation)
 
-Status: **DESIGN BRIEF — owner approval required before any code or rule change.**
+Status: **DESIGN BRIEF — owner approval required before any code or rule change. Revised 2026-11-16 to make NORMAL the default per owner direction.**
 Date: 2026-11-16 · owner: root · workstream: `CORE-DELIVERY`
+
+## Owner decision log (2026-11-16)
+
+The owner corrected the initial proposal: *"my PC doesn't start in safe mode every time. safe mode is meant for when you're using caution explicitly, and isn't meant to be the default."* NORMAL/fluid operation is the product — turn it on, let it run, watch for errors, review them. SAFE is an explicit caution mode for step-by-step diagnostics, not a boot default. The owner further specified the control surfaces: pause/stop hotkeys, overlay buttons, mouse interlock, and a hard-stop keypress that works in every mode. The system pauses at loading screens, focus loss and mouse movement, and resumes when conditions are met **unless** an explicit pause or stop is selected.
 
 ## 1. Goal
 
@@ -23,15 +27,16 @@ Note: `W101RunningNotice.cs` is under **active claim `W101-OVERLAY-CONTROLS-35`*
 
 | Mode | Default? | Activity response | Resume rule |
 | --- | --- | --- | --- |
-| **SAFE** | **YES** | Any desktop activity pauses dispatch immediately (existing takeover) | **Never automatic.** Step-by-step diagnostics only; resume by explicit hotkey/click after re-verification |
-| **NORMAL (fluid)** | No — explicit per-session opt-in | Activity latches an *implicit* pause | Auto-resume allowed **only** after ≥3 s of no detected activity **and** no explicit pause/stop latch, with a visible countdown and full re-verification before dispatch |
+| **NORMAL (fluid)** | **YES — the product mode** | Loading screen, focus loss, or mouse movement latches an *implicit* pause | **Auto-resume when conditions are met**: ≥3 s quiet (or focus regained / loading cleared), visible pre-resume countdown, target/identity/ownership re-verified — **unless an explicit pause or stop latch is set** |
+| **SAFE** | No — explicit opt-in for cautious, step-by-step diagnostics | Same pause triggers; additionally stricter bounds (smaller budgets, step gating) | **Never automatic** while in SAFE; resume by explicit hotkey/click after re-verification. Hard-stop keypress still works |
 
 Hard invariants in both modes:
-1. **Explicit pause or stop is a latch** — auto-resume can never clear it, in any mode.
-2. **Escape / exit / target change / focus loss during an action routine** remains immediate takeover — unchanged.
-3. **No input is dispatched while paused**; pending work is drained and the shared lease/cleanup is verified before any resume.
-4. If cleanup is uncertain, `GameInputLease.RequireRecovery` fires and the hold is honored; no resume until verified restore.
-5. NORMAL mode is **per-session opt-in**, never sticky across sessions; SAFE is the default on every launch.
+1. **Explicit pause or stop is a latch** — auto-resume can never clear it, in any mode. This is how the owner stays in control while watching for errors.
+2. **Hard-stop keypress** works in every mode, including SAFE.
+3. **Pause triggers**: loading screen, window focus loss, and mouse movement (existing takeover + mouse interlock). No dispatch while any trigger is active.
+4. **No input is dispatched while paused**; pending work is drained and the shared lease/cleanup is verified before any resume.
+5. If cleanup is uncertain, `GameInputLease.RequireRecovery` fires and the hold is honored; no resume until verified restore.
+6. SAFE is an explicit, per-session caution mode, never a boot default; NORMAL is the default on every launch.
 
 ## 4. Controller design
 
@@ -42,9 +47,9 @@ Hard invariants in both modes:
 
 ## 5. Proposed narrow AGENTS.md amendment (owner must approve verbatim or edit)
 
-> Runtime boundaries addition: "A per-session, explicitly opted-in NORMAL capture mode permits implicit pause on desktop activity and automatic resume after ≥3 s of sustained quiet, provided (a) no explicit pause or stop latch is set, (b) a visible pre-resume countdown has completed, (c) target identity, ownership, focus and cleanup are freshly re-verified, and (d) SAFE mode remains the default with no automatic resume. This does not waive takeover for action routines outside the opted-in session, and never permits evading a recovery hold or user takeover to perform cleanup."
+> Runtime boundaries addition: "NORMAL (fluid) operation is the default mode. Loading screens, window focus loss and mouse movement pause dispatch; dispatch auto-resumes when those conditions clear (including ≥3 s of sustained quiet after mouse movement), provided (a) no explicit pause or stop latch is set, (b) a visible pre-resume countdown has completed, and (c) target identity, ownership, focus and cleanup are freshly re-verified. SAFE is an explicit per-session caution mode in which resume is never automatic. Explicit pause/stop and the hard-stop keypress are never auto-cleared and take precedence in all modes. No resume may bypass a recovery hold or verified-cleanup requirement."
 
-This is an *addition*, not a deletion of existing takeover rules. If the owner does not approve it, implementation is SAFE-mode-only.
+This is an *addition*, not a deletion of existing takeover rules. It changes only the default and the resume behavior after an **implicit** pause; it does not allow forcing input through an explicit stop, a recovery hold, or uncertain cleanup. If the owner does not approve it, implementation falls back to the earlier SAFE-default proposal.
 
 ## 6. Scope split and acceptance gates
 
@@ -55,7 +60,7 @@ This is an *addition*, not a deletion of existing takeover rules. If the owner d
 - `MaelstromCli.cs` / `Program.cs` — headless `--manual-capture` entry and hotkey registration.
 - `OperationScheduler.cs` / `GameInputLease.cs` — only if a true pause/resume contract is required; otherwise reuse drain + re-admission.
 
-Gates: focused + full native suite with `-warnaserror`; scoped format/analyzers; encoding/board checks; offline simulated activity/quiet/takeover/timer tests proving (a) explicit pause never auto-resumes, (b) SAFE never auto-resumes, (c) no dispatch during pause, (d) target change/recovery hold blocks resume. A live rehearsal needs **fresh owner scope** and is not part of implementation.
+Gates: focused + full native suite with `-warnaserror`; scoped format/analyzers; encoding/board checks; offline simulated activity/quiet/takeover/timer tests proving (a) **NORMAL auto-resumes after the quiet+countdown conditions are met**, (b) explicit pause/stop never auto-resumes in either mode, (c) SAFE never auto-resumes, (d) no dispatch during any pause trigger (loading, focus loss, mouse movement), (e) target change/recovery hold/uncertain cleanup block resume, and (f) hard-stop keypress works in all modes. A live rehearsal needs **fresh owner scope** and is not part of implementation.
 
 ## 7. Boundaries and non-goals
 
