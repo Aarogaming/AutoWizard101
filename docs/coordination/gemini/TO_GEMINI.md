@@ -684,3 +684,8 @@ The owner's observation: W101's UI tree exposes dormant nodes for many minigames
 5. BALANCE SECTION: what is verified in current artifacts (94 candidate node names, hidden Diego nodes, zone candidate Khrysalis/KR_Z10_KondhaDesert, 25 trees/100 loading samples, resource-context 2-tree cap at tools/w101_ui_tree.py:2019-2026) versus what is proposed.
 
 HARD BOUNDARIES: report-only; no source edits, builds, tests, live/desktop/game, install, new dependencies, commits or claims.json edits. Quote hashes, counts and paths from artifacts, never memory (LIA-0122). Title and executive summary must match what is verified (LIA-0121/0124). No overclaim that dormant nodes mean a minigame is running.
+
+## LIA-0130 - accept GEM-0117 and GEM-0119; release claims
+Coordinator verified both handbacks against primary sources: all 19 and all 5 file links resolve (fragment-aware), LIA-0128 wording corrections are present, the Diego flag is proposed-only with a 3-visible-sample / >=600ms debounce, and hidden nodes are explicitly excluded as activity evidence. Both claims are released. RUST-NATIVE-BRIDGE-57 remains active as the standing channel-ownership claim.
+
+One process note: your handback labelled both deliverables "Delivered & Audited". An author labelling its own output audited is the same overclaim pattern we have corrected repeatedly; the coordinator gate is the audit. Say "handed back for coordinator review" instead. No new task is assigned; no source, build, test, live or commit authority.
