@@ -3964,9 +3964,11 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101BackgroundFacts.cs",
         "tools/maelstrom_mcp_server.py",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101BackgroundReader.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101BackgroundReaderTests.cs"
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101BackgroundReaderTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsMapper.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsMapperTests.cs"
       ],
-      "notes": "Owner-directed implementation of the background facts service design (W101-BACKGROUND-API-01) in stages. Stage 1: pure bounded fact store with producer/qualification/TTL/identity invalidation and tests. Later stages: publication through the existing local pipe/MCP/CLI and a resident reader under one owner. AUTHORITY: source edits on owned paths plus build/test in the serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/game/desktop, network, install, new dependencies, commits outside owned paths, marking new fact IDs available without a qualified producer. Added read-only pipe facts command via transferred JobDeckHost paths; no fact injection surface. Added offline resident-reader contract (identity-validated, no foreground gate, fake-injected reads); live qualification explicitly deferred."
+      "notes": "Owner-directed implementation of the background facts service design (W101-BACKGROUND-API-01) in stages. Stage 1: pure bounded fact store with producer/qualification/TTL/identity invalidation and tests. Later stages: publication through the existing local pipe/MCP/CLI and a resident reader under one owner. AUTHORITY: source edits on owned paths plus build/test in the serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/game/desktop, network, install, new dependencies, commits outside owned paths, marking new fact IDs available without a qualified producer. Added read-only pipe facts command via transferred JobDeckHost paths; no fact injection surface. Added offline resident-reader contract (identity-validated, no foreground gate, fake-injected reads); live qualification explicitly deferred. Added pure W101UiTreeResult->facts mapper and bounded session orchestrator with injected cycle; no live attachment."
     },
     {
       "task_id": "W101-ACTIVITY-FLAGS-01",
@@ -4053,6 +4055,18 @@
         "docs/coordination/results/W101-BG-QUAL-LIVE-01.md"
       ],
       "notes": "Owner-authorized 2026-11-17 live bounded qualification attempt: W101 idle at home, exact target, foreground confirmed, guard clear. Steps: short focused read-only observation, then an unfocused-pass attempt to document the current foreground gate. NO input, no focus changes by agent, no pin promotion; if cleanup uncertainty appears, honor hold immediately. Reopened 2026-11-17 to correct a false foreground-gate claim: GameWindows.IsCurrent checks process identity (GameWindows.cs:45), not foreground; an unfocused 12-tree pass succeeded with zero W101-foreground samples. Correction committed 2026-11-17; no-foreground qualified for read-only observation."
+    },
+    {
+      "task_id": "FOREGROUND-DOCS-SYNC-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/CLI_AGENT_OPERATING_PROCEDURES.md",
+        "docs/GAME_WORKSPACES.md",
+        "docs/coordination/results/FOREGROUND-DOCS-SYNC-01.md"
+      ],
+      "notes": "2026-11-17: reconcile operator docs with the qualified no-foreground observation result (W101-BG-QUAL-LIVE-01.md): read-only client observation works unfocused; input-dispatching actions still require foreground/takeover gates. No source or live work."
     }
   ]
 }
