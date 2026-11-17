@@ -1994,13 +1994,14 @@
       "task_id": "W101-OVERLAY-CONTROLS-35",
       "workstream_id": "CORE-DELIVERY",
       "owner": "root",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RunningNotice.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RunningNoticeTests.cs",
         "docs/coordination/results/W101-OVERLAY-CONTROLS-35.md"
       ],
-      "notes": "Worker stopped at usage limit; coordinator completing validation and repairs, preserving files."
+      "notes": "Worker stopped at usage limit; coordinator completing validation and repairs, preserving files.",
+      "release_note": "Resolved 2026-11-16 after worker stopped at usage limit. Coordinator wrote the missing result document from the Codex transcript and freshly verified 28/28 focused W101RunningNotice tests with -warnaserror. Offline owner-drawn play/pause/stop glyphs, hit-tested nonactivating clicks, scope-lifetime only; live display/click never qualified. Result: docs/coordination/results/W101-OVERLAY-CONTROLS-35.md. Source paths transfer to the manual-capture controller implementation claim for reuse."
     },
     {
       "task_id": "RUST-PAUSE-CONFORMANCE-35",
