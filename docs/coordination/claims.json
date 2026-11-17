@@ -4182,13 +4182,14 @@
     },
     {
       "task_id": "PARTIAL-REUSE-DOCTRINE-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         "docs/coordination/results/PARTIAL-REUSE-DOCTRINE-01.md"
       ],
-      "notes": "Owner direction 2026-11-17: do not discard a whole project because one capability is out of scope; disposition per capability. Address read-only decryption distinction and audit Gemini's external claims against primary sources. No import, code, build or live work."
+      "notes": "Owner direction 2026-11-17: do not discard a whole project because one capability is out of scope; disposition per capability. Address read-only decryption distinction and audit Gemini's external claims against primary sources. No import, code, build or live work.",
+      "release_note": "Doctrine delivered 2026-11-17: per-capability reuse replaces whole-project exclusion; saved decoding allowed, live interception still excluded pending owner decision; Gemini claims audited with two corrections."
     }
   ]
 }
