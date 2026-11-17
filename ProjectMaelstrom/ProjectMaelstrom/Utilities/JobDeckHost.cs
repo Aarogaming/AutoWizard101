@@ -317,19 +317,24 @@ internal sealed class JobDeckHost : IAsyncDisposable
         {
             while (!_stop.IsCancellationRequested)
             {
-                using (pipe)
+                await pipe.WaitForConnectionAsync(_stop.Token).ConfigureAwait(false);
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token); timeout.CancelAfter(TimeSpan.FromSeconds(5));
+                try
                 {
-                    await pipe.WaitForConnectionAsync(_stop.Token).ConfigureAwait(false);
-                    using var timeout = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token); timeout.CancelAfter(TimeSpan.FromSeconds(5));
-                    try
-                    {
-                        var bytes = await JobDeckWire.ReadAsync(pipe, timeout.Token).ConfigureAwait(false);
-                        var request = JsonSerializer.Deserialize<JobDeckRequest>(bytes, JobDeckRules.Json) ?? throw new InvalidDataException("Empty deck request.");
-                        await JobDeckWire.WriteAsync(pipe, JsonSerializer.SerializeToUtf8Bytes(Handle(request), JobDeckRules.Json), timeout.Token).ConfigureAwait(false);
-                    }
-                    catch (Exception ex) when (ex is IOException or JsonException or InvalidDataException or OperationCanceledException) { }
+                    var bytes = await JobDeckWire.ReadAsync(pipe, timeout.Token).ConfigureAwait(false);
+                    var request = JsonSerializer.Deserialize<JobDeckRequest>(bytes, JobDeckRules.Json) ?? throw new InvalidDataException("Empty deck request.");
+                    await JobDeckWire.WriteAsync(pipe, JsonSerializer.SerializeToUtf8Bytes(Handle(request), JobDeckRules.Json), timeout.Token).ConfigureAwait(false);
                 }
-                if (!_stop.IsCancellationRequested) pipe = NewPipe();
+                catch (Exception ex) when (ex is IOException or JsonException or InvalidDataException or OperationCanceledException) { }
+                finally
+                {
+                    // Reuse one server instance. Disposing and recreating the pipe between
+                    // requests leaves a binding gap that can fail a client's bounded Connect
+                    // under parallel test load; DisconnectAsync keeps the listener alive.
+                    try { if (pipe.IsConnected) pipe.Disconnect(); }
+                    catch (IOException) { }
+                    catch (ObjectDisposedException) { }
+                }
             }
         }
         catch (OperationCanceledException) when (_stop.IsCancellationRequested) { }

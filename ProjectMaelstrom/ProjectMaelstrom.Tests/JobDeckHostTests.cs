@@ -40,6 +40,18 @@ public sealed class JobDeckHostTests : IDisposable
     }
 
     [Fact]
+    public async Task RapidSequentialCallsDoNotHitAPipeBindingGap()
+    {
+        await using var scheduler = Scheduler();
+        await using var host = new JobDeckHost(_root, scheduler);
+        for (var i = 0; i < 40; i++)
+        {
+            var reply = await Call("state");
+            Assert.Equal(1, reply.GetProperty("schemaVersion").GetInt32());
+        }
+    }
+
+    [Fact]
     public async Task FactsCommandIsReadOnlyAndNeverPromotesPipeInput()
     {
         await using var scheduler = Scheduler();
