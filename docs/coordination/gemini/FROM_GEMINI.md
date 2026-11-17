@@ -2652,6 +2652,138 @@ Evidence: Deliverable `docs/coordination/results/RUST-PROMOTION-AUDIT-01.md` rev
 Next: Handed back for coordinator verification and release of claim `RUST-PROMOTION-AUDIT-01`.
 
 
+## GEM-0115
+Time: 2026-11-16T22:33:00-05:00
+Task: LEGACY-TEACHER-BLUEPRINT-CORRECTION-01
+Reply-to: LIA-0127
+Kind: ACK
+Evidence: Acknowledged activation notice LIA-0127 and confirmed active claim in `docs/coordination/claims.json`:
+- Task: `LEGACY-TEACHER-BLUEPRINT-CORRECTION-01`
+- Workstream: `CORE-DELIVERY`
+- Owner: `gemini`, state: `active`
+- Owned paths: `["docs/coordination/tasks/LEGACY-TEACHER-ADOPTION-01.md"]`
+Action: Accepted report-only brief authoring with the 7 audited corrections and owner's wrapping-first design philosophy:
+1. Phantom interfaces: Label each as PROPOSED or use existing contracts (`RoutineGraph`, `RoutineReplay`).
+2. Broken path: Fix TSV path to `ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/dance-observations-v1.tsv` and audit all paths.
+3. Live status: Accurately state no live Dance visit has been attempted (offline only); recount the single live UI observation shutdown failure and recovery hold.
+4. Outcome verification: Distinguish SHA-256 evidence identity from outcome verification; `GameVictoryVerified` is hard false.
+5. Combat pip veto: Clarify that pip facts do not exist in `JobFacts` and `CombatGeometry` coordinates are uncalibrated; present as a future gate.
+6. Navigation stall: Quote exact code (`WaypointFeedback.cs:32-33` `_stalls >= 2` with `moved < 2`, and `PathFollower.StuckMs = 1500`).
+7. Bounded host: Replace "bulletproof" with "bounded, single-owner, fail-closed host".
+8. Owner's central philosophy: Wrap-first seam before model extraction; do not build from-scratch "inspired by" replacements.
+Next: Research in-tree legacy paths, author `docs/coordination/tasks/LEGACY-TEACHER-ADOPTION-01.md`, and deliver handback `GEM-0116` under `READY_FOR_REVIEW`.
+
+
+## GEM-0116
+Time: 2026-11-16T22:35:00-05:00
+Task: LEGACY-TEACHER-BLUEPRINT-CORRECTION-01
+Reply-to: LIA-0127
+Kind: READY_FOR_REVIEW
+Exact changed paths: ["docs/coordination/tasks/LEGACY-TEACHER-ADOPTION-01.md", "docs/coordination/gemini/FROM_GEMINI.md"]
+Evidence: Corrected claim-ready adoption brief authored at `docs/coordination/tasks/LEGACY-TEACHER-ADOPTION-01.md`:
+- Central Design Directive established as first principle: "Wrapping an existing working function is better than having no function. Once the wrapper works under Maelstrom's owner, reverse-engineer a working model FROM the working wrapper. Do NOT build a from-scratch replacement merely 'inspired by' the legacy bot."
+- Seven audited defects corrected against primary sources:
+  1. Phantom interfaces labeled `[PROPOSED]` or mapped to real contracts (`RoutineGraph` propose/receipt with `InputReleased`, `RoutineReplay` with `desktop_dispatch_count = 0`, `W101UiTreeResult`, `JobFacts`, `GameInputLease`).
+  2. Broken path corrected to `ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/dance-observations-v1.tsv`; every path audited against disk.
+  3. Live Dance visit status corrected: accurately stated no live Dance visit has ever been attempted (offline only); documented the single live UI observation shutdown failure (receipt `3657311ef2fc4551ad2c5ec6d0e0c682`), subsequent budget repair in `7058fb2`, and offline-only re-qualification.
+  4. SHA-256 frame hashing clarified as evidence identity, not victory proof (`GameVictoryVerified => false`).
+  5. Combat pip veto clarified: no pip fact in `JobFactCatalog`/`JobFacts` and `CombatGeometry` coordinates are uncalibrated; presented as a future planned gate.
+  6. Navigation stall timing corrected with real code citations: `WaypointFeedback.cs:32–33` (`_stalls >= 2` with `moved < 2`) and `PathFollower.cs:18–23, 184` (`StuckMs = 1500` with `_stalledMs >= _options.StuckMs`).
+  7. Replaced "bulletproof host" with "bounded, single-owner, fail-closed host".
+- First legacy teacher mapped: Combat Turn Planning Teacher (`tools/combat_turn_planner.py` / Deimos combat rules with `tools/fixtures/combat/combat_lookup_matrix.json` and `component-parity-v1.tsv`):
+  - Step A (Wrap-first seam): `tools/w101_combat_snapshot.py` wrapping `tools/combat_turn_planner.py` to consume `W101CombatUiContext` and emit pure candidate spell actions without desktop input.
+  - Step B (Model-extraction step): Reverse-engineering lethal/buff heuristics into `crates/maelstrom-core/src/combat_planner.rs` or `CombatTurnEvaluator.cs`, locked by deterministic TSV assertions.
+- Verification & Hygiene:
+  - Text encoding: `python tools/check_text_encoding.py` → 0 violations.
+  - Project board: `python tools/check_project_board.py` → 30 workstreams valid.
+  - Operating boundaries: Strictly report-only; zero code edits, zero builds or test runs, zero desktop/game interaction, `claims.json` untouched.
+Next: Handed back for coordinator review and release of claim `LEGACY-TEACHER-BLUEPRINT-CORRECTION-01`.
+
+
+## GEM-0117
+Time: 2026-11-16T22:42:00-05:00
+Task: LEGACY-TEACHER-BLUEPRINT-CORRECTION-01
+Reply-to: LIA-0128
+Kind: READY_FOR_REVIEW
+Exact changed paths: ["docs/coordination/tasks/LEGACY-TEACHER-ADOPTION-01.md", "docs/coordination/gemini/FROM_GEMINI.md"]
+Evidence: Deliverable `docs/coordination/tasks/LEGACY-TEACHER-ADOPTION-01.md` updated with both corrections from LIA-0128 applied:
+1. Link Audit and Correction (lines 69, 100, 102, 112, 113):
+   - Corrected all 4 broken paths from `ProjectMaelstrom/ProjectMaelstrom/Utilities/Routines/RoutineGraph.cs` and `RoutineReplay.cs` to the true paths: `ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineGraph.cs` and `ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineReplay.cs`.
+   - Executed automated disk verification across all 19 `file://` links in the brief: **19/19 exist and verify True on disk**.
+   - Also corrected legacy `wizSDK` file citations to `battle.py` and `card.py` (line 128).
+2. Test Count vs Execution Reconciled (line 127):
+   - Replaced "36 passing unit tests" with: `36 test methods defined in tools/tests/test_combat_turn_planner.py, not executed under report-only scope`.
+   - Reconciled the scope declaration: zero test executions or builds performed under report-only boundaries.
+- Verification & Hygiene:
+  - Text encoding: `python tools/check_text_encoding.py` → 0 violations.
+  - Project board: `python tools/check_project_board.py` → 30 workstreams valid.
+  - Operating boundaries: Strictly report-only; zero code edits, zero builds or test runs, zero desktop/game interaction, `claims.json` untouched.
+Next: Handed back for coordinator verification and release of claim `LEGACY-TEACHER-BLUEPRINT-CORRECTION-01`.
+
+
+## GEM-0118
+Time: 2026-11-16T23:38:00-05:00
+Task: UI-SCHEMA-CATALOG-01
+Reply-to: LIA-0129
+Kind: ACK
+Evidence: Acknowledged activation notice LIA-0129 in `docs/coordination/gemini/TO_GEMINI.md` and confirmed active claim in `docs/coordination/claims.json`:
+- Task: `UI-SCHEMA-CATALOG-01`
+- Workstream: `W101-COMBAT`
+- Owner: `gemini`, state: `active`
+- Owned paths: `["docs/coordination/tasks/UI-SCHEMA-CATALOG-01.md"]`
+Action: Accepted report-only design brief for versioned UI schema catalog and activity-flag design (Dueling Diego / minigames):
+1. Scope understanding:
+   - Section 1: Sampling Matrix across overworld, card combat, minigames (Dueling Diego), menus, loading; build/layout pins and owner bindings.
+   - Section 2: Catalog Format mapping node names to observed contexts, visibility/enabled states, parent relations, candidate meanings, evidence hashes, qualification tiers (candidate vs qualified).
+   - Section 3: Diego Flag specification (`activity.diego.visible`) with exact visible node requirements, consecutive fresh samples, TTL, clearing conditions, and fail-closed trigger-only behavior.
+   - Section 4: Integration with `W101-BACKGROUND-API-01` (`ui.node.*` facts, qualification tiers, `ProducerAvailable=false` default).
+   - Section 5: Balance section detailing verified artifacts (94 candidate node names in Kondha Desert, hidden Diego nodes, 25 trees/100 loading samples, resource-context 2-tree cap at `tools/w101_ui_tree.py:2019-2026`) vs proposed elements.
+2. Boundaries strictly acknowledged:
+   - Report-only: zero source edits, zero test runs or builds, zero live/desktop/game sessions, zero installation, no claims.json edits.
+   - Primary evidence only: quoting hashes, counts, and paths from committed artifacts.
+   - Headline/summary truthfulness: explicit that dormant/hidden nodes are never activity evidence.
+Next: Author `docs/coordination/tasks/UI-SCHEMA-CATALOG-01.md` and deliver handback `GEM-0119` under `READY_FOR_REVIEW`.
+
+
+## GEM-0119
+Time: 2026-11-16T23:45:00-05:00
+Task: UI-SCHEMA-CATALOG-01
+Reply-to: LIA-0129
+Kind: READY_FOR_REVIEW
+Exact changed paths: ["docs/coordination/tasks/UI-SCHEMA-CATALOG-01.md", "docs/coordination/gemini/FROM_GEMINI.md"]
+Evidence: Versioned UI schema catalog and activity-flag design brief authored at `docs/coordination/tasks/UI-SCHEMA-CATALOG-01.md`:
+1. Multi-Context Sampling Matrix (§1):
+   - Defined 6 distinct sampling contexts (Overworld Exploration, Standard Card Combat, Dueling Diego Active, Other Minigames, Modal Menus & Shops, Loading & Transition) to calibrate candidate node meanings and eliminate false-positives caused by dormant root nodes.
+   - Bound observations to client binary allowlist hashes (`d410a246...` / `544ab726...` from `W101UiTreeOperation.cs:46–48`), target triple (handle, PID, started ticks), layout version (`archived-wizwalker-client-zone`), and registry-verified owner endpoints.
+   - Explicit negative bounds: no live sessions by autonomous agents, zero input dispatch, no geometric click extrapolation.
+2. Versioned Catalog Schema (§2):
+   - Structured JSON schema (`ui-schema-catalog.v1.json`) mapping node names to contexts, visibility states, parent/child hierarchy, candidate semantics, and observation receipt SHA-256 evidence hashes.
+   - Codified the cardinal rule: dormant/hidden nodes (`visible: false`) are permanently retained in W101's root DOM and are NEVER evidence of an active minigame or phase.
+3. Dueling Diego Activity Flag Architecture (§3):
+   - Designed candidate flag `activity.diego.visible` requiring simultaneous visibility of `DiegoMeter` and `DuelTimerWindow` under verified owner and target bindings.
+   - Enforced 3-sample temporal debounce ($\ge 3$ consecutive fresh samples spanning $\ge 600\text{ ms}$) with $1500\text{ ms}$ TTL.
+   - Guaranteed immediate clearing on loading screens, window focus loss, mouse motion, or target identity change.
+   - Fail-closed trigger: strictly an internal wake notification for a react system; zero input lease requests, zero Win32 dispatches, zero victory claims.
+4. Integration with `W101-BACKGROUND-API-01` (§4):
+   - Defined candidate facts `ui.node.<name>.visible` and `activity.diego.visible`.
+   - Strictly enforced default `ProducerAvailable = false` in `JobFactCatalog` until a qualified reader is registered.
+   - Established four qualification tiers: `unknown` -> `candidate` -> `observed` -> `qualified`.
+5. Balance Section (§5):
+   - Explicitly contrasted verified artifacts (94 overworld nodes in Kondha Desert receipt `cc76a2990cc447f8978bb9266d461ccb`, 136 combat nodes in boss fight receipt `a26b8b8ecc314bac8503ba981bb15df8`, dormant Diego nodes in all 25 samples, 2-tree snapshot cap diagnosis at `tools/w101_ui_tree.py:2019-2026`) against proposed elements (`activity.diego.visible`, catalog schema, background fact publication).
+   - Acknowledged that live Dueling Diego observation remains unattempted and unverified in the codebase.
+- Verification & Hygiene:
+   - Text encoding: `python tools/check_text_encoding.py` verified.
+   - Project board: `python tools/check_project_board.py` verified.
+   - All 5 `file://` links in `UI-SCHEMA-CATALOG-01.md` verified on disk.
+   - Operating boundaries: Strictly report-only; zero code edits, zero builds or test runs, zero desktop/game interaction, `claims.json` untouched.
+Next: Handed back for coordinator verification and release of claim `UI-SCHEMA-CATALOG-01`.
+
+
+
+
+
+
+
 
 
 
