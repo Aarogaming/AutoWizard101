@@ -4150,13 +4150,14 @@
     },
     {
       "task_id": "BCD-FLAG-EVIDENCE-AUDIT-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-CLEANUP",
       "owned_paths": [
         "docs/coordination/results/BCD-FLAG-EVIDENCE-AUDIT-01.md"
       ],
-      "notes": "2026-11-17 offline audit of collisionFlags in .local/introspection/bcd-evidence-126.json: constant 13379 across 52 samples with undocumented 0x2000 bit suggests field-offset misread. No promotion to role facts until provenance and parser mapping are verified. No code, build, live."
+      "notes": "2026-11-17 offline audit of collisionFlags in .local/introspection/bcd-evidence-126.json: constant 13379 across 52 samples with undocumented 0x2000 bit suggests field-offset misread. No promotion to role facts until provenance and parser mapping are verified. No code, build, live.",
+      "release_note": "Audit delivered 2026-11-17: bcd-evidence-126 collisionFlags constant 13379 with undocumented 0x2000 bit and no tracked generator - untrusted for role evidence. No code/build/live; conservative gates unchanged."
     }
   ]
 }
