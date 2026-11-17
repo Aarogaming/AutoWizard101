@@ -3866,13 +3866,14 @@
     },
     {
       "task_id": "W101-COMBAT-API-MAP-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
         "docs/coordination/results/W101-COMBAT-API-MAP-01.md"
       ],
-      "notes": "Owner-authorized 2026-11-16 read-only battle observation during their own play. One bounded ui-tree-watch (45-60s max) with combat/resource/pose/quest context on exact target, launched on the owner's explicit signal. Reviewed root hook with verified restoration only; NO input, focus change, network, game-file writes, Crowns/snacks/volume/restart. Output is a candidate fact catalog: observed fields named with qualification level and provenance, feedstock for wrap-first teachers. Live capture ends after one pass; offline analysis only thereafter."
+      "notes": "Owner-authorized 2026-11-16 read-only battle observation during their own play. One bounded ui-tree-watch (45-60s max) with combat/resource/pose/quest context on exact target, launched on the owner's explicit signal. Reviewed root hook with verified restoration only; NO input, focus change, network, game-file writes, Crowns/snacks/volume/restart. Output is a candidate fact catalog: observed fields named with qualification level and provenance, feedstock for wrap-first teachers. Live capture ends after one pass; offline analysis only thereafter.",
+      "release_note": "One owner-authorized bounded all-context observation completed 2026-11-16: exit 0, state Completed, hook restored, guard clear, NO game input. Combat readiness reported Ready false, CardCandidates 0, ParticipantCandidates 0, Missing ['fresh-combat-observation'] - the owner was between encounters, so no combat fact catalog could be produced. Negative evidence recorded faithfully in docs/coordination/results/W101-COMBAT-API-MAP-01.md. A future pass started during an actual battle requires fresh owner scope; no such pass is authorized by this release."
     },
     {
       "task_id": "MANUAL-CAPTURE-CONTROLLER-01",
