@@ -34,6 +34,16 @@ These are **candidate structural names from the archived layout reader**. There 
 2. Concrete next task (not performed here): update or replace the combat-reader node-name mapping using these observed names, with deterministic fixtures built from these 25 saved trees, then re-run the same capture to see `CardCandidates > 0`. This is the "stub into building the system from what's provided" step — the game gave us the vocabulary.
 3. The Dueling Diego flag idea remains separate: `DuelTimerWindow` was hidden in all 25 samples even during this boss fight, confirming hidden nodes are not activity evidence.
 
+## 4b. Second observation — reproducible reader gap
+
+A second owner-authorized boss battle produced an independent pass (receipt `1d26e3a4819e4cbf97750e3cad7435b5`, exit 0, `Completed`, 25 trees / 100 loading samples / 0 failures, hook restored, guard clear, no input), this time in zone candidate `Khrysalis/Interiors/KR_Z10_I05_AlluviumCave`.
+
+- **139 distinct node names**, 26 combat-related.
+- Visible combat nodes again: `CombatantControl`, `Health`, `Pips`, `ShadowPips`, `ShadowPipBackground` (21/25), `SpellCast` (21), `Target` (14), `SpellSelection`, `ConfirmTargetsWindow`, `Target_0…Target_3`, `SchoolPipPanel` (7), `Hand` (6).
+- `combat-readiness.json` again: `Ready:false`, 0 card/participant candidates, `Missing:["fresh-combat-observation"]`.
+
+Two independent boss battles in different zones reproduce the same mismatch. The reader mapping gap is therefore **repeatable**, not a one-off. Both passes' saved trees are available as fixture material for the mapping fix.
+
 ## 5. Limits and boundaries
 
 One pass, one client build/layout; names may change with patches. No input, no dispatch, no gameplay qualification, no new fact IDs marked available. The waiter only watched the foreground handle; it did not capture, focus or control the window. No further live pass is authorized by this report.
