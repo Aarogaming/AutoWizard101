@@ -4071,13 +4071,14 @@
     },
     {
       "task_id": "BACKGROUND-ACTION-CONSENT-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         "docs/coordination/tasks/BACKGROUND-ACTION-CONSENT-01.md"
       ],
-      "notes": "Report-only 2026-11-17 design: where background action approval belongs in the existing policy/admission/lease/capability stack. No source or live work; owner approval required before implementation."
+      "notes": "Report-only 2026-11-17 design: where background action approval belongs in the existing policy/admission/lease/capability stack. No source or live work; owner approval required before implementation.",
+      "release_note": "Design delivered 2026-11-17: consent belongs in W101InteractionPolicy, OperationScheduler admission/dispatch, GameInputLease, card eligibility, catalog, and CLI/MCP flags - explicit, scoped, revocable, never waiving takeover/recovery. No code or live work."
     }
   ]
 }
