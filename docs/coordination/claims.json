@@ -3939,13 +3939,14 @@
     },
     {
       "task_id": "W101-COMBAT-UI-NAMING-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
         "docs/coordination/results/W101-COMBAT-UI-NAMING-01.md"
       ],
-      "notes": "Report-only catalog of combat UI node names observed in the owner-authorized boss-battle pass (auto-boss-20261116-233030): 136 distinct names including visible Health/Pips/ShadowPips/Hand/Card1-7/Target_0-3/SpellSelection, while combat-readiness reported 0 candidates - reader mapping gap. No input, no qualification, no live work beyond the already-completed pass."
+      "notes": "Report-only catalog of combat UI node names observed in the owner-authorized boss-battle pass (auto-boss-20261116-233030): 136 distinct names including visible Health/Pips/ShadowPips/Hand/Card1-7/Target_0-3/SpellSelection, while combat-readiness reported 0 candidates - reader mapping gap. No input, no qualification, no live work beyond the already-completed pass.",
+      "release_note": "Report-only catalog completed 2026-11-16 from one owner-authorized boss-battle pass: 25 trees/100 loading samples, hook restored, no input. Zone candidate Khrysalis/Interiors/KR_Z10_I05_DryGulchCave; 136 distinct node names including visible CombatantControl/Health/Pips/ShadowPips/Hand/Card1-7/Target_0-3/SpellSelection while combat-readiness reported 0 candidates. Key finding: the reader mapping is out of date, NOT combat absent; earlier Ready:false records must be read with that caveat. Evidence: docs/coordination/results/W101-COMBAT-UI-NAMING-01.md. No fix, fixtures or further live work authorized."
     }
   ]
 }
