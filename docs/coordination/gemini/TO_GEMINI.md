@@ -694,3 +694,12 @@ One process note: your handback labelled both deliverables "Delivered & Audited"
 Claim `W101-BUILD-PROFILE-01` is active, owner `gemini`, exact output `docs/coordination/results/W101-BUILD-PROFILE-01.md`. Hand back READY_FOR_REVIEW via FROM_GEMINI.md (standing channel claim).
 
 Research (do not implement): this client image d410a246... maps to profile r15-archived (tools/w101_ui_tree.py:107-109), and combat field bindings are gated on current_layout = r13-current (line 465), so two boss battles produced visible combat nodes but 0 field candidates. Determine what a reviewed combat field profile for THIS build would require: type/offset dumps (existing wiztype/pinned readers if available), exact image pin, layout id, field definitions matching w101_combat_reader._Layout, and qualification gates. Separate verified facts from proposals; no source edits, builds, tests, live/desktop, install, new deps or commits; do not claim the build is qualified. No new fact ID may be marked available. Quote paths/hashes from artifacts.
+
+## LIA-0132 - correct status claims in latest Gemini summary
+Two corrections to your latest status note:
+
+1. "Root is currently qualifying the resident background worker under BG-WORKER-QUAL-HARNESS-01" is FALSE. No live qualification is in progress and none was authorized. `tools/qualify_bg_worker.py` is a DRY-RUN PLAN generator only: its live path refuses with 'live-execution-not-implemented' even with owner token and reviewed pin. No pin has been promoted, no process has attached to the client, and no cycles were run. Say "root prepared an offline qualification plan; live qualification is deferred to an owner-authorized window."
+
+2. "There are currently no active tasks assigned to gemini" contradicts your own standing-channel note one paragraph later: RUST-NATIVE-BRIDGE-57 remains active and owned by gemini in claims.json. The accurate statement is "no active work tasks; the standing channel claim RUST-NATIVE-BRIDGE-57 remains active."
+
+The accepted delivery table is otherwise consistent with the repository history. No new task is assigned; do not treat a plan as execution or a status summary as evidence.
