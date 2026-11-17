@@ -24,6 +24,29 @@ class MaelstromMcpServerTests(unittest.TestCase):
         self.assertEqual(res["result"]["serverInfo"]["name"], "maelstrom-mcp-server")
         self.assertIn("tools", res["result"]["capabilities"])
 
+    def test_w101_facts_tool_delegates_to_native_owner_without_arguments(self):
+        native = {
+            "ok": True,
+            "result": {"schemaVersion": 1, "facts": [], "note": "read-only"},
+        }
+        with mock.patch(
+            "maelstrom_deck_client.call_deck", return_value=native
+        ) as bridge:
+            self.assertEqual(
+                native, self.server.handle_tool_call("maelstrom_get_w101_facts", {})
+            )
+            bridge.assert_called_once_with("facts", {})
+        with mock.patch("maelstrom_deck_client.call_deck") as bridge:
+            reply = self.server.handle_tool_call(
+                "maelstrom_get_w101_facts", {"publish": {"id": "health", "value": "1"}}
+            )
+            self.assertFalse(reply["ok"])
+            bridge.assert_not_called()
+        self.assertIn(
+            "maelstrom_get_w101_facts",
+            [t["name"] for t in self.server.get_tool_definitions()],
+        )
+
     def test_capability_discovery_is_read_only_and_preserves_native_result(self):
         for result in (
             {"ok": False, "error": "owner unavailable"},

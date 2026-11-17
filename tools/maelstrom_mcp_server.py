@@ -451,6 +451,15 @@ class MaelstromMcpServer:
                 },
             },
             {
+                "name": "maelstrom_get_w101_facts",
+                "description": "Read the current W101 candidate facts snapshot from the single native owner. Facts are read-only, qualified (observed/candidate/unknown) and expire; unknown is not false and no fact authorizes an action. This does not attach, capture, wait or dispatch.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": False,
+                },
+            },
+            {
                 "name": "maelstrom_check_observation_progress",
                 "description": "Check whether one exact native observation request is still active. A missing/different active ID returns outcome_unknown; it never means success. This reads native owner state only and does not fetch uncorrelated facts, wait, cancel, or dispatch work.",
                 "inputSchema": {
@@ -755,6 +764,15 @@ class MaelstromMcpServer:
                     "error": "Explicit read-only observation confirmation is required.",
                 }
             return call_deck("observe", {})
+        elif name == "maelstrom_get_w101_facts":
+            from maelstrom_deck_client import call_deck
+
+            if args:
+                return {
+                    "ok": False,
+                    "error": "W101 facts discovery takes no arguments.",
+                }
+            return call_deck("facts", {})
         elif name == "maelstrom_check_observation_progress":
             from maelstrom_deck_client import call_deck
 
