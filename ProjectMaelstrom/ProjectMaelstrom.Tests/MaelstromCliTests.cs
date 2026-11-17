@@ -145,6 +145,24 @@ public sealed class MaelstromCliTests : IDisposable
     public MaelstromCliTests() => Directory.CreateDirectory(_root);
     private string Report => Path.Combine(_root, "report.json");
     private string[] Args(string command) => ["--cli", command, "--output", Report];
+    [Fact]
+    public void ManualCaptureIsNormalByDefaultAndSafeIsExplicit()
+    {
+        var args = CheckArgs(); args[1] = "manual-capture";
+        Assert.False(MaelstromCli.Parse(args, _root).SafeMode);
+        Assert.True(MaelstromCli.Parse([.. args, "--safe-mode"], _root).SafeMode);
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. CheckArgs(), "--safe-mode"], _root));
+    }
+
+    [Fact]
+    public void ManualCaptureDurationIsBoundedAndUsesExactIdentity()
+    {
+        var args = CheckArgs(); args[1] = "manual-capture";
+        Assert.Equal(30, MaelstromCli.Parse([.. args, "--duration-seconds", "30"], _root).DurationSeconds);
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args, "--duration-seconds", "61"], _root));
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args.Where(a => a != "--started-utc-ticks")], _root));
+    }
+
     private string[] CheckArgs() => [.. Args("wizwalker-check"), "--workspace", _root, "--window", "42", "--process-id", "123", "--started-utc-ticks", "456", "--enable-client-observation"];
     private static OperationReceipt Receipt(OperationState state) => new(new(new string('a', 32), WizwalkerOperation.Id, WizwalkerOperation.Version,
         25, true, "inert fixture", new Dictionary<string, string>()), state, DateTime.UtcNow, "fixture", []);

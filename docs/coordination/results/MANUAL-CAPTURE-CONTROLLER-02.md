@@ -19,9 +19,13 @@ Date: 2026-11-16 · owner: root · workstream: `CORE-DELIVERY`
 | Scoped whitespace / analyzers | exit 0 / 0 (WFO1000 form-property attributes applied) |
 | Encoding / board | 0 violations / 30 workstreams valid |
 
+## 2b. CLI increment (committed after the above)
+
+`--cli manual-capture` now starts a bounded session: exact target identity required, NORMAL default, `--safe-mode` explicit opt-in, bounded by `--duration-seconds` (1–60) or a fresh stop-file, exit 0/3/2 semantics, and a JSON report containing mode, reason, target, registered hotkey count and the final gate snapshot. Two new CLI tests verify NORMAL default / SAFE opt-in and duration/identity bounds. Verification: focused 66/66, full suite **3,079 passed / 0 failed**, whitespace/analyzers exit 0, encoding/board green.
+
 ## 3. Remaining work (claim stays active)
 
-1. Headless `--manual-capture` CLI entry via `MaelstromCli.cs` / `Program.cs` (paths owned by this claim).
+1. ~~Headless `--manual-capture` CLI entry via `MaelstromCli.cs` / `Program.cs`~~ **DONE** (below).
 2. Front/back capture on one `SessionTimeline` clock (reuse `TeachingRecordingCli`).
 3. Host-level tests where headless-safe (hotkey mapping, target invalidation) without launching UI in CI.
 4. Live rehearsal — separate owner authorization; not part of implementation.

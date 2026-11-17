@@ -6,7 +6,7 @@ namespace ProjectMaelstrom.Utilities;
 internal sealed record MaelstromCliOptions(string Command, string Output, string DataRoot,
     string? Workspace = null, long Handle = 0, int ProcessId = 0, long StartedUtcTicks = 0, string? StopFile = null, int DurationSeconds = 15,
     bool IncludeQuestContext = false, string? SelectionPath = null, bool QuestActions = false, bool IncludeCombatContext = false,
-    bool ModuleActions = false, string? NavigationKey = null, int PulseMs = 0, string CycleMode = "round-trip", W101VisitPolicy? VisitPolicy = null, bool IncludePoseContext = false, int WaypointDistance = 0, bool FeedbackWaypoint = false, bool AssistedHold = false, bool WalkUntilLoading = false, string? UntilInteraction = null, bool IncludeResourceContext = false, bool IncludeDanceEntryContext = false, double? HeadingRadians = null, int MovingPoseSeconds = 0);
+    bool ModuleActions = false, string? NavigationKey = null, int PulseMs = 0, string CycleMode = "round-trip", W101VisitPolicy? VisitPolicy = null, bool IncludePoseContext = false, int WaypointDistance = 0, bool FeedbackWaypoint = false, bool AssistedHold = false, bool WalkUntilLoading = false, string? UntilInteraction = null, bool IncludeResourceContext = false, bool IncludeDanceEntryContext = false, double? HeadingRadians = null, int MovingPoseSeconds = 0, bool SafeMode = false);
 
 internal sealed record MaelstromCliRuntime(Func<IReadOnlyList<GameWindow>> Windows,
     Func<MaelstromCliOptions, CancellationToken, Task<OperationReceipt>> Check);
@@ -17,7 +17,7 @@ internal sealed record MaelstromCliRuntime(Func<IReadOnlyList<GameWindow>> Windo
 internal static class MaelstromCli
 {
     internal static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
-    private static readonly string[] Commands = ["help", "windows", "status", "recover-input", "wizwalker-check", "wizwalker-watch", "ui-tree-watch", "module-observe", "character-inspect", "character-roster", "character-enter", "character-verify", "character-frame", "character-home", "world-gate-inspect", "world-gate-close", "world-gate-travel-current", "travel-card", "idle-cycle", "navigation-probe", "navigation-visit", "quest-conversation", "mcp"];
+    private static readonly string[] Commands = ["help", "windows", "status", "recover-input", "wizwalker-check", "wizwalker-watch", "ui-tree-watch", "module-observe", "character-inspect", "character-roster", "character-enter", "character-verify", "character-frame", "character-home", "world-gate-inspect", "world-gate-close", "world-gate-travel-current", "travel-card", "idle-cycle", "navigation-probe", "navigation-visit", "quest-conversation", "manual-capture", "mcp"];
 
     internal static MaelstromCliOptions Parse(string[] args, string defaultDataRoot)
     {
@@ -26,11 +26,12 @@ internal static class MaelstromCli
         var command = args[1];
         var values = new Dictionary<string, string>(StringComparer.Ordinal);
         bool resourceContext = false, danceEntryContext = false;
-        bool enabled = false, uiEnabled = false, questContext = false, questActions = false, combatContext = false, moduleActions = false, poseContext = false;
+        bool enabled = false, uiEnabled = false, questContext = false, questActions = false, combatContext = false, moduleActions = false, poseContext = false, safeMode = false;
 
         for (int i = 2; i < args.Length; i++)
         {
             var name = args[i];
+            if (name == "--safe-mode") { if (safeMode || command != "manual-capture") throw new ArgumentException("Only manual-capture accepts --safe-mode."); safeMode = true; continue; }
             if (name == "--include-dance-entry-context") { if (danceEntryContext) throw new ArgumentException("Duplicate Dance entry opt-in."); danceEntryContext = true; continue; }
             if (name == "--include-resource-context") { if (resourceContext) throw new ArgumentException("Duplicate resource opt-in."); resourceContext = true; continue; }
             if (name == "--enable-module-actions")
@@ -80,7 +81,7 @@ internal static class MaelstromCli
         if (resourceContext && command != "ui-tree-watch") throw new ArgumentException("Resources require ui-tree-watch.");
         var root = Path.GetFullPath(values.GetValueOrDefault("--data-root", defaultDataRoot));
 
-        if (command is not ("wizwalker-check" or "wizwalker-watch" or "ui-tree-watch" or "module-observe" or "world-gate-inspect" or "world-gate-close" or "world-gate-travel-current" or "travel-card" or "character-home" or "character-frame" or "character-verify" or "character-enter" or "character-roster" or "character-inspect" or "idle-cycle" or "navigation-probe" or "navigation-visit" or "quest-conversation"))
+        if (command is not ("wizwalker-check" or "wizwalker-watch" or "ui-tree-watch" or "manual-capture" or "module-observe" or "world-gate-inspect" or "world-gate-close" or "world-gate-travel-current" or "travel-card" or "character-home" or "character-frame" or "character-verify" or "character-enter" or "character-roster" or "character-inspect" or "idle-cycle" or "navigation-probe" or "navigation-visit" or "quest-conversation"))
         {
             if (enabled || uiEnabled || questContext || questActions || combatContext || moduleActions || values.Keys.Any(k => k is not ("--output" or "--data-root")))
                 throw new ArgumentException("This read-only command does not accept client-control options.");
@@ -160,9 +161,9 @@ internal static class MaelstromCli
         int duration = 15;
         if (values.TryGetValue("--duration-seconds", out var durationValue))
         {
-            if (command is not ("wizwalker-watch" or "ui-tree-watch") || !int.TryParse(durationValue, NumberStyles.None, CultureInfo.InvariantCulture, out duration) ||
+            if (command is not ("wizwalker-watch" or "ui-tree-watch" or "manual-capture") || !int.TryParse(durationValue, NumberStyles.None, CultureInfo.InvariantCulture, out duration) ||
                 duration is < 1 or > WizwalkerLoadingWatch.MaximumWatchSeconds)
-                throw new ArgumentException("Only watch commands accept --duration-seconds, from 1 through 60.");
+                throw new ArgumentException("Only watch and manual-capture commands accept --duration-seconds, from 1 through 60.");
         }
 
         if (selection != null && new[] { output, stop }.Contains(selection, StringComparer.OrdinalIgnoreCase))
@@ -206,7 +207,7 @@ internal static class MaelstromCli
         if (values.TryGetValue("--moving-pose-seconds", out var movingText) &&
             (command != "ui-tree-watch" || !poseContext || !int.TryParse(movingText, out movingPoseSeconds) || movingPoseSeconds is < 1 or > 3))
             throw new ArgumentException("Moving sampling requires ui-tree-watch, pose opt-in and 1..3 seconds.");
-        return new(command, output, root, workspace, handle, pid, ticks, stop, duration, questContext, selection, questActions, combatContext, moduleActions, navigationKey, pulseMs, cycleMode, visitPolicy, poseContext, waypointDistance, feedbackWaypoint, assistedHold, walkUntilLoading, untilInteraction, resourceContext, danceEntryContext, headingRadians, movingPoseSeconds);
+        return new(command, output, root, workspace, handle, pid, ticks, stop, duration, questContext, selection, questActions, combatContext, moduleActions, navigationKey, pulseMs, cycleMode, visitPolicy, poseContext, waypointDistance, feedbackWaypoint, assistedHold, walkUntilLoading, untilInteraction, resourceContext, danceEntryContext, headingRadians, movingPoseSeconds, safeMode);
     }
 
     internal static async Task<int> RunAsync(string[] args, TextWriter error, CancellationToken token = default,
@@ -239,6 +240,7 @@ internal static class MaelstromCli
                     navigationVisit = "navigation-visit owns wake, one teaching pulse and return to Idle within 85 seconds. W101 must already be foreground in native Idle. No route arrival is inferred.",
                     idleRecovery = "navigation-visit: --idle-retries 0..2 (default 2), --resume-after-quiet true|false (default false), --quiet-seconds 2..10 (default 2). Retries use fresh Idle observations within 40 seconds. Quiet recovery resumes only cleanup, never gameplay. Escape, cancellation and uncertain cleanup stop input.",
                     conversation = "quest-conversation requires all three observation opt-ins, --enable-quest-actions and --selection <json>. Up to 12 selected dialogue pages by default, 60 seconds; changed pages required between Space pulses; verify a new objective after closing. Stops on desktop activity. No navigation, combat or Idle cleanup.",
+                    manualCapture = "manual-capture requires exact window identity and --output; starts a persistent nonactivating overlay with Play/Pause/Stop hotkeys (Ctrl+Alt+P/S/R/Q). NORMAL is default; --safe-mode disables automatic resume. Bounded by --duration-seconds 1..60 or a fresh --stop-file. The host never dispatches game input; the pure gate requires quiet+countdown+verification and explicit pause/stop is never auto-cleared.",
                     note = "No window activation. Observation commands send no input; the separately enabled quest-conversation can advance the selected quest. Existing scheduler/control lease. Exit 0 completed, 2 run not completed, 3 cancelled, 1 command/setup error." };
             else if (options.Command == "windows")
                 result = new { schemaVersion = 1, command = "windows", windows = runtime.Windows().Select(w => new
@@ -251,6 +253,32 @@ internal static class MaelstromCli
                     tools = new[] { "list_game_workspaces", "get_w101_policy_state", "validate_routine_graph", "evaluate_combat_damage", "solve_potion_motion_grid", "plan_combat_turn", "compile_macro_demonstration", "maelstrom_get_capability_catalog",
                         "maelstrom_get_session_telemetry", "maelstrom_inspect_routine_deck", "maelstrom_deal_job_card", "maelstrom_step_deck_loop", "maelstrom_deck_command" },
                     launcher = "Launch Maelstrom MCP.cmd" };
+            else if (options.Command == "manual-capture")
+            {
+                token.ThrowIfCancellationRequested();
+                var selected = GameWindows.Read((nint)options.Handle) ?? throw new InvalidOperationException("The selected window is unavailable.");
+                if (selected.ProcessId != options.ProcessId || selected.StartedUtcTicks != options.StartedUtcTicks ||
+                    !string.Equals(selected.ProcessName, "WizardGraphicalClient", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("The selected client identity changed. Refresh the windows report.");
+                if (options.StopFile != null && File.Exists(options.StopFile)) throw new OperationCanceledException();
+                var mode = options.SafeMode ? ManualCaptureMode.Safe : ManualCaptureMode.Normal;
+                await using var host = await ManualCaptureHost.StartAsync(selected, mode, token).ConfigureAwait(false);
+                var deadline = DateTime.UtcNow.AddSeconds(options.DurationSeconds);
+                var reason = "duration-limit";
+                while (!token.IsCancellationRequested && DateTime.UtcNow < deadline &&
+                       !(options.StopFile != null && File.Exists(options.StopFile)))
+                {
+                    await Task.Delay(100, token).ConfigureAwait(false);
+                }
+                if (token.IsCancellationRequested) reason = "cancelled";
+                else if (options.StopFile != null && File.Exists(options.StopFile)) reason = "stop-file";
+                var snapshot = host.Snapshot;
+                result = new { schemaVersion = 1, command = options.Command, mode = mode.ToString(), reason,
+                    target = new { handle = selected.Handle.ToInt64(), processId = selected.ProcessId, startedUtcTicks = selected.StartedUtcTicks, processName = selected.ProcessName },
+                    hotkeysRegistered = host.RegisteredHotkeys, snapshot,
+                    note = "Manual capture only. No game input dispatched; explicit pause/stop is never auto-cleared." };
+                exit = reason == "cancelled" ? 3 : 0;
+            }
             else
             {
                 token.ThrowIfCancellationRequested();
