@@ -2779,6 +2779,92 @@ Evidence: Versioned UI schema catalog and activity-flag design brief authored at
 Next: Handed back for coordinator verification and release of claim `UI-SCHEMA-CATALOG-01`.
 
 
+## GEM-0120
+Time: 2026-11-16T23:44:00-05:00
+Task: RUST-NATIVE-BRIDGE-57
+Reply-to: LIA-0130
+Kind: ACK
+Evidence: Acknowledged release notice LIA-0130 in `docs/coordination/gemini/TO_GEMINI.md`:
+- Verified coordinator acceptance of both handbacks `GEM-0117` (`LEGACY-TEACHER-ADOPTION-01.md`) and `GEM-0119` (`UI-SCHEMA-CATALOG-01.md`).
+- Confirmed `docs/coordination/claims.json` updated with both claims (`LEGACY-TEACHER-BLUEPRINT-CORRECTION-01` and `UI-SCHEMA-CATALOG-01`) transitioned to `state: "released"`.
+- Confirmed sole remaining active claim owned by `gemini` is `RUST-NATIVE-BRIDGE-57` (owned path: `docs/coordination/gemini/FROM_GEMINI.md`) as the standing coordination channel.
+Action:
+1. Accepted process guidance regarding review terminology: adopted "handed back for coordinator review" instead of author-asserted "audited" or "verified", keeping the coordinator gate as the sole authoritative audit.
+2. Acknowledged zero active task assignments and zero source/build/test/live/commit authority.
+3. Preserved clean workspace state without touching untracked or ongoing work by other agents.
+Next: Standing by in read-only coordination mode for the next directive or task activation from the coordinator.
+
+
+## GEM-0121
+Time: 2026-11-17T00:03:00-05:00
+Task: W101-BUILD-PROFILE-01
+Reply-to: LIA-0131
+Kind: ACK
+Exact changed paths: ["docs/coordination/gemini/FROM_GEMINI.md"]
+Evidence: Acknowledged activation notice LIA-0131 in `docs/coordination/gemini/TO_GEMINI.md` and confirmed active claim in `docs/coordination/claims.json`:
+- Task: `W101-BUILD-PROFILE-01`
+- Workstream: `W101-COMBAT`
+- Owner: `gemini`, state: `active`
+- Owned paths: `["docs/coordination/results/W101-BUILD-PROFILE-01.md"]`
+Action: Accepted report-only research assignment:
+1. Examine why client image `d410a246...` maps to layout `r15-archived` (`tools/w101_ui_tree.py:107–109`) while combat field extraction is gated on `current_layout == "r13-current"` (`tools/w101_ui_tree.py:465`), yielding visible combat UI nodes but 0 field candidates across two boss battles.
+2. Determine technical requirements for a reviewed combat field profile for this client image:
+   - Type/offset dump prerequisites (inspect existing `wiztype` and pinned memory readers if available in-tree).
+   - Exact client image binary pin.
+   - Proposed layout identifier (e.g. `r15-archived` or new profile ID).
+   - Field definitions required to satisfy `w101_combat_reader._Layout` (pedestals, spells, health/pip offsets, combatant layout).
+   - Qualification gates and evidence receipts required before profile adoption.
+3. Hard boundaries acknowledged:
+   - Report-only research: zero source edits, zero builds or test runs, zero live/desktop/game interaction, zero installation, no claims.json edits.
+   - Separate verified facts from proposals; do NOT claim the build is qualified.
+   - No new fact ID marked available without an existing producer.
+   - Quote paths, hashes, and identifiers directly from primary artifacts.
+Next: Research in-tree combat readers and type systems, author `docs/coordination/results/W101-BUILD-PROFILE-01.md`, and hand back under `READY_FOR_REVIEW`.
+
+
+## GEM-0122
+Time: 2026-11-17T00:06:00-05:00
+Task: W101-BUILD-PROFILE-01
+Reply-to: LIA-0131
+Kind: READY_FOR_REVIEW
+Exact changed paths: ["docs/coordination/results/W101-BUILD-PROFILE-01.md", "docs/coordination/gemini/FROM_GEMINI.md"]
+Evidence: Research report delivered and handed back for coordinator review at `docs/coordination/results/W101-BUILD-PROFILE-01.md`:
+1. Root Cause Analysis (§1):
+   - Traced the dual gating gap: `tools/w101_ui_tree.py:462` sets `current_layout = profile == "r13-current"`, which evaluates to `False` for image `d410a246...` (`r15-archived`).
+   - Consequently, line 1235 skips appending `ControlBinding` objects (leaving `combat_bindings` empty), and line 1395 skips calling `read_combat_fields`, returning `combatFieldCandidates: None`.
+   - Verified that `tools/w101_combat_reader.py:51–56` contains only two legacy layouts (`archived-wizwalker` and `deimos-development-df2283f`), with zero layout definition for `d410a246...`.
+   - Primary evidence: two independent boss battles in Khrysalis (receipt `a26b8b8ecc314bac8503ba981bb15df8` in Dry Gulch Cave, 136 nodes; receipt `1d26e3a4819e4cbf97750e3cad7435b5` in Alluvium Cave, 139 nodes) recorded visible combat nodes across 18/25 and 21/25 trees, but reproducibly returned 0 card/participant candidates (`Missing: ["fresh-combat-observation"]`).
+2. Exact Binary Pin Specifications (§2):
+   - Binary: `WizardGraphicalClient.exe`
+   - Image SHA-256: `d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a`
+   - UI Profile ID: `r15-archived` (`tools/w101_ui_tree.py:110`)
+   - Entry Bytecode: `49 8b 8f d8 00 00 00` (`mov rcx, [r15 + 0xD8]`)
+   - Scratch Size: `3900` bytes via standard `RootWindowHook`.
+3. Profile & Layout Specifications (§3):
+   - Proposed layout ID: `"archived-r15-d410a246"` matching the 9 required fields of `w101_combat_reader._Layout` (`spell_pointer`, `grayed`, `checked`, `participant_pointer`, `spell_id`, `treasure`, `template_type`, `health`, `pip_pointer`).
+   - Identified that `tools/w101_ui_tree.py` must decouple layout selection from the boolean `current_layout`.
+4. C++ `PropertyClass` Stubs & Invariants (§4):
+   - Detailed the virtual method type stub verification at `vtable + 8` checking for opcode `48 8d 0d` (`lea rcx, [rip + disp32]`) matching ASCII class names: `SpellCheckBox`, `CombatantDataControl`, `GraphicalSpell`, `SpellTemplate`, `SpellEffect`, `CombatParticipant`, `PipCount`.
+   - Outlined secondary struct offset invariants (`control + 156`, `spell + 80`, `spell + 88`, `spell + 120`, `spell + 128`, `template + 96`, `participant + 112`, `participant + 144`, `participant + 152`, `effect + 72`).
+5. Diagnostic Tooling & Prerequisite Path (§5):
+   - Evaluated `wiztype 0.1.13` (`.local/upstream/wiztype`, `tools/wizard101_hub.py`) classified under `ProcessMemoryObservation` as the required path to produce a versioned type dump (`client-types-d410a246.json`).
+   - Noted offline comparison capabilities via `tools/wizard101_hub.py compare-types`.
+6. Four-Stage Qualification Gate Pipeline (§6):
+   - Gate 1 (Static type dump consistency), Gate 2 (Synthetic fixture tests in `test_w101_combat_reader.py`), Gate 3 (Recorded tree replay against 25 saved trees in receipts `a26b8b8...` and `1d26e3a...`), Gate 4 (Read-only background facts integration with `ProducerAvailable = false`).
+7. Balance Section (§7):
+   - Explicitly distinguished verified primary facts from proposed design elements.
+   - Certified that build `d410a246...` remains **unqualified** for combat reading.
+- Verification & Hygiene:
+   - Text encoding: `python tools/check_text_encoding.py` $\rightarrow$ 0 violations.
+   - Project board: `python tools/check_project_board.py` $\rightarrow$ 30 workstreams valid.
+   - All 19 `file://` links in `W101-BUILD-PROFILE-01.md` verified on disk.
+   - Operating boundaries: Strictly report-only; zero code edits, zero builds or test runs, zero desktop/game interaction, `claims.json` untouched.
+Next: Handed back for coordinator review and release of claim `W101-BUILD-PROFILE-01`.
+
+
+
+
+
 
 
 

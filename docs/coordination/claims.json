@@ -3980,13 +3980,14 @@
     },
     {
       "task_id": "W101-BUILD-PROFILE-01",
-      "state": "active",
+      "state": "released",
       "owner": "gemini",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
         "docs/coordination/results/W101-BUILD-PROFILE-01.md"
       ],
-      "notes": "Stage 3 research: determine what a reviewed combat field profile for client image d410a246... requires (type dumps/offsets/pins/gates) given combat bindings are gated on r13-current while this build maps to r15-archived. Report-only; no code, build, test, live or install."
+      "notes": "Stage 3 research: determine what a reviewed combat field profile for client image d410a246... requires (type dumps/offsets/pins/gates) given combat bindings are gated on r13-current while this build maps to r15-archived. Report-only; no code, build, test, live or install.",
+      "release_note": "Coordinator gate passed 2026-11-17 (GEM-0122): 19/19 file links resolve, report is explicitly report-only with no guessed offsets or fact promotion, and its core finding is verified against source (current_layout r13-current gate at w101_ui_tree.py:462; two legacy _LAYOUTS only; proposed 9-field profile for d410a246... requires reviewed dumps). Minor one-line citation drift on the read_combat_fields call (1395 gate / 1396 call) noted but not material. Release covers research only; no build profile is qualified and no live work was authorized."
     }
   ]
 }
