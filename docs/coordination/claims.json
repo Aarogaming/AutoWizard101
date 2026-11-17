@@ -4193,7 +4193,7 @@
     },
     {
       "task_id": "CLIENT-RULE-DECRYPT-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
@@ -4201,7 +4201,8 @@
         "docs/W101_CLIENT_SIDE_EXCEPTION_20261110.md",
         "docs/coordination/results/CLIENT-RULE-DECRYPT-01.md"
       ],
-      "notes": "Owner-approved 2026-11-17: passive read-only live-traffic decoding is permitted under reviewed owner-scoped client-side adapter; no injection/replay/rewrite/send, no server, no installed-file writes; teleport and network manipulation stay excluded."
+      "notes": "Owner-approved 2026-11-17: passive read-only live-traffic decoding is permitted under reviewed owner-scoped client-side adapter; no injection/replay/rewrite/send, no server, no installed-file writes; teleport and network manipulation stay excluded.",
+      "release_note": "Owner-approved rule applied 2026-11-17 to AGENTS.md and W101_CLIENT_SIDE_EXCEPTION_20261110.md: passive read-only live decoding allowed with no injection/rewrite/send; server/network writes, teleport and installed-file edits remain excluded. No implementation or live run."
     },
     {
       "task_id": "GAMEBRYO-NAV-RESOURCES-01",
