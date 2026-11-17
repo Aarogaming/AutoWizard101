@@ -71,8 +71,10 @@ setup with Play → Reward → Snack policy → Native Idle. A draggable timelin
 per-game asset index and integrated docking shell are **not implemented** yet.
 First complete the minigame workflow before character switching, home farming,
 battles, HP/MP management, navigation, quests and Bazaar restocking. Snack
-preferences default to no consumption; Crown Shop purchases are excluded from
-the Pet Dance operation. Native-resolution grid mapping is a requirement, not
+preferences default to no consumption; an explicitly authorized live session may
+enable bounded feeding with an exact item/quantity policy and verified outcome,
+but unattended background work never feeds. Crown Shop purchases are excluded.
+Native-resolution grid mapping is a requirement, not
 yet a qualification claim; see [resolution plan](PET_DANCE_RESOLUTION_PLAN.md).
 
 The game is the workspace: choose or launch a specific game, attach its pack and
