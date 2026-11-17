@@ -4171,13 +4171,14 @@
     },
     {
       "task_id": "IMPORT-MASTER-INVENTORY-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-REFERENCES",
       "owned_paths": [
         "docs/coordination/results/IMPORT-MASTER-INVENTORY-01.md"
       ],
-      "notes": "2026-11-17 master inventory of every imported/reference project: 25 tracked root archives, Scripts/Library manifests and wrappers, .local/upstream study clones, .local/reference-repos peer clones. Report-only; no imports, code, build, live or network work."
+      "notes": "2026-11-17 master inventory of every imported/reference project: 25 tracked root archives, Scripts/Library manifests and wrappers, .local/upstream study clones, .local/reference-repos peer clones. Report-only; no imports, code, build, live or network work.",
+      "release_note": "Master inventory delivered 2026-11-17: all tracked archives, Scripts/Library imports, .local/upstream study clones and .local/reference-repos peer clones enumerated with dispositions, licence flags and totals."
     }
   ]
 }
