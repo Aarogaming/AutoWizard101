@@ -8,10 +8,13 @@ namespace ProjectMaelstrom.Utilities;
 internal static class WizwalkerWorker
 {
     internal const int MaximumJsonBytes = 262144;
-    internal static void ValidateLimits(int maximumSeconds, int maximumResultBytes)
+    internal const int DefaultCooperativeStopSeconds = 3;
+    internal static void ValidateLimits(int maximumSeconds, int maximumResultBytes,
+        int cooperativeStopSeconds = DefaultCooperativeStopSeconds)
     {
         if (maximumSeconds is < 1 or > 90) throw new ArgumentOutOfRangeException(nameof(maximumSeconds));
         if (maximumResultBytes is < 1 or > MaximumJsonBytes) throw new ArgumentOutOfRangeException(nameof(maximumResultBytes));
+        if (cooperativeStopSeconds is < 1 or > 10) throw new ArgumentOutOfRangeException(nameof(cooperativeStopSeconds));
     }
     internal static ProcessStartInfo BuildStartInfo(WizwalkerLaunch launch, string directory)
     {
@@ -34,9 +37,9 @@ internal static class WizwalkerWorker
 
     internal static async Task<TResult> ExecuteJsonAsync<TResult>(WizwalkerLaunch launch, object request,
         OperationContext context, CancellationToken token, int maximumSeconds = 18, int maximumResultBytes = 16384,
-        Action<string>? traceRecord = null) where TResult : class
+        Action<string>? traceRecord = null, int cooperativeStopSeconds = DefaultCooperativeStopSeconds) where TResult : class
     {
-        ValidateLimits(maximumSeconds, maximumResultBytes);
+        ValidateLimits(maximumSeconds, maximumResultBytes, cooperativeStopSeconds);
         if (context.Input?.CanDispatch != true) throw new InvalidOperationException("No shared control owner.");
         using var process = new Process { StartInfo = BuildStartInfo(launch, context.Directory) };
         using var job = new OwnedProcessJob();
@@ -75,7 +78,7 @@ internal static class WizwalkerWorker
                         stopAt = clock.ElapsedMilliseconds;
                         await File.WriteAllTextAsync(Path.Combine(context.Directory, "stop.request"), "stop").ConfigureAwait(false);
                     }
-                    if (clock.ElapsedMilliseconds - stopAt.Value >= 3000)
+                    if (clock.ElapsedMilliseconds - stopAt.Value >= cooperativeStopSeconds * 1000L)
                     {
                         process.Kill(entireProcessTree: true);
                         await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false);

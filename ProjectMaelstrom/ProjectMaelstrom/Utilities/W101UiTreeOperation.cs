@@ -45,6 +45,12 @@ internal static class W101UiTreeOperation
     internal const string Id = "w101.ui-tree-observe";
     internal const string Version = "w101-ui-tree-v1";
     internal const int MaximumResultBytes = 262144;
+    // Startup import/hook setup can consume the original 18s allowance before the
+    // bounded observation starts. Leave headroom, and let the worker's own 3s
+    // client.close() verification finish before the native forced-kill deadline.
+    internal const int StartupAllowanceSeconds = 30;
+    internal const int CooperativeStopSeconds = 8;
+    internal const int TimeoutAllowanceSeconds = 45;
     internal const string WorkerSha256 = "960f27532d91b87aa4cc4fac25afa1716926b05fd462d169460fa72967e00f73";
     internal const string PoseReaderSha256 = "d6463168ad2342747655d06d265a12c67cf2d3bbe9bbf960e75b9e833463e9af";
     private static readonly string[] StateNames = ["interactionPrompt", "dialogue", "menu", "nativeIdle"];
@@ -55,16 +61,18 @@ internal static class W101UiTreeOperation
     {
         if (request.MovingPoseSeconds == 0)
             return await WizwalkerWorker.ExecuteJsonAsync<W101UiTreeResult>(launch, request, context, token,
-                request.DurationSeconds + 18, MaximumResultBytes).ConfigureAwait(false);
+                request.DurationSeconds + StartupAllowanceSeconds, MaximumResultBytes,
+                cooperativeStopSeconds: CooperativeStopSeconds).ConfigureAwait(false);
         var stream = new W101PoseStreamObservation(request.RunId, request.PoseStreamId!, request.Target);
         var clock = System.Diagnostics.Stopwatch.StartNew();
         try
         {
             return await WizwalkerWorker.ExecuteJsonAsync<W101UiTreeResult>(launch, request, context, token,
-                request.DurationSeconds + 18, MaximumResultBytes,
+                request.DurationSeconds + StartupAllowanceSeconds, MaximumResultBytes,
                 line => stream.Receive(line, DateTime.UtcNow.Ticks, clock.Elapsed.TotalMilliseconds,
                     !token.IsCancellationRequested && context.Input?.CanDispatch == true &&
-                    ReferenceEquals(context.Input, GameInputLease.Current) && request.Target.IsCurrent())).ConfigureAwait(false);
+                    ReferenceEquals(context.Input, GameInputLease.Current) && request.Target.IsCurrent()),
+                cooperativeStopSeconds: CooperativeStopSeconds).ConfigureAwait(false);
         }
         finally
         {
@@ -85,7 +93,7 @@ internal static class W101UiTreeOperation
         if (movingPoseSeconds is < 0 or > 3 || movingPoseSeconds > 0 && !includePoseContext) throw new ArgumentOutOfRangeException(nameof(movingPoseSeconds));
         if (!uiTreeEnabled) throw new InvalidOperationException("Enable the optional UI-tree reader for this check first.");
         if (durationSeconds is < 1 or > 60) throw new ArgumentOutOfRangeException(nameof(durationSeconds));
-        WizwalkerWorker.ValidateLimits(durationSeconds + 18, MaximumResultBytes);
+        WizwalkerWorker.ValidateLimits(durationSeconds + StartupAllowanceSeconds, MaximumResultBytes, CooperativeStopSeconds);
         var helper = Path.Combine(Path.GetDirectoryName(launch.Worker)!, "wizwalker_adapter.py");
         if (runtime is null && !GameExperiments.Digest(helper).Equals(WizwalkerOperation.WorkerSha256, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("The reviewed UI observation helper changed.");
@@ -116,7 +124,9 @@ internal static class W101UiTreeOperation
                 throw new InvalidOperationException("The reviewed duel reader changed.");
             pins[Path.GetFullPath(duel)] = GameExperiments.Digest(duel);
         }
-        request = request with { TimeoutSeconds = durationSeconds + 30, Pins = pins };
+        // The operation deadline must exceed the worker budget plus its forced-stop
+        // grace so the scheduler does not cancel before cleanup can be verified.
+        request = request with { TimeoutSeconds = durationSeconds + TimeoutAllowanceSeconds, Pins = pins };
         return scheduler.Submit(request, (context, token) => RunAsync(context, session.Target, launch, durationSeconds, includeQuestContext, runtime ?? Runtime, token, includeCombatContext, includePoseContext: includePoseContext, includeResourceContext: includeResourceContext, includeDanceEntryContext: includeDanceEntryContext, movingPoseSeconds: movingPoseSeconds));
     }
 

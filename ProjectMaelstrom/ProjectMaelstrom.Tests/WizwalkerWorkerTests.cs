@@ -9,7 +9,35 @@ public sealed class WizwalkerWorkerTests
     [InlineData(3)]
     [InlineData(60)]
     public void UiWatchLimitsAreAdmittedBeforeAWorkerCanOpenTheGame(int duration) =>
-        WizwalkerWorker.ValidateLimits(duration + 18, W101UiTreeOperation.MaximumResultBytes);
+        WizwalkerWorker.ValidateLimits(duration + W101UiTreeOperation.StartupAllowanceSeconds,
+            W101UiTreeOperation.MaximumResultBytes, W101UiTreeOperation.CooperativeStopSeconds);
+
+    [Theory]
+    [InlineData(1, 3)]
+    [InlineData(60, 10)]
+    public void CooperativeStopGraceIsBoundedAndAdmitted(int seconds, int grace) =>
+        WizwalkerWorker.ValidateLimits(seconds, W101UiTreeOperation.MaximumResultBytes, grace);
+
+    [Theory]
+    [InlineData(0, "cooperativeStopSeconds")]
+    [InlineData(11, "cooperativeStopSeconds")]
+    public void InvalidCooperativeStopGraceIdentifiesTheParameter(int grace, string parameter) =>
+        Assert.Equal(parameter, Assert.Throws<ArgumentOutOfRangeException>(
+            () => WizwalkerWorker.ValidateLimits(18, W101UiTreeOperation.MaximumResultBytes, grace)).ParamName);
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(5)]
+    [InlineData(60)]
+    public void OperationDeadlineOutlastsWorkerBudgetAndForcedStopGrace(int duration)
+    {
+        var workerBudget = duration + W101UiTreeOperation.StartupAllowanceSeconds;
+        var worstCase = workerBudget + W101UiTreeOperation.CooperativeStopSeconds;
+        var deadline = duration + W101UiTreeOperation.TimeoutAllowanceSeconds;
+        Assert.True(worstCase < deadline, $"duration={duration}: forced stop must precede the scheduler deadline");
+        WizwalkerWorker.ValidateLimits(workerBudget, W101UiTreeOperation.MaximumResultBytes,
+            W101UiTreeOperation.CooperativeStopSeconds);
+    }
 
     [Theory]
     [InlineData(0, 1000, "maximumSeconds")]
