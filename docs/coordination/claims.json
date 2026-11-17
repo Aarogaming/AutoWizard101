@@ -4106,13 +4106,14 @@
     },
     {
       "task_id": "NAV-ECOSYSTEM-DISPOSITION-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-REFERENCES",
       "owned_paths": [
         "docs/coordination/results/NAV-ECOSYSTEM-DISPOSITION-01.md"
       ],
-      "notes": "Owner-supplied post-patch navigation/geometry ecosystem analysis dispositioned against the actual tree. External repo/anti-cheat claims remain unverified context. No import, code, build, live or network work."
+      "notes": "Owner-supplied post-patch navigation/geometry ecosystem analysis dispositioned against the actual tree. External repo/anti-cheat claims remain unverified context. No import, code, build, live or network work.",
+      "release_note": "Disposition delivered 2026-11-17: owner's navigation ecosystem claims treated as unverified context; our native stack covers graph/atlas/connector/follower/geometry; Recast/spiraldb are candidates, wiz-packet-map/teleport remain excluded."
     }
   ]
 }
