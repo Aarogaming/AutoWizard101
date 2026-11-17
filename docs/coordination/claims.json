@@ -4117,13 +4117,14 @@
     },
     {
       "task_id": "MINIGAME-ECOSYSTEM-DISPOSITION-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-REFERENCES",
       "owned_paths": [
         "docs/coordination/results/MINIGAME-ECOSYSTEM-DISPOSITION-01.md"
       ],
-      "notes": "Owner-supplied fishing/gardening/crafting/pet/minigame ecosystem list dispositioned against our tree; external claims unverified. Server-side Lua command execution explicitly excluded; no import, code, build, live or network work."
+      "notes": "Owner-supplied fishing/gardening/crafting/pet/minigame ecosystem list dispositioned against our tree; external claims unverified. Server-side Lua command execution explicitly excluded; no import, code, build, live or network work.",
+      "release_note": "Disposition delivered 2026-11-17: server Lua execution excluded; fishing/gardening/crafting/pet-kiosk leads catalogued as future teacher domains; DanceBot/Bazaar/katsuba covered natively. No import, code, live or network work."
     }
   ]
 }
