@@ -4243,13 +4243,14 @@
     },
     {
       "task_id": "CLAIM-RECONCILIATION-02",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         "docs/coordination/results/CLAIM-RECONCILIATION-20261117.md"
       ],
-      "notes": "Owner-directed 2026-11-17 reconciliation: release 10 provably complete claims, keep 6 genuinely open claims active, write two missing result documents. No source, build, test, live or desktop work. Board fix: reconciled files remain owned by their own claims; this claim owns only the reconciliation report."
+      "notes": "Owner-directed 2026-11-17 reconciliation: release 10 provably complete claims, keep 6 genuinely open claims active, write two missing result documents. No source, build, test, live or desktop work. Board fix: reconciled files remain owned by their own claims; this claim owns only the reconciliation report.",
+      "release_note": "Reconciliation completed 2026-11-17: 10 complete claims released with evidence, 6 open claims retained with explicit scope, 2 missing result documents written; board valid. No source/build/live work."
     }
   ]
 }

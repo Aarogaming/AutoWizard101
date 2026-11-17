@@ -35,4 +35,4 @@ Every `state:active` claim was checked against its notes, owned paths, committed
 
 ## 4. Outcome
 
-Active claims drop from **16 to 6**, all with explicit remaining scope. The board validator reports 30 workstreams valid after the edits. No other agent's files were modified: `docs/coordination/gemini/FROM_GEMINI.md` (Gemini's) and the owner's `codex_convo.md` remain untouched.
+Active work claims drop from **16 to 6**, plus this reconciliation claim until it is released; all remaining claims have explicit scope. The board validator reports 30 workstreams valid after the edits. No other agent's files were modified: `docs/coordination/gemini/FROM_GEMINI.md` (Gemini's) and the owner's `codex_convo.md` remain untouched.
