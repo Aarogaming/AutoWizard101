@@ -4190,6 +4190,32 @@
       ],
       "notes": "Owner direction 2026-11-17: do not discard a whole project because one capability is out of scope; disposition per capability. Address read-only decryption distinction and audit Gemini's external claims against primary sources. No import, code, build or live work.",
       "release_note": "Doctrine delivered 2026-11-17: per-capability reuse replaces whole-project exclusion; saved decoding allowed, live interception still excluded pending owner decision; Gemini claims audited with two corrections."
+    },
+    {
+      "task_id": "CLIENT-RULE-DECRYPT-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "AGENTS.md",
+        "docs/W101_CLIENT_SIDE_EXCEPTION_20261110.md",
+        "docs/coordination/results/CLIENT-RULE-DECRYPT-01.md"
+      ],
+      "notes": "Owner-approved 2026-11-17: passive read-only live-traffic decoding is permitted under reviewed owner-scoped client-side adapter; no injection/replay/rewrite/send, no server, no installed-file writes; teleport and network manipulation stay excluded."
+    },
+    {
+      "task_id": "GAMEBRYO-NAV-RESOURCES-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-REFERENCES",
+      "owned_paths": [
+        "docs/coordination/results/GAMEBRYO-NAV-RESOURCES-01.md",
+        ".local/upstream/bots",
+        ".local/upstream/niflib",
+        ".local/upstream/DotRecast",
+        ".local/upstream/recastnavigation"
+      ],
+      "notes": "2026-11-17: study-only shallow clones of verified URL resources (Deimos bots, niflib, DotRecast, Recast); OpenMW/nifskope/tes4skyrim verified but not cloned. No tracked source, build, install, live or dependency."
     }
   ]
 }
