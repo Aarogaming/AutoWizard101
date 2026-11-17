@@ -4168,6 +4168,16 @@
         "docs/coordination/results/EXTERNAL-LIST-03-DISPOSITION-01.md"
       ],
       "notes": "Owner-supplied third master list dispositioned against the repo; external claims unverified. Study-only shallow clones of new approvable references in git-ignored .local/upstream; no tracked source, build, install, live use, dependencies or network/server project integration."
+    },
+    {
+      "task_id": "IMPORT-MASTER-INVENTORY-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-REFERENCES",
+      "owned_paths": [
+        "docs/coordination/results/IMPORT-MASTER-INVENTORY-01.md"
+      ],
+      "notes": "2026-11-17 master inventory of every imported/reference project: 25 tracked root archives, Scripts/Library manifests and wrappers, .local/upstream study clones, .local/reference-repos peer clones. Report-only; no imports, code, build, live or network work."
     }
   ]
 }
