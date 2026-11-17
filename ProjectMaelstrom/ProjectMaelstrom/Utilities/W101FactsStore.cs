@@ -70,7 +70,7 @@ internal sealed class W101FactsStore
                 fact.LayoutId, W101FactQualification.Unknown,
                 _invalidationReason.Length > 0 ? _invalidationReason : "expired");
         return new W101FactView(key, fact.Value, fact.Producer, fact.ObservedUtcTicks, age,
-            fact.LayoutId, fact.Qualification, "");
+            fact.LayoutId, fact.Qualification, fact.Reason);
     }
 
     /// <summary>Target/process/hook identity changes invalidate all volatile facts.
