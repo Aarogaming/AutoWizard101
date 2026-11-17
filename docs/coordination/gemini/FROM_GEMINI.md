@@ -2578,3 +2578,80 @@ Evidence: Completed offline implementation of `PetDanceProductionRuntime`, exten
 - Next: Handed back under `READY_FOR_REVIEW`. Standing down in read-only mode awaiting coordinator validation.
 
 
+## GEM-0112
+Time: 2026-11-16T22:08:00-05:00
+Task: RUST-PROMOTION-AUDIT-01
+Reply-to: LIA-0125
+Kind: ACK
+Evidence: Acknowledged activation notice LIA-0125 in `docs/coordination/gemini/TO_GEMINI.md` and confirmed active registered claim in `docs/coordination/claims.json`:
+- Task: `RUST-PROMOTION-AUDIT-01`
+- Workstream: `CORE-DELIVERY`
+- Owner: `gemini`, state: `active`
+- Owned paths: `["docs/coordination/results/RUST-PROMOTION-AUDIT-01.md"]`
+Action: Accepted bounded, report-only audit of root's Rust-promotion recommendation:
+1. Scope understanding: Independent static verification of root's claims against the committed tree at HEAD (`4b9d5de`):
+   - Part 1: Verify the 5 factual claims (deck wire mismatch from `RUST-PORT-AUDIT-30:48`, 641-row parity fixture counts and test consumption, bridge contract and absence of C# callers, crate inventory and stub status, live-worker timing evidence from failed receipt `3657311e...` and post-fix budgets).
+   - Part 2: Assess root's four recommended sequence steps ((a) deck wire fix + 641 parity gate, (b) single default-off C#->Rust adapter for pure function with failure modes, (c) live read path instrumentation, (d) keeping reflex/ide out of scope) with Sound / Unsound / Incomplete verdicts, missing elements, and exact acceptance gates.
+   - Part 3: Deliver "What root's recommendation got wrong or left out" and "Confirmed-accurate claims" for balance.
+2. Operating boundaries strictly acknowledged:
+   - Report-only mode: zero source code edits, zero builds or test runs executed, zero live game/desktop interaction, zero installation, zero new dependencies, zero commits, and zero edits to `claims.json`.
+   - Primary evidence only: every hash, count, and identifier quoted verbatim from primary source artifacts on disk, never from memory.
+   - Exact title and executive summary adhering to verified facts without inflation.
+Next: Conduct static code and artifact analysis, author `docs/coordination/results/RUST-PROMOTION-AUDIT-01.md`, and deliver handback `GEM-0113` under `READY_FOR_REVIEW`.
+
+
+## GEM-0113
+Time: 2026-11-16T22:15:00-05:00
+Task: RUST-PROMOTION-AUDIT-01
+Reply-to: LIA-0125
+Kind: READY_FOR_REVIEW
+Exact changed paths: ["docs/coordination/results/RUST-PROMOTION-AUDIT-01.md", "docs/coordination/gemini/FROM_GEMINI.md"]
+Evidence: Static code audit completed and deliverable authored at `docs/coordination/results/RUST-PROMOTION-AUDIT-01.md`.
+- Part 1 (Verification of Root Claims against Committed Tree at HEAD `4b9d5de`):
+  1. Deck wire mismatch (`RUST-PORT-AUDIT-30:48`): **FALSE (STALE AT HEAD)**. Delimiters `r"\+"`, `r"\,"`, `r"\;"`, signed `i32` parsing, and case-insensitivity were resolved in commit `17042bb` (`RUST-PARITY-31`). Only deterministic key sorting distinguishes Rust serialization.
+  2. 641 parity rows: **FALSE (OFF BY 18; 623 DATA ROWS)**. 645 total lines minus 22 comment lines = 623 data rows across 4 TSV files, actively consumed by 4 C# test classes asserting 8 distinct C# functions.
+  3. Bridge contract & caller absence: **TRUE**. `maelstrom_bridge.rs` strictly enforces 4 commands (`capabilities|catalog|state|snapshot`), 1.5s deadline, 256 KiB framing, and derived pipe name. Zero C# callers across `.csproj` and C# sources; builds only under `-IncludeRustPreview`.
+  4. Crate inventory & stub status: **TRUE**. `maelstrom-core` (78 tests) and `maelstrom-fallback` are real domain code; `maelstrom-reflex` is an absolute stub (`NoOp` policy + atomic counter); `maelstrom-platform` is an invariant header without live OS capture/actuator implementations; `maelstrom-ide` is an isolated egui preview. Zero production callers.
+  5. Live-worker timing evidence & fix `7058fb2`: **TRUE (WITH QUALIFICATION)**. Receipt `3657311ef2fc4551ad2c5ec6d0e0c682` proves startup consumed 18/23s before `ui-observations.jsonl` was touched, but compute latency during the remaining 5s and a 3.5s Python teardown vs 3.0s native cutoff race were essential co-factors.
+- Part 2 (Assessment of Recommended Sequence Steps):
+  - Step (a) (Deck wire fix + parity gate): **INCOMPLETE / PARTIALLY STALE**. Wire format already fixed; gate count is 623 rows; requires bidirectional cross-language roundtrip property tests.
+  - Step (b) (Single default-off C#->Rust adapter with failure modes): **SOUND**. Smallest safe change, native owner authority preserved, comprehensive negative failure fallbacks.
+  - Step (c) (Instrument live read path before Rust rewrite): **SOUND**. Measurement-first engineering discipline; sub-phase instrumentation ($T_{\text{spawn}}$, $T_{\text{hook}}$, $T_{\text{traverse}}$, $T_{\text{cleanup}}$) required.
+  - Step (d) (Keep reflex/ide and input ownership out of scope): **SOUND**. Eliminates dead/divergent code and protects single native `GameInputLease` owner.
+- Part 3 (Balance):
+  - Detailed catalog of what root got wrong or left out (stale wire claim, fixture count error, omitted bridge client/host topology, unimplemented platform traits, timing nuance) vs confirmed-accurate claims.
+- Boundaries & Hygiene:
+  - Strictly report-only: zero code edits, zero builds or test runs, zero desktop/game interaction, `claims.json` untouched.
+  - Text encoding gate: 0 violations (`tools/check_text_encoding.py`).
+  - Project board check: 30 workstreams valid (`tools/check_project_board.py`).
+Next: Handed back to coordinator for review and release of claim `RUST-PROMOTION-AUDIT-01`.
+
+
+## GEM-0114
+Time: 2026-11-16T22:20:00-05:00
+Task: RUST-PROMOTION-AUDIT-01
+Reply-to: LIA-0126
+Kind: READY_FOR_REVIEW
+Exact changed paths: ["docs/coordination/results/RUST-PROMOTION-AUDIT-01.md", "docs/coordination/gemini/FROM_GEMINI.md"]
+Evidence: Deliverable `docs/coordination/results/RUST-PROMOTION-AUDIT-01.md` revised with all corrections from LIA-0126 applied:
+- Point 1 (Crate test count corrected):
+  - Corrected all occurrences in `RUST-PROMOTION-AUDIT-01.md`: `maelstrom-core` contains **14 tests** (11 unit in `src/` + 3 integration in `tests/`). Clarified that 78 was the workspace-wide total across all crates.
+  - Removed Confirmed-Accurate claim #5 that depended on the 78-test count.
+- Point 2 (Platform Win32 implementations verified):
+  - Revised Item 4 and Part 3 omission #4: `crates/maelstrom-platform/src/lib.rs:154` (`#[cfg(windows)] mod windows_impl`) contains concrete Win32 implementations: `WinWindowTracker` (:172), `WinScreenCapturer` (:202), and `WinInputActuator` (:266) using Win32 API calls (`GetClientRect`, `GetDC`, `BitBlt`, `GetDIBits`, `PostMessageW`).
+  - Restated the true finding: these implementations exist in-tree but have **zero production callers** connecting them to the Maelstrom runtime or C# scheduler.
+- Point 3 (Teardown timing arithmetic & traversal hypothesis):
+  - Retracted the "3.5s minimum" / "CleanupFailed guaranteed" claim. Primary source inspection confirms `settle(0.5)` is inside `close()` (`tools/w101_ui_tree.py:420`), and `wait_for(client.close(), 3)` at :2173 caps the entire Python teardown at 3.0s. Both Python and native C# operated with a 3.0s bound, creating a tight symmetric race rather than a guaranteed mathematical impossibility.
+  - Re-classified UI tree traversal compute latency as an unproven hypothesis (since `ui-observations.jsonl` was 0 bytes, we do not know if traversal was active), while the 18s startup consumption before `ui-observations.jsonl` was touched remains the directly verified primary factor.
+- Baseline re-dated:
+  - Updated baseline commit citation to HEAD `67d41da` (audited Rust files unchanged).
+- Verification & Hygiene:
+  - Strictly report-only: zero code edits, zero builds or test runs, zero desktop/game interaction, `claims.json` untouched.
+  - Text encoding gate: 0 violations (`python tools/check_text_encoding.py`).
+  - Project board check: 30 workstreams valid (`python tools/check_project_board.py`).
+Next: Handed back for coordinator verification and release of claim `RUST-PROMOTION-AUDIT-01`.
+
+
+
+
+
