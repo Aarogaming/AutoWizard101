@@ -4147,6 +4147,16 @@
       ],
       "notes": "2026-11-17 report-only comparison of katsuba BCD/nav parsers and spiraldb zone schema against our native/Python implementations. No tracked copies, no builds, no live use, no dependencies. Upstream files treated as untrusted data; licences noted.",
       "release_note": "Study delivered 2026-11-17: no copied code/build/live. katsuba CollisionFlags identify a role-evidence gap; spiraldb CC BY-NC-SA blocks verbatim zone fixture import without owner licence decision."
+    },
+    {
+      "task_id": "BCD-FLAG-EVIDENCE-AUDIT-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-CLEANUP",
+      "owned_paths": [
+        "docs/coordination/results/BCD-FLAG-EVIDENCE-AUDIT-01.md"
+      ],
+      "notes": "2026-11-17 offline audit of collisionFlags in .local/introspection/bcd-evidence-126.json: constant 13379 across 52 samples with undocumented 0x2000 bit suggests field-offset misread. No promotion to role facts until provenance and parser mapping are verified. No code, build, live."
     }
   ]
 }
