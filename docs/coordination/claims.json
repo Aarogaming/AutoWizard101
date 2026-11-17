@@ -3936,6 +3936,16 @@
         "docs/coordination/tasks/UI-SCHEMA-CATALOG-01.md"
       ],
       "notes": "Owner-directed 2026-11-16 report-only design brief: versioned UI schema catalog and activity-flag design (especially Dueling Diego) derived from candidate node names observed in W101-UI-NAMING-01. Must keep meanings candidate until an activity is seen with nodes visible; hidden nodes are never evidence. Ties into W101-BACKGROUND-API-01 ui.node.* candidate facts. No code, build, test, live, install or commits; quote evidence from committed reports."
+    },
+    {
+      "task_id": "W101-COMBAT-UI-NAMING-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "docs/coordination/results/W101-COMBAT-UI-NAMING-01.md"
+      ],
+      "notes": "Report-only catalog of combat UI node names observed in the owner-authorized boss-battle pass (auto-boss-20261116-233030): 136 distinct names including visible Health/Pips/ShadowPips/Hand/Card1-7/Target_0-3/SpellSelection, while combat-readiness reported 0 candidates - reader mapping gap. No input, no qualification, no live work beyond the already-completed pass."
     }
   ]
 }
