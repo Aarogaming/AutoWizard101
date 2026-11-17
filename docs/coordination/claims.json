@@ -3873,6 +3873,16 @@
         "docs/coordination/results/W101-COMBAT-API-MAP-01.md"
       ],
       "notes": "Owner-authorized 2026-11-16 read-only battle observation during their own play. One bounded ui-tree-watch (45-60s max) with combat/resource/pose/quest context on exact target, launched on the owner's explicit signal. Reviewed root hook with verified restoration only; NO input, focus change, network, game-file writes, Crowns/snacks/volume/restart. Output is a candidate fact catalog: observed fields named with qualification level and provenance, feedstock for wrap-first teachers. Live capture ends after one pass; offline analysis only thereafter."
+    },
+    {
+      "task_id": "MANUAL-CAPTURE-CONTROLLER-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/tasks/MANUAL-CAPTURE-CONTROLLER-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-16 design brief for a persistent headless manual-capture controller: reimplement/improve the existing W101RunningNotice scope overlay (Play/Pause/Stop, nonactivating clicks) as a persistent overlay with hotkeys, SAFE default (no quiet-resume) and NORMAL opt-in (implicit pause on activity, auto-resume only after >=3s quiet AND only when not explicitly paused/stopped, with a visible countdown and re-verification). Explicit pause latch must never be auto-cleared. Front/back timestamped capture via the existing TeachingRecordingCli path, single owner, no concurrent observers. Includes a proposed narrow AGENTS.md amendment for owner approval. Report-only: no source edits, builds, tests, live/desktop or commits."
     }
   ]
 }
