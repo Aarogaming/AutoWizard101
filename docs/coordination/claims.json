@@ -4092,6 +4092,16 @@
       ],
       "notes": "Owner direction 2026-11-17: clarify that the no-feed/no-restart rule applies to BACKGROUND tasks; explicitly authorized live sessions may include bounded feeding/restart with opt-in and verification. Crown Shop remains excluded by product charter. No source or live work. OWNER APPROVED 2026-11-17: apply the replacement runtime-boundary text verbatim to AGENTS.md and reconcile PRODUCT.md; no source edits, builds or live work.",
       "release_note": "Owner-approved amendment applied verbatim to AGENTS.md and PRODUCT.md 2026-11-17. No source/build/live change; downstream capability-flag/test follow-ups remain separate work."
+    },
+    {
+      "task_id": "POST-PATCH-DOCTRINE-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-REFERENCES",
+      "owned_paths": [
+        "docs/coordination/results/POST-PATCH-DOCTRINE-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-17 doctrine: map our allowed operation envelope (read state, CV/OCR, bounded normal-speed input, background visits) against the post-patch ecosystem; disposition the expanded 18-project list against our actual inventory. External repo claims are unverified context, not established facts. Report-only; no code, build, live, import or network work."
     }
   ]
 }
