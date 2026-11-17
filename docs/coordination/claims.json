@@ -3852,6 +3852,17 @@
       ],
       "notes": "Owner-authorized 2026-11-16: report-only feasibility map for 1440p/window-resolution support. Static source audit only while the owner plays the fire wizard - NO live hooks, capture, input, focus changes or desktop control. Maps every resolution-dependent site (capture transform, vision ROIs, templates, UI layout pins, Dance geometry), defines what evidence a new profile requires, and scopes a default-off profile with fixtures. No implementation authorized by this claim; live evidence must be provided by the owner or gathered in a separately authorized pass.",
       "release_note": "Report-only feasibility map completed 2026-11-16. Static source audit plus read-only window geometry/DPI query (window 2048x1104, client 2033x1066, DPI 120); no hook, capture, input, focus change or desktop control. Identified profile-driven PetDancePanelVision as the correct seam, hardcoded PetDanceLevelSelectionVision geometry and UI-tree layout/image pins as the main work sites, and confirmed the resolution plan forbids a global any-size option. Evidence: docs/coordination/results/RESOLUTION-1440P-01.md. NO implementation, fixtures or live qualification performed; a new claim with source/build authority and owner-provided 1440p captures is required."
+    },
+    {
+      "task_id": "RESOLUTION-CAPTURE-ANALYSIS-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-DANCE",
+      "owned_paths": [
+        "docs/coordination/results/RESOLUTION-CAPTURE-ANALYSIS-01.md"
+      ],
+      "notes": "Owner explicitly authorized read-only interactions with the live client during their play session. Used Maelstrom's PassiveTeachingSampler (--sample-window-stills, no hooks/input/focus) at 3 fps for 6s: 12 frames at 2544x1372 with inputs_sent 0. Offline visual analysis of quest-completion/dialogue frames; no live action, no calibrated ROIs claimed. Report maps observations to 1440p profile and wrap-first quest-teacher work; implementation requires separate claims.",
+      "release_note": "Completed 2026-11-16 under owner-authorized read-only scope. Used Maelstrom's PassiveTeachingSampler via --sample-window-stills (no hooks, no input, no focus change) at 3 fps for 6s: 12 frames at 2544x1372, max frame age 482ms, inputs_sent 0, input_recorded false. Offline visual analysis recorded quest dialogue, quest completion (7750 XP / 75 GOLD / level 110), and approximate HUD landmarks explicitly labelled as visual estimates, not calibrated ROIs. Evidence: docs/coordination/results/RESOLUTION-CAPTURE-ANALYSIS-01.md; frames remain in ignored .local. No implementation, calibrated transform, profile, or further live action authorized."
     }
   ]
 }
