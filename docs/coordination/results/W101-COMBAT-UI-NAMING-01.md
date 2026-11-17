@@ -9,15 +9,16 @@ Owner reported "boss battle" and the queued foreground waiter fired a bounded `u
 
 Zone candidate: `Khrysalis/Interiors/KR_Z10_I05_DryGulchCave` (`status: candidate`, `liveQualified: false`).
 
-## 2. The decisive finding
+## 2. The decisive finding — ROOT CAUSE CORRECTED 2026-11-16
 
-`combat-readiness.json` again reported:
+`combat-readiness.json` reported `Ready:false`, 0 candidates, `Missing:["fresh-combat-observation"]` while visible combat nodes were present. My first interpretation — "stale node-name mapping in `w101_combat_reader.py`" — was **wrong**, and is corrected here.
 
-```json
-{"Ready": false, "CardCandidates": 0, "ParticipantCandidates": 0, "Missing": ["fresh-combat-observation"]}
-```
+Actual cause, from the source:
+- This client image is `d410a246…`, which `tools/w101_ui_tree.py:107-109` maps to profile **`r15-archived`**.
+- `tools/w101_ui_tree.py:465` sets `current_layout = profile == "r13-current"` → **false** for this build.
+- Combat `ControlBinding` values are only created when `current_layout` is true (`w101_ui_tree.py:1229,1395`). With no bindings, `read_combat_fields` has nothing to decode and `combat-readiness` correctly reports no fresh combat observation.
 
-But the same pass's UI trees contain **visible combat nodes** (below). So this is **not** an absence of combat — it is a **reader mapping gap**: `tools/w101_combat_reader.py` did not recognize the client's current node names, and therefore published no candidates even though the combat UI was present. This corrects the earlier reports' implication that "no combat was observed."
+So the gap is a **build/layout qualification gap**: this client build has no reviewed combat field offsets (`_LAYOUTS` in `w101_combat_reader.py` covers `archived-wizwalker` and `deimos-development-df2283f` only). Renaming nodes or re-running captures cannot fix it. What *is* usable from these passes is the UI-tree node vocabulary (names, visibility, contexts) for candidate activity flags and future wrappers — which is what Gemini's `UI-SCHEMA-CATALOG-01` designs. Any real combat field data requires a separately reviewed offset/type profile for this build (wiztype/type dumps), a much larger task with its own claim and qualification.
 
 ## 3. Combat node names actually observed (136 distinct names total)
 
