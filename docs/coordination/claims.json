@@ -4086,10 +4086,12 @@
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
-        "docs/coordination/tasks/SCOPE-CLARIFICATION-01.md"
+        "docs/coordination/tasks/SCOPE-CLARIFICATION-01.md",
+        "AGENTS.md",
+        "docs/PRODUCT.md"
       ],
-      "notes": "Owner direction 2026-11-17: clarify that the no-feed/no-restart rule applies to BACKGROUND tasks; explicitly authorized live sessions may include bounded feeding/restart with opt-in and verification. Crown Shop remains excluded by product charter. No source or live work.",
-      "release_note": "Clarification proposed 2026-11-17: background-task ban stays; authorized live feeding/restart allowed with named scope and verification. Awaiting owner approval of AGENTS.md amendment; no rule changed."
+      "notes": "Owner direction 2026-11-17: clarify that the no-feed/no-restart rule applies to BACKGROUND tasks; explicitly authorized live sessions may include bounded feeding/restart with opt-in and verification. Crown Shop remains excluded by product charter. No source or live work. OWNER APPROVED 2026-11-17: apply the replacement runtime-boundary text verbatim to AGENTS.md and reconcile PRODUCT.md; no source edits, builds or live work.",
+      "release_note": "Owner-approved amendment applied verbatim to AGENTS.md and PRODUCT.md 2026-11-17. No source/build/live change; downstream capability-flag/test follow-ups remain separate work."
     }
   ]
 }
