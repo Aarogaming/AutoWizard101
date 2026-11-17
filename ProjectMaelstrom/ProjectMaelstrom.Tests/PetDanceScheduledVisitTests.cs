@@ -200,4 +200,18 @@ public sealed class PetDanceScheduledVisitTests
         }
         finally { if (Directory.Exists(folder)) Directory.Delete(folder, true); }
     }
+
+    [Fact]
+    public void PrepareProductionBindsSeamAndPreservesInvariants()
+    {
+        var target = new GameWindow(5678, 1234, DateTime.UtcNow.Ticks, "WizardGraphicalClient", "Wizard101");
+        var options = new PetDanceVisitOptions("target-id", new(1282, 760), "context-id", PetDanceArena.WizardCity, Enabled: true);
+        var job = PetDanceScheduledVisit.PrepareProduction(options, target, "profile.json", "output-folder");
+        Assert.NotNull(job);
+        Assert.Equal("w101.pet-dance-visit", job.Request.Operation);
+        Assert.Equal("target-id", job.Request.Target);
+        Assert.True(job.Request.WritesGame);
+        Assert.Equal("1282x760", job.Request.Pins["geometry"]);
+        Assert.Equal("unwired", job.Request.Pins["entry_cost_policy"]);
+    }
 }

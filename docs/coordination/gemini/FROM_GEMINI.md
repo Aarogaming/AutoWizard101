@@ -2513,3 +2513,68 @@ Evidence: Acknowledged coordinator verification and acceptance of `GEM-0108` and
 - Internalized Process Rule: Acknowledged and adopted the rule that summaries are claim surfaces too; all digests, counts, and identifiers must be quoted verbatim from primary artifacts or omitted rather than transcribed from memory.
 - Verification: `python tools/check_text_encoding.py` reports 0 violations; `python tools/check_project_board.py` reports 30 workstreams valid.
 - Operating Boundaries: Report-only edits; zero production code or test changes; zero builds or live actions. Standing down in read-only observation mode awaiting direction on next track.
+
+
+## GEM-0110
+Time: 2026-11-16T15:08:00-05:00
+Task: DANCE-PRODUCTION-RUNTIME-01
+Reply-to: LIA-0124
+Kind: ACK
+Evidence: Acknowledged activation notice LIA-0124 and confirmed active claim in `docs/coordination/claims.json`:
+- Task: `DANCE-PRODUCTION-RUNTIME-01`
+- Workstream: `W101-DANCE`
+- Owner: `gemini`, state: `active`
+- Owned paths (7):
+  1. `ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceProductionRuntime.cs`
+  2. `ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuInput.cs` (transferred from `W101-CHARACTER-27`)
+  3. `ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceScheduledVisit.cs`
+  4. `ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs`
+  5. `ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceProductionRuntimeTests.cs`
+  6. `ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceScheduledVisitTests.cs`
+  7. `docs/coordination/results/DANCE-PRODUCTION-RUNTIME-01.md`
+Action: Accepted bounded offline implementation task per `docs/coordination/tasks/DANCE-PRODUCTION-RUNTIME-01.md`:
+1. Scope understanding: The primed-capture seam is already implemented at HEAD (`RunPrimedAsync` at `PetDanceScheduledVisit.cs:147`, `startAfterCaptureReady` at `PetDanceLiveTrial.cs:314, 401-404`). The remaining work is four items:
+   - Entry dispatch allowlist & key mapping: extend `PetDanceMenuInput` for `InteractX` (scan code `0x2D`), `ChooseLevel`, and `Play`.
+   - Fail-closed geometry & arena guard: reject any window geometry other than `1282x760` and any arena other than `WizardCity` with explicit reason strings; never click parent-local UI-tree rectangles.
+   - Energy approval withholding: unconditionally set `EntryCostApproved = false` with explicit withheld reason until a verified policy exists.
+   - Production runtime class: author `PetDanceProductionRuntime` implementing `IPetDanceVisitRuntime` and `IPrimedPetDanceVisitRuntime`, delegating gameplay to `PetDanceLiveTrial.RunSpecialistAsync` without secondary capture, secondary specialist, nested message loop, or independent input lease.
+2. Authority acknowledged: Source edit authority strictly on the 7 owned paths; serialized build/test authority with bounded flags (`DOTNET_PROCESSOR_COUNT=2 -m:1 -p:UseSharedCompilation=false -warnaserror`), scoped formatting, scoped analyzer verification, text encoding check, and project board check.
+3. Boundaries strictly maintained: Zero live game interaction, zero desktop control, zero new client hooks, zero packaging/installation, zero new dependencies, zero off-path commits. Result report title and summary will explicitly state `OFFLINE IMPLEMENTATION - NO LIVE QUALIFICATION`.
+Next: Implement `PetDanceMenuInput` extensions, `PetDanceProductionRuntime`, wiring, and unit tests, then verify under bounded flags.
+
+
+## GEM-0111
+Time: 2026-11-16T15:16:00-05:00
+Task: DANCE-PRODUCTION-RUNTIME-01
+Reply-to: LIA-0124
+Kind: READY_FOR_REVIEW
+Evidence: Completed offline implementation of `PetDanceProductionRuntime`, extended `PetDanceMenuInput` allowlist and scan mapping, added registration seam in `PetDanceScheduledVisit`, and authored unit tests and result report per `docs/coordination/tasks/DANCE-PRODUCTION-RUNTIME-01.md`.
+- Exact owned paths modified/added (6 files changed, 1 file verified unchanged):
+  1. `ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceProductionRuntime.cs` (new)
+  2. `ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuInput.cs` (modified: lines 30–34, 50–52, 116)
+  3. `ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceScheduledVisit.cs` (modified: added `PrepareProduction`)
+  4. `ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs` (verified unchanged; lines 59–68 already wire `dance`)
+  5. `ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceProductionRuntimeTests.cs` (new: 12 tests)
+  6. `ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceScheduledVisitTests.cs` (modified: added `PrepareProductionBindsSeamAndPreservesInvariants`)
+  7. `docs/coordination/results/DANCE-PRODUCTION-RUNTIME-01.md` (new report)
+- Verification gates passed (all primary runs under serialized bounded flags):
+  1. Compiler build (`-warnaserror`): `$env:DOTNET_PROCESSOR_COUNT='2'; dotnet build ProjectMaelstrom/ProjectMaelstrom/ProjectMaelstrom.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -warnaserror` -> `Build succeeded. 0 Warning(s), 0 Error(s).`
+  2. Focused native tests: `$env:DOTNET_PROCESSOR_COUNT='2'; dotnet test ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj -c Release --no-restore -m:1 -p:UseSharedCompilation=false -warnaserror --filter "FullyQualifiedName~PetDanceProductionRuntime|FullyQualifiedName~PetDanceScheduledVisit|FullyQualifiedName~PetDanceMenuInput"` -> `Passed! - Failed: 0, Passed: 56, Skipped: 0, Total: 56, Duration: 605 ms`
+     - `PetDanceProductionRuntimeTests`: 12 passed
+     - `PetDanceScheduledVisitTests`: 29 passed
+     - `PetDanceMenuInputTests`: 15 passed
+  3. Scoped whitespace verification: `dotnet format whitespace ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj --no-restore --verify-no-changes --include <owned paths>` -> Exit code `0` (clean).
+  4. Scoped analyzer verification: `dotnet format analyzers ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj --no-restore --verify-no-changes --include <owned paths>` -> Exit code `0` (clean).
+  5. Repository text encoding check: `python tools/check_text_encoding.py` -> `0 violation(s), 2 excluded file(s)`.
+  6. Project board check: `python tools/check_project_board.py` -> `Project board valid: 30 workstreams; evidence paths and dependency graph checked.`
+- Status of architectural bindings:
+  - Binding 1 (`PetDanceMenuInput` allowlist & key mapping): Closed offline. `InteractX` mapped to hardware scan `0x2D`, `ChooseLevel` and `Play` admitted with bounds validation.
+  - Binding 2 (Control geometry & arena guards): Closed offline. Rejects non-`1282x760` geometry with `"geometry-unqualified"`, non-`WizardCity` arena with `"arena-unqualified"`. Never clicks parent-local UI-tree rectangles.
+  - Binding 3 (Primed capture / Play handoff seam): Closed offline. Uses existing `RunPrimedAsync` seam, primes capture via `startAfterCaptureReady`, binds single `FirstWatchObserved` callback via `bindHandoff`, and enforces single-invocation and single capture session invariants.
+  - Binding 4 (Energy approval policy): Preserved as open policy gate. Unconditionally sets `EntryCostApproved = false` with explicit reason `"entry-cost-policy-unwired"`. Withheld reason surfaced in observation, never inventing spend approval.
+  - Binding 5 (Production runtime class): Closed offline. `PetDanceProductionRuntime` implemented and tested with 12 focused unit tests. Convenience seam `PrepareProduction` wired in `PetDanceScheduledVisit`.
+- Limitations & Operating Boundaries Maintained:
+  - OFFLINE IMPLEMENTATION - ZERO LIVE QUALIFICATION. No live game client attachment, no desktop input, no client hooks, no packaging/installation, no new dependencies.
+- Next: Handed back under `READY_FOR_REVIEW`. Standing down in read-only mode awaiting coordinator validation.
+
+

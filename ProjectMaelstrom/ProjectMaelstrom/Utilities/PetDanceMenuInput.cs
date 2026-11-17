@@ -28,9 +28,10 @@ internal sealed class PetDanceMenuInput(nuint tag)
         bool Continuing() => Owned() && (continuing ?? ready)();
         if (!plan.IsProposal || !Ready() || DesktopActivityMonitor.AnyKeyHeld()) return new(false, true, "input-not-ready");
         if (plan.Action is not (PetDanceLifecycleAction.Next or PetDanceLifecycleAction.FinishWithoutSnack or
-            PetDanceLifecycleAction.OpenMenu or PetDanceLifecycleAction.SelectIdle or PetDanceLifecycleAction.QuitToCharacterSelection or PetDanceLifecycleAction.SelectWizardCandidate or PetDanceLifecycleAction.EnterSelectedWizard or PetDanceLifecycleAction.ExitWorldGate or PetDanceLifecycleAction.TravelWorldGate or PetDanceLifecycleAction.SelectWorldGate)) return new(false, true, "action-not-allowed");
+            PetDanceLifecycleAction.OpenMenu or PetDanceLifecycleAction.SelectIdle or PetDanceLifecycleAction.QuitToCharacterSelection or PetDanceLifecycleAction.SelectWizardCandidate or PetDanceLifecycleAction.EnterSelectedWizard or PetDanceLifecycleAction.ExitWorldGate or PetDanceLifecycleAction.TravelWorldGate or PetDanceLifecycleAction.SelectWorldGate or
+            PetDanceLifecycleAction.InteractX or PetDanceLifecycleAction.ChooseLevel or PetDanceLifecycleAction.Play)) return new(false, true, "action-not-allowed");
         token.ThrowIfCancellationRequested();
-        var keyboard = plan.Action == PetDanceLifecycleAction.OpenMenu;
+        var keyboard = plan.Action is PetDanceLifecycleAction.OpenMenu or PetDanceLifecycleAction.InteractX;
         Action? move = null;
         if (!keyboard)
         {
@@ -47,8 +48,9 @@ internal sealed class PetDanceMenuInput(nuint tag)
             if (x is < 0 or > 65535 || y is < 0 or > 65535 || !Ready()) return new(false, true, "input-not-ready");
             move = () => Send(new() { Type = 0, Data = new() { Mouse = new() { X = x, Y = y, Flags = 0xC001, Extra = tag } } });
         }
-        var down = keyboard ? Key(false) : Mouse(false);
-        var up = keyboard ? Key(true) : Mouse(true);
+        var scan = plan.Action == PetDanceLifecycleAction.InteractX ? (ushort)0x2D : (ushort)0x01;
+        var down = keyboard ? Key(scan, false) : Mouse(false);
+        var up = keyboard ? Key(scan, true) : Mouse(true);
         return await DispatchSequenceAsync(move, () => Send(down), () => Send(up), Ready, Continuing,
             keyboard ? 40 : 80, Task.Delay, token,
             () => owner!.RequireRecovery("Postgame input release could not be confirmed.")).ConfigureAwait(false);
@@ -111,7 +113,7 @@ internal sealed class PetDanceMenuInput(nuint tag)
         return new(accepted, released, reason);
     }
 
-    private Input Key(bool release) => new() { Type = 1, Data = new() { Keyboard = new() { Scan = 1, Flags = 8u | (release ? 2u : 0u), Extra = tag } } };
+    private Input Key(ushort scan, bool release) => new() { Type = 1, Data = new() { Keyboard = new() { Scan = scan, Flags = 8u | (release ? 2u : 0u), Extra = tag } } };
     private Input Mouse(bool release) => new() { Type = 0, Data = new() { Mouse = new() { Flags = release ? 4u : 2u, Extra = tag } } };
     private static void Send(Input input)
     {

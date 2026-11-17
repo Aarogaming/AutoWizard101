@@ -72,6 +72,9 @@ internal static class PetDanceScheduledVisit
         return new(request, (context, token) => RunAsync(options, runtime, context, token));
     }
 
+    internal static PreparedDeckJob PrepareProduction(PetDanceVisitOptions options, GameWindow target, string profile, string output) =>
+        Prepare(options, new PetDanceProductionRuntime(target, options, profile, output));
+
     private static async Task<OperationOutcome> RunAsync(PetDanceVisitOptions options,
         IPetDanceVisitRuntime runtime, OperationContext context, CancellationToken token)
     {
