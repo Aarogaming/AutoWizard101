@@ -3992,6 +3992,16 @@
       ],
       "notes": "Stage 3 research: determine what a reviewed combat field profile for client image d410a246... requires (type dumps/offsets/pins/gates) given combat bindings are gated on r13-current while this build maps to r15-archived. Report-only; no code, build, test, live or install.",
       "release_note": "Coordinator gate passed 2026-11-17 (GEM-0122): 19/19 file links resolve, report is explicitly report-only with no guessed offsets or fact promotion, and its core finding is verified against source (current_layout r13-current gate at w101_ui_tree.py:462; two legacy _LAYOUTS only; proposed 9-field profile for d410a246... requires reviewed dumps). Minor one-line citation drift on the read_combat_fields call (1395 gate / 1396 call) noted but not material. Release covers research only; no build profile is qualified and no live work was authorized."
+    },
+    {
+      "task_id": "W101-BG-WORKER-DESIGN-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "docs/coordination/tasks/W101-BG-WORKER-DESIGN-01.md"
+      ],
+      "notes": "Report-only 2026-11-17: exact requirements for a pinned memory-only background facts worker and the live pin-qualification sequence needed before readCycle can be wired to real readers. No code, build, test, live or install."
     }
   ]
 }
