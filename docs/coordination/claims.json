@@ -2732,7 +2732,6 @@
         "docs/coordination/CODEX_WORK.md",
         "docs/coordination/results/DANCE-INTEGRATION-82.md",
         "ProjectMaelstrom/ProjectMaelstrom/JobDeckForm.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTree.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101DanceEntryContext.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101DanceEntryContextTests.cs",
@@ -2742,7 +2741,7 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceSpecialistContractTests.cs"
       ],
-      "notes": "Bounded task; root owns build/live slot. No new dependencies. Path transfer 2026-11-16: ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs, ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs to W101-UI-OBSERVER-SHUTDOWN-01 (owner-directed bounded shutdown fix). Path transfer 2026-11-16: Program.cs transferred to MANUAL-CAPTURE-CONTROLLER-02 (owner-directed headless manual-capture controller); do not edit Program.cs under this claim until that claim releases it."
+      "notes": "Bounded task; root owns build/live slot. No new dependencies. Path transfer 2026-11-16: ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs, ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs to W101-UI-OBSERVER-SHUTDOWN-01 (owner-directed bounded shutdown fix). Path transfer 2026-11-16: Program.cs transferred to MANUAL-CAPTURE-CONTROLLER-02 (owner-directed headless manual-capture controller); do not edit Program.cs under this claim until that claim releases it. Path transfer 2026-11-17: JobDeckHost.cs and JobDeckHostTests.cs to W101-BACKGROUND-API-02 for read-only facts command."
     },
     {
       "task_id": "GEM-ROUTE-PROVENANCE-83",
@@ -3959,9 +3958,12 @@
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsService.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsServiceTests.cs",
-        "docs/coordination/results/W101-BACKGROUND-API-02.md"
+        "docs/coordination/results/W101-BACKGROUND-API-02.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101BackgroundFacts.cs"
       ],
-      "notes": "Owner-directed implementation of the background facts service design (W101-BACKGROUND-API-01) in stages. Stage 1: pure bounded fact store with producer/qualification/TTL/identity invalidation and tests. Later stages: publication through the existing local pipe/MCP/CLI and a resident reader under one owner. AUTHORITY: source edits on owned paths plus build/test in the serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/game/desktop, network, install, new dependencies, commits outside owned paths, marking new fact IDs available without a qualified producer."
+      "notes": "Owner-directed implementation of the background facts service design (W101-BACKGROUND-API-01) in stages. Stage 1: pure bounded fact store with producer/qualification/TTL/identity invalidation and tests. Later stages: publication through the existing local pipe/MCP/CLI and a resident reader under one owner. AUTHORITY: source edits on owned paths plus build/test in the serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/game/desktop, network, install, new dependencies, commits outside owned paths, marking new fact IDs available without a qualified producer. Added read-only pipe facts command via transferred JobDeckHost paths; no fact injection surface."
     },
     {
       "task_id": "W101-ACTIVITY-FLAGS-01",
