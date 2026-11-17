@@ -2737,13 +2737,12 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101DanceEntryContext.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101DanceEntryContextTests.cs",
         "tools/fixtures/w101_ui_tree_review.json",
-        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101HeadingCliTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceSpecialistContractTests.cs"
       ],
-      "notes": "Bounded task; root owns build/live slot. No new dependencies. Path transfer 2026-11-16: ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs, ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs to W101-UI-OBSERVER-SHUTDOWN-01 (owner-directed bounded shutdown fix)."
+      "notes": "Bounded task; root owns build/live slot. No new dependencies. Path transfer 2026-11-16: ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs, ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs to W101-UI-OBSERVER-SHUTDOWN-01 (owner-directed bounded shutdown fix). Path transfer 2026-11-16: Program.cs transferred to MANUAL-CAPTURE-CONTROLLER-02 (owner-directed headless manual-capture controller); do not edit Program.cs under this claim until that claim releases it."
     },
     {
       "task_id": "GEM-ROUTE-PROVENANCE-83",
@@ -3885,6 +3884,24 @@
       ],
       "notes": "Owner-directed 2026-11-16 design brief for a persistent headless manual-capture controller: reimplement/improve the existing W101RunningNotice scope overlay (Play/Pause/Stop, nonactivating clicks) as a persistent overlay with hotkeys, SAFE default (no quiet-resume) and NORMAL opt-in (implicit pause on activity, auto-resume only after >=3s quiet AND only when not explicitly paused/stopped, with a visible countdown and re-verification). Explicit pause latch must never be auto-cleared. Front/back timestamped capture via the existing TeachingRecordingCli path, single owner, no concurrent observers. Includes a proposed narrow AGENTS.md amendment for owner approval. Report-only: no source edits, builds, tests, live/desktop or commits. OWNER REVISION 2026-11-16: NORMAL/fluid is the DEFAULT; SAFE is an explicit caution mode, never the default. Auto-resume is the intended behavior when conditions are met and no explicit pause/stop latch is set. Mouse interlock, pause/stop hotkeys, overlay buttons and a hard-stop keypress are the control surfaces. Reopened to apply the revision.",
       "release_note": "Revised 2026-11-16 at owner direction and released again: NORMAL/fluid is now the DEFAULT product mode, SAFE is an explicit caution mode. Pause triggers remain loading/focus loss/mouse movement; auto-resume when conditions clear unless an explicit pause/stop latch is set. Hard-stop keypress works in all modes; explicit pause/stop and recovery holds are never auto-cleared. AGENTS.md amendment text updated for owner approval. Brief: docs/coordination/tasks/MANUAL-CAPTURE-CONTROLLER-01.md. No code, rule change, build, test or live action; implementation requires owner approval and a new claim."
+    },
+    {
+      "task_id": "MANUAL-CAPTURE-CONTROLLER-02",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101RunningNotice.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RunningNoticeTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ActionStartNotice.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/ActionStartNoticeTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingRecordingCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/SessionTimelineForm.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Program.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "docs/coordination/results/MANUAL-CAPTURE-CONTROLLER-02.md"
+      ],
+      "notes": "Owner-directed implementation of the revised brief docs/coordination/tasks/MANUAL-CAPTURE-CONTROLLER-01.md: persistent headless manual-capture controller. NORMAL (fluid) is DEFAULT; SAFE is explicit opt-in. Pause triggers: loading screens, focus loss, mouse interlock (manual-capture mode only); auto-resume after conditions clear (>=3s quiet + visible countdown + target/identity/focus/cleanup re-verification) unless an explicit pause/stop latch is set. Hard-stop keypress works in all modes; explicit pause/stop never auto-cleared; recovery holds never bypassed. Hotkeys: nonactivating explicit combos, no global low-level key interception; overlay buttons reuse the tested W101RunningNotice glyph/click/status logic (released claim W101-OVERLAY-CONTROLS-35). Front/back capture reuses TeachingRecordingCli with one session clock. AUTHORITY: source edits on owned paths + build/test in the coordinator's serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/desktop/game, install, new dependencies, commits outside owned paths, AGENTS.md edit (requires separate explicit owner approval of the amendment text). Codex-convo constraints: nonactivating overlay; interactive panels must pause before taking focus; Play cannot clear takeover/guards/stopped state; manual pause returns false immediately to dispatch guards. Transferred from DANCE-CAPTURE-82: ProjectMaelstrom/ProjectMaelstrom/Program.cs."
     }
   ]
 }
