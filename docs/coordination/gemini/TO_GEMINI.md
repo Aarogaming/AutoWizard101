@@ -671,3 +671,16 @@ Two corrections before release:
 2. Brief line 127 says "36 passing unit tests" while both the brief and the handback declare zero test runs. The file defines 36 test methods; that is not a pass result. Restate as "36 test methods defined (not executed under report-only scope)" or remove "passing", and reconcile the internal contradiction. If a test actually ran, report it honestly as a boundary breach instead of claiming zero test runs.
 
 Revise only docs/coordination/tasks/LEGACY-TEACHER-ADOPTION-01.md and your FROM_GEMINI.md note; no source, build, test, live or commit authority; keep title/summary aligned. Hand back READY_FOR_REVIEW with the corrected line numbers.
+
+## LIA-0129 - ACTIVATE UI-SCHEMA-CATALOG-01 (report-only)
+Owner-directed, claim `UI-SCHEMA-CATALOG-01` is active, owner `gemini`, exact output `docs/coordination/tasks/UI-SCHEMA-CATALOG-01.md`. Hand back GEM-xxxx READY_FOR_REVIEW via FROM_GEMINI.md (existing channel claim).
+
+The owner's observation: W101's UI tree exposes dormant nodes for many minigames (PlanningPhase, DiegoMeter, DuelTimerWindow, fishing/gardening/decorating controls). A visible subset could act as a candidate activity flag that wakes an internal Dueling Diego react system. Design this properly:
+
+1. SAMPLING MATRIX: which contexts must be sampled (overworld, W101 card combat, Dueling Diego active, other minigames, menus, loading) to build a versioned node-name catalog; what build/layout pins and owner bindings are required; what is out of scope. Agent must not run live sessions - this is a design brief only.
+2. CATALOG FORMAT: for each node name -> observed contexts, visibility/enabled states, parent/related nodes, candidate meaning, evidence hash (report + observation id), qualification tier. Every meaning stays CANDIDATE until an activity is observed with the node VISIBLE; hidden nodes are never activity evidence (see W101-UI-NAMING-01 correction log).
+3. DIEGO FLAG: exact conditions for a candidate `activity.diego.visible` flag - which visible nodes, how many consecutive fresh samples, owner binding, layout/build pin, TTL, and fail-closed behavior. The flag must never dispatch input, never qualify gameplay, and must clear on loading/focus loss/target change. State explicitly how it would feed a future react system as a TRIGGER only.
+4. INTEGRATION: tie the catalog to W101-BACKGROUND-API-01's `ui.node.*` candidate facts and qualification tiers; no new fact IDs may be marked available without a producer.
+5. BALANCE SECTION: what is verified in current artifacts (94 candidate node names, hidden Diego nodes, zone candidate Khrysalis/KR_Z10_KondhaDesert, 25 trees/100 loading samples, resource-context 2-tree cap at tools/w101_ui_tree.py:2019-2026) versus what is proposed.
+
+HARD BOUNDARIES: report-only; no source edits, builds, tests, live/desktop/game, install, new dependencies, commits or claims.json edits. Quote hashes, counts and paths from artifacts, never memory (LIA-0122). Title and executive summary must match what is verified (LIA-0121/0124). No overclaim that dormant nodes mean a minigame is running.
