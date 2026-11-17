@@ -3995,13 +3995,14 @@
     },
     {
       "task_id": "W101-BG-WORKER-DESIGN-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
         "docs/coordination/tasks/W101-BG-WORKER-DESIGN-01.md"
       ],
-      "notes": "Report-only 2026-11-17: exact requirements for a pinned memory-only background facts worker and the live pin-qualification sequence needed before readCycle can be wired to real readers. No code, build, test, live or install."
+      "notes": "Report-only 2026-11-17: exact requirements for a pinned memory-only background facts worker and the live pin-qualification sequence needed before readCycle can be wired to real readers. No code, build, test, live or install.",
+      "release_note": "Design/handoff delivered 2026-11-17; no code or live work. Real readCycle wiring blocked on a reviewed worker pin, which needs a short owner-authorized live qualification window."
     }
   ]
 }
