@@ -4030,6 +4030,18 @@
       ],
       "notes": "Owner-directed offline 2026-11-17: extract a versioned, hash-pinned combat UI vocabulary fixture from the saved boss-battle ui-observations.jsonl artifacts. No live reads, no image addresses, no pixels, no input, no fact promotion. Sources are ignored .local artifacts; output is a tracked fixture with receipts.",
       "release_note": "Offline fixture delivered 2026-11-17: 75 trees/143 candidate names with source hashes; 899 Python tests pass. No live reads, no fact promotion, no coordinates."
+    },
+    {
+      "task_id": "BG-WORKER-QUAL-HARNESS-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "tools/qualify_bg_worker.py",
+        "tools/tests/test_qualify_bg_worker.py",
+        "docs/coordination/results/BG-WORKER-QUAL-HARNESS-01.md"
+      ],
+      "notes": "Offline 2026-11-17: build a dry-run qualification plan/harness for the pinned background worker. No live execution, no pin promotion, no process launch against the game. Live path must refuse without explicit owner token and a reviewed pin."
     }
   ]
 }
