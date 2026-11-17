@@ -4139,13 +4139,14 @@
     },
     {
       "task_id": "REF-STUDY-BCD-ZONE-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-REFERENCES",
       "owned_paths": [
         "docs/coordination/results/REF-STUDY-BCD-ZONE-01.md"
       ],
-      "notes": "2026-11-17 report-only comparison of katsuba BCD/nav parsers and spiraldb zone schema against our native/Python implementations. No tracked copies, no builds, no live use, no dependencies. Upstream files treated as untrusted data; licences noted."
+      "notes": "2026-11-17 report-only comparison of katsuba BCD/nav parsers and spiraldb zone schema against our native/Python implementations. No tracked copies, no builds, no live use, no dependencies. Upstream files treated as untrusted data; licences noted.",
+      "release_note": "Study delivered 2026-11-17: no copied code/build/live. katsuba CollisionFlags identify a role-evidence gap; spiraldb CC BY-NC-SA blocks verbatim zone fixture import without owner licence decision."
     }
   ]
 }
