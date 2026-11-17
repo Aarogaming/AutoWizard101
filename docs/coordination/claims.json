@@ -3976,9 +3976,11 @@
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ActivityFlags.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ActivityFlagsTests.cs",
-        "docs/coordination/results/W101-ACTIVITY-FLAGS-01.md"
+        "docs/coordination/results/W101-ACTIVITY-FLAGS-01.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ActivityFacts.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ActivityFactsTests.cs"
       ],
-      "notes": "Stage 2 after facts service: candidate activity flags from UI node visibility per the accepted UI-SCHEMA-CATALOG-01 (3 visible samples / >=600ms debounce, fail-closed, non-input, TRIGGER ONLY). Source/build authority on owned paths; no live, no new deps, no fact ID marked available without a producer."
+      "notes": "Stage 2 after facts service: candidate activity flags from UI node visibility per the accepted UI-SCHEMA-CATALOG-01 (3 visible samples / >=600ms debounce, fail-closed, non-input, TRIGGER ONLY). Source/build authority on owned paths; no live, no new deps, no fact ID marked available without a producer. Added offline publication of flag states as Candidate-only facts; no input authority."
     },
     {
       "task_id": "W101-BUILD-PROFILE-01",
