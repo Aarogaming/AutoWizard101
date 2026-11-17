@@ -4256,13 +4256,14 @@
     },
     {
       "task_id": "CHANNEL-OWNERSHIP-TAKEOVER-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         "docs/coordination/results/CHANNEL-OWNERSHIP-TAKEOVER-01.md"
       ],
-      "notes": "Owner-directed 2026-11-17: user assigned Gemini's remaining claims to root while Gemini works on other things. Take over and close both standing channel claims; commit GEM-0123 ACK as audited channel data. No source/build/test/live work."
+      "notes": "Owner-directed 2026-11-17: user assigned Gemini's remaining claims to root while Gemini works on other things. Take over and close both standing channel claims; commit GEM-0123 ACK as audited channel data. No source/build/test/live work.",
+      "release_note": "Ownership transfer completed 2026-11-17: both standing channel claims released, GEM-0123 ACK committed after verification, 4 open root work claims remain."
     }
   ]
 }
