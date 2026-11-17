@@ -4206,17 +4206,14 @@
     },
     {
       "task_id": "GAMEBRYO-NAV-RESOURCES-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-REFERENCES",
       "owned_paths": [
-        "docs/coordination/results/GAMEBRYO-NAV-RESOURCES-01.md",
-        ".local/upstream/bots",
-        ".local/upstream/niflib",
-        ".local/upstream/DotRecast",
-        ".local/upstream/recastnavigation"
+        "docs/coordination/results/GAMEBRYO-NAV-RESOURCES-01.md"
       ],
-      "notes": "2026-11-17: study-only shallow clones of verified URL resources (Deimos bots, niflib, DotRecast, Recast); OpenMW/nifskope/tes4skyrim verified but not cloned. No tracked source, build, install, live or dependency."
+      "notes": "2026-11-17: study-only shallow clones of verified URL resources (Deimos bots, niflib, DotRecast, Recast); OpenMW/nifskope/tes4skyrim verified but not cloned. No tracked source, build, install, live or dependency. Board fix 2026-11-17: clone directories removed from owned_paths; .local/upstream is untracked reference storage.",
+      "release_note": "Study delivered 2026-11-17: 4 verified study clones (bots, niflib, DotRecast, recastnavigation); 3 more URLs verified; Recast not adopted; no code/build/live; owner's 14-crate figure corrected to 5."
     }
   ]
 }
