@@ -3904,6 +3904,16 @@
         "AGENTS.md"
       ],
       "notes": "Owner-directed implementation of the revised brief docs/coordination/tasks/MANUAL-CAPTURE-CONTROLLER-01.md: persistent headless manual-capture controller. NORMAL (fluid) is DEFAULT; SAFE is explicit opt-in. Pause triggers: loading screens, focus loss, mouse interlock (manual-capture mode only); auto-resume after conditions clear (>=3s quiet + visible countdown + target/identity/focus/cleanup re-verification) unless an explicit pause/stop latch is set. Hard-stop keypress works in all modes; explicit pause/stop never auto-cleared; recovery holds never bypassed. Hotkeys: nonactivating explicit combos, no global low-level key interception; overlay buttons reuse the tested W101RunningNotice glyph/click/status logic (released claim W101-OVERLAY-CONTROLS-35). Front/back capture reuses TeachingRecordingCli with one session clock. AUTHORITY: source edits on owned paths + build/test in the coordinator's serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/desktop/game, install, new dependencies, commits outside owned paths, AGENTS.md edit (requires separate explicit owner approval of the amendment text). Codex-convo constraints: nonactivating overlay; interactive panels must pause before taking focus; Play cannot clear takeover/guards/stopped state; manual pause returns false immediately to dispatch guards. Transferred from DANCE-CAPTURE-82: ProjectMaelstrom/ProjectMaelstrom/Program.cs. OWNER APPROVAL 2026-11-16: §5 AGENTS.md amendment approved verbatim by the owner; AGENTS.md added to owned paths."
+    },
+    {
+      "task_id": "W101-BACKGROUND-API-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "docs/coordination/tasks/W101-BACKGROUND-API-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-16 design brief for a continuously-running W101 facts service that attaches to the client and publishes stats/conditions/zones as an API without requiring window focus; foreground is required only for interaction. Must respect the client-side exception (opt-in, pinned reviewed adapters), single input owner, bounded sampling, qualification/freshness semantics, and no network/game-file writes. Report-only: no code, build, test, live or commit."
     }
   ]
 }
