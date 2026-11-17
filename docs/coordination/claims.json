@@ -4003,6 +4003,18 @@
       ],
       "notes": "Report-only 2026-11-17: exact requirements for a pinned memory-only background facts worker and the live pin-qualification sequence needed before readCycle can be wired to real readers. No code, build, test, live or install.",
       "release_note": "Design/handoff delivered 2026-11-17; no code or live work. Real readCycle wiring blocked on a reviewed worker pin, which needs a short owner-authorized live qualification window."
+    },
+    {
+      "task_id": "W101-BG-WORKER-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "tools/w101_bg_facts.py",
+        "tools/tests/test_w101_bg_facts.py",
+        "docs/coordination/results/W101-BG-WORKER-01.md"
+      ],
+      "notes": "Offline-only 2026-11-17: build the background facts worker's pure schema/self-test and unit tests per W101-BG-WORKER-DESIGN-01. NO live reads, NO SHA pin promotion, NO process launch against the game, NO C# change. Worker is inert until a separately authorized pin-qualification pass."
     }
   ]
 }
