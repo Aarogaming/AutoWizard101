@@ -2732,7 +2732,6 @@
         "docs/coordination/results/DANCE-INTEGRATION-82.md",
         "ProjectMaelstrom/ProjectMaelstrom/JobDeckForm.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTree.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101DanceEntryContext.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101DanceEntryContextTests.cs",
@@ -2741,10 +2740,9 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101HeadingCliTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceSpecialistContractTests.cs"
       ],
-      "notes": "Bounded task; root owns build/live slot. No new dependencies."
+      "notes": "Bounded task; root owns build/live slot. No new dependencies. Path transfer 2026-11-16: ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs, ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs to W101-UI-OBSERVER-SHUTDOWN-01 (owner-directed bounded shutdown fix)."
     },
     {
       "task_id": "GEM-ROUTE-PROVENANCE-83",
@@ -3785,6 +3783,19 @@
       ],
       "notes": "Owner-approved 2026-11-16. Brief: docs/coordination/tasks/DANCE-PRODUCTION-RUNTIME-01.md. SCOPE (four open bindings, re-verified at HEAD): (1) entry dispatch allowlist/X mapping - Blocker; (2) fail-closed geometry/arena guard; (3) energy approval must remain false without a verified policy; (4) production implementor of IPetDanceVisitRuntime/IPrimedPetDanceVisitRuntime, delegating to the existing PetDanceLiveTrial.RunSpecialistAsync. Binding 3 of the source report (primed-capture seam) is ALREADY IMPLEMENTED (RunPrimedAsync at PetDanceScheduledVisit.cs:147, startAfterCaptureReady at PetDanceLiveTrial.cs:314/401-404) and folds into the implementor work. AUTHORITY: source edits on the owned paths plus build/test in the coordinator's serialized slot (DOTNET_PROCESSOR_COUNT=2 -m:1 -p:UseSharedCompilation=false -warnaserror), scoped dotnet format whitespace/analyzers --verify-no-changes, board and encoding checks. NOT GRANTED: live game, desktop control, client hooks beyond reviewed opt-in readers, installation, packaging, new dependencies, or commits outside owned paths. Result report title and summary must say OFFLINE IMPLEMENTATION - NO LIVE QUALIFICATION and list every binding still open. Root verifies the handback before release. Transferred path: ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuInput.cs from W101-CHARACTER-27.",
       "release_note": "Coordinator verified handback GEM-0111 on 2026-11-16: exact owned-path scope, claims.json untouched; independent full native suite 3061 passed / 0 failed with -warnaserror (13 new tests over the 3048 baseline), exact focused filter 56/56, scoped whitespace and analyzers exit 0, encoding gate 0 violations, board valid. Static review confirmed real SHA-256 framing, fail-closed geometry/arena and energy guards with the specified reason strings, single-capture/single-invocation primed handoff, no second input owner or specialist, safety gates preserved on the expanded input allowlist, and tests exercising the production null-vision path. Result report title/summary declare OFFLINE IMPLEMENTATION - NO LIVE QUALIFICATION. NON-BLOCKING NOTE for a future evidence-strength review: PetDanceEntryVision asserts selection/play-enabled from OCR scene when the optional vision matchers are absent - pre-existing behavior, not introduced by this claim. Live visit qualification remains a separate, owner-authorized slice."
+    },
+    {
+      "task_id": "W101-UI-OBSERVER-SHUTDOWN-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-CLEANUP",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerWorker.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+        "docs/coordination/results/W101-UI-OBSERVER-SHUTDOWN-01.md"
+      ],
+      "notes": "Owner-authorized 2026-11-16 after a read-only live ui-tree-watch produced CleanupFailed and a recovery hold (since restored via verified recover-input, exit 0). Diagnosis from the failed operation receipt 3657311e...: native cooperative-stop budget 3s (WizwalkerWorker.cs:78) races the Python worker's own 3s client.close() wait (w101_ui_tree.py:2173) while startup consumed the full duration+18s budget (W101UiTreeOperation.cs:57/63), leaving 0 observations and forcing RequireRecovery. SCOPE: parameterized cooperative-stop grace (bounded, default unchanged), larger UI-tree startup allowance with a matching operation timeout, and focused offline tests. INVARIANTS: forced kill still calls RequireRecovery; no bypass of recovery guard; no live retry, no desktop/game interaction, no installation. Re-qualify offline only; a later live attempt needs fresh owner authorization. Transferred paths from DANCE-CAPTURE-82: ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs, ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs."
     }
   ]
 }
