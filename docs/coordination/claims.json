@@ -3844,13 +3844,14 @@
     },
     {
       "task_id": "RESOLUTION-1440P-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-DANCE",
       "owned_paths": [
         "docs/coordination/results/RESOLUTION-1440P-01.md"
       ],
-      "notes": "Owner-authorized 2026-11-16: report-only feasibility map for 1440p/window-resolution support. Static source audit only while the owner plays the fire wizard - NO live hooks, capture, input, focus changes or desktop control. Maps every resolution-dependent site (capture transform, vision ROIs, templates, UI layout pins, Dance geometry), defines what evidence a new profile requires, and scopes a default-off profile with fixtures. No implementation authorized by this claim; live evidence must be provided by the owner or gathered in a separately authorized pass."
+      "notes": "Owner-authorized 2026-11-16: report-only feasibility map for 1440p/window-resolution support. Static source audit only while the owner plays the fire wizard - NO live hooks, capture, input, focus changes or desktop control. Maps every resolution-dependent site (capture transform, vision ROIs, templates, UI layout pins, Dance geometry), defines what evidence a new profile requires, and scopes a default-off profile with fixtures. No implementation authorized by this claim; live evidence must be provided by the owner or gathered in a separately authorized pass.",
+      "release_note": "Report-only feasibility map completed 2026-11-16. Static source audit plus read-only window geometry/DPI query (window 2048x1104, client 2033x1066, DPI 120); no hook, capture, input, focus change or desktop control. Identified profile-driven PetDancePanelVision as the correct seam, hardcoded PetDanceLevelSelectionVision geometry and UI-tree layout/image pins as the main work sites, and confirmed the resolution plan forbids a global any-size option. Evidence: docs/coordination/results/RESOLUTION-1440P-01.md. NO implementation, fixtures or live qualification performed; a new claim with source/build authority and owner-provided 1440p captures is required."
     }
   ]
 }
