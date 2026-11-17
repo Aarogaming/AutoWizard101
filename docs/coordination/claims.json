@@ -3915,6 +3915,16 @@
       ],
       "notes": "Owner-directed 2026-11-16 design brief for a continuously-running W101 facts service that attaches to the client and publishes stats/conditions/zones as an API without requiring window focus; foreground is required only for interaction. Must respect the client-side exception (opt-in, pinned reviewed adapters), single input owner, bounded sampling, qualification/freshness semantics, and no network/game-file writes. Report-only: no code, build, test, live or commit.",
       "release_note": "Design brief delivered 2026-11-16: docs/coordination/tasks/W101-BACKGROUND-API-01.md. Verifies why the current UI-tree/capture path requires foreground (W101UiTreeOperation.cs:138,175; WindowObserver.cs:53,134,168-172) and proposes a memory-only facts service under the existing owner with qualification tiers, TTL expiry, identity invalidation, bounded sampling and local pipe/MCP/CLI publication. No code, build, test or live work; implementation needs a new claim and owner approval of any new fact IDs."
+    },
+    {
+      "task_id": "W101-UI-NAMING-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "docs/coordination/results/W101-UI-NAMING-01.md"
+      ],
+      "notes": "Report-only catalog of UI node names observed in the owner-authorized 25-tree read-only pass (auto-combat-nors-20261116-232238). Records candidate zone, node names/visibility across samples, dormant Dueling Diego nodes, and the operational finding that includeResourceContext forces a 2-tree snapshot in tools/w101_ui_tree.py:2019-2026. No qualification, no geometry, no input, no live work."
     }
   ]
 }
