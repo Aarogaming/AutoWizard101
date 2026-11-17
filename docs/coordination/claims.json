@@ -3876,13 +3876,14 @@
     },
     {
       "task_id": "MANUAL-CAPTURE-CONTROLLER-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         "docs/coordination/tasks/MANUAL-CAPTURE-CONTROLLER-01.md"
       ],
-      "notes": "Owner-directed 2026-11-16 design brief for a persistent headless manual-capture controller: reimplement/improve the existing W101RunningNotice scope overlay (Play/Pause/Stop, nonactivating clicks) as a persistent overlay with hotkeys, SAFE default (no quiet-resume) and NORMAL opt-in (implicit pause on activity, auto-resume only after >=3s quiet AND only when not explicitly paused/stopped, with a visible countdown and re-verification). Explicit pause latch must never be auto-cleared. Front/back timestamped capture via the existing TeachingRecordingCli path, single owner, no concurrent observers. Includes a proposed narrow AGENTS.md amendment for owner approval. Report-only: no source edits, builds, tests, live/desktop or commits."
+      "notes": "Owner-directed 2026-11-16 design brief for a persistent headless manual-capture controller: reimplement/improve the existing W101RunningNotice scope overlay (Play/Pause/Stop, nonactivating clicks) as a persistent overlay with hotkeys, SAFE default (no quiet-resume) and NORMAL opt-in (implicit pause on activity, auto-resume only after >=3s quiet AND only when not explicitly paused/stopped, with a visible countdown and re-verification). Explicit pause latch must never be auto-cleared. Front/back timestamped capture via the existing TeachingRecordingCli path, single owner, no concurrent observers. Includes a proposed narrow AGENTS.md amendment for owner approval. Report-only: no source edits, builds, tests, live/desktop or commits.",
+      "release_note": "Design brief delivered 2026-11-16: docs/coordination/tasks/MANUAL-CAPTURE-CONTROLLER-01.md. Reuses the existing W101RunningNotice overlay, ActionStartNotice countdown and TeachingRecordingCli session path. SAFE is default with no quiet-resume; NORMAL is per-session opt-in with >=3s quiet, visible pre-resume countdown and full re-verification; explicit pause/stop latch can never be auto-cleared. Includes a proposed narrow AGENTS.md amendment for owner approval and notes that W101-OVERLAY-CONTROLS-35 must be resolved before implementation. No code, rule change, build, test or live action performed; implementation requires a new claim after owner approval."
     }
   ]
 }
