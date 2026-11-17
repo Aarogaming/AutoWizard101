@@ -12,7 +12,7 @@ Date: 2026-11-17 · owner: root · workstream: `W101-COMBAT`
 
 ## Remaining
 
-1. Resident, bounded memory-only reader under the single owner (no foreground dependency) feeding `W101BackgroundFacts` — requires its own live scope for qualification.
+1. ~~Resident reader contract~~ **DONE offline** (`W101BackgroundReader.cs`, 6 tests): identity-validated cycles, no foreground gate, invalidation on target change/recovery/fault/cancel. Remaining: wire the real pinned Python readers into `readCycle` and run a separately authorized live qualification pass.
 2. MCP `maelstrom_get_w101_facts` tool routed through the same native owner.
 3. Live verification that facts expiry/invalidation behave correctly against a real client; separate owner authorization.
 
