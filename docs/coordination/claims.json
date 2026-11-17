@@ -3786,16 +3786,18 @@
     },
     {
       "task_id": "W101-UI-OBSERVER-SHUTDOWN-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-CLEANUP",
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerWorker.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
-        "docs/coordination/results/W101-UI-OBSERVER-SHUTDOWN-01.md"
+        "docs/coordination/results/W101-UI-OBSERVER-SHUTDOWN-01.md",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerWorkerTests.cs"
       ],
-      "notes": "Owner-authorized 2026-11-16 after a read-only live ui-tree-watch produced CleanupFailed and a recovery hold (since restored via verified recover-input, exit 0). Diagnosis from the failed operation receipt 3657311e...: native cooperative-stop budget 3s (WizwalkerWorker.cs:78) races the Python worker's own 3s client.close() wait (w101_ui_tree.py:2173) while startup consumed the full duration+18s budget (W101UiTreeOperation.cs:57/63), leaving 0 observations and forcing RequireRecovery. SCOPE: parameterized cooperative-stop grace (bounded, default unchanged), larger UI-tree startup allowance with a matching operation timeout, and focused offline tests. INVARIANTS: forced kill still calls RequireRecovery; no bypass of recovery guard; no live retry, no desktop/game interaction, no installation. Re-qualify offline only; a later live attempt needs fresh owner authorization. Transferred paths from DANCE-CAPTURE-82: ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs, ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs."
+      "notes": "Owner-authorized 2026-11-16 after a read-only live ui-tree-watch produced CleanupFailed and a recovery hold (since restored via verified recover-input, exit 0). Diagnosis from the failed operation receipt 3657311e...: native cooperative-stop budget 3s (WizwalkerWorker.cs:78) races the Python worker's own 3s client.close() wait (w101_ui_tree.py:2173) while startup consumed the full duration+18s budget (W101UiTreeOperation.cs:57/63), leaving 0 observations and forcing RequireRecovery. SCOPE: parameterized cooperative-stop grace (bounded, default unchanged), larger UI-tree startup allowance with a matching operation timeout, and focused offline tests. INVARIANTS: forced kill still calls RequireRecovery; no bypass of recovery guard; no live retry, no desktop/game interaction, no installation. Re-qualify offline only; a later live attempt needs fresh owner authorization. Transferred paths from DANCE-CAPTURE-82: ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs, ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs.",
+      "release_note": "Completed 2026-11-16 with offline verification only. Root cause from receipt 3657311e...: duration+18s startup budget exhausted before observation began, then the native 3s forced-stop raced the Python worker's 3s client.close() verification, producing CleanupFailed and a recovery hold (subsequently cleared by the verified recover-input flow, exit 0, evidence b194eabb...). Fix: bounded cooperative-stop grace (default 3s, max 10), 8s for UI-tree observations; startup allowance duration+30 and deadline duration+45; forced kill still requires recovery. Independently verified: focused 63/63, full native suite 3068 passed / 0 failed with -warnaserror, scoped whitespace and analyzers exit 0, encoding gate 0 violations, board valid. Report: docs/coordination/results/W101-UI-OBSERVER-SHUTDOWN-01.md. NO LIVE RETRY PERFORMED; a future live observation requires fresh owner authorization, and if CleanupFailed recurs the next step is investigating the Python client.close() path rather than raising budgets further."
     }
   ]
 }
