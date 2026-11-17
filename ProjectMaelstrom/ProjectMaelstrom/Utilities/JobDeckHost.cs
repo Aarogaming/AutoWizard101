@@ -85,6 +85,7 @@ internal sealed class JobDeckHost : IAsyncDisposable
                 object? result = request.Command switch
                 {
                     "catalog" => Deck.Catalog,
+                    "facts" => new { schemaVersion = 1, facts = W101BackgroundFacts.Snapshot(), note = "Read-only candidate facts from the owned reader. Unknown means absent or expired; no fact here authorizes an action." },
                     "capabilities" => new { schemaVersion = 1, facts = JobFactCatalog.All, routineFacts = Deck.FactDefinitions.ToDictionary(p => p.Key, p => p.Value.Where(f => !JobFactCatalog.All.Any(shared => shared.Id == f.Id)).ToArray()), aliases = JobAliasRegister.Snapshot(null, DateTime.UtcNow), routines = Deck.Catalog, liveQualified = false, note = "Catalog availability is not session readiness or permission." },
                     "validate-routine" => ValidateRoutine(args),
                     "scan-profile" => ConfigureScan(args),

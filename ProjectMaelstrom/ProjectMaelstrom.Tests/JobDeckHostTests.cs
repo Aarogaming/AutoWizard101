@@ -39,6 +39,28 @@ public sealed class JobDeckHostTests : IDisposable
         Assert.Equal(0, scheduler.Pending);
     }
 
+    [Fact]
+    public async Task FactsCommandIsReadOnlyAndNeverPromotesPipeInput()
+    {
+        await using var scheduler = Scheduler();
+        await using var host = new JobDeckHost(_root, scheduler);
+        var store = new W101FactsStore();
+        store.Publish(new W101Fact("health", "4920", "w101.resources", DateTime.UtcNow.Ticks, "r15-archived", W101FactQualification.Candidate), DateTime.UtcNow.Ticks);
+        W101BackgroundFacts.ReplaceStore(store);
+        try
+        {
+            var reply = Result(await Call("facts", new { id = "health", value = "1" }));
+            Assert.NotEmpty(reply.GetProperty("facts").EnumerateArray());
+            Assert.Contains("Unknown means absent or expired", reply.GetProperty("note").GetString());
+            var health = reply.GetProperty("facts").EnumerateArray().First(f => f.GetProperty("id").GetString() == "health");
+            Assert.Equal("4920", health.GetProperty("value").GetString());
+            // The pipe cannot mutate the store; a second read is unchanged.
+            var second = Result(await Call("facts"));
+            Assert.Equal("4920", second.GetProperty("facts").EnumerateArray().First(f => f.GetProperty("id").GetString() == "health").GetProperty("value").GetString());
+        }
+        finally { W101BackgroundFacts.ReplaceStore(new W101FactsStore()); }
+    }
+
     private Task<JsonElement> Call(string command, object? arguments = null, string? requestId = null) =>
         JobDeckWire.CallAsync(_root, JsonSerializer.SerializeToUtf8Bytes(
             new JobDeckRequest(command, JsonSerializer.SerializeToElement(arguments ?? new { }, JobDeckRules.Json), requestId), JobDeckRules.Json));
