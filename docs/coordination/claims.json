@@ -3820,6 +3820,17 @@
       ],
       "notes": "Owner-authorized staged live re-qualification 2026-11-16: read-only wizwalker-check then a bounded 5s ui-tree-watch under fixed budgets 7058fb2, exact target triple, W101 foreground, no game input. Records that nativeIdle was observed true and stable, hook restoration/cleanup confirmed, and no recovery hold engaged. Report-only output; no source edits or further live action.",
       "release_note": "Completed 2026-11-16 after owner-authorized staged live re-qualification. Stage 1 (wizwalker-check) exit 0, Status observed, Loading false, CleanupConfirmed true, DurationMs 313. Stage 2 (5s ui-tree-watch, fixed budgets 7058fb2) exit 0, State Completed, 5 tree samples / 20 loading samples / 0 failures, nativeIdle true and stable across all trees, CleanupConfirmed and HookRestored true, no recovery hold, no game input. Evidence: docs/coordination/results/W101-IDLE-REQUAL-01.md plus durable .local artifacts. This closes incident 148's Idle-verification gate and live-qualifies the shutdown fix for one bounded pass; zone identity (PoseCandidate null), repeatability, and any gameplay routine remain unqualified and unattempted."
+    },
+    {
+      "task_id": "W101-ZONE-CANDIDATE-REQUAL-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/coordination/results/W101-ZONE-CANDIDATE-REQUAL-01.md"
+      ],
+      "notes": "Owner-authorized bounded read-only pose-context observation 2026-11-16, exact target triple, W101 foreground, no game input. Records a candidate zone/pose with owner binding matched; zone, movement and body dimensions remain explicitly UNQUALIFIED and movement unauthorized. Report-only output; no further live action authorized by this claim.",
+      "release_note": "Completed 2026-11-16 after owner-authorized bounded pose-context observation. Exit 0 / Completed, 5 trees / 20 loading samples / 0 failures, hook restored and guard clear, no game input. Candidate zone WizardCity/Interiors/WC_Housing_Dorm_Interior with ownerBinding registry-owner-endpoints-matched and ownerMatched/statsMatched true; position 29.56/4.14/0 and yaw 4.712389 rad; nativeIdle true and stable. Every reading is explicitly liveQualified false and movementAuthorized false; body dimensions collisionQualified false. Evidence: docs/coordination/results/W101-ZONE-CANDIDATE-REQUAL-01.md. No zone qualification, movement, route or gameplay routine was attempted; further live action needs fresh scope."
     }
   ]
 }
