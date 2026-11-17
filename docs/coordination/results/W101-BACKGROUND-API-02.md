@@ -12,7 +12,8 @@ Date: 2026-11-17 · owner: root · workstream: `W101-COMBAT`
 
 ## Remaining
 
-1. ~~Resident reader contract~~ **DONE offline** (`W101BackgroundReader.cs`, 6 tests): identity-validated cycles, no foreground gate, invalidation on target change/recovery/fault/cancel. Remaining: wire the real pinned Python readers into `readCycle` and run a separately authorized live qualification pass.
+1. ~~Resident reader contract~~ **DONE offline** (`W101BackgroundReader.cs`, 6 tests): identity-validated cycles, no foreground gate, invalidation on target change/recovery/fault/cancel.
+2. ~~Real pinned observer wiring~~ **DONE offline** (`W101FactsCycle.cs`, `facts-watch` CLI): bounded 5-second observation cycles through the shared scheduler/lease and pinned `w101_ui_tree.py`; restored results mapped into facts, candidate-only publication via native pipe/MCP. No live qualification claimed.
 2. MCP `maelstrom_get_w101_facts` tool routed through the same native owner.
 3. Live verification that facts expiry/invalidation behave correctly against a real client; separate owner authorization.
 

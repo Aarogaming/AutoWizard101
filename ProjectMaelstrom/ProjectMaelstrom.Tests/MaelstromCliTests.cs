@@ -146,6 +146,17 @@ public sealed class MaelstromCliTests : IDisposable
     private string Report => Path.Combine(_root, "report.json");
     private string[] Args(string command) => ["--cli", command, "--output", Report];
     [Fact]
+    public void FactsWatchRequiresExplicitObservationOptInsAndBoundedDuration()
+    {
+        var args = CheckArgs().Concat(["--enable-ui-tree"]).ToArray(); args[1] = "facts-watch";
+        Assert.Equal("facts-watch", MaelstromCli.Parse(args, _root).Command);
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args.Where(a => a != "--enable-ui-tree")], _root));
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args.Where(a => a != "--enable-client-observation")], _root));
+        Assert.Equal(45, MaelstromCli.Parse([.. args, "--duration-seconds", "45"], _root).DurationSeconds);
+        Assert.Throws<ArgumentException>(() => MaelstromCli.Parse([.. args, "--duration-seconds", "61"], _root));
+    }
+
+    [Fact]
     public void ManualCaptureIsNormalByDefaultAndSafeIsExplicit()
     {
         var args = CheckArgs(); args[1] = "manual-capture";

@@ -17,7 +17,7 @@ internal sealed record MaelstromCliRuntime(Func<IReadOnlyList<GameWindow>> Windo
 internal static class MaelstromCli
 {
     internal static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
-    private static readonly string[] Commands = ["help", "windows", "status", "recover-input", "wizwalker-check", "wizwalker-watch", "ui-tree-watch", "module-observe", "character-inspect", "character-roster", "character-enter", "character-verify", "character-frame", "character-home", "world-gate-inspect", "world-gate-close", "world-gate-travel-current", "travel-card", "idle-cycle", "navigation-probe", "navigation-visit", "quest-conversation", "manual-capture", "mcp"];
+    private static readonly string[] Commands = ["help", "windows", "status", "recover-input", "wizwalker-check", "wizwalker-watch", "ui-tree-watch", "module-observe", "character-inspect", "character-roster", "character-enter", "character-verify", "character-frame", "character-home", "world-gate-inspect", "world-gate-close", "world-gate-travel-current", "travel-card", "idle-cycle", "navigation-probe", "navigation-visit", "quest-conversation", "manual-capture", "facts-watch", "mcp"];
 
     internal static MaelstromCliOptions Parse(string[] args, string defaultDataRoot)
     {
@@ -83,7 +83,7 @@ internal static class MaelstromCli
         if (resourceContext && command != "ui-tree-watch") throw new ArgumentException("Resources require ui-tree-watch.");
         var root = Path.GetFullPath(values.GetValueOrDefault("--data-root", defaultDataRoot));
 
-        if (command is not ("wizwalker-check" or "wizwalker-watch" or "ui-tree-watch" or "manual-capture" or "module-observe" or "world-gate-inspect" or "world-gate-close" or "world-gate-travel-current" or "travel-card" or "character-home" or "character-frame" or "character-verify" or "character-enter" or "character-roster" or "character-inspect" or "idle-cycle" or "navigation-probe" or "navigation-visit" or "quest-conversation"))
+        if (command is not ("wizwalker-check" or "wizwalker-watch" or "ui-tree-watch" or "manual-capture" or "facts-watch" or "module-observe" or "world-gate-inspect" or "world-gate-close" or "world-gate-travel-current" or "travel-card" or "character-home" or "character-frame" or "character-verify" or "character-enter" or "character-roster" or "character-inspect" or "idle-cycle" or "navigation-probe" or "navigation-visit" or "quest-conversation"))
         {
             if (enabled || uiEnabled || questContext || questActions || combatContext || moduleActions || values.Keys.Any(k => k is not ("--output" or "--data-root")))
                 throw new ArgumentException("This read-only command does not accept client-control options.");
@@ -91,7 +91,7 @@ internal static class MaelstromCli
         }
 
         if (!enabled) throw new ArgumentException("This check requires --enable-client-observation each time.");
-        if ((command is "ui-tree-watch" or "module-observe" or "world-gate-inspect" or "world-gate-close" or "world-gate-travel-current" or "travel-card" or "character-home" or "character-frame" or "character-verify" or "character-enter" or "character-roster" or "character-inspect" or "idle-cycle" or "navigation-probe" or "navigation-visit" or "quest-conversation") != uiEnabled)
+        if ((command is "ui-tree-watch" or "facts-watch" or "module-observe" or "world-gate-inspect" or "world-gate-close" or "world-gate-travel-current" or "travel-card" or "character-home" or "character-frame" or "character-verify" or "character-enter" or "character-roster" or "character-inspect" or "idle-cycle" or "navigation-probe" or "navigation-visit" or "quest-conversation") != uiEnabled)
             throw new ArgumentException("UI-tree and selected conversation commands require --enable-ui-tree.");
         if ((command is "world-gate-inspect" or "world-gate-close" or "world-gate-travel-current" or "travel-card" or "character-home" or "character-frame" or "character-verify" or "character-enter" or "character-roster" or "character-inspect" or "idle-cycle" or "navigation-probe" or "navigation-visit") != moduleActions)
             throw new ArgumentException("Only idle-cycle, navigation-probe and navigation-visit require and accept --enable-module-actions.");
@@ -163,9 +163,9 @@ internal static class MaelstromCli
         int duration = 15;
         if (values.TryGetValue("--duration-seconds", out var durationValue))
         {
-            if (command is not ("wizwalker-watch" or "ui-tree-watch" or "manual-capture") || !int.TryParse(durationValue, NumberStyles.None, CultureInfo.InvariantCulture, out duration) ||
+            if (command is not ("wizwalker-watch" or "ui-tree-watch" or "manual-capture" or "facts-watch") || !int.TryParse(durationValue, NumberStyles.None, CultureInfo.InvariantCulture, out duration) ||
                 duration is < 1 or > WizwalkerLoadingWatch.MaximumWatchSeconds)
-                throw new ArgumentException("Only watch and manual-capture commands accept --duration-seconds, from 1 through 60.");
+                throw new ArgumentException("Only watch, manual-capture and facts-watch commands accept --duration-seconds, from 1 through 60.");
         }
 
         if (selection != null && new[] { output, stop }.Contains(selection, StringComparer.OrdinalIgnoreCase))
@@ -242,6 +242,7 @@ internal static class MaelstromCli
                     navigationVisit = "navigation-visit owns wake, one teaching pulse and return to Idle within 85 seconds. W101 must already be foreground in native Idle. No route arrival is inferred.",
                     idleRecovery = "navigation-visit: --idle-retries 0..2 (default 2), --resume-after-quiet true|false (default false), --quiet-seconds 2..10 (default 2). Retries use fresh Idle observations within 40 seconds. Quiet recovery resumes only cleanup, never gameplay. Escape, cancellation and uncertain cleanup stop input.",
                     conversation = "quest-conversation requires all three observation opt-ins, --enable-quest-actions and --selection <json>. Up to 12 selected dialogue pages by default, 60 seconds; changed pages required between Space pulses; verify a new objective after closing. Stops on desktop activity. No navigation, combat or Idle cleanup.",
+                    factsWatch = "facts-watch requires exact window identity, --enable-client-observation and --enable-ui-tree; it runs bounded 5-second observation cycles under the same scheduler/lease and publishes only candidate facts. No input or actions are dispatched.",
                     manualCapture = "manual-capture requires exact window identity and --output; starts a persistent nonactivating overlay with Play/Pause/Stop hotkeys (Ctrl+Alt+P/S/R/Q). NORMAL is default; --safe-mode disables automatic resume. Bounded by --duration-seconds 1..60 or a fresh --stop-file. The host never dispatches game input; the pure gate requires quiet+countdown+verification and explicit pause/stop is never auto-cleared.",
                     note = "No window activation. Observation commands send no input; the separately enabled quest-conversation can advance the selected quest. Existing scheduler/control lease. Exit 0 completed, 2 run not completed, 3 cancelled, 1 command/setup error." };
             else if (options.Command == "windows")
@@ -255,6 +256,40 @@ internal static class MaelstromCli
                     tools = new[] { "list_game_workspaces", "get_w101_policy_state", "validate_routine_graph", "evaluate_combat_damage", "solve_potion_motion_grid", "plan_combat_turn", "compile_macro_demonstration", "maelstrom_get_capability_catalog",
                         "maelstrom_get_session_telemetry", "maelstrom_inspect_routine_deck", "maelstrom_deal_job_card", "maelstrom_step_deck_loop", "maelstrom_deck_command" },
                     launcher = "Launch Maelstrom MCP.cmd" };
+            else if (options.Command == "facts-watch")
+            {
+                token.ThrowIfCancellationRequested();
+                if (options.StopFile != null && File.Exists(options.StopFile)) throw new OperationCanceledException();
+                var window = GameWindows.Read((nint)options.Handle) ?? throw new InvalidOperationException("The selected window is unavailable.");
+                if (window.ProcessId != options.ProcessId || window.StartedUtcTicks != options.StartedUtcTicks ||
+                    !string.Equals(window.ProcessName, "WizardGraphicalClient", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("The selected W101 identity changed. List windows again; no client was opened.");
+                var target = WizwalkerTarget.FromWindow(window);
+                await using var scheduler = new OperationScheduler(options.DataRoot);
+                var launch = WizwalkerLaunch.FromWorkspace(options.Workspace!) with
+                { Worker = Path.Combine(options.Workspace!, "tools", "w101_ui_tree.py") };
+                var store = new W101FactsStore(W101FactsMapper.ProposedFacts);
+                W101BackgroundFacts.ReplaceStore(store);
+                var cycle = W101FactsCycle.Create(scheduler, target, launch, options.IncludePoseContext);
+                var session = new W101FactsSession(cycle,
+                    () =>
+                    {
+                        var current = GameWindows.Read((nint)options.Handle);
+                        return current is not null && current.ProcessId == options.ProcessId &&
+                               current.StartedUtcTicks == options.StartedUtcTicks
+                            ? (true, "") : (false, "target-changed");
+                    },
+                    () => GameInputLease.Current?.RecoveryRequired == true,
+                    maximumCycles: Math.Max(1, options.DurationSeconds / W101FactsCycle.CycleSeconds));
+                var cycles = Math.Max(1, options.DurationSeconds / W101FactsCycle.CycleSeconds);
+                var reason = await session.RunAsync(store, token).ConfigureAwait(false);
+                var facts = store.Snapshot(DateTime.UtcNow.Ticks);
+                result = new { schemaVersion = 1, command = options.Command, reason,
+                    target = new { handle = window.Handle.ToInt64(), window.ProcessId, window.StartedUtcTicks, window.ProcessName },
+                    cycles, facts,
+                    note = "Read-only facts from the pinned observer under the shared owner. Candidate values are not action authority." };
+                exit = reason == "cancelled" ? 3 : reason.StartsWith("cycle-budget", StringComparison.Ordinal) ? 0 : 2;
+            }
             else if (options.Command == "manual-capture")
             {
                 token.ThrowIfCancellationRequested();
