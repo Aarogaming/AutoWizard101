@@ -3966,9 +3966,13 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101BackgroundReader.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101BackgroundReaderTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsMapper.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsMapperTests.cs"
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsMapperTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsCycle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsCycleTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs"
       ],
-      "notes": "Owner-directed implementation of the background facts service design (W101-BACKGROUND-API-01) in stages. Stage 1: pure bounded fact store with producer/qualification/TTL/identity invalidation and tests. Later stages: publication through the existing local pipe/MCP/CLI and a resident reader under one owner. AUTHORITY: source edits on owned paths plus build/test in the serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/game/desktop, network, install, new dependencies, commits outside owned paths, marking new fact IDs available without a qualified producer. Added read-only pipe facts command via transferred JobDeckHost paths; no fact injection surface. Added offline resident-reader contract (identity-validated, no foreground gate, fake-injected reads); live qualification explicitly deferred. Added pure W101UiTreeResult->facts mapper and bounded session orchestrator with injected cycle; no live attachment."
+      "notes": "Owner-directed implementation of the background facts service design (W101-BACKGROUND-API-01) in stages. Stage 1: pure bounded fact store with producer/qualification/TTL/identity invalidation and tests. Later stages: publication through the existing local pipe/MCP/CLI and a resident reader under one owner. AUTHORITY: source edits on owned paths plus build/test in the serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/game/desktop, network, install, new dependencies, commits outside owned paths, marking new fact IDs available without a qualified producer. Added read-only pipe facts command via transferred JobDeckHost paths; no fact injection surface. Added offline resident-reader contract (identity-validated, no foreground gate, fake-injected reads); live qualification explicitly deferred. Added pure W101UiTreeResult->facts mapper and bounded session orchestrator with injected cycle; no live attachment. Added offline facts-watch CLI wiring through the existing scheduler/lease and pinned observer; no live qualification."
     },
     {
       "task_id": "W101-ACTIVITY-FLAGS-01",
