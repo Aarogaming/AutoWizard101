@@ -43,6 +43,10 @@ Does not prove: any combat fact, card identity, geometry, pip/castability readin
 
 A future capture must be started **while a battle is actually in progress**, with the same exact target, opt-ins and bounded duration. The owner has indicated they can signal between battles/navigations; a short 20–30 s pass triggered on that signal should produce restored combat trees. That requires fresh owner scope and a new/successor claim; nothing in this record authorizes another live pass.
 
+## Correction 2026-11-17
+
+This report implied the read path required the game to be foreground. That was wrong: `GameWindows.IsCurrent` checks process identity (`GameWindows.cs:45`), not focus, and a sampled 12-tree pass with zero W101-foreground samples succeeded (receipt `d8c040db…`, see `W101-BG-QUAL-LIVE-01.md`). The "no combat observed" finding stands; the foreground explanation does not.
+
 ## 5. Limits
 
 No output was fabricated to fill the catalog. No hyperlinks, hashes or counts from this report were copied from memory — all values are quoted from the receipt and artifacts above. No game input, focus change or cleanup action was performed.

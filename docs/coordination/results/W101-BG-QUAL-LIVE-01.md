@@ -15,6 +15,10 @@ Date: 2026-11-17 · owner: root · claim: `W101-BG-QUAL-LIVE-01`
 - Exit 0, `Completed`, 5 trees / 20 loading samples / 0 failures, cleanup confirmed, hook restored, guard clear, no input. Zone candidate and Idle state matched the focused pass.
 - **But** `ui-request.json`/`ui-result.json` contain no foreground field. The waiter only sampled foreground before launching the CLI; process startup and the native admission check happen later. The owner's 10 s unfocused window may have ended before admission. Therefore this pass **does not prove** that observation works while W101 is unfocused. No no-foreground claim is made from it.
 
-## Next step
+## Definitive unfocused pass — no-foreground behavior QUALIFIED 2026-11-17
 
-Repeat with a foreground sampler running concurrently with the CLI so admission-time foreground is recorded. Only a pass with zero W101-foreground samples during the whole run can qualify the no-foreground behavior. No pin promotion, reader wiring or input authority is granted by this record.
+A corrected waiter (fire when W101 is NOT foreground) polled the foreground handle every 100 ms for the entire run and recorded **147 samples, `W101_samples=0`, distinct `[199884]`** (OpenCode). During that run an `ui-tree-watch` against the exact pinned target completed with exit 0: **12 trees / 48 loading samples / 0 failures**, `CleanupConfirmed:true`, `HookRestored:true`, `States.nativeIdle:true`, zone candidate `Housing/CardPromo/GS_Fantasy_Castle`, no input, guard clear afterward. Receipt `d8c040db511245d994614752063f5805`; artifacts `.local/agent-runs/bg-qual-unfocused-sampled-20261117-012259/`.
+
+**Correction to my earlier diagnosis:** I claimed the native read path requires foreground (`W101UiTreeOperation.cs:138,175`). That was wrong — `GameWindows.IsCurrent` is `SameIdentity(window, Read(window.Handle))` (`GameWindows.cs:45`), i.e. **process identity**, not focus. The pinned `w101_ui_tree.py` therefore already supports unfocused observation; no new worker pin is needed to build the background facts service.
+
+Limits: this qualifies read-only observation without foreground on this client build; it does NOT qualify movement, input dispatch, gameplay outcomes, or a resident always-on loop. Hook restoration was verified per bounded pass, not for an unbounded continuous attachment. No pin was promoted by this pass.

@@ -9,7 +9,7 @@ A long-lived, headless part of Maelstrom attaches to a selected W101 client and 
 
 ## 2. Why today's path can't do it (verified 2026-11-16)
 
-- `W101UiTreeOperation.cs:138` and `:175` require `runtime.IsCurrent(target)` — the game must be foreground.
+- **CORRECTED 2026-11-17:** `W101UiTreeOperation.cs:138,175` require `runtime.IsCurrent(target)`, but `GameWindows.IsCurrent` is `SameIdentity(window, Read(window.Handle))` (`GameWindows.cs:45`) — process **identity**, not foreground. A bounded unfocused pass (12 trees, 147 foreground samples with zero W101) confirmed observation already works without focus. The original claim that focus was the blocker was false; see `W101-BG-QUAL-LIVE-01.md`.
 - `WindowObserver.cs:53,134,168–172` requires the window to be current and not minimized for capture.
 - Consequently a background window yields no UI trees; the owner's 45 s all-context pass produced only 2 trees and `combat-readiness.json` = `Ready:false`, `Missing:["fresh-combat-observation"]`.
 
