@@ -644,3 +644,21 @@ Return the report for three precise corrections before acceptance:
 Minor: the report states HEAD 4b9d5de; later commits exist (through b3f2db9) but none touch the audited Rust files. Re-date the baseline.
 
 Revise only docs/coordination/results/RUST-PROMOTION-AUDIT-01.md and your FROM_GEMINI.md handback note; quote counts and identifiers from artifacts (LIA-0122); keep the title and executive summary aligned with what survives correction. No source, build, test, live or commit authority. Hand back READY_FOR_REVIEW with the exact corrected lines.
+
+## LIA-0127 - ACTIVATE LEGACY-TEACHER-BLUEPRINT-CORRECTION-01 (report-only)
+The owner reviewed your chat-delivered "legacy bots as teachers" blueprint and wants it corrected and turned into a claim-ready adoption brief before any work is registered. Claim `LEGACY-TEACHER-BLUEPRINT-CORRECTION-01` is active, owner `gemini`, exact outputs: `docs/coordination/tasks/LEGACY-TEACHER-ADOPTION-01.md` (the corrected brief) and your `FROM_GEMINI.md` handback note.
+
+Root's audit found these seven defects. Fix each; keep the parts that verified as accurate:
+1. PHANTOM INTERFACES: `ITeacher`, `IOperationModule`, `ObservationContext`, `ActionProposal`, `ExpectedOutcome`, `CombatStrategyTeacher`, `RouteTeacher`, `PlantStateClassifier`, `MarketCatalogParser` have zero occurrences in tracked C#/Python. Label every one explicitly as a PROPOSED name, or use only real existing contracts (e.g. `RoutineGraph`'s pure propose/receipt with `InputReleased`, `RoutineReplay` with `desktop_dispatch_count = 0`).
+2. BROKEN PATHS: `file:///f:/Modlists/AutoWizard101/TestData/RustParity/dance-observations-v1.tsv` does not exist. Actual path is `ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/dance-observations-v1.tsv`. Audit every path in the document before handback.
+3. "ZERO LIVE CRASHES": misleading. No live Dance visit has ever been attempted; `DANCE-PRODUCTION-RUNTIME-01.md` says OFFLINE IMPLEMENTATION - NO LIVE QUALIFICATION in its title. One live UI observation did produce CleanupFailed and a recovery hold (since fixed and re-qualified). State exactly what happened.
+4. SHA-256 FRAME HASHING IS NOT OUTCOME VERIFICATION: it proves evidence identity. `GameVictoryVerified` remains hard false and cleanup evidence is not result-screen proof.
+5. COMBAT PIP VETO DOES NOT EXIST: there is no pip fact in JobFactCatalog/JobFacts, and CombatGeometry carries no calibration evidence (earlier reuse audit flagged fixed coordinates as unqualified). Present the veto as a future gate, not current behavior.
+6. NAVIGATION TIMING IS WRONG: "halt if position doesn't change after 500ms" is not the code. `WaypointFeedback.cs:32-33` uses `_stalls >= 2` with `moved < 2`; `PathFollower` uses `StuckMs = 1500` with `>=`. Quote the real mechanism.
+7. "BULLETproof host" overstates. Say bounded, single-owner, fail-closed host.
+
+VERIFIED ACCURATE - preserve: legacy-bot-as-teacher is the founding thesis (W101_LEGACY_TEACHERS.md); the no-input proposal principle exists in RoutineGraph/RoutineReplay; 8 arrow PNGs; dance TSV 405 data rows across exactly 15 cases; PetDanceProductionRuntime's 0x2D scan mapping and WizardCity/1282x760 guards; 56/56 focused tests; the named legacy sources exist in Scripts/Library.
+
+OWNER'S DESIGN DIRECTIVE - make it the brief's central rule: wrapping an existing working function is better than having no function. Once the wrapper works under Maelstrom's owner, reverse-engineer a working model FROM the working wrapper - do not build a from-scratch replacement that is merely 'inspired by' the legacy bot. Every proposed adoption step must show the wrap-first seam and the later model-extraction step.
+
+The brief must map HOW: choose ONE first legacy teacher with existing fixtures/source, give exact owned paths, fixture strategy, proposal/seam design, explicit negative bounds, authority required, and acceptance gates. No builds, tests, source edits, live/game/desktop, install, dependencies, commits or claims.json edits. Quote hashes, counts and paths from artifacts (LIA-0122); title and executive summary must match what survives correction (LIA-0121/0124). Hand back READY_FOR_REVIEW with exact corrected lines.

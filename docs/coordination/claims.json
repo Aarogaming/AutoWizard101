@@ -3831,6 +3831,16 @@
       ],
       "notes": "Owner-authorized bounded read-only pose-context observation 2026-11-16, exact target triple, W101 foreground, no game input. Records a candidate zone/pose with owner binding matched; zone, movement and body dimensions remain explicitly UNQUALIFIED and movement unauthorized. Report-only output; no further live action authorized by this claim.",
       "release_note": "Completed 2026-11-16 after owner-authorized bounded pose-context observation. Exit 0 / Completed, 5 trees / 20 loading samples / 0 failures, hook restored and guard clear, no game input. Candidate zone WizardCity/Interiors/WC_Housing_Dorm_Interior with ownerBinding registry-owner-endpoints-matched and ownerMatched/statsMatched true; position 29.56/4.14/0 and yaw 4.712389 rad; nativeIdle true and stable. Every reading is explicitly liveQualified false and movementAuthorized false; body dimensions collisionQualified false. Evidence: docs/coordination/results/W101-ZONE-CANDIDATE-REQUAL-01.md. No zone qualification, movement, route or gameplay routine was attempted; further live action needs fresh scope."
+    },
+    {
+      "task_id": "LEGACY-TEACHER-BLUEPRINT-CORRECTION-01",
+      "state": "active",
+      "owner": "gemini",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/tasks/LEGACY-TEACHER-ADOPTION-01.md"
+      ],
+      "notes": "Owner-directed correction of the chat-delivered legacy-bot-as-teacher blueprint after root's audit (7 findings). Produce a corrected, claim-ready brief mapping HOW to adopt legacy teachers, including the owner's explicit wrapping-first philosophy: wrap the existing working function behind Maelstrom's owner/proposal contract first (even if ugly), then reverse-engineer a working model from the *working* wrapper; do not build a from-scratch 'inspired by' replacement. Report-only: no source, build, test, live, install or commit authority; no claims.json edits. Quote counts/paths from artifacts; title and executive summary must match verified content. Hand back READY_FOR_REVIEW via FROM_GEMINI.md. Handback via FROM_GEMINI.md remains under the existing RUST-NATIVE-BRIDGE-57 channel claim; this claim owns only the corrected brief."
     }
   ]
 }
