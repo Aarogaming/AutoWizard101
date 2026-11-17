@@ -1,4 +1,5 @@
 using ProjectMaelstrom.Utilities;
+using System.Threading;
 
 namespace ProjectMaelstrom.Tests;
 
@@ -123,10 +124,13 @@ public sealed class OperationFocusBudgetTests
         var inspected = false;
         using var registration = group.Register(TimeSpan.FromSeconds(1), () =>
         {
-            // A different thread must be able to inspect the group before this
-            // cancellation callback returns, as scheduler drain callbacks do.
-            var read = Task.Run(() => group.PausedDuration);
-            inspected = read.Wait(TimeSpan.FromSeconds(2));
+            // A different OS thread must be able to inspect the group before this
+            // cancellation callback returns, as scheduler drain callbacks do. A
+            // dedicated thread avoids thread-pool startup delays in loaded hosts.
+            Exception? failure = null;
+            var read = new Thread(() => { try { _ = group.PausedDuration; } catch (Exception ex) { failure = ex; } }) { IsBackground = true };
+            read.Start();
+            inspected = read.Join(TimeSpan.FromSeconds(2)) && failure is null;
         });
         time.Advance(1);
         Assert.True(inspected);
