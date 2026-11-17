@@ -4043,6 +4043,16 @@
       ],
       "notes": "Offline 2026-11-17: build a dry-run qualification plan/harness for the pinned background worker. No live execution, no pin promotion, no process launch against the game. Live path must refuse without explicit owner token and a reviewed pin.",
       "release_note": "Offline qualification plan delivered 2026-11-17: 7-step bounded sequence, live path always refuses. 5 focused tests, 904 Python tests pass. No live qualification or pin promotion."
+    },
+    {
+      "task_id": "W101-BG-QUAL-LIVE-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "docs/coordination/results/W101-BG-QUAL-LIVE-01.md"
+      ],
+      "notes": "Owner-authorized 2026-11-17 live bounded qualification attempt: W101 idle at home, exact target, foreground confirmed, guard clear. Steps: short focused read-only observation, then an unfocused-pass attempt to document the current foreground gate. NO input, no focus changes by agent, no pin promotion; if cleanup uncertainty appears, honor hold immediately."
     }
   ]
 }
