@@ -3863,6 +3863,16 @@
       ],
       "notes": "Owner explicitly authorized read-only interactions with the live client during their play session. Used Maelstrom's PassiveTeachingSampler (--sample-window-stills, no hooks/input/focus) at 3 fps for 6s: 12 frames at 2544x1372 with inputs_sent 0. Offline visual analysis of quest-completion/dialogue frames; no live action, no calibrated ROIs claimed. Report maps observations to 1440p profile and wrap-first quest-teacher work; implementation requires separate claims.",
       "release_note": "Completed 2026-11-16 under owner-authorized read-only scope. Used Maelstrom's PassiveTeachingSampler via --sample-window-stills (no hooks, no input, no focus change) at 3 fps for 6s: 12 frames at 2544x1372, max frame age 482ms, inputs_sent 0, input_recorded false. Offline visual analysis recorded quest dialogue, quest completion (7750 XP / 75 GOLD / level 110), and approximate HUD landmarks explicitly labelled as visual estimates, not calibrated ROIs. Evidence: docs/coordination/results/RESOLUTION-CAPTURE-ANALYSIS-01.md; frames remain in ignored .local. No implementation, calibrated transform, profile, or further live action authorized."
+    },
+    {
+      "task_id": "W101-COMBAT-API-MAP-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "docs/coordination/results/W101-COMBAT-API-MAP-01.md"
+      ],
+      "notes": "Owner-authorized 2026-11-16 read-only battle observation during their own play. One bounded ui-tree-watch (45-60s max) with combat/resource/pose/quest context on exact target, launched on the owner's explicit signal. Reviewed root hook with verified restoration only; NO input, focus change, network, game-file writes, Crowns/snacks/volume/restart. Output is a candidate fact catalog: observed fields named with qualification level and provenance, feedstock for wrap-first teachers. Live capture ends after one pass; offline analysis only thereafter."
     }
   ]
 }
