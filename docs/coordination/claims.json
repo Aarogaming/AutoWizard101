@@ -3872,7 +3872,7 @@
       "owned_paths": [
         "docs/coordination/results/W101-COMBAT-API-MAP-01.md"
       ],
-      "notes": "Owner-authorized 2026-11-16 read-only battle observation during their own play. One bounded ui-tree-watch (45-60s max) with combat/resource/pose/quest context on exact target, launched on the owner's explicit signal. Reviewed root hook with verified restoration only; NO input, focus change, network, game-file writes, Crowns/snacks/volume/restart. Output is a candidate fact catalog: observed fields named with qualification level and provenance, feedstock for wrap-first teachers. Live capture ends after one pass; offline analysis only thereafter.",
+      "notes": "Owner-authorized 2026-11-16 read-only battle observation during their own play. One bounded ui-tree-watch (45-60s max) with combat/resource/pose/quest context on exact target, launched on the owner's explicit signal. Reviewed root hook with verified restoration only; NO input, focus change, network, game-file writes, Crowns/snacks/volume/restart. Output is a candidate fact catalog: observed fields named with qualification level and provenance, feedstock for wrap-first teachers. Live capture ends after one pass; offline analysis only thereafter. Reopened 2026-11-17 to correct a false foreground-gate claim: GameWindows.IsCurrent checks process identity (GameWindows.cs:45), not foreground; an unfocused 12-tree pass succeeded with zero W101-foreground samples. Correction committed 2026-11-17; no-foreground qualified for read-only observation.",
       "release_note": "One owner-authorized bounded all-context observation completed 2026-11-16: exit 0, state Completed, hook restored, guard clear, NO game input. Combat readiness reported Ready false, CardCandidates 0, ParticipantCandidates 0, Missing ['fresh-combat-observation'] - the owner was between encounters, so no combat fact catalog could be produced. Negative evidence recorded faithfully in docs/coordination/results/W101-COMBAT-API-MAP-01.md. A future pass started during an actual battle requires fresh owner scope; no such pass is authorized by this release."
     },
     {
@@ -3914,7 +3914,7 @@
       "owned_paths": [
         "docs/coordination/tasks/W101-BACKGROUND-API-01.md"
       ],
-      "notes": "Owner-directed 2026-11-16 design brief for a continuously-running W101 facts service that attaches to the client and publishes stats/conditions/zones as an API without requiring window focus; foreground is required only for interaction. Must respect the client-side exception (opt-in, pinned reviewed adapters), single input owner, bounded sampling, qualification/freshness semantics, and no network/game-file writes. Report-only: no code, build, test, live or commit.",
+      "notes": "Owner-directed 2026-11-16 design brief for a continuously-running W101 facts service that attaches to the client and publishes stats/conditions/zones as an API without requiring window focus; foreground is required only for interaction. Must respect the client-side exception (opt-in, pinned reviewed adapters), single input owner, bounded sampling, qualification/freshness semantics, and no network/game-file writes. Report-only: no code, build, test, live or commit. Reopened 2026-11-17 to correct a false foreground-gate claim: GameWindows.IsCurrent checks process identity (GameWindows.cs:45), not foreground; an unfocused 12-tree pass succeeded with zero W101-foreground samples. Correction committed 2026-11-17; no-foreground qualified for read-only observation.",
       "release_note": "Design brief delivered 2026-11-16: docs/coordination/tasks/W101-BACKGROUND-API-01.md. Verifies why the current UI-tree/capture path requires foreground (W101UiTreeOperation.cs:138,175; WindowObserver.cs:53,134,168-172) and proposes a memory-only facts service under the existing owner with qualification tiers, TTL expiry, identity invalidation, bounded sampling and local pipe/MCP/CLI publication. No code, build, test or live work; implementation needs a new claim and owner approval of any new fact IDs."
     },
     {
@@ -4046,13 +4046,13 @@
     },
     {
       "task_id": "W101-BG-QUAL-LIVE-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
         "docs/coordination/results/W101-BG-QUAL-LIVE-01.md"
       ],
-      "notes": "Owner-authorized 2026-11-17 live bounded qualification attempt: W101 idle at home, exact target, foreground confirmed, guard clear. Steps: short focused read-only observation, then an unfocused-pass attempt to document the current foreground gate. NO input, no focus changes by agent, no pin promotion; if cleanup uncertainty appears, honor hold immediately."
+      "notes": "Owner-authorized 2026-11-17 live bounded qualification attempt: W101 idle at home, exact target, foreground confirmed, guard clear. Steps: short focused read-only observation, then an unfocused-pass attempt to document the current foreground gate. NO input, no focus changes by agent, no pin promotion; if cleanup uncertainty appears, honor hold immediately. Reopened 2026-11-17 to correct a false foreground-gate claim: GameWindows.IsCurrent checks process identity (GameWindows.cs:45), not foreground; an unfocused 12-tree pass succeeded with zero W101-foreground samples. Correction committed 2026-11-17; no-foreground qualified for read-only observation."
     }
   ]
 }
