@@ -4016,6 +4016,19 @@
       ],
       "notes": "Offline-only 2026-11-17: build the background facts worker's pure schema/self-test and unit tests per W101-BG-WORKER-DESIGN-01. NO live reads, NO SHA pin promotion, NO process launch against the game, NO C# change. Worker is inert until a separately authorized pin-qualification pass.",
       "release_note": "Offline worker contract delivered 2026-11-17: inert schema/self-test with 6 tests; 897 Python tests pass. No pin promoted, no live pass, no C# wiring. Live qualification remains separately authorized."
+    },
+    {
+      "task_id": "COMBAT-UI-FIXTURE-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "tools/build_combat_ui_fixture.py",
+        "tools/tests/test_build_combat_ui_fixture.py",
+        "tools/fixtures/combat_ui/combat-ui-observations-v1.json",
+        "docs/coordination/results/COMBAT-UI-FIXTURE-01.md"
+      ],
+      "notes": "Owner-directed offline 2026-11-17: extract a versioned, hash-pinned combat UI vocabulary fixture from the saved boss-battle ui-observations.jsonl artifacts. No live reads, no image addresses, no pixels, no input, no fact promotion. Sources are ignored .local artifacts; output is a tracked fixture with receipts."
     }
   ]
 }
