@@ -4217,13 +4217,14 @@
     },
     {
       "task_id": "NAV-MMO-PARADIGMS-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-REFERENCES",
       "owned_paths": [
         "docs/coordination/results/NAV-MMO-PARADIGMS-01.md"
       ],
-      "notes": "Owner-supplied WoW/FFXIV/OSRS navigation paradigms audited against our hybrid zone graph. URL-verified study clones only; no tracked source, build, install, live or dependency."
+      "notes": "Owner-supplied WoW/FFXIV/OSRS navigation paradigms audited against our hybrid zone graph. URL-verified study clones only; no tracked source, build, install, live or dependency.",
+      "release_note": "Paradigm study delivered 2026-11-17: 2 verified study clones; our global BFS + local Dijkstra hybrid already matches the recommended architecture; qualification, not architecture, remains the gate. No dependency, build or live work."
     }
   ]
 }
