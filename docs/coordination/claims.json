@@ -2409,12 +2409,13 @@
     {
       "task_id": "RUST-NATIVE-BRIDGE-57",
       "workstream_id": "CORE-DELIVERY",
-      "owner": "gemini",
-      "state": "active",
+      "owner": "root",
+      "state": "released",
       "owned_paths": [
         "docs/coordination/gemini/FROM_GEMINI.md"
       ],
-      "notes": "Gemini reported completed commit1c5127c; root takes integration repair source ownership per user. Gemini owns channel replies only pending new assignment. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Gemini reported completed commit1c5127c; root takes integration repair source ownership per user. Gemini owns channel replies only pending new assignment. Owner-directed checkpoint commits (2993d94) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Channel ownership transferred to root by owner direction 2026-11-17; Gemini moved to other work. Source integration (commit 1c5127c) already committed; GEM-0123 ACK accepted after verification against LIA-0132. No further channel reservation required."
     },
     {
       "task_id": "GEMINI-LIAISON-58",
@@ -3755,13 +3756,14 @@
     },
     {
       "task_id": "GEM-HONESTY-AUDIT-LIA-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         "docs/coordination/gemini/TO_GEMINI.md"
       ],
-      "notes": "Coordinator-issued correction routing LIA-0121 after GEM-HONESTY-AUDIT-01. LIA entries are appended by root; the liaison replies in FROM_GEMINI.md and report owners revise their own reports. No Gemini source/test/build/live authority is granted or implied."
+      "notes": "Coordinator-issued correction routing LIA-0121 after GEM-HONESTY-AUDIT-01. LIA entries are appended by root; the liaison replies in FROM_GEMINI.md and report owners revise their own reports. No Gemini source/test/build/live authority is granted or implied.",
+      "release_note": "Coordinator correction routing closed 2026-11-17: LIA-0121..0132 recorded and accepted/closed; root now owns the channel files directly. No Gemini work tasks remain."
     },
     {
       "task_id": "ROOT-PROSE-AUDIT-01",
@@ -4251,6 +4253,16 @@
       ],
       "notes": "Owner-directed 2026-11-17 reconciliation: release 10 provably complete claims, keep 6 genuinely open claims active, write two missing result documents. No source, build, test, live or desktop work. Board fix: reconciled files remain owned by their own claims; this claim owns only the reconciliation report.",
       "release_note": "Reconciliation completed 2026-11-17: 10 complete claims released with evidence, 6 open claims retained with explicit scope, 2 missing result documents written; board valid. No source/build/live work."
+    },
+    {
+      "task_id": "CHANNEL-OWNERSHIP-TAKEOVER-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/results/CHANNEL-OWNERSHIP-TAKEOVER-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-17: user assigned Gemini's remaining claims to root while Gemini works on other things. Take over and close both standing channel claims; commit GEM-0123 ACK as audited channel data. No source/build/test/live work."
     }
   ]
 }
