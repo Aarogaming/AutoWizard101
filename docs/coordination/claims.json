@@ -4033,7 +4033,7 @@
     },
     {
       "task_id": "BG-WORKER-QUAL-HARNESS-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
@@ -4041,7 +4041,8 @@
         "tools/tests/test_qualify_bg_worker.py",
         "docs/coordination/results/BG-WORKER-QUAL-HARNESS-01.md"
       ],
-      "notes": "Offline 2026-11-17: build a dry-run qualification plan/harness for the pinned background worker. No live execution, no pin promotion, no process launch against the game. Live path must refuse without explicit owner token and a reviewed pin."
+      "notes": "Offline 2026-11-17: build a dry-run qualification plan/harness for the pinned background worker. No live execution, no pin promotion, no process launch against the game. Live path must refuse without explicit owner token and a reviewed pin.",
+      "release_note": "Offline qualification plan delivered 2026-11-17: 7-step bounded sequence, live path always refuses. 5 focused tests, 904 Python tests pass. No live qualification or pin promotion."
     }
   ]
 }
