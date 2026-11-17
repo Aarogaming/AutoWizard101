@@ -4135,11 +4135,13 @@
         ".local/upstream/spiraldb",
         ".local/upstream/WizLaunch",
         ".local/upstream/Hivemind",
-        ".local/upstream/wizard101-fishing-bot",
         ".local/upstream/wizard101-chat-translator",
-        "docs/coordination/results/APPROVABLE-IMPORT-BATCH-01.md"
+        "docs/coordination/results/APPROVABLE-IMPORT-BATCH-01.md",
+        ".local/upstream/katsuba",
+        ".local/upstream/wizbot",
+        ".local/upstream/manual_wizard101_wizapelago"
       ],
-      "notes": "Owner-directed 2026-11-17 first import batch: shallow-clone approvable reference projects into git-ignored .local/upstream for study only. No tracked source, no build, no install, no live use, no credential use, no new production dependency. Licences/provenance/HEADs recorded; server-side/network projects remain excluded."
+      "notes": "Owner-directed 2026-11-17 first import batch: shallow-clone approvable reference projects into git-ignored .local/upstream for study only. No tracked source, no build, no install, no live use, no credential use, no new production dependency. Licences/provenance/HEADs recorded; server-side/network projects remain excluded. URL verification: fishing-bot repo not found at tested names - skipped. katsuba/wizbot/wizapelago added after primary-source ls-remote verification."
     }
   ]
 }
