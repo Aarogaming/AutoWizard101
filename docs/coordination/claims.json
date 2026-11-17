@@ -4128,20 +4128,14 @@
     },
     {
       "task_id": "APPROVABLE-IMPORT-BATCH-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-REFERENCES",
       "owned_paths": [
-        ".local/upstream/spiraldb",
-        ".local/upstream/WizLaunch",
-        ".local/upstream/Hivemind",
-        ".local/upstream/wizard101-chat-translator",
-        "docs/coordination/results/APPROVABLE-IMPORT-BATCH-01.md",
-        ".local/upstream/katsuba",
-        ".local/upstream/wizbot",
-        ".local/upstream/manual_wizard101_wizapelago"
+        "docs/coordination/results/APPROVABLE-IMPORT-BATCH-01.md"
       ],
-      "notes": "Owner-directed 2026-11-17 first import batch: shallow-clone approvable reference projects into git-ignored .local/upstream for study only. No tracked source, no build, no install, no live use, no credential use, no new production dependency. Licences/provenance/HEADs recorded; server-side/network projects remain excluded. URL verification: fishing-bot repo not found at tested names - skipped. katsuba/wizbot/wizapelago added after primary-source ls-remote verification."
+      "notes": "Owner-directed 2026-11-17 first import batch: shallow-clone approvable reference projects into git-ignored .local/upstream for study only. No tracked source, no build, no install, no live use, no credential use, no new production dependency. Licences/provenance/HEADs recorded; server-side/network projects remain excluded. URL verification: fishing-bot repo not found at tested names - skipped. katsuba/wizbot/wizapelago added after primary-source ls-remote verification. Board fix 2026-11-17: directory paths removed from owned_paths; .local/upstream clones are untracked references, not owned source.",
+      "release_note": "Seven reference clones acquired 2026-11-17 with verified HEADs and licences; study-only in git-ignored .local/upstream. No tracked source, build, install, live use or integration; licence and server-visible-surface flags recorded."
     }
   ]
 }
