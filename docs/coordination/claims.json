@@ -4058,7 +4058,7 @@
     },
     {
       "task_id": "FOREGROUND-DOCS-SYNC-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
@@ -4066,7 +4066,8 @@
         "docs/GAME_WORKSPACES.md",
         "docs/coordination/results/FOREGROUND-DOCS-SYNC-01.md"
       ],
-      "notes": "2026-11-17: reconcile operator docs with the qualified no-foreground observation result (W101-BG-QUAL-LIVE-01.md): read-only client observation works unfocused; input-dispatching actions still require foreground/takeover gates. No source or live work."
+      "notes": "2026-11-17: reconcile operator docs with the qualified no-foreground observation result (W101-BG-QUAL-LIVE-01.md): read-only client observation works unfocused; input-dispatching actions still require foreground/takeover gates. No source or live work.",
+      "release_note": "Docs reconciled 2026-11-17: read-only observation background-capable, input actions still foreground-gated; evidence-linked. No source/live change."
     }
   ]
 }
