@@ -4103,6 +4103,16 @@
       ],
       "notes": "Owner-directed 2026-11-17 doctrine: map our allowed operation envelope (read state, CV/OCR, bounded normal-speed input, background visits) against the post-patch ecosystem; disposition the expanded 18-project list against our actual inventory. External repo claims are unverified context, not established facts. Report-only; no code, build, live, import or network work.",
       "release_note": "Doctrine delivered 2026-11-17: owner's 19-project ecosystem list dispositioned against actual tree; external claims marked unverified; no imports, code, build, live or network work."
+    },
+    {
+      "task_id": "NAV-ECOSYSTEM-DISPOSITION-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-REFERENCES",
+      "owned_paths": [
+        "docs/coordination/results/NAV-ECOSYSTEM-DISPOSITION-01.md"
+      ],
+      "notes": "Owner-supplied post-patch navigation/geometry ecosystem analysis dispositioned against the actual tree. External repo/anti-cheat claims remain unverified context. No import, code, build, live or network work."
     }
   ]
 }
