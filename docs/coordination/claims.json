@@ -3950,6 +3950,18 @@
       ],
       "notes": "Report-only catalog of combat UI node names observed in the owner-authorized boss-battle pass (auto-boss-20261116-233030): 136 distinct names including visible Health/Pips/ShadowPips/Hand/Card1-7/Target_0-3/SpellSelection, while combat-readiness reported 0 candidates - reader mapping gap. No input, no qualification, no live work beyond the already-completed pass. Reopened 2026-11-16 for a second boss-battle observation addendum (receipt 1d26e3a4819e4cbf97750e3cad7435b5). Reopened 2026-11-16 for root-cause correction: combat field reads are gated on r13-current layout (w101_ui_tree.py:465), but this client hash maps to r15-archived; no reviewed offsets for this build.",
       "release_note": "Report-only catalog completed 2026-11-16 from one owner-authorized boss-battle pass: 25 trees/100 loading samples, hook restored, no input. Zone candidate Khrysalis/Interiors/KR_Z10_I05_DryGulchCave; 136 distinct node names including visible CombatantControl/Health/Pips/ShadowPips/Hand/Card1-7/Target_0-3/SpellSelection while combat-readiness reported 0 candidates. Key finding: the reader mapping is out of date, NOT combat absent; earlier Ready:false records must be read with that caveat. Evidence: docs/coordination/results/W101-COMBAT-UI-NAMING-01.md. No fix, fixtures or further live work authorized. Second boss-battle observation added 2026-11-16 (AlluviumCave, receipt 1d26e3a4...): reader gap reproducible across two independent battles. ROOT CAUSE CORRECTED: not a node-name mapping gap - combat bindings require r13-current layout (w101_ui_tree.py:465) and this client maps to r15-archived with no reviewed field offsets; real fix needs a reviewed build profile."
+    },
+    {
+      "task_id": "W101-BACKGROUND-API-02",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsService.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsServiceTests.cs",
+        "docs/coordination/results/W101-BACKGROUND-API-02.md"
+      ],
+      "notes": "Owner-directed implementation of the background facts service design (W101-BACKGROUND-API-01) in stages. Stage 1: pure bounded fact store with producer/qualification/TTL/identity invalidation and tests. Later stages: publication through the existing local pipe/MCP/CLI and a resident reader under one owner. AUTHORITY: source edits on owned paths plus build/test in the serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/game/desktop, network, install, new dependencies, commits outside owned paths, marking new fact IDs available without a qualified producer."
     }
   ]
 }
