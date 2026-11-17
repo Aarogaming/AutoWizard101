@@ -2007,7 +2007,7 @@
       "task_id": "RUST-PAUSE-CONFORMANCE-35",
       "workstream_id": "CORE-DELIVERY",
       "owner": "root",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "crates/maelstrom-core/src/gameplay_pause_clock.rs",
         "crates/maelstrom-core/tests/pause_clock_parity.rs",
@@ -2015,7 +2015,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/pause-clock-v1.tsv",
         "docs/coordination/results/RUST-PAUSE-CONFORMANCE-35.md"
       ],
-      "notes": "Worker stopped at usage limit; coordinator completing validation and repairs, preserving files."
+      "notes": "Worker stopped at usage limit; coordinator completing validation and repairs, preserving files.",
+      "release_note": "Reconciled 2026-11-17: standalone Rust pause-clock conformance 25 scenarios/51 observations passed, native suite green; worker usage-limit note closed."
     },
     {
       "task_id": "TEACHING-LONG-SESSION-35",
@@ -2697,12 +2698,13 @@
       "task_id": "DANCE-ENTRY-80",
       "workstream_id": "W101-DANCE",
       "owner": "bridge_repair",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "tools/w101_ui_tree.py",
         "tools/tests/test_w101_ui_tree.py"
       ],
-      "notes": "Bounded task; root owns build/live slot. No new dependencies. Owner-directed checkpoint commits (18ea817) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Bounded task; root owns build/live slot. No new dependencies. Owner-directed checkpoint commits (18ea817) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Reconciled 2026-11-17: owner-directed commit 18ea817 included this claim's files; UI-tree tests pass in full native suite. Release records integration, not live Dance qualification."
     },
     {
       "task_id": "CARD-PROTOTYPE-81",
@@ -2757,12 +2759,13 @@
       "task_id": "NAV-HEADING-84",
       "workstream_id": "W101-NAVIGATION",
       "owner": "bridge_repair",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/HeadingFeedback.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/HeadingFeedbackTests.cs"
       ],
-      "notes": "Bounded heading feedback reuse owner/probe/pose, no builds or live. Owner-directed checkpoint commits (2e6c2e1) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Bounded heading feedback reuse owner/probe/pose, no builds or live. Owner-directed checkpoint commits (2e6c2e1) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Reconciled 2026-11-17: HeadingFeedback.cs + tests committed in 2e6c2e1; full native suite green."
     },
     {
       "task_id": "GEM-PROTOTYPE-ACCEPTANCE-85",
@@ -2846,12 +2849,13 @@
       "task_id": "FOCUS-BUDGET-91",
       "workstream_id": "W101-NAVIGATION",
       "owner": "focus_lifecycle_audit",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationFocusBudget.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationFocusBudgetTests.cs"
       ],
-      "notes": "Five-minute cumulative focus allowance separate from active nested deadlines; no build/live. Owner-directed checkpoint commits (18ea817) included this claim's files on 2026-11-15; claim remains active for its owner's review/release."
+      "notes": "Five-minute cumulative focus allowance separate from active nested deadlines; no build/live. Owner-directed checkpoint commits (18ea817) included this claim's files on 2026-11-15; claim remains active for its owner's review/release.",
+      "release_note": "Reconciled 2026-11-17: OperationFocusBudget.cs + tests committed in 18ea817; full suite green and thread-pool-dependent test repaired."
     },
     {
       "task_id": "TEACHER-PROTOTYPE-92",
@@ -3145,23 +3149,25 @@
       "task_id": "W101-ARCHIVE-METADATA-116",
       "workstream_id": "W101-NAVIGATION",
       "owner": "root",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         ".local/introspection/wad-member-inventory.json",
         ".local/introspection/archive_inventory.py"
       ],
-      "notes": "Bounded read-only two-zone WAD index and metadata inspection; no live or build."
+      "notes": "Bounded read-only two-zone WAD index and metadata inspection; no live or build.",
+      "release_note": "Reconciled 2026-11-17: bounded read-only WAD inventory artifacts exist in .local/introspection; no live/build work was in scope."
     },
     {
       "task_id": "W101-COLLISION-117",
       "workstream_id": "W101-NAVIGATION",
       "owner": "root",
-      "state": "active",
+      "state": "released",
       "owned_paths": [
         ".local/introspection/bcd-alignment-and-corridor-report.json",
         ".local/introspection/collision_inspect.py"
       ],
-      "notes": "Bounded read-only imported decoder study/two zone payloads. No live/build."
+      "notes": "Bounded read-only imported decoder study/two zone payloads. No live/build.",
+      "release_note": "Reconciled 2026-11-17: bounded read-only collision artifacts exist; raw flag field later audited and not promoted. No live/build work."
     },
     {
       "task_id": "W101-PATH-INPUT-118",
@@ -3177,24 +3183,26 @@
     },
     {
       "task_id": "W101-ARCHIVE-DIRECTORY-120",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-NAVIGATION",
       "owned_paths": [
         ".local/introspection/wad-directory-candidates-120.json"
       ],
-      "notes": "Bounded read-only directory search; no payload extraction or live client access."
+      "notes": "Bounded read-only directory search; no payload extraction or live client access.",
+      "release_note": "Reconciled 2026-11-17: bounded read-only directory candidate artifact exists; no extraction or live access."
     },
     {
       "task_id": "W101-ZONEMAP-121",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-NAVIGATION",
       "owned_paths": [
         ".local/introspection/decode_zonemap.py",
         ".local/introspection/master-zone-map-121.json"
       ],
-      "notes": "Decoded exact EOF: 3517 nodes/names,10742 directed edges; Commons3270/Pavilion3327 reciprocal edges; candidate only. Five synthetic parser checks passed. No live or production change."
+      "notes": "Decoded exact EOF: 3517 nodes/names,10742 directed edges; Commons3270/Pavilion3327 reciprocal edges; candidate only. Five synthetic parser checks passed. No live or production change.",
+      "release_note": "Reconciled 2026-11-17: master-zone-map artifact and decoder exist; 3517 zones / 10742 edges, candidate only; five parser checks passed."
     },
     {
       "task_id": "W101-ZONE-ROUTING-122",
@@ -3977,7 +3985,7 @@
     },
     {
       "task_id": "W101-ACTIVITY-FLAGS-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
@@ -3987,7 +3995,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ActivityFacts.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ActivityFactsTests.cs"
       ],
-      "notes": "Stage 2 after facts service: candidate activity flags from UI node visibility per the accepted UI-SCHEMA-CATALOG-01 (3 visible samples / >=600ms debounce, fail-closed, non-input, TRIGGER ONLY). Source/build authority on owned paths; no live, no new deps, no fact ID marked available without a producer. Added offline publication of flag states as Candidate-only facts; no input authority."
+      "notes": "Stage 2 after facts service: candidate activity flags from UI node visibility per the accepted UI-SCHEMA-CATALOG-01 (3 visible samples / >=600ms debounce, fail-closed, non-input, TRIGGER ONLY). Source/build authority on owned paths; no live, no new deps, no fact ID marked available without a producer. Added offline publication of flag states as Candidate-only facts; no input authority.",
+      "release_note": "Reconciled 2026-11-17: flags + candidate-only fact publication implemented and tested; result document recorded; no live Diego qualification claimed."
     },
     {
       "task_id": "W101-BUILD-PROFILE-01",
@@ -4166,13 +4175,14 @@
     },
     {
       "task_id": "EXTERNAL-LIST-03-DISPOSITION-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-REFERENCES",
       "owned_paths": [
         "docs/coordination/results/EXTERNAL-LIST-03-DISPOSITION-01.md"
       ],
-      "notes": "Owner-supplied third master list dispositioned against the repo; external claims unverified. Study-only shallow clones of new approvable references in git-ignored .local/upstream; no tracked source, build, install, live use, dependencies or network/server project integration."
+      "notes": "Owner-supplied third master list dispositioned against the repo; external claims unverified. Study-only shallow clones of new approvable references in git-ignored .local/upstream; no tracked source, build, install, live use, dependencies or network/server project integration.",
+      "release_note": "Reconciled 2026-11-17: URLs verified, study clones recorded, result document written; no imports or live work."
     },
     {
       "task_id": "IMPORT-MASTER-INVENTORY-01",
