@@ -4306,11 +4306,23 @@
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
-        "docs/architecture/ONTOLOGY_NORMALIZATION.md",
         "docs/INDEX.md",
+        "docs/architecture/ONTOLOGY_NORMALIZATION.md",
+        "docs/architecture/REPOSITORY_CENSUS.md",
         "docs/coordination/results/ONTOLOGY-CENSUS-01.md"
       ],
       "notes": "Owner-directed 2026-11-18 after reviewing the third-party normalization manifesto and the aligned architecture audit. Scope: Phase 1 Repository Census only - create docs/architecture/ with the six-primitive anchor (State/Transition/Relationship/Constraint/Trust/Perspective) and the Facts != Authority != Actions invariant, plus a verified subsystem census table (subsystem, path, purpose, category, primitives, evidence). Every path must be glob-verified before listing; the audit being formalized contains at least three fabricated citations (W101FactsSession.cs, TO_GEMINI.md, CODEX_WORK.md), a nonexistent 'Qualified' fact tier, a nonexistent expiresUtcTicks field and a misattributed C# exception type, so no claim from it enters the doc unverified. Census inventory runs as a read-only explore subagent. AUTHORITY: new docs under docs/architecture plus docs/INDEX.md entry and the result doc. NOT AUTHORIZED: code changes, claims of tests not run, touching other agents' claims, live/game work, commits outside owned paths."
+    },
+    {
+      "task_id": "ARCH-REF-REVIEW-84",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/OPEN_SOURCE_PLAYER_RESEARCH.md",
+        "docs/coordination/results/ARCH-REF-REVIEW-84.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: document the coordinator's reviews of four third-party 'adjacent architecture' recommendation texts (Gemini browser/antigravity) against this checkout, and add the eleven named candidate repositories to the open-source research inventory with upstream-verified licences (GitHub API, 2026-11-18) and per-capability dispositions. Corrections recorded: sidewalk-immunity premise contradicts W101-KNOWLEDGE-AUDIT-01; BCD has no street/sidewalk labels; UiCompatibilityError is Python-only; two licence claims wrong (BOT-MMORPG-AI Apache-2.0 not MIT, pywinassistant MIT not Apache-2.0); Polygames URL stale (facebookarchive, archived); TagUI canonical owner aisingapore; navigation2 canonical owner ros-navigation. AUTHORITY: the two owned doc paths only. NOT AUTHORIZED: code changes, dependency adoption, claims of unrun tests, live/game work, touching other agents' claims."
     }
   ]
 }
