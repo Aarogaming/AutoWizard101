@@ -4267,14 +4267,25 @@
     },
     {
       "task_id": "CI-PARITY-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         ".github/workflows/ci.yml",
+        ".gitattributes",
+        "tools/check_project_board.py",
+        "tools/tests/test_analyze_pet_dance_audio.py",
+        "tools/tests/test_detect_pet_dance_audio.py",
+        "tools/tests/test_diego_coordination.py",
+        "tools/tests/test_diego_observer_ui.py",
+        "tools/tests/test_diego_vision.py",
+        "tools/tests/test_project_board.py",
+        "tools/tests/test_route_landmarks.py",
+        "tools/tests/test_supplied_projects_integration.py",
         "docs/coordination/results/CI-PARITY-01.md"
       ],
-      "notes": "Owner-directed offline lane 2026-11-17: add Python/Rust/JS test coverage to CI. Clean-clone simulation found defects that would fail CI: 5 test modules import numpy/PIL/cv2 without guards, 1 subprocess test needs PIL, w101_zone_reader byte-pin breaks under autocrlf, boss-wiki test needs a gitignored data file, and check_project_board cannot run on a clean checkout (.local evidence absent). Will extend owned_paths as each fix lands."
+      "notes": "Owner-directed offline lane 2026-11-17: add Python/Rust/JS test coverage to CI. Clean-clone simulation found defects that would fail CI: 5 test modules import numpy/PIL/cv2 without guards, 1 subprocess test needs PIL, w101_zone_reader byte-pin breaks under autocrlf, boss-wiki test needs a gitignored data file, and check_project_board cannot run on a clean checkout (.local evidence absent). Will extend owned_paths as each fix lands.",
+      "release_note": "Complete 2026-11-18: added python/rust/node jobs to .github/workflows/ci.yml on windows-latest (no new dependencies; runner already ships Python 3.12, Cargo, Node 22) and fixed 8 clean-checkout defects that would have failed them: 5 test modules plus 1 subprocess test now skip when the optional NumPy/Pillow/OpenCV stack is absent, the boss-wiki test skips when its gitignored data file is absent, and .gitattributes pins w101_zone_reader.py eol=lf and w101_moving_pose.py eol=crlf so the SHA-pinned readers match under core.autocrlf=true. Added check_project_board --allow-missing-local (strict default unchanged) with 2 tests. Evidence (ff6f53d, docs/coordination/results/CI-PARITY-01.md): full workspace python 906 passed/8 skipped, native 3117 passed/0 failed with -warnaserror, cargo 78/0, node 9 passed/3 skipped; clean clone with bare venv python 906 passed/100 skipped/0 failed (was 849 ran/1 failure/7 errors), byte pins PASS, encoding gate 0 violations, board gate valid with --allow-missing-local. black --check and compileall clean on changed paths. No live game work, input dispatch, network calls or new dependencies; GitHub CI has not run yet."
     }
   ]
 }
