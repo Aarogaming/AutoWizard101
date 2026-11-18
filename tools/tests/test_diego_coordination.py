@@ -12,6 +12,14 @@ from check_diego_report import MAX_BYTES, load_report
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "tools/fixtures/diego_observer/v1"
 
+import importlib.util
+
+# The headless CLI test shells out to diego_report.py, which imports the
+# optional Pillow/OpenCV/NumPy vision stack; skip only that test when absent.
+VISION_STACK_PRESENT = all(
+    importlib.util.find_spec(name) is not None for name in ("PIL", "cv2", "numpy")
+)
+
 
 class DiegoCoordinationTests(unittest.TestCase):
     def test_pinned_fixture_bytes_and_expected_dispositions(self):
@@ -33,6 +41,10 @@ class DiegoCoordinationTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         load_report(FIXTURES / case["path"])
 
+    @unittest.skipUnless(
+        VISION_STACK_PRESENT,
+        "Existing offline Pillow/OpenCV/NumPy environment required",
+    )
     def test_headless_cli_needs_no_tk_and_matches_pinned_single_frame(self):
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder) / "report.json"

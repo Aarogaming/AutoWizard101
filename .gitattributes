@@ -6,3 +6,5 @@ tools/wizwalker_adapter.py text eol=lf
 tools/w101_pose_reader.py text eol=lf
 tools/w101_combat_reader.py text eol=lf
 tools/w101_duel_reader.py text eol=lf
+tools/w101_zone_reader.py text eol=lf
+tools/w101_moving_pose.py text eol=crlf

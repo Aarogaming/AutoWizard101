@@ -105,6 +105,21 @@ class ProjectBoardTests(unittest.TestCase):
         self.board["workstreams"][0]["evidence"][0]["path"] = "not-created.md"
         self.assertTrue(any("existing evidence is missing" in e for e in self.errors()))
 
+    def test_local_evidence_missing_is_still_strict_by_default(self):
+        self.board["workstreams"][0]["evidence"][0]["path"] = ".local/absent.md"
+        self.assertTrue(any("existing evidence is missing" in e for e in self.errors()))
+
+    def test_allow_missing_local_skips_only_gitignored_local_evidence(self):
+        self.board["workstreams"][0]["evidence"][0]["path"] = ".local/absent.md"
+        strict = checker.validate(self.board, self.root)
+        self.assertTrue(any("existing evidence is missing" in e for e in strict))
+        relaxed = checker.validate(self.board, self.root, allow_missing_local=True)
+        self.assertFalse(any("existing evidence is missing" in e for e in relaxed))
+        # Non-.local evidence remains required even when the flag is set.
+        self.board["workstreams"][0]["evidence"][0]["path"] = "not-created.md"
+        still = checker.validate(self.board, self.root, allow_missing_local=True)
+        self.assertTrue(any("existing evidence is missing" in e for e in still))
+
     def test_supplied_claim_registry_must_exist_inside_repository(self):
         self.board["coordination"] = {"claim_registry": "claims.json"}
         self.assertTrue(any("coordination.claim_registry" in e for e in self.errors()))

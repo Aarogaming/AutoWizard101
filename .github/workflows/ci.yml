@@ -30,3 +30,39 @@ jobs:
 
       - name: Toolkit selftest
         run: dotnet run --project MaelstromToolkit/MaelstromToolkit.csproj -- selftest
+
+  python-tests:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Bare runner Python: optional vision/audio stacks (NumPy, Pillow, OpenCV)
+      # are absent, so the guarded suites skip instead of erroring.
+      - name: Project board gate
+        run: python tools/check_project_board.py --allow-missing-local
+
+      - name: Text encoding gate
+        run: python tools/check_text_encoding.py --quiet
+
+      - name: Python tests
+        run: python -m unittest discover -s tools/tests -p "test_*.py"
+
+  rust-tests:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rust tests
+        run: cargo test --workspace --locked
+
+  node-tests:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node tests
+        working-directory: integrations/node-red
+        run: node --test

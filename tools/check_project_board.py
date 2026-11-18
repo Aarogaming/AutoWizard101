@@ -37,12 +37,16 @@ def load_board(path):
     return json.loads(raw.decode("utf-8"), object_pairs_hook=unique_keys)
 
 
-def validate(board, root=ROOT):
+def validate(board, root=ROOT, allow_missing_local=False):
     """Return errors; existing evidence must resolve inside root, planned outputs need not exist.
 
     Dependencies are checked for both offline tasks and later runtime composition.
     A completed offline component does not require live-game evidence. This checks
     record integrity and paths, not whether prose claims or reported tests are true.
+
+    allow_missing_local lets a clean checkout (CI) skip .local/ evidence: those
+    paths are gitignored workspace artifacts, so they cannot exist there. The
+    default remains strict for the full workspace where they are expected.
     """
     root = Path(root).resolve(strict=True)
     errors = []
@@ -70,6 +74,8 @@ def validate(board, root=ROOT):
             if not resolved.is_relative_to(root):
                 errors.append(label + ": path escapes repository")
             elif existing and not resolved.is_file():
+                if allow_missing_local and value.startswith(".local/"):
+                    return None  # Gitignored workspace evidence; absent on clean checkouts.
                 errors.append(label + ": existing evidence is missing: " + value)
             else:
                 return resolved
@@ -370,10 +376,17 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("board", nargs="?", type=Path, default=DEFAULT_BOARD)
     parser.add_argument("--root", type=Path, default=ROOT)
+    parser.add_argument(
+        "--allow-missing-local",
+        action="store_true",
+        help="clean checkouts (CI) may lack gitignored .local/ evidence",
+    )
     args = parser.parse_args(argv)
     try:
         board = load_board(args.board)
-        errors = validate(board, args.root)
+        errors = validate(
+            board, args.root, allow_missing_local=args.allow_missing_local
+        )
     except (OSError, ValueError, RuntimeError) as exc:
         print("Project board invalid: " + str(exc))
         return 1

@@ -4,15 +4,25 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from analyze_pet_dance_audio import Audio, describe_sound
-from detect_pet_dance_audio import (
-    Debouncer,
-    classify,
-    evaluate_events,
-    load_templates,
-    scan_audio,
+try:
+    import numpy as np
+    from analyze_pet_dance_audio import Audio, describe_sound
+    from detect_pet_dance_audio import (
+        Debouncer,
+        classify,
+        evaluate_events,
+        load_templates,
+        scan_audio,
+    )
+except ImportError:
+    np = None
+    Audio = describe_sound = None
+    Debouncer = classify = evaluate_events = None
+    load_templates = scan_audio = None
+
+NUMPY_REQUIRED = unittest.skipIf(
+    np is None, "Existing offline NumPy environment required"
 )
-import numpy as np
 
 RATE = 44100
 ORIGIN = 10000.0
@@ -73,6 +83,7 @@ def scan(time, label):
     }
 
 
+@NUMPY_REQUIRED
 class FrozenTemplateTests(unittest.TestCase):
     def test_four_normalized_templates_are_required(self):
         document = templates_document()
@@ -101,6 +112,7 @@ class FrozenTemplateTests(unittest.TestCase):
         self.assertEqual(classify(features, templates)["label"], "Unknown")
 
 
+@NUMPY_REQUIRED
 class DebounceTests(unittest.TestCase):
     def test_confirmation_anchor_and_availability_include_lookahead(self):
         state = Debouncer()
@@ -157,6 +169,7 @@ class DebounceTests(unittest.TestCase):
             state.observe(scan(1000, "Up"))
 
 
+@NUMPY_REQUIRED
 class StreamingTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -198,6 +211,7 @@ class StreamingTests(unittest.TestCase):
         )
 
 
+@NUMPY_REQUIRED
 class EvaluationTests(unittest.TestCase):
     def event(self, index, time, label):
         return {

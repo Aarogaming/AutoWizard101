@@ -4,9 +4,17 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import route_landmarks as module
+try:
+    import route_landmarks as module
+except ImportError:
+    module = None
+
+OPENCV_REQUIRED = unittest.skipIf(
+    module is None, "Existing offline OpenCV environment required"
+)
 
 
+@OPENCV_REQUIRED
 class RouteLandmarkTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

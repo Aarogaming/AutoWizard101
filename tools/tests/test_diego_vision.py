@@ -4,13 +4,33 @@ import sys
 import tempfile
 import unittest
 
-import numpy as np
-from PIL import Image
+try:
+    import numpy as np
+    from PIL import Image
+except ImportError:
+    np = Image = None
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from diego_vision import Detection, Examples, SceneTracker, demo, report, suggestions
+try:
+    from diego_vision import (
+        Detection,
+        Examples,
+        SceneTracker,
+        demo,
+        report,
+        suggestions,
+    )
+except ImportError:
+    Detection = Examples = SceneTracker = None
+    demo = report = suggestions = None
+
+VISION_REQUIRED = unittest.skipIf(
+    np is None or Image is None or demo is None,
+    "Existing offline Pillow/NumPy/OpenCV environment required",
+)
 
 
+@VISION_REQUIRED
 class DiegoVisionTests(unittest.TestCase):
     def test_matches_new_position_and_survives_pack_reload(self):
         with tempfile.TemporaryDirectory() as folder:

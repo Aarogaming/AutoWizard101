@@ -4,10 +4,19 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from diego_observer import Observer
-from diego_vision import demo
+try:
+    from diego_observer import Observer
+    from diego_vision import demo
+except ImportError:
+    Observer = demo = None
+
+OBSERVER_UI_REQUIRED = unittest.skipIf(
+    Observer is None,
+    "Existing offline Pillow/OpenCV/tkinter environment required",
+)
 
 
+@OBSERVER_UI_REQUIRED
 class DiegoObserverUiTests(unittest.TestCase):
     def test_demo_navigation_confirmation_and_replay_stop(self):
         with tempfile.TemporaryDirectory() as folder:

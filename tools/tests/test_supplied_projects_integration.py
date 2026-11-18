@@ -93,6 +93,11 @@ class TestSuppliedProjectsIntegration(unittest.TestCase):
     # -------------------------------------------------------------------------
     def test_boss_wiki_resolver(self):
         resolver = BossWikiResolver()
+        if not resolver.data_path.is_file():
+            self.skipTest(
+                "wizwiki_companion.json is a gitignored local data file "
+                "(present only in the full workspace)"
+            )
         self.assertGreater(resolver.count, 1800)
 
         # Halfang Bristlecrown

@@ -9,15 +9,24 @@ import unittest
 import wave
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from analyze_pet_dance_audio import (
-    analyze,
-    analyze_events,
-    describe_sound,
-    evaluate_groups,
-    extract_events,
-    load_audio,
+try:
+    import numpy as np
+    from analyze_pet_dance_audio import (
+        analyze,
+        analyze_events,
+        describe_sound,
+        evaluate_groups,
+        extract_events,
+        load_audio,
+    )
+except ImportError:
+    np = None
+    analyze = analyze_events = describe_sound = None
+    evaluate_groups = extract_events = load_audio = None
+
+NUMPY_REQUIRED = unittest.skipIf(
+    np is None, "Existing offline NumPy environment required"
 )
-import numpy as np
 
 
 def tone(frequency, duration=0.22, rate=8000, amplitude=0.5):
@@ -58,6 +67,7 @@ def example_round(start, sequence):
     }
 
 
+@NUMPY_REQUIRED
 class AudioFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -416,6 +426,7 @@ class AudioFixture(unittest.TestCase):
         self.assertFalse(any(e["kind"] == "response_key" for e in events))
 
 
+@NUMPY_REQUIRED
 class SpectralTests(unittest.TestCase):
     def test_bass_or_cutoff_peak_does_not_become_an_in_band_note(self):
         for frequency in (30, 40, 60, 80):
@@ -467,6 +478,7 @@ class SpectralTests(unittest.TestCase):
         self.assertEqual(result["status"], "no_local_change_music_or_held_sound")
 
 
+@NUMPY_REQUIRED
 class RoundSplitTests(unittest.TestCase):
     def events(self):
         rows = []
