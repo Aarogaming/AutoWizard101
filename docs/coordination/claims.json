@@ -4286,6 +4286,19 @@
       ],
       "notes": "Owner-directed offline lane 2026-11-17: add Python/Rust/JS test coverage to CI. Clean-clone simulation found defects that would fail CI: 5 test modules import numpy/PIL/cv2 without guards, 1 subprocess test needs PIL, w101_zone_reader byte-pin breaks under autocrlf, boss-wiki test needs a gitignored data file, and check_project_board cannot run on a clean checkout (.local evidence absent). Will extend owned_paths as each fix lands.",
       "release_note": "Complete 2026-11-18: added python/rust/node jobs to .github/workflows/ci.yml on windows-latest (no new dependencies; runner already ships Python 3.12, Cargo, Node 22) and fixed 8 clean-checkout defects that would have failed them: 5 test modules plus 1 subprocess test now skip when the optional NumPy/Pillow/OpenCV stack is absent, the boss-wiki test skips when its gitignored data file is absent, and .gitattributes pins w101_zone_reader.py eol=lf and w101_moving_pose.py eol=crlf so the SHA-pinned readers match under core.autocrlf=true. Added check_project_board --allow-missing-local (strict default unchanged) with 2 tests. Evidence (ff6f53d, docs/coordination/results/CI-PARITY-01.md): full workspace python 906 passed/8 skipped, native 3117 passed/0 failed with -warnaserror, cargo 78/0, node 9 passed/3 skipped; clean clone with bare venv python 906 passed/100 skipped/0 failed (was 849 ran/1 failure/7 errors), byte pins PASS, encoding gate 0 violations, board gate valid with --allow-missing-local. black --check and compileall clean on changed paths. No live game work, input dispatch, network calls or new dependencies; GitHub CI has not run yet."
+    },
+    {
+      "task_id": "W101-CLIENT-REVIEW-83",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "W101-COMBAT",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsMapper.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsCycle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsSessionTests.cs",
+        "docs/coordination/results/W101-CLIENT-REVIEW-83.md"
+      ],
+      "notes": "Owner-directed 2026-11-18, single pass over two defects found during the first live facts-watch attempt (read-only, owner present; run exited 2/observer-fault with no facts published and no input dispatched). (1) DIAGNOSTICS: W101FactsSession uses a bare catch that discards the exception, so the report says only 'observer-fault' and the real fixed diagnostic code never reaches the operator; surface a bounded reason without exposing addresses, bytes or raw exceptions (UiCompatibilityError already restricts to fixed codes). (2) CLIENT REVIEW: the live client image 818dbe66037bcb6913a87ab4c2b5f77b0c4fad8d2d10bed921c9fe36ef7d1114 is not in SupportsClientImage (only 544ab726.../r13-current and d410a246.../r15-archived), so both the C# gate and tools/w101_ui_tree.py profile_for() refused with client-build-unreviewed. Read-only scan of the installed exe found both known root-entry signatures present but CURRENT_SCRATCH_PATTERN absent, so it is not a byte-identical build. Will independently scan and verify root-entry + scratch signatures against the reviewed profile and add the hash ONLY if the evidence verifies; never infer registers/offsets. Extending owned_paths as each file is touched. AUTHORITY: source edits on owned paths plus offline build/test in the serialized slot. NOT AUTHORIZED: live hooks, input dispatch, installed-file writes, network, new dependencies, commits outside owned paths."
     }
   ]
 }
