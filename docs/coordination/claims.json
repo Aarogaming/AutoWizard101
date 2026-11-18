@@ -4315,14 +4315,15 @@
     },
     {
       "task_id": "ARCH-REF-REVIEW-84",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
         "docs/OPEN_SOURCE_PLAYER_RESEARCH.md",
         "docs/coordination/results/ARCH-REF-REVIEW-84.md"
       ],
-      "notes": "Owner-directed 2026-11-18: document the coordinator's reviews of four third-party 'adjacent architecture' recommendation texts (Gemini browser/antigravity) against this checkout, and add the eleven named candidate repositories to the open-source research inventory with upstream-verified licences (GitHub API, 2026-11-18) and per-capability dispositions. Corrections recorded: sidewalk-immunity premise contradicts W101-KNOWLEDGE-AUDIT-01; BCD has no street/sidewalk labels; UiCompatibilityError is Python-only; two licence claims wrong (BOT-MMORPG-AI Apache-2.0 not MIT, pywinassistant MIT not Apache-2.0); Polygames URL stale (facebookarchive, archived); TagUI canonical owner aisingapore; navigation2 canonical owner ros-navigation. AUTHORITY: the two owned doc paths only. NOT AUTHORIZED: code changes, dependency adoption, claims of unrun tests, live/game work, touching other agents' claims."
+      "notes": "Owner-directed 2026-11-18: document the coordinator's reviews of four third-party 'adjacent architecture' recommendation texts (Gemini browser/antigravity) against this checkout, and add the eleven named candidate repositories to the open-source research inventory with upstream-verified licences (GitHub API, 2026-11-18) and per-capability dispositions. Corrections recorded: sidewalk-immunity premise contradicts W101-KNOWLEDGE-AUDIT-01; BCD has no street/sidewalk labels; UiCompatibilityError is Python-only; two licence claims wrong (BOT-MMORPG-AI Apache-2.0 not MIT, pywinassistant MIT not Apache-2.0); Polygames URL stale (facebookarchive, archived); TagUI canonical owner aisingapore; navigation2 canonical owner ros-navigation. AUTHORITY: the two owned doc paths only. NOT AUTHORIZED: code changes, dependency adoption, claims of unrun tests, live/game work, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: reviewed all four third-party recommendation texts against the checkout (grep/read of every cited path, re-run of the binary signature scan, re-run of tools/tests/test_w101_ui_tree.py = 83 OK in 29.987s, fixture nodes=143 confirmed, GitHub API licence fetch for all 11 named repositories). Wrote docs/coordination/results/ARCH-REF-REVIEW-84.md (12-item corrections register, upstream verification table, governance notes) and added a verified 11-repo section to docs/OPEN_SOURCE_PLAYER_RESEARCH.md with upstream licences and per-capability dispositions. Corrections include two wrong licence claims, a stale archived URL, the Python-only UiCompatibilityError misattribution, two fabricated code claims (mob-actor fact, POLICY_BOUNDARY symbol), and the sidewalk-immunity premise contradiction. Board valid; encoding 0 violations; commits c57c55d (docs) and this release."
     }
   ]
 }
