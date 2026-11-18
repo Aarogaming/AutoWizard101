@@ -4295,10 +4295,22 @@
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsMapper.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsCycle.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsSessionTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsMapperTests.cs",
         "docs/coordination/results/W101-CLIENT-REVIEW-83.md"
       ],
       "notes": "Owner-directed 2026-11-18, single pass over two defects found during the first live facts-watch attempt (read-only, owner present; run exited 2/observer-fault with no facts published and no input dispatched). (1) DIAGNOSTICS: W101FactsSession uses a bare catch that discards the exception, so the report says only 'observer-fault' and the real fixed diagnostic code never reaches the operator; surface a bounded reason without exposing addresses, bytes or raw exceptions (UiCompatibilityError already restricts to fixed codes). (2) CLIENT REVIEW: the live client image 818dbe66037bcb6913a87ab4c2b5f77b0c4fad8d2d10bed921c9fe36ef7d1114 is not in SupportsClientImage (only 544ab726.../r13-current and d410a246.../r15-archived), so both the C# gate and tools/w101_ui_tree.py profile_for() refused with client-build-unreviewed. Read-only scan of the installed exe found both known root-entry signatures present but CURRENT_SCRATCH_PATTERN absent, so it is not a byte-identical build. Will independently scan and verify root-entry + scratch signatures against the reviewed profile and add the hash ONLY if the evidence verifies; never infer registers/offsets. Extending owned_paths as each file is touched. AUTHORITY: source edits on owned paths plus offline build/test in the serialized slot. NOT AUTHORIZED: live hooks, input dispatch, installed-file writes, network, new dependencies, commits outside owned paths."
+    },
+    {
+      "task_id": "ONTOLOGY-CENSUS-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/architecture/ONTOLOGY_NORMALIZATION.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/ONTOLOGY-CENSUS-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18 after reviewing the third-party normalization manifesto and the aligned architecture audit. Scope: Phase 1 Repository Census only - create docs/architecture/ with the six-primitive anchor (State/Transition/Relationship/Constraint/Trust/Perspective) and the Facts != Authority != Actions invariant, plus a verified subsystem census table (subsystem, path, purpose, category, primitives, evidence). Every path must be glob-verified before listing; the audit being formalized contains at least three fabricated citations (W101FactsSession.cs, TO_GEMINI.md, CODEX_WORK.md), a nonexistent 'Qualified' fact tier, a nonexistent expiresUtcTicks field and a misattributed C# exception type, so no claim from it enters the doc unverified. Census inventory runs as a read-only explore subagent. AUTHORITY: new docs under docs/architecture plus docs/INDEX.md entry and the result doc. NOT AUTHORIZED: code changes, claims of tests not run, touching other agents' claims, live/game work, commits outside owned paths."
     }
   ]
 }
