@@ -313,6 +313,8 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 .local/
 wizwiki_companion.json
+# Imported-project archives live outside the repository (../Archive/imported-projects)
+/*.zip
 __pycache__/
 *.pyc
 

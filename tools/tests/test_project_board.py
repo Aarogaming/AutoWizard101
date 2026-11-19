@@ -233,6 +233,32 @@ class ProjectBoardTests(unittest.TestCase):
         (self.root / "new.zip").write_bytes(b"new filename")
         self.assertTrue(any("differs from current root" in e for e in self.errors()))
 
+    def test_archive_root_moves_inventory_check_outside_repository_root(self):
+        self.archive_inventory()
+        shelf = self.root / "shelf"
+        shelf.mkdir()
+        for name in ("legacy.zip", "release.zip"):
+            (self.root / name).replace(shelf / name)
+        self.board["archive_inventory"]["archive_root"] = "shelf"
+        self.assertEqual([], self.errors())
+        (shelf / "new.zip").write_bytes(b"new filename")
+        self.assertTrue(any("differs from current root" in e for e in self.errors()))
+
+    def test_missing_archive_folder_is_error_unless_local_evidence_allowed(self):
+        self.archive_inventory()
+        self.board["archive_inventory"]["archive_root"] = "absent-shelf"
+        self.assertTrue(any("Archive folder is missing" in e for e in self.errors()))
+        errors = checker.validate(self.board, self.root, allow_missing_local=True)
+        self.assertEqual([], errors)
+
+    def test_archive_root_must_be_relative_posix(self):
+        self.archive_inventory()
+        for bad in ("C:/x", "a\\b", ""):
+            self.board["archive_inventory"]["archive_root"] = bad
+            self.assertTrue(
+                any("archive_root must be" in e for e in self.errors()), bad
+            )
+
     def test_game_count_and_reference_reconciliation(self):
         self.board["game_inventory"] = {
             "count": 2,

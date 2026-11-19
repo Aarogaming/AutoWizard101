@@ -267,6 +267,18 @@ def validate(board, root=ROOT, allow_missing_local=False):
             else:
                 names, families, projects = [], set(), set()
                 historical = inventory.get("historical_distribution")
+                # Imported archives live outside the product tree. "archive_root"
+                # (relative to the repository root, default ".") says where.
+                archive_root = inventory.get("archive_root", ".")
+                archive_dir = None
+                if (
+                    not text(archive_root)
+                    or "\\" in archive_root
+                    or ":" in archive_root
+                ):
+                    errors.append("archive_root must be a relative POSIX path")
+                else:
+                    archive_dir = (root / archive_root).resolve()
                 for entry in entries:
                     if not isinstance(entry, dict):
                         errors.append("Invalid root archive record")
@@ -281,7 +293,7 @@ def validate(board, root=ROOT, allow_missing_local=False):
                         errors.append("Invalid root archive name")
                         continue
                     names.append(name)
-                    path_check(name, "root archive")
+                    path_check(name, "root archive", existing=False)
                     project = entry.get("project_id")
                     if not text(project):
                         errors.append("Missing or invalid root archive project_id")
@@ -304,15 +316,23 @@ def validate(board, root=ROOT, allow_missing_local=False):
                             )
                 if len(names) != len(set(names)):
                     errors.append("Duplicate root archive names")
-                actual = {
-                    p.name
-                    for p in root.iterdir()
-                    if p.is_file() and p.name.lower().endswith(ARCHIVE_SUFFIXES)
-                }
-                if set(names) != actual:
-                    errors.append(
-                        "Root archive inventory differs from current root files"
-                    )
+                if archive_dir is not None:
+                    if not archive_dir.is_dir():
+                        # The archive folder is outside git: absent on clean checkouts.
+                        if not allow_missing_local:
+                            errors.append(
+                                "Archive folder is missing: " + str(archive_root)
+                            )
+                    else:
+                        actual = {
+                            p.name
+                            for p in archive_dir.iterdir()
+                            if p.is_file() and p.name.lower().endswith(ARCHIVE_SUFFIXES)
+                        }
+                        if set(names) != actual:
+                            errors.append(
+                                "Root archive inventory differs from current root files"
+                            )
                 if historical not in names:
                     errors.append("Historical distribution is not in root inventory")
                 nested_names = []

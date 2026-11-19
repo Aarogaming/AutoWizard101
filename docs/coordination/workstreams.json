@@ -69,6 +69,7 @@
     "non_release_root_candidate_count": 24,
     "non_release_root_family_count": 23,
     "historical_distribution": "ProjectMaelstrom_win-x64_portable.zip",
+    "archive_root": "../Archive/imported-projects",
     "generated_release_directory": ".local/releases",
     "generated_release_count": 57,
     "nested_non_release_count": 19,

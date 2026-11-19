@@ -75,7 +75,7 @@ The fresh recursive filename scan finds **101 compressed files**:
 
 | Classification | Count | Meaning |
 | --- | ---: | --- |
-| Supplied archives at repository root | 25 | 24 source/tool candidates and one historical Maelstrom distribution. |
+| Supplied archives (moved 2026-11-18 to `../Archive/imported-projects`, outside the repo; see its `MANIFEST.json`) | 25 | 24 source/tool candidates and one historical Maelstrom distribution. |
 | Generated Maelstrom releases in `.local/releases/` | 57 | Outputs of this project, not 57 additional legacy projects. |
 | Nested downloaded games, runtimes, references and dependencies | 19 | Enumerated below; mostly outside the W101 integration scope. |
 
