@@ -401,6 +401,75 @@ pub fn action_retreat_to_safe_zone() -> GoapAction {
         .effect("near_target_mob", "none")
 }
 
+/// Helper action to set a location marker (Page Down key).
+pub fn action_set_marker(current_zone: &str) -> GoapAction {
+    GoapAction::new(alloc::format!("SetMarker:{}", current_zone), 0.05)
+        .require("at", current_zone)
+        .require("in_combat", false)
+        .effect("has_marker", true)
+        .effect("marker_zone", current_zone)
+}
+
+/// Helper action to recall to a previously set marker (Page Up key).
+pub fn action_recall_marker(target_zone: &str) -> GoapAction {
+    GoapAction::new("RecallMarker:PageUp", 0.1)
+        .require("in_combat", false)
+        .require("has_marker", true)
+        .require("marker_zone", target_zone)
+        .effect("at", target_zone)
+}
+
+/// Helper action to fast-travel to Dorm/Castle (Home key).
+pub fn action_fast_travel_home() -> GoapAction {
+    GoapAction::new("FastTravel:Home", 0.1)
+        .require("in_combat", false)
+        .effect("at", "Dorm")
+}
+
+/// Helper action to fast-travel to world Commons hub (End key).
+pub fn action_fast_travel_commons() -> GoapAction {
+    GoapAction::new("FastTravel:Commons", 0.1)
+        .require("in_combat", false)
+        .effect("at", "Commons")
+}
+
+/// Helper action to consume emergency potion outside combat (Ctrl+O shortcut).
+pub fn action_emergency_potion() -> GoapAction {
+    GoapAction::new("EmergencyPotion:Ctrl+O", 0.05)
+        .require("in_combat", false)
+        .effect("health_full", true)
+        .effect("mana_full", true)
+}
+
+/// Helper action for out-of-combat instant deck profile swap (Ctrl+K shortcut).
+pub fn action_swap_deck_shortcut(target_profile: DeckProfileTag) -> GoapAction {
+    GoapAction::new(
+        alloc::format!("DeckSwapShortcut:{}", target_profile.as_str()),
+        0.05,
+    )
+    .require("in_combat", false)
+    .effect("active_deck_profile", target_profile)
+}
+
+/// Helper action for environmental multi-step puzzle affordances (e.g. Library Gauntlet puzzles).
+pub fn action_interact_puzzle_affordance(
+    puzzle_name: &str,
+    step_id: &str,
+    required_prereq: &str,
+    unlocks_predicate: &str,
+) -> GoapAction {
+    let mut action = GoapAction::new(
+        alloc::format!("SolvePuzzleAffordance:{}:{}", puzzle_name, step_id),
+        2.0,
+    )
+    .require("in_combat", false);
+
+    if !required_prereq.is_empty() {
+        action = action.require(required_prereq, true);
+    }
+    action.effect(unlocks_predicate, true)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

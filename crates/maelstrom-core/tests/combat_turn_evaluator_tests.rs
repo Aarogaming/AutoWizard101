@@ -279,3 +279,370 @@ fn test_pass_when_no_affordable_cards() {
         _ => panic!("Expected Pass when pips are insufficient"),
     }
 }
+
+#[test]
+fn test_boss_cheat_forbid_traps_constraint() {
+    let evaluator = CombatTurnEvaluator::new(MagicSchool::Fire, 0.20);
+    let pips = CombatPips::new(0, 2, 0); // 4 effective pips
+
+    // Player already has 2 blades active (so blade stacking won't trigger)
+    let player =
+        CombatantState::new(4, "Player", MagicSchool::Fire, 500.0).with_blades(vec![0.35, 0.40]);
+
+    // Shane von Shane with cheat: Vampire interrupt on trap placement -> CounterConstraint::ForbidTraps
+    let shane_cheat = BossCheatRule::new(
+        "Shane Vampire Trap Interrupt",
+        CheatTriggerCondition::SpellCastType(SpellCardType::TrapEnemy),
+        CheatInterruptPhase::ImmediateReaction,
+        CheatEffect::CastSpell {
+            spell_name: "Monster Vampire".into(),
+            target_pedestal: 4,
+        },
+    )
+    .with_counter_constraint(CounterConstraint::ForbidTraps);
+
+    let enemies = vec![
+        CombatantState::new(0, "Shane von Shane", MagicSchool::Death, 5000.0)
+            .with_cheat(shane_cheat),
+    ];
+
+    let hand = vec![
+        CombatCardCandidate::new(0, "Feint", MagicSchool::Death, 1, SpellCardType::TrapEnemy)
+            .with_buff(0.70),
+        CombatCardCandidate::new(
+            1,
+            "Sunbird",
+            MagicSchool::Fire,
+            3,
+            SpellCardType::DamageSingle,
+        )
+        .with_damage(300.0),
+    ];
+
+    let decision = evaluator.evaluate_turn(&pips, &hand, &player, &enemies);
+
+    match decision {
+        CombatDecision::PlayCard {
+            slot_index,
+            spell_name,
+            is_lethal,
+            ..
+        } => {
+            assert!(!is_lethal);
+            assert_eq!(
+                slot_index, 1,
+                "Must skip Feint due to ForbidTraps cheat and select Sunbird fallback"
+            );
+            assert_eq!(spell_name, "Sunbird");
+        }
+        _ => panic!("Expected Sunbird fallback play"),
+    }
+}
+
+#[test]
+fn test_boss_cheat_forbid_blades_constraint() {
+    let evaluator = CombatTurnEvaluator::new(MagicSchool::Fire, 0.20);
+    let pips = CombatPips::new(0, 2, 0); // 4 pips
+
+    // Player has 0 blades, so normally blade stacking would trigger
+    let player = CombatantState::new(4, "Player", MagicSchool::Fire, 600.0);
+
+    // Belloq cheat: cheats when bladed -> CounterConstraint::ForbidBlades
+    let belloq_cheat = BossCheatRule::new(
+        "Belloq Blade Retaliation",
+        CheatTriggerCondition::SpellCastType(SpellCardType::BladeSelf),
+        CheatInterruptPhase::ImmediateReaction,
+        CheatEffect::CastSpell {
+            spell_name: "Ra".into(),
+            target_pedestal: 0,
+        },
+    )
+    .with_counter_constraint(CounterConstraint::ForbidBlades);
+
+    let enemies = vec![
+        CombatantState::new(0, "Belloq", MagicSchool::Balance, 4000.0).with_cheat(belloq_cheat),
+    ];
+
+    let hand = vec![
+        CombatCardCandidate::new(
+            0,
+            "Fire Blade",
+            MagicSchool::Fire,
+            2,
+            SpellCardType::BladeSelf,
+        )
+        .with_buff(0.35),
+        CombatCardCandidate::new(
+            1,
+            "Sunbird",
+            MagicSchool::Fire,
+            3,
+            SpellCardType::DamageSingle,
+        )
+        .with_damage(310.0),
+    ];
+
+    let decision = evaluator.evaluate_turn(&pips, &hand, &player, &enemies);
+
+    match decision {
+        CombatDecision::PlayCard {
+            slot_index,
+            spell_name,
+            ..
+        } => {
+            assert_eq!(
+                slot_index, 1,
+                "Must skip Fire Blade due to ForbidBlades cheat and select Sunbird"
+            );
+            assert_eq!(spell_name, "Sunbird");
+        }
+        _ => panic!("Expected Sunbird attack"),
+    }
+}
+
+#[test]
+fn test_boss_cheat_damage_cap_and_dot_priority() {
+    let evaluator = CombatTurnEvaluator::new(MagicSchool::Fire, 0.50); // +50% gear dmg
+    let pips = CombatPips::new(0, 4, 0); // 8 effective pips
+
+    let player =
+        CombatantState::new(4, "Player", MagicSchool::Fire, 800.0).with_blades(vec![0.40, 0.45]); // Massive blades active
+
+    // Boss has a 1,000 damage cap per hit cheat and requires damage-over-time spells
+    let damage_cap_cheat = BossCheatRule::new(
+        "Cronus Immortal Damage Barrier",
+        CheatTriggerCondition::RoundNumber {
+            modulo: 1,
+            offset: 0,
+        },
+        CheatInterruptPhase::PassiveAura,
+        CheatEffect::ApplyAura {
+            aura_name: "DamageCapAura".into(),
+        },
+    )
+    .with_counter_constraint(CounterConstraint::CapDamagePerHit(1000.0));
+
+    let dot_req_cheat = BossCheatRule::new(
+        "Tartarus Shield Requires DoT",
+        CheatTriggerCondition::SpellCastType(SpellCardType::DamageSingle),
+        CheatInterruptPhase::ImmediateReaction,
+        CheatEffect::RemoveWards,
+    )
+    .with_counter_constraint(CounterConstraint::RequireDamageOverTime);
+
+    let enemies = vec![
+        CombatantState::new(0, "Tartarus Boss", MagicSchool::Death, 2500.0)
+            .with_cheat(damage_cap_cheat)
+            .with_cheat(dot_req_cheat),
+    ];
+
+    // Card 0: Huge single hit spell (Efreet: 895 base damage * 1.5 gear * 1.4 blade * 1.45 blade = 2,725 damage)
+    // Normally 2,725 would be lethal against 2,500 health!
+    // But with CapDamagePerHit(1000.0), damage is capped at 1,000, so NOT lethal.
+    // Card 1: DoT spell (Fire Dragon: 440 base initial + burn)
+    let hand = vec![
+        CombatCardCandidate::new(
+            0,
+            "Efreet",
+            MagicSchool::Fire,
+            8,
+            SpellCardType::DamageSingle,
+        )
+        .with_damage(895.0),
+        CombatCardCandidate::new(
+            1,
+            "Fire Dragon",
+            MagicSchool::Fire,
+            7,
+            SpellCardType::DamageOverTime,
+        )
+        .with_damage(440.0),
+    ];
+
+    // First: verify estimate_damage honors the cap
+    let raw_efreet_est = evaluator.estimate_damage(&hand[0], &player.blades, &enemies[0]);
+    assert_eq!(
+        raw_efreet_est, 1000.0,
+        "Damage cap must clamp single hit damage estimate to 1000.0"
+    );
+
+    // Second: evaluate turn - must prioritize DoT card due to RequireDamageOverTime constraint
+    let decision = evaluator.evaluate_turn(&pips, &hand, &player, &enemies);
+
+    match decision {
+        CombatDecision::PlayCard {
+            slot_index,
+            spell_name,
+            target_index,
+            ..
+        } => {
+            assert_eq!(
+                slot_index, 1,
+                "Must prioritize Fire Dragon DoT spell over direct hit due to RequireDamageOverTime"
+            );
+            assert_eq!(spell_name, "Fire Dragon");
+            assert_eq!(target_index, 0);
+        }
+        _ => panic!("Expected Fire Dragon DoT play"),
+    }
+}
+
+#[test]
+fn test_boss_cheat_forbid_healing_constraint() {
+    let evaluator = CombatTurnEvaluator::new(MagicSchool::Fire, 0.10);
+    let pips = CombatPips::new(2, 0, 0); // 2 pips
+
+    // Player health 100 / 500 = 20% (< 30% critical threshold)
+    let player = CombatantState::new(4, "Player", MagicSchool::Fire, 100.0).with_max_health(500.0);
+
+    // Malistaire: Heals trigger instant lethal retribution -> CounterConstraint::ForbidHealing
+    let malistaire_cheat = BossCheatRule::new(
+        "Malistaire Doom And Gloom Retaliation",
+        CheatTriggerCondition::SpellCastType(SpellCardType::HealSelf),
+        CheatInterruptPhase::ImmediateReaction,
+        CheatEffect::CastSpell {
+            spell_name: "Shadow Gaze".into(),
+            target_pedestal: 4,
+        },
+    )
+    .with_counter_constraint(CounterConstraint::ForbidHealing);
+
+    let enemies =
+        vec![
+            CombatantState::new(0, "Malistaire the Undying", MagicSchool::Death, 8000.0)
+                .with_cheat(malistaire_cheat),
+        ];
+
+    let hand = vec![
+        CombatCardCandidate::new(0, "Pixie", MagicSchool::Life, 2, SpellCardType::HealSelf)
+            .with_heal(420.0),
+        CombatCardCandidate::new(
+            1,
+            "Firecat",
+            MagicSchool::Fire,
+            1,
+            SpellCardType::DamageSingle,
+        )
+        .with_damage(100.0),
+    ];
+
+    let decision = evaluator.evaluate_turn(&pips, &hand, &player, &enemies);
+
+    match decision {
+        CombatDecision::PlayCard {
+            slot_index,
+            spell_name,
+            ..
+        } => {
+            assert_eq!(
+                slot_index, 1,
+                "Must skip Pixie heal due to ForbidHealing cheat and select Firecat"
+            );
+            assert_eq!(spell_name, "Firecat");
+        }
+        _ => panic!("Expected Firecat fallback attack"),
+    }
+}
+
+#[test]
+fn test_evaluator_selects_highest_magnitude_buff_and_dot() {
+    let evaluator = CombatTurnEvaluator::new(MagicSchool::Fire, 0.20);
+    let pips = CombatPips::new(0, 4, 0); // 8 pips
+
+    let player = CombatantState::new(4, "Player", MagicSchool::Fire, 500.0);
+    let enemies = vec![CombatantState::new(
+        0,
+        "High Health Boss",
+        MagicSchool::Death,
+        10000.0,
+    )];
+
+    // 1. Blade selection: slot 0 has Fireblade (+35%), slot 1 has Sharpened Blade (+45%)
+    let hand_blades = vec![
+        CombatCardCandidate::new(
+            0,
+            "Fire Blade",
+            MagicSchool::Fire,
+            2,
+            SpellCardType::BladeSelf,
+        )
+        .with_buff(0.35),
+        CombatCardCandidate::new(
+            1,
+            "Sharpened Fire Blade",
+            MagicSchool::Fire,
+            2,
+            SpellCardType::BladeSelf,
+        )
+        .with_buff(0.45),
+    ];
+
+    let decision_blade = evaluator.evaluate_turn(&pips, &hand_blades, &player, &enemies);
+    match decision_blade {
+        CombatDecision::PlayCard {
+            slot_index,
+            spell_name,
+            ..
+        } => {
+            assert_eq!(
+                slot_index, 1,
+                "Evaluator must pick the highest buff percentage blade (+45% over +35%)"
+            );
+            assert_eq!(spell_name, "Sharpened Fire Blade");
+        }
+        _ => panic!("Expected PlayCard blade play"),
+    }
+
+    // 2. DoT selection: boss requires DoT; slot 0 has Fire Elf (150 base), slot 1 has Fire Dragon (440 base)
+    let dot_cheat = BossCheatRule::new(
+        "Require DoT Shield",
+        CheatTriggerCondition::RoundNumber {
+            modulo: 1,
+            offset: 0,
+        },
+        CheatInterruptPhase::PassiveAura,
+        CheatEffect::ApplyAura {
+            aura_name: "ShieldAura".into(),
+        },
+    )
+    .with_counter_constraint(CounterConstraint::RequireDamageOverTime);
+
+    let enemies_dot = vec![
+        CombatantState::new(0, "Shielded Boss", MagicSchool::Death, 10000.0).with_cheat(dot_cheat),
+    ];
+
+    let hand_dots = vec![
+        CombatCardCandidate::new(
+            0,
+            "Fire Elf",
+            MagicSchool::Fire,
+            2,
+            SpellCardType::DamageOverTime,
+        )
+        .with_damage(150.0),
+        CombatCardCandidate::new(
+            1,
+            "Fire Dragon",
+            MagicSchool::Fire,
+            7,
+            SpellCardType::DamageOverTime,
+        )
+        .with_damage(440.0),
+    ];
+
+    let decision_dot = evaluator.evaluate_turn(&pips, &hand_dots, &player, &enemies_dot);
+    match decision_dot {
+        CombatDecision::PlayCard {
+            slot_index,
+            spell_name,
+            ..
+        } => {
+            assert_eq!(
+                slot_index, 1,
+                "Evaluator must pick the highest base damage DoT card (Fire Dragon over Fire Elf)"
+            );
+            assert_eq!(spell_name, "Fire Dragon");
+        }
+        _ => panic!("Expected PlayCard DoT play"),
+    }
+}

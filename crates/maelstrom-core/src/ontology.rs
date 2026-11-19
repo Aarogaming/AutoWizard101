@@ -2,12 +2,20 @@
 //!
 //! Codifies the 7 fundamental reality primitives:
 //! 1. `Manifold` (Space): Bounded continuous or topological coordinate frames.
-//! 2. `Entity` (Occupant): Identifiable occupants carrying spatial volumes and velocities.
-//! 3. `Affordance` (Interaction Surface): Proximity/focus-gated valid state transitions.
-//! 4. `Connector` (Topology Jump): Directed non-Euclidean links between manifolds.
+//! 2. `Entity` (Occupant): Identifiable occupants carrying spatial volumes, velocities, and epistemic states.
+//! 3. `Affordance` (Interaction Surface): Proximity/focus-gated valid state transitions and client shortcuts.
+//! 4. `Connector` (Topology Jump): Directed non-Euclidean links, fast-travel shortcuts, and recall markers.
 //! 5. `Hazard` / `Field` (Cost & Threat): Scalar/vector potential fields penalizing presence.
 //! 6. `Resource` / `Budget` (Capacity): Quantified internal reservoirs governing feasibility.
 //! 7. `Predicate` (Observable Truth): Grounded assertions with confidence and freshness metrics.
+//!
+//! Includes systems-level hardening:
+//! - Epistemic decay & anti-hallucination TTLs.
+//! - Bayesian negative evidence recording for depleted resource anchors.
+//! - Multi-client hivemind spatial sharing and 3-phase sigil barrier lockstep.
+//! - Phased zone instance keying (`zone_template_id`, `phase_tag`).
+//! - Tiered graceful degradation (Tier 0 Full -> Tier 1 Visual/Acoustic -> Tier 2 Safe Halt).
+//! - Formal provenance tagging (`ProvenanceTag`).
 //!
 //! Adheres strictly to `Facts ≠ Authority ≠ Actions`.
 
@@ -19,6 +27,58 @@ use serde::{Deserialize, Serialize};
 
 use crate::goap::{StateValue, WorldState};
 use crate::spatial_index::{EntityKind, SpatialEntity3D, AABB3D};
+
+/// Provenance origin classifying where a spatial or semantic record was derived.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ProvenanceOrigin {
+    StaticWadExtract,
+    EmpiricalLiveObservation,
+    ManualSeed,
+    SyntheticTestFixture,
+}
+
+/// Formal audit provenance tag tracking data origin, verification count, and freshness.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ProvenanceTag {
+    pub origin: ProvenanceOrigin,
+    pub build_hash: String,
+    pub verification_count: u32,
+    pub first_observed_epoch_ms: u64,
+    pub last_verified_epoch_ms: u64,
+}
+
+impl ProvenanceTag {
+    pub fn new(origin: ProvenanceOrigin, build_hash: impl Into<String>, now_ms: u64) -> Self {
+        Self {
+            origin,
+            build_hash: build_hash.into(),
+            verification_count: 1,
+            first_observed_epoch_ms: now_ms,
+            last_verified_epoch_ms: now_ms,
+        }
+    }
+
+    pub fn record_verification(&mut self, now_ms: u64) {
+        self.verification_count += 1;
+        self.last_verified_epoch_ms = now_ms;
+    }
+}
+
+/// Decoupled zone template and phase key for instanced / phased manifolds.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+pub struct ZoneInstanceKey {
+    pub zone_template_id: String,
+    pub phase_tag: String,
+}
+
+impl ZoneInstanceKey {
+    pub fn new(template_id: impl Into<String>, phase_tag: impl Into<String>) -> Self {
+        Self {
+            zone_template_id: template_id.into(),
+            phase_tag: phase_tag.into(),
+        }
+    }
+}
 
 /// Metric type defining distance calculations within a Manifold.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -38,6 +98,8 @@ pub struct Manifold {
     pub gravity_z: f64,
     pub max_velocity: f64,
     pub epoch: u64,
+    pub zone_key: Option<ZoneInstanceKey>,
+    pub provenance: Option<ProvenanceTag>,
 }
 
 impl Manifold {
@@ -49,6 +111,8 @@ impl Manifold {
             gravity_z: -9.81,
             max_velocity: 30.0,
             epoch: 1,
+            zone_key: None,
+            provenance: None,
         }
     }
 
@@ -57,9 +121,32 @@ impl Manifold {
         self
     }
 
+    pub fn with_zone_key(
+        mut self,
+        template_id: impl Into<String>,
+        phase_tag: impl Into<String>,
+    ) -> Self {
+        self.zone_key = Some(ZoneInstanceKey::new(template_id, phase_tag));
+        self
+    }
+
+    pub fn with_provenance(mut self, prov: ProvenanceTag) -> Self {
+        self.provenance = Some(prov);
+        self
+    }
+
     pub fn increment_epoch(&mut self) {
         self.epoch = self.epoch.wrapping_add(1);
     }
+}
+
+/// Epistemic belief state of an Entity preventing hallucinated actions on stale/depleted objects.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum EntityEpistemicState {
+    Active,
+    Depleted { cooldown_until_ms: u64 },
+    Stale,
+    Unknown,
 }
 
 /// 2. `Entity` (Occupant): Any identifiable thing occupying a Manifold.
@@ -72,6 +159,11 @@ pub struct Entity {
     pub velocity: (f64, f64, f64),
     pub radius: f64,
     pub half_height: f64,
+    pub epistemic_state: EntityEpistemicState,
+    pub last_observed_ms: u64,
+    pub ttl_ms: u64,
+    pub negative_evidence_count: u32,
+    pub provenance: Option<ProvenanceTag>,
 }
 
 impl Entity {
@@ -89,6 +181,11 @@ impl Entity {
             velocity: (0.0, 0.0, 0.0),
             radius: 5.0,
             half_height: 25.0,
+            epistemic_state: EntityEpistemicState::Active,
+            last_observed_ms: 0,
+            ttl_ms: 60_000,
+            negative_evidence_count: 0,
+            provenance: None,
         }
     }
 
@@ -100,6 +197,16 @@ impl Entity {
     pub fn with_dimensions(mut self, radius: f64, half_height: f64) -> Self {
         self.radius = radius.max(0.1);
         self.half_height = half_height.max(0.1);
+        self
+    }
+
+    pub fn with_ttl_ms(mut self, ttl_ms: u64) -> Self {
+        self.ttl_ms = ttl_ms.max(50);
+        self
+    }
+
+    pub fn with_provenance(mut self, prov: ProvenanceTag) -> Self {
+        self.provenance = Some(prov);
         self
     }
 
@@ -123,6 +230,59 @@ impl Entity {
         .with_velocity(self.velocity.0, self.velocity.1, self.velocity.2)
         .with_cylinder_height(self.half_height)
     }
+
+    /// Records fresh positive observation, resetting negative evidence and setting state to Active.
+    pub fn record_observation(&mut self, now_ms: u64) {
+        self.last_observed_ms = now_ms;
+        self.negative_evidence_count = 0;
+        self.epistemic_state = EntityEpistemicState::Active;
+        if let Some(prov) = &mut self.provenance {
+            prov.record_verification(now_ms);
+        }
+    }
+
+    /// Records that the agent checked this entity's coordinate and confirmed nothing was present.
+    pub fn record_negative_evidence(&mut self, now_ms: u64) {
+        self.negative_evidence_count += 1;
+        self.last_observed_ms = now_ms;
+        if self.negative_evidence_count >= 2 {
+            self.epistemic_state = EntityEpistemicState::Unknown;
+        }
+    }
+
+    /// Marks a harvestable entity as depleted with an explicit cooldown timer.
+    pub fn mark_depleted(&mut self, cooldown_until_ms: u64) {
+        self.epistemic_state = EntityEpistemicState::Depleted { cooldown_until_ms };
+    }
+
+    /// Evaluates temporal staleness based on elapsed time and TTL.
+    pub fn update_decay(&mut self, now_ms: u64) {
+        match self.epistemic_state {
+            EntityEpistemicState::Active => {
+                if now_ms >= self.last_observed_ms && (now_ms - self.last_observed_ms) > self.ttl_ms
+                {
+                    // Dynamic roaming mobs decay to Unknown; static objects decay to Stale
+                    if self.kind == EntityKind::DynamicMob {
+                        self.epistemic_state = EntityEpistemicState::Unknown;
+                    } else {
+                        self.epistemic_state = EntityEpistemicState::Stale;
+                    }
+                }
+            }
+            EntityEpistemicState::Depleted { cooldown_until_ms } => {
+                if now_ms >= cooldown_until_ms {
+                    // Cooldown has elapsed; node is potentially respawned but unconfirmed
+                    self.epistemic_state = EntityEpistemicState::Unknown;
+                }
+            }
+            EntityEpistemicState::Stale | EntityEpistemicState::Unknown => {}
+        }
+    }
+
+    /// Returns true if this entity is actively trusted for path planning and targeting.
+    pub fn is_valid_for_planning(&self) -> bool {
+        matches!(self.epistemic_state, EntityEpistemicState::Active)
+    }
 }
 
 /// Interaction surface taxonomy for Affordances.
@@ -133,6 +293,10 @@ pub enum AffordanceKind {
     SigilCountdown,
     SpellSlot(usize),
     ButtonWidget(String),
+    HotbarShortcut(String),
+    SetMarker,
+    RecallMarker,
+    EmergencyPotion,
 }
 
 /// 3. `Affordance` (Interaction Surface): Proximity/focus-gated state transition surface.
@@ -183,14 +347,18 @@ impl Affordance {
     }
 }
 
-/// Topology jump classification.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+/// Topology jump classification including native client fast-travel shortcuts.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ConnectorKind {
     DoorPortal,
     SpiralWorldGate,
     DungeonSigil,
     RealmHop,
     ViewportSwitch,
+    FastTravelHome,
+    FastTravelCommons,
+    MarkerRecall { marker_id: String },
+    DungeonSigilCountdown { duration_seconds: u32 },
 }
 
 /// 4. `Connector` (Topology Jump): Directed edge linking two disjoint Manifolds.
@@ -223,8 +391,63 @@ impl Connector {
             source_anchor: source,
             target_anchor: target,
             kind,
-            traversal_cost: cost.max(0.1),
+            traversal_cost: cost.max(0.01),
             bidirectional: true,
+        }
+    }
+
+    /// Fast-Travel to Dorm/Castle shortcut connector (`Home` key).
+    pub fn fast_travel_home(
+        current_manifold: impl Into<String>,
+        home_manifold: impl Into<String>,
+        home_anchor: (f64, f64, f64),
+    ) -> Self {
+        Self {
+            id: String::from("FastTravel:Home"),
+            from_manifold: current_manifold.into(),
+            to_manifold: home_manifold.into(),
+            source_anchor: (0.0, 0.0, 0.0),
+            target_anchor: home_anchor,
+            kind: ConnectorKind::FastTravelHome,
+            traversal_cost: 0.1,
+            bidirectional: false,
+        }
+    }
+
+    /// Fast-Travel to Commons Hub shortcut connector (`End` key).
+    pub fn fast_travel_commons(
+        current_manifold: impl Into<String>,
+        commons_anchor: (f64, f64, f64),
+    ) -> Self {
+        Self {
+            id: String::from("FastTravel:Commons"),
+            from_manifold: current_manifold.into(),
+            to_manifold: String::from("Commons"),
+            source_anchor: (0.0, 0.0, 0.0),
+            target_anchor: commons_anchor,
+            kind: ConnectorKind::FastTravelCommons,
+            traversal_cost: 0.1,
+            bidirectional: false,
+        }
+    }
+
+    /// Marker Recall shortcut connector (`Page Up` key).
+    pub fn marker_recall(
+        current_manifold: impl Into<String>,
+        target_manifold: impl Into<String>,
+        target_anchor: (f64, f64, f64),
+    ) -> Self {
+        Self {
+            id: String::from("FastTravel:MarkerRecall"),
+            from_manifold: current_manifold.into(),
+            to_manifold: target_manifold.into(),
+            source_anchor: (0.0, 0.0, 0.0),
+            target_anchor,
+            kind: ConnectorKind::MarkerRecall {
+                marker_id: String::from("PRIMARY_MARKER"),
+            },
+            traversal_cost: 0.1,
+            bidirectional: false,
         }
     }
 }
@@ -376,7 +599,82 @@ impl Predicate {
     }
 }
 
-/// Unified Reality World Model aggregating the 7 primitives.
+/// Status of an individual client in a multi-account sigil synchronization group.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum SigilClientStatus {
+    Preparing {
+        health_ratio: f64,
+        mana_ratio: f64,
+        deck_verified: bool,
+    },
+    ReadyForSigil,
+    SteppedOnSigil {
+        countdown_remaining_s: f64,
+    },
+    InCombat,
+}
+
+/// Multi-client sigil lockstep synchronization barrier.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct MultiClientSigilBarrier {
+    pub sigil_id: String,
+    pub required_clients: Vec<String>,
+    pub client_states: BTreeMap<String, SigilClientStatus>,
+}
+
+impl MultiClientSigilBarrier {
+    pub fn new(sigil_id: impl Into<String>, clients: Vec<String>) -> Self {
+        let mut client_states = BTreeMap::new();
+        for c in &clients {
+            client_states.insert(
+                c.clone(),
+                SigilClientStatus::Preparing {
+                    health_ratio: 0.0,
+                    mana_ratio: 0.0,
+                    deck_verified: false,
+                },
+            );
+        }
+        Self {
+            sigil_id: sigil_id.into(),
+            required_clients: clients,
+            client_states,
+        }
+    }
+
+    pub fn update_client_status(&mut self, client_id: &str, status: SigilClientStatus) {
+        self.client_states.insert(String::from(client_id), status);
+    }
+
+    /// Barrier passes only when all required clients are ReadyForSigil, SteppedOnSigil, or InCombat.
+    pub fn can_step_onto_sigil(&self) -> bool {
+        if self.required_clients.is_empty() {
+            return false;
+        }
+        self.required_clients.iter().all(|c| {
+            matches!(
+                self.client_states.get(c),
+                Some(SigilClientStatus::ReadyForSigil)
+                    | Some(SigilClientStatus::SteppedOnSigil { .. })
+                    | Some(SigilClientStatus::InCombat)
+            )
+        })
+    }
+}
+
+/// Graceful degradation operating tiers when external reality assumptions drift or fail.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default, Serialize, Deserialize)]
+pub enum DegradationTier {
+    /// Tier 0: Primary full ontology (Process memory pose + 3D BCD mesh + visual validation).
+    #[default]
+    Tier0FullOntology,
+    /// Tier 1: Memory offset shift / hook failure (Compass bearing vector + OCR HUD + audio cues).
+    Tier1VisualAcoustic,
+    /// Tier 2: Double residual drift threshold fault (Release GameInputLease, dump replay trace, safe park).
+    Tier2SafeHalt,
+}
+
+/// Unified Reality World Model aggregating the 7 primitives with systems-level hardening.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct RealityWorldModel {
     pub active_manifold_id: Option<String>,
@@ -387,6 +685,9 @@ pub struct RealityWorldModel {
     pub hazards: BTreeMap<u64, Hazard>,
     pub resources: BTreeMap<String, Resource>,
     pub predicates: BTreeMap<String, Predicate>,
+    pub degradation_tier: DegradationTier,
+    pub consecutive_drift_faults: u32,
+    pub sigil_barriers: BTreeMap<String, MultiClientSigilBarrier>,
 }
 
 impl RealityWorldModel {
@@ -430,6 +731,69 @@ impl RealityWorldModel {
         let k = key.into();
         self.predicates
             .insert(k.clone(), Predicate::new(k, value, confidence, now_ms));
+    }
+
+    /// Evaluates drift between expected pose and observed pose against tolerance.
+    /// Manages the tiered degradation ladder (Tier 0 -> Tier 1 -> Tier 2).
+    pub fn record_drift_observation(
+        &mut self,
+        drift_magnitude: f64,
+        tolerance: f64,
+    ) -> DegradationTier {
+        if drift_magnitude > tolerance {
+            self.consecutive_drift_faults += 1;
+            if self.consecutive_drift_faults >= 2 {
+                self.degradation_tier = DegradationTier::Tier2SafeHalt;
+            } else {
+                self.degradation_tier = DegradationTier::Tier1VisualAcoustic;
+            }
+        } else {
+            self.consecutive_drift_faults = 0;
+            if self.degradation_tier == DegradationTier::Tier1VisualAcoustic {
+                self.degradation_tier = DegradationTier::Tier0FullOntology;
+            }
+        }
+        self.degradation_tier
+    }
+
+    /// Updates epistemic decay for all registered entities.
+    pub fn decay_stale_entities(&mut self, now_ms: u64) {
+        for entity in self.entities.values_mut() {
+            entity.update_decay(now_ms);
+        }
+    }
+
+    /// Records negative evidence when inspecting an expected entity location.
+    pub fn record_entity_negative_evidence(&mut self, entity_id: u64, now_ms: u64) {
+        if let Some(entity) = self.entities.get_mut(&entity_id) {
+            entity.record_negative_evidence(now_ms);
+        }
+    }
+
+    /// Registers a multi-client sigil barrier.
+    pub fn register_sigil_barrier(&mut self, barrier: MultiClientSigilBarrier) {
+        self.sigil_barriers
+            .insert(barrier.sigil_id.clone(), barrier);
+    }
+
+    /// Updates client status in a registered sigil barrier.
+    pub fn update_sigil_client(
+        &mut self,
+        sigil_id: &str,
+        client_id: &str,
+        status: SigilClientStatus,
+    ) {
+        if let Some(barrier) = self.sigil_barriers.get_mut(sigil_id) {
+            barrier.update_client_status(client_id, status);
+        }
+    }
+
+    /// Checks if a sigil barrier is cleared for all clients to step onto the ring.
+    pub fn can_step_onto_sigil(&self, sigil_id: &str) -> bool {
+        self.sigil_barriers
+            .get(sigil_id)
+            .map(|b| b.can_step_onto_sigil())
+            .unwrap_or(false)
     }
 
     /// Queries all accessible affordances from player coordinates.

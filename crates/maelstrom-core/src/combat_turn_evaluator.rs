@@ -31,11 +31,89 @@ pub enum MagicSchool {
 pub enum SpellCardType {
     DamageSingle,
     DamageAoE,
+    DamageOverTime,
     BladeSelf,
     TrapEnemy,
     HealSelf,
     ShieldSelf,
     EnchantDamage,
+}
+
+/// Boss cheat trigger condition.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum CheatTriggerCondition {
+    RoundNumber { modulo: u32, offset: u32 },
+    SpellCastType(SpellCardType),
+    HealthThreshold { ratio: f64 },
+    PlayerCount { count: usize },
+    LateJoiner,
+}
+
+/// Interrupt execution phase within a round.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum CheatInterruptPhase {
+    StartOfRound,
+    ImmediateReaction,
+    EndOfRound,
+    PassiveAura,
+}
+
+/// Scripted interrupt effect executed by a boss cheat.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum CheatEffect {
+    CastSpell {
+        spell_name: String,
+        target_pedestal: usize,
+    },
+    ApplyAura {
+        aura_name: String,
+    },
+    RemoveCharms,
+    RemoveWards,
+    ForceDiscardHand,
+    InterruptStun,
+}
+
+/// Tactical counter-constraint imposed on the player's turn evaluator.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum CounterConstraint {
+    ForbidTraps,
+    ForbidBlades,
+    RequireDamageOverTime,
+    CapDamagePerHit(f64),
+    ForbidHealing,
+}
+
+/// Declarative Boss Cheat Rule representing a scripted encounter mechanic.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct BossCheatRule {
+    pub name: String,
+    pub trigger: CheatTriggerCondition,
+    pub phase: CheatInterruptPhase,
+    pub effect: CheatEffect,
+    pub counter_constraint: Option<CounterConstraint>,
+}
+
+impl BossCheatRule {
+    pub fn new(
+        name: impl Into<String>,
+        trigger: CheatTriggerCondition,
+        phase: CheatInterruptPhase,
+        effect: CheatEffect,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            trigger,
+            phase,
+            effect,
+            counter_constraint: None,
+        }
+    }
+
+    pub fn with_counter_constraint(mut self, constraint: CounterConstraint) -> Self {
+        self.counter_constraint = Some(constraint);
+        self
+    }
 }
 
 /// Candidate spell card in hand.
@@ -136,6 +214,7 @@ pub struct CombatantState {
     pub blades: Vec<f64>,
     pub traps: Vec<f64>,
     pub school_resistance: f64,
+    pub cheats: Vec<BossCheatRule>,
 }
 
 impl CombatantState {
@@ -155,6 +234,7 @@ impl CombatantState {
             blades: Vec::new(),
             traps: Vec::new(),
             school_resistance: 0.0,
+            cheats: Vec::new(),
         }
     }
 
@@ -175,6 +255,16 @@ impl CombatantState {
 
     pub fn with_resistance(mut self, resist: f64) -> Self {
         self.school_resistance = resist.clamp(-1.0, 1.0);
+        self
+    }
+
+    pub fn with_cheat(mut self, cheat: BossCheatRule) -> Self {
+        self.cheats.push(cheat);
+        self
+    }
+
+    pub fn with_cheats(mut self, cheats: Vec<BossCheatRule>) -> Self {
+        self.cheats = cheats;
         self
     }
 
@@ -245,7 +335,19 @@ impl CombatTurnEvaluator {
         let resist_factor = (1.0 - target.school_resistance).max(0.0);
         multiplier *= resist_factor;
 
-        card.base_damage * multiplier
+        let raw_damage = card.base_damage * multiplier;
+
+        // Apply boss damage cap cheat if present
+        let mut final_damage = raw_damage;
+        for cheat in &target.cheats {
+            if let Some(CounterConstraint::CapDamagePerHit(cap)) = cheat.counter_constraint {
+                if cap > 0.0 && final_damage > cap {
+                    final_damage = cap;
+                }
+            }
+        }
+
+        final_damage
     }
 
     /// Evaluates the turn and returns the optimal combat decision.
@@ -274,6 +376,24 @@ impl CombatTurnEvaluator {
             };
         }
 
+        // Aggregate active counter-constraints from living enemies
+        let mut forbid_traps = false;
+        let mut forbid_blades = false;
+        let mut forbid_healing = false;
+        let mut require_dot = false;
+
+        for enemy in &alive_enemies {
+            for cheat in &enemy.cheats {
+                match cheat.counter_constraint {
+                    Some(CounterConstraint::ForbidTraps) => forbid_traps = true,
+                    Some(CounterConstraint::ForbidBlades) => forbid_blades = true,
+                    Some(CounterConstraint::ForbidHealing) => forbid_healing = true,
+                    Some(CounterConstraint::RequireDamageOverTime) => require_dot = true,
+                    _ => {}
+                }
+            }
+        }
+
         // 1. Filter affordable cards
         let affordable: Vec<&CombatCardCandidate> = hand
             .iter()
@@ -286,8 +406,8 @@ impl CombatTurnEvaluator {
             };
         }
 
-        // 2. Health check: if critically low health (< 30%), prioritize HealSelf
-        if player.health_ratio() < 0.30 {
+        // 2. Health check: if critically low health (< 30%), prioritize HealSelf (unless forbidden)
+        if player.health_ratio() < 0.30 && !forbid_healing {
             if let Some(heal) = affordable
                 .iter()
                 .find(|c| c.card_type == SpellCardType::HealSelf)
@@ -303,8 +423,41 @@ impl CombatTurnEvaluator {
             }
         }
 
-        // 3. Multi-enemy AoE priority: in multi-enemy encounters (2+ alive), prioritize AoE damage spells
-        if alive_enemies.len() >= 2 {
+        // 3. DoT Requirement Priority: if boss requires DoT, prioritize affordable DamageOverTime spells
+        if require_dot {
+            let mut dot_spells: Vec<&CombatCardCandidate> = affordable
+                .iter()
+                .filter(|c| c.card_type == SpellCardType::DamageOverTime)
+                .copied()
+                .collect();
+            if !dot_spells.is_empty() {
+                dot_spells.sort_by(|a, b| {
+                    b.base_damage
+                        .partial_cmp(&a.base_damage)
+                        .unwrap_or(core::cmp::Ordering::Equal)
+                });
+                let dot_card = dot_spells[0];
+                let mut sorted_enemies = alive_enemies.clone();
+                sorted_enemies.sort_by(|a, b| {
+                    a.current_health
+                        .partial_cmp(&b.current_health)
+                        .unwrap_or(core::cmp::Ordering::Equal)
+                });
+                let target_enemy = sorted_enemies[0];
+                let d_est = self.estimate_damage(dot_card, &player.blades, target_enemy);
+                return CombatDecision::PlayCard {
+                    slot_index: dot_card.slot_index,
+                    total_cards,
+                    target_index: target_enemy.pedestal_index,
+                    spell_name: dot_card.name.clone(),
+                    estimated_damage: d_est,
+                    is_lethal: d_est >= target_enemy.current_health,
+                };
+            }
+        }
+
+        // 4. Multi-enemy AoE priority: in multi-enemy encounters (2+ alive), prioritize AoE damage spells
+        if alive_enemies.len() >= 2 && !require_dot {
             if let Some(aoe) = affordable
                 .iter()
                 .find(|c| c.card_type == SpellCardType::DamageAoE)
@@ -325,9 +478,14 @@ impl CombatTurnEvaluator {
             }
         }
 
-        // 4. Lethal check: can any affordable attack spell kill an enemy right now?
+        // 5. Lethal check: can any affordable attack spell kill an enemy right now?
         for card in &affordable {
-            if card.card_type == SpellCardType::DamageSingle {
+            if card.card_type == SpellCardType::DamageSingle
+                || card.card_type == SpellCardType::DamageOverTime
+            {
+                if require_dot && card.card_type != SpellCardType::DamageOverTime {
+                    continue;
+                }
                 for enemy in &alive_enemies {
                     let d_est = self.estimate_damage(card, &player.blades, enemy);
                     if d_est >= enemy.current_health {
@@ -341,7 +499,7 @@ impl CombatTurnEvaluator {
                         };
                     }
                 }
-            } else if card.card_type == SpellCardType::DamageAoE {
+            } else if card.card_type == SpellCardType::DamageAoE && !require_dot {
                 // When 1 enemy alive, check if AoE kills it
                 let d_est = self.estimate_damage(card, &player.blades, alive_enemies[0]);
                 if d_est >= alive_enemies[0].current_health {
@@ -357,44 +515,69 @@ impl CombatTurnEvaluator {
             }
         }
 
-        // 5. Buff stacking: if no lethal hit, but a Blade card is affordable and player has < 2 blades active
-        if player.blades.len() < 2 {
-            if let Some(blade) = affordable
+        // 6. Buff stacking: if no lethal hit, but a Blade card is affordable and player has < 2 blades active
+        if !forbid_blades && player.blades.len() < 2 {
+            let mut blade_cards: Vec<&CombatCardCandidate> = affordable
                 .iter()
-                .find(|c| c.card_type == SpellCardType::BladeSelf)
-            {
+                .filter(|c| c.card_type == SpellCardType::BladeSelf)
+                .copied()
+                .collect();
+            if !blade_cards.is_empty() {
+                blade_cards.sort_by(|a, b| {
+                    b.buff_percentage
+                        .partial_cmp(&a.buff_percentage)
+                        .unwrap_or(core::cmp::Ordering::Equal)
+                });
+                let best_blade = blade_cards[0];
                 return CombatDecision::PlayCard {
-                    slot_index: blade.slot_index,
+                    slot_index: best_blade.slot_index,
                     total_cards,
                     target_index: player.pedestal_index, // Self (pedestal 4)
-                    spell_name: blade.name.clone(),
+                    spell_name: best_blade.name.clone(),
                     estimated_damage: 0.0,
                     is_lethal: false,
                 };
             }
         }
 
-        // 6. Trap stacking: if trap is affordable and target has no traps
-        if let Some(trap) = affordable
-            .iter()
-            .find(|c| c.card_type == SpellCardType::TrapEnemy)
-        {
-            if let Some(untrapped_enemy) = alive_enemies.iter().find(|e| e.traps.is_empty()) {
-                return CombatDecision::PlayCard {
-                    slot_index: trap.slot_index,
-                    total_cards,
-                    target_index: untrapped_enemy.pedestal_index,
-                    spell_name: trap.name.clone(),
-                    estimated_damage: 0.0,
-                    is_lethal: false,
-                };
+        // 7. Trap stacking: if trap is affordable and target has no traps
+        if !forbid_traps {
+            let mut trap_cards: Vec<&CombatCardCandidate> = affordable
+                .iter()
+                .filter(|c| c.card_type == SpellCardType::TrapEnemy)
+                .copied()
+                .collect();
+            if !trap_cards.is_empty() {
+                trap_cards.sort_by(|a, b| {
+                    b.buff_percentage
+                        .partial_cmp(&a.buff_percentage)
+                        .unwrap_or(core::cmp::Ordering::Equal)
+                });
+                let best_trap = trap_cards[0];
+                if let Some(untrapped_enemy) = alive_enemies.iter().find(|e| e.traps.is_empty()) {
+                    return CombatDecision::PlayCard {
+                        slot_index: best_trap.slot_index,
+                        total_cards,
+                        target_index: untrapped_enemy.pedestal_index,
+                        spell_name: best_trap.name.clone(),
+                        estimated_damage: 0.0,
+                        is_lethal: false,
+                    };
+                }
             }
         }
 
-        // 7. Standard damage fallback: pick the highest damage single-target card on the lowest-health enemy
+        // 8. Standard damage fallback: pick the highest damage card on the lowest-health enemy
         let mut damage_spells: Vec<&CombatCardCandidate> = affordable
             .iter()
-            .filter(|c| c.card_type == SpellCardType::DamageSingle)
+            .filter(|c| {
+                if require_dot {
+                    c.card_type == SpellCardType::DamageOverTime
+                } else {
+                    c.card_type == SpellCardType::DamageSingle
+                        || c.card_type == SpellCardType::DamageOverTime
+                }
+            })
             .copied()
             .collect();
 
@@ -426,7 +609,7 @@ impl CombatTurnEvaluator {
             };
         }
 
-        // 8. If nothing productive can be done, pass to bank pips
+        // 9. If nothing productive can be done, pass to bank pips
         CombatDecision::Pass {
             reason: String::from("Passing to accumulate pips for high-value spell next round"),
         }

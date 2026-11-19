@@ -12,14 +12,18 @@ use uuid::Uuid;
 
 pub mod audio_cue;
 pub mod behavior_tree;
+pub mod capability_token;
 pub mod combat_geometry;
 pub mod combat_turn_evaluator;
 pub mod costmap;
 #[cfg(feature = "deck_codec")]
 pub mod deck_encoder;
+pub mod fishing_domain;
 pub mod goap;
 pub mod kinematics;
+pub mod minigame_domain;
 pub mod ontology;
+pub mod predictive_rollout;
 pub mod quest_domain;
 pub mod quest_interpreter;
 pub mod spatial_index;

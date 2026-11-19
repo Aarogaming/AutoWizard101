@@ -281,3 +281,132 @@ fn test_integration_pre_battle_deck_profile_planning() {
     }
     assert!(sim.satisfies(&goal));
 }
+
+#[test]
+fn test_fast_travel_and_marker_recall_shortcuts() {
+    let planner = GoapPlanner::new(1000);
+
+    // Scenario: Player is deep in SunkenCity before boss pull, needs potion restock from Commons
+    let mut current = WorldState::new();
+    current.set("at", "SunkenCityDepths");
+    current.set("in_combat", false);
+    current.set("potions_restocked", false);
+    current.set("has_marker", false);
+
+    // Goal: return to SunkenCityDepths with potions restocked from vendor
+    let mut goal = WorldState::new();
+    goal.set("at", "SunkenCityDepths");
+    goal.set("potions_restocked", true);
+
+    let actions = vec![
+        // Option A: Heavy walking through 3 zones to Commons and back (cost 140+)
+        GoapAction::new("WalkOutOfSunkenCity", 60.0)
+            .require("at", "SunkenCityDepths")
+            .effect("at", "Commons"),
+        GoapAction::new("BuyPotionFromHilda", 5.0)
+            .require("at", "Commons")
+            .effect("potions_restocked", true),
+        GoapAction::new("WalkBackToSunkenCity", 80.0)
+            .require("at", "Commons")
+            .require("potions_restocked", true)
+            .effect("at", "SunkenCityDepths"),
+        // Option B: Fast-travel shortcuts (Page Down marker -> FastTravel Commons -> BuyPotion -> Page Up recall)
+        action_set_marker("SunkenCityDepths"),
+        action_fast_travel_commons(),
+        action_recall_marker("SunkenCityDepths"),
+    ];
+
+    let plan = planner
+        .plan(&current, &goal, &actions)
+        .expect("Planner must synthesize shortcut recall plan");
+
+    let action_names: Vec<&str> = plan.iter().map(|a| a.name.as_str()).collect();
+    assert_eq!(
+        action_names,
+        vec![
+            "SetMarker:SunkenCityDepths",
+            "FastTravel:Commons",
+            "BuyPotionFromHilda",
+            "RecallMarker:PageUp",
+        ],
+        "Planner must choose zero-pathing fast travel and recall over 140+ cost walking routes"
+    );
+
+    // Verify simulation
+    let mut sim = current.clone();
+    for a in &plan {
+        assert!(a.is_achievable(&sim));
+        sim = a.apply(&sim);
+    }
+    assert!(sim.satisfies(&goal));
+}
+
+#[test]
+fn test_library_gauntlet_multi_step_puzzle_chain() {
+    let planner = GoapPlanner::new(1000);
+
+    // Initial state: At entrance of Library Gauntlet puzzle chamber
+    let mut current = WorldState::new();
+    current.set("at", "LibraryPuzzleChamber");
+    current.set("in_combat", false);
+    current.set("pedestal_fire_matched", false);
+    current.set("pedestal_ice_matched", false);
+    current.set("pedestal_storm_matched", false);
+    current.set("vault_door_unlocked", false);
+    current.set("boss_unlocked", false);
+
+    // Goal: Unlock final boss chamber via environmental puzzle affordances
+    let mut goal = WorldState::new();
+    goal.set("boss_unlocked", true);
+
+    let actions = vec![
+        action_interact_puzzle_affordance(
+            "LibraryGauntlet",
+            "FirePedestal",
+            "",
+            "pedestal_fire_matched",
+        ),
+        action_interact_puzzle_affordance(
+            "LibraryGauntlet",
+            "IcePedestal",
+            "pedestal_fire_matched",
+            "pedestal_ice_matched",
+        ),
+        action_interact_puzzle_affordance(
+            "LibraryGauntlet",
+            "StormPedestal",
+            "pedestal_ice_matched",
+            "pedestal_storm_matched",
+        ),
+        GoapAction::new("PullVaultMasterLever", 3.0)
+            .require("in_combat", false)
+            .require("pedestal_storm_matched", true)
+            .effect("vault_door_unlocked", true),
+        GoapAction::new("EnterVaultBossChamber", 4.0)
+            .require("vault_door_unlocked", true)
+            .effect("boss_unlocked", true),
+    ];
+
+    let plan = planner
+        .plan(&current, &goal, &actions)
+        .expect("Planner must solve Library Gauntlet puzzle chain");
+
+    let action_names: Vec<&str> = plan.iter().map(|a| a.name.as_str()).collect();
+    assert_eq!(
+        action_names,
+        vec![
+            "SolvePuzzleAffordance:LibraryGauntlet:FirePedestal",
+            "SolvePuzzleAffordance:LibraryGauntlet:IcePedestal",
+            "SolvePuzzleAffordance:LibraryGauntlet:StormPedestal",
+            "PullVaultMasterLever",
+            "EnterVaultBossChamber",
+        ]
+    );
+
+    let mut sim = current.clone();
+    for a in &plan {
+        assert!(a.is_achievable(&sim));
+        sim = a.apply(&sim);
+    }
+    assert!(sim.satisfies(&goal));
+}
