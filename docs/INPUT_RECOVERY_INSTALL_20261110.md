@@ -13,7 +13,7 @@ scheduled automatic takeover. No game routine was started.
 - Portable ZIP: `.local/releases/Maelstrom-20261110-120816-1148bf.zip`.
 - Installer: `.local/releases/Setup-20261110-120905-0d8781/MaelstromSetup.exe`.
 - Installed application directory:
-  `C:/Users/aarog/AppData/Local/Programs/Maelstrom/versions/d1406a367c444f778395a30a855c9113/`.
+  `%LOCALAPPDATA%/Programs/Maelstrom/versions/d1406a367c444f778395a30a855c9113/`.
 - Installer version label remains `0.2.0-preview`; use directory/hash identity to
   distinguish this build from earlier previews.
 

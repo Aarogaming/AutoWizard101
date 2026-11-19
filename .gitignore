@@ -371,3 +371,5 @@ MigrationBackup/
 
 # Private inbox: unofficial drop folder for transcripts, notes and scratch files; never committed
 /private/
+# Runtime log that Logger.cs writes to the working directory
+/bot_log.txt

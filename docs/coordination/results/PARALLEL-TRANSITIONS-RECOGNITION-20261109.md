@@ -32,7 +32,7 @@ not promote prior user/supervised actions to autonomous success.
 
 Paths beginning `.local/` are relative to `F:/Modlists/AutoWizard101`. `U` below
 is the exact directory
-`C:/Users/aarog/AppData/Local/Maelstrom/reports/pet-dance/20261110-031213-a787bbc5d0244862a8350e68e863e891`.
+`%LOCALAPPDATA%/Maelstrom/reports/pet-dance/20261110-031213-a787bbc5d0244862a8350e68e863e891`.
 These are existing local source files, not new generated fixtures. SHA-256 values
 were recomputed during this audit rather than copied without checking.
 

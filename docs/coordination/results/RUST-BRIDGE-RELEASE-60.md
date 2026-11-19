@@ -19,8 +19,8 @@ Local/private evidence:
 
 - Portable folder: `.local/releases/Maelstrom-20261113-230917-f647cf`
 - Installer: `.local/releases/Setup-20261113-231023-68abe8/MaelstromSetup.exe`
-- Installed directory: `C:/Users/aarog/AppData/Local/Programs/Maelstrom/versions/507efdea5deb419481628cdb02a44745`
-- User data stays at `C:/Users/aarog/AppData/Local/Maelstrom`.
+- Installed directory: `%LOCALAPPDATA%/Programs/Maelstrom/versions/507efdea5deb419481628cdb02a44745`
+- User data stays at `%LOCALAPPDATA%/Maelstrom`.
 
 `-IncludeRustPreview` includes optional `maelstrom-bridge.exe` and `maelstrom-rust-preview.exe`, their guide and SHA-256 manifest (about 6 MB combined). Native Maelstrom remains the main application and input owner. Neither Rust tool auto-launches or starts gameplay. The CLI accepts only four read-only commands and refuses existing report files.
 

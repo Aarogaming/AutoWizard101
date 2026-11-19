@@ -11,10 +11,10 @@
 - Add attribution for third-party scripts and data sources (see About dialog).
 
 ## Files produced in this planning pass
-- project_integration_plan.json
+- docs/history/project_integration_plan.json
 - repo_analysis_report.json (heuristic metadata)
 - wizard101_data_sources.json
-- seed_dataset_manifest.json (metadata only)
+- docs/history/seed_dataset_manifest.json (metadata only)
 
 ## Success metrics (early)
 - 90%+ OCR accuracy on 1280x720 UI HUD elements using template+OCR blend.

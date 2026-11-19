@@ -9,7 +9,7 @@ work with subagents alongside Gemini. No new dependencies or models were added.
 - Portable: `.local/releases/Maelstrom-20261111-014821-9e8f8c.zip`.
 - Installer: `.local/releases/Setup-20261111-014952-1a746b/MaelstromSetup.exe`.
 - Installed version directory:
-  `C:/Users/aarog/AppData/Local/Programs/Maelstrom/versions/08bcce2a90584742a8862c923865e174`.
+  `%LOCALAPPDATA%/Programs/Maelstrom/versions/08bcce2a90584742a8862c923865e174`.
 - Source gate: 1,859 native tests and 24 Python bridge tests passed in the
   [prior source checkpoint](CORE-DECK-01.md). Installer tests: 14 passed.
 - The first no-restore publish lacked a Windows runtime asset target. Restoring
@@ -84,7 +84,7 @@ directory above; both evidence sets are retained.
 - Portable: `.local/releases/Maelstrom-20261111-021041-84c650.zip`.
 - Setup: `.local/releases/Setup-20261111-021218-8d09f3/MaelstromSetup.exe`.
 - Final installed directory:
-  `C:/Users/aarog/AppData/Local/Programs/Maelstrom/versions/7e16d7c03fd4462aa3f1797e01281536`.
+  `%LOCALAPPDATA%/Programs/Maelstrom/versions/7e16d7c03fd4462aa3f1797e01281536`.
 - The embedded-payload lifecycle test passed again. Eight installed files,
   including the offline combat planner, matched this payload's hashes.
 - The final installed EXE/bundled Python again completed one replay with exactly

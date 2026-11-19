@@ -101,7 +101,7 @@ matching binaries independently verify the completed update. Setup and the
 previous development app were closed, then all checks used the hidden CLI.
 
 Installed directory:
-`C:\Users\aarog\AppData\Local\Programs\Maelstrom\versions\11d29e86169b472ab46b3a4f2f64de02`.
+`%LOCALAPPDATA%\Programs\Maelstrom\versions\11d29e86169b472ab46b3a4f2f64de02`.
 It replaces `versions/d1406a367c444f778395a30a855c9113`. The executable,
 application DLL, CLI guide, Dance profile and Workshop entry point match both
 the tested portable payload and the installation receipt. The installer remains
@@ -117,7 +117,7 @@ the actual opt-in W101 check (**709 ms end to end; 297 ms backend observation**)
 Run `1ed3dfe798934294b2c70c92d8d7320a` returned `Loading=false`,
 `CleanupConfirmed=true`, and Completed. A subsequent status command found that
 same run. Running status without a data-directory override correctly selected
-`C:\Users\aarog\AppData\Local\Maelstrom`.
+`%LOCALAPPDATA%\Maelstrom`.
 
 The final shared guard was independently locked and read as ASCII `0`; no recovery
 warning remained. Process inspection found no remaining adapter, installed CLI,
