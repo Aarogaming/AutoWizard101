@@ -1,6 +1,8 @@
 //! `maelstrom-core`: Domain types, Arbiter confidence gate, deck model, and observation contracts.
-//! Designed for no_std / alloc compatibility (zero OS or UI dependencies).
+//! Uses `alloc` types and no OS or UI APIs, but it is a `std` library: it does not build with
+//! `--no-default-features` (float math such as `floor`/`sin`/`cos` needs `std` or `libm`).
 
+// Retained for a possible future no_std port; not currently supported (see header).
 #![cfg_attr(not(feature = "std"), no_std)]
 
 extern crate alloc;
