@@ -255,3 +255,12 @@ This report was produced under strict report-only operating boundaries:
 - **0** desktop or live game actions attempted.
 - **0** modifications to `claims.json` or project board state.
 - All metrics, counts, hashes, and line references were extracted by direct, primary-source static inspection of files at HEAD (`67d41da`; audited Rust source files unchanged since `4b9d5de` / `17042bb`).
+
+---
+
+## Audit note (2026-11-19)
+This report is a dated snapshot (2026-11-16, HEAD `67d41da`). Spot-checked again on 2026-11-19:
+- Confirmed: the four parity TSV fixtures hold 56 + 405 + 76 + 86 = 623 data rows (645 lines, 22 comment lines), and the Rust deck encoder uses the `\+`, `\,`, `\;` delimiters.
+- **Wrong then and now:** "full `#![no_std]` domain logic" for `maelstrom-core`. The crate does not build with `--no-default-features`; it is a `std` library that uses `alloc` types.
+- **Stale:** the 14-test count for `maelstrom-core`. The crate has grown since (65 unit tests in `src/` alone on 2026-11-19, plus integration tests), and the whole-workspace total is now much higher than 78.
+- Not re-checked: the bridge line numbers, the Win32 implementation line numbers and the live-receipt timings (Item 5 depends on `.local` evidence not re-examined here).
