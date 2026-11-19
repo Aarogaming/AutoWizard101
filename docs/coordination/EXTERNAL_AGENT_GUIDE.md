@@ -161,6 +161,11 @@ python tools/check_claim_evidence.py --strict
    that section as an acknowledged defect.
 6. **Drafts are drafts.** Synthetic fixtures, hand-written labels and assumed constants
    are stated as such. A passing test of a synthetic case is not a live outcome.
+7. **Relayed results need the same packet.** A subagent's or another session's
+   "done" or "gate green" is not evidence in your report until you carry the exact
+   command, its exit code or quoted success line, and a retained log path (or
+   commit hash) across the identity boundary. Ask for the packet; summarising
+   someone else's success moves, but does not satisfy, the contract.
 
 The gates only catch what can be checked offline; they do not replace review of the
 claims themselves.
