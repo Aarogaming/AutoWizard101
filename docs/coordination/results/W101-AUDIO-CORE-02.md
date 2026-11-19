@@ -3,7 +3,7 @@
 **Task**: Zero-Memory, Zero-OCR Audio-Cue Event Detection  
 **Owner**: `root`  
 **Workstream**: `W101-NAVIGATION`  
-**Status**: Released  
+**Status**: Released (claims audited 2026-11-19: treat as draft evidence; see "Audit corrections")  
 **Date**: 2026-11-18  
 **Owned Paths**:
 - `crates/maelstrom-core/src/audio_cue.rs`
@@ -81,3 +81,13 @@ The objective of `W101-AUDIO-CORE-02` is implementing native zero-memory, zero-O
 - `rustfmt`: Formatted all owned paths without modifying unowned code.
 - `python tools/check_project_board.py`: Project board valid (30 workstreams, zero broken evidence links).
 - `python tools/check_text_encoding.py`: 0 violations across repository.
+
+---
+
+## Audit corrections (2026-11-19)
+Checked against `crates/maelstrom-core/src/audio_cue.rs`, `tests/audio_cue_tests.rs` and `docs/GAME_AUDIO_CUES.md`; the original text above is kept.
+- **Three documents give three different sets of cue frequencies.** The code (`AudioCueProfile` defaults) uses: fishing splash 1800/2200/2600/3100 Hz (SNR 0.22, debounce 1.0 s); combat fanfare 380/520/680/840 Hz (SNR 0.28, debounce 2.0 s); turn-timer chime 2800/3400/4200 Hz (SNR 0.32, debounce 0.8 s); dialogue chime 1600/2100 Hz (debounce 0.5 s). `W101-AUDIO-CORE-02` lists 1800+2600, 523/659/784, 1046+2093 and 880 Hz with debounces of 1200/3000/1500/800 ms. `docs/GAME_AUDIO_CUES.md` gives centre frequencies and bands (2.4 kHz, 550 Hz, 3.2 kHz, 1.9 kHz) that match neither. Treat the code values as the current ones.
+- **"Pre-calibrated" for Wizard101 is unsupported.** No recorded Wizard101 audio was used to derive these frequencies, and no test feeds recorded game audio to the detector. The tests use synthetic sine waves and noise. The values are guesses until checked against captured client audio (the selected-process capture work under `.local/w101-audio-study` is a possible source).
+- **Unsupported timing claims:** that these sounds precede UI changes by "100-300 ms" and that classification takes "sub-millisecond" time were not measured.
+- **"Zero heap allocations during buffer processing" is wrong.** `process_buffer` builds a `Vec` of events per call, and profiles hold `Vec<f64>` frequency lists.
+- Verified: the 3 integration tests named in the red/blue table exist and pass, as do 4 unit tests in `audio_cue.rs` (the doc lists 3; `test_audio_cue_detector_fishing_splash_classification` is the fourth). Their pass shows the detector separates the synthetic signals the tests build, not that it recognises real game sounds.
