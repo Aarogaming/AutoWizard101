@@ -56,3 +56,11 @@ Ran `cargo test --workspace`: **all 55 tests passed** (48 unit/parity tests + 7 
 
 `cargo clippy --workspace -- -D warnings`: **0 warnings / clean**.
 `python tools/check_project_board.py`: **30 workstreams valid**.
+
+---
+
+## Audit note (2026-11-19)
+Static check plus `cargo test -p maelstrom-fallback --offline --test native_bridge` (19 passed).
+- The seven test names listed in section 3 (for example `test_pipe_name_computation_matches_csharp_hash`, `test_call_stream_roundtrip_valid_snapshot`) do not exist in the current tree. `tests/native_bridge.rs` now holds 19 differently named tests written during the repair work (see `RUST-BRIDGE-REPAIR-59`), so this report's test list cannot be reproduced and its "55 tests" total is historical.
+- Pipe name `maelstrom-deck-<HASH24>` matches both `JobDeckWire.cs` and `maelstrom_bridge.rs`.
+- The status line "verified offline / integration complete" is superseded by the correction banner at the top of this file.

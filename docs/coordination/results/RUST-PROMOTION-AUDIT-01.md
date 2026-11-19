@@ -264,3 +264,6 @@ This report is a dated snapshot (2026-11-16, HEAD `67d41da`). Spot-checked again
 - **Wrong then and now:** "full `#![no_std]` domain logic" for `maelstrom-core`. The crate does not build with `--no-default-features`; it is a `std` library that uses `alloc` types.
 - **Stale:** the 14-test count for `maelstrom-core`. The crate has grown since (65 unit tests in `src/` alone on 2026-11-19, plus integration tests), and the whole-workspace total is now much higher than 78.
 - Not re-checked: the bridge line numbers, the Win32 implementation line numbers and the live-receipt timings (Item 5 depends on `.local` evidence not re-examined here).
+
+### Additional correction (2026-11-19)
+Item 3 above says the pipe path is `\.\pipe\maelstrom-ipc-<hash>`. The code uses `\.\pipe\maelstrom-deck-<HASH_HEX_24>` (`maelstrom_bridge.rs` and `JobDeckWire.PipeName`), so that quoted line was inaccurate. The 1.5 s connect timeout and 256 KiB framing limit are still present, but the allowlist has since grown to five commands (`capabilities`, `catalog`, `state`, `snapshot`, `facts`); the quoted line numbers are out of date.
