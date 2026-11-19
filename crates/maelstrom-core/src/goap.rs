@@ -116,7 +116,9 @@ impl WorldState {
         new_state
     }
 
-    /// Computes the number of unsatisfied conditions in `goal` (admissible heuristic).
+    /// Computes the number of unsatisfied conditions in `goal`.
+    ///
+    /// This is a count, not a cost; `GoapPlanner::plan` scales it into an admissible bound.
     pub fn unsatisfied_count(&self, goal: &WorldState) -> usize {
         let mut count = 0;
         for (key, target_val) in &goal.values {
@@ -236,7 +238,29 @@ impl GoapPlanner {
             }
         }
 
-        let initial_h = current.unsatisfied_count(goal) as f64;
+        // Admissible heuristic: every action costs at least `min_cost` and fixes at most
+        // `max_fix` goal atoms, so at least ceil(unmet / max_fix) actions are still needed.
+        let min_cost = available_actions
+            .iter()
+            .map(|a| a.cost)
+            .fold(f64::INFINITY, f64::min);
+        let max_fix = available_actions
+            .iter()
+            .map(|a| {
+                goal.values
+                    .iter()
+                    .filter(|(k, v)| a.effects.get(k.as_str()) == Some(*v))
+                    .count()
+            })
+            .max()
+            .unwrap_or(1)
+            .max(1);
+        let heuristic = |state: &WorldState| -> f64 {
+            let unmet = state.unsatisfied_count(goal);
+            unmet.div_ceil(max_fix) as f64 * min_cost
+        };
+
+        let initial_h = heuristic(current);
         let mut node_arena: Vec<SearchNode> = Vec::with_capacity(64);
         node_arena.push(SearchNode {
             state: current.clone(),
@@ -314,7 +338,7 @@ impl GoapPlanner {
                     }
 
                     let next_g = cur_node.g_cost + action.cost;
-                    let next_h = next_state.unsatisfied_count(goal) as f64;
+                    let next_h = heuristic(&next_state);
                     let next_f = next_g + next_h;
 
                     let new_node_idx = node_arena.len();
@@ -572,6 +596,36 @@ mod tests {
         // Planner must choose the cheaper fountain route (cost 15.0 vs 50.0)
         assert_eq!(plan[0].name, "WalkToFountain");
         assert_eq!(plan[1].name, "FillAtFountain");
+    }
+
+    #[test]
+    fn test_goap_planner_is_optimal_when_one_action_satisfies_several_goal_atoms() {
+        let planner = GoapPlanner::default();
+        let current = WorldState::new();
+        let mut goal = WorldState::new();
+        goal.set("a", true);
+        goal.set("b", true);
+
+        // Two cheap single-effect actions (total 1.0) versus one combined action (1.5).
+        // A heuristic that counts each unmet atom as 1.0 overestimates the remaining cost
+        // when an action fixes several atoms at once and returns the 1.5 plan.
+        let actions = alloc::vec![
+            GoapAction::new("Combo", 1.5)
+                .effect("a", true)
+                .effect("b", true),
+            GoapAction::new("SetA", 0.5).effect("a", true),
+            GoapAction::new("SetB", 0.5).effect("b", true),
+        ];
+
+        let plan = planner
+            .plan(&current, &goal, &actions)
+            .expect("Plan must resolve");
+        let total: f64 = plan.iter().map(|a| a.cost).sum();
+        assert!(
+            (total - 1.0).abs() < 1e-9,
+            "expected the cost-1.0 plan, got cost {total} via {:?}",
+            plan.iter().map(|a| a.name.as_str()).collect::<Vec<_>>()
+        );
     }
 
     #[test]
