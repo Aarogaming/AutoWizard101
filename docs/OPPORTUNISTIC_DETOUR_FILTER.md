@@ -1,5 +1,17 @@
 # Opportunistic Detour Budget Filter
 
+> **Status: design note, partly aspirational (audit 2026-11-19, Claude).** In code today: the budget equation and the
+> two-leg corridor check (`evaluate_detour_candidate`, `is_corridor_safe_3d`, `find_best_detour` in
+> `crates/maelstrom-core/src/costmap.rs`) and a detour branch in the behavior tree that emits proposal strings
+> (`behavior_tree.rs`); offline unit tests pass; nothing calls them and nothing was run against the game. **Not
+> implemented:** zone surface penalties in `C` (the code uses plain 3D distance), the Section 3 peak threat clamp, dwell-time
+> prediction, the 30-second blacklist, Pure Pursuit steering, the `X` interact pulse and collection verification, and the
+> Section 4 priority order. **Known gap:** the corridor check only considers mobs that pass a broad phase based on their
+> current position and `repulsion_radius`, so it can miss a mob whose aggro reaches the corridor. **Unsourced:** the 25 and
+> 5.0 unit values and the health wisps; three of the reagent names come from a comment in a separate C# card, not from
+> the Rust code. Details:
+> [W101-DETOUR-FILTER-CORE-02, Audit note](coordination/results/W101-DETOUR-FILTER-CORE-02.md).
+
 ## 1. Architectural Purpose
 
 While navigating along mainline quest routes, the player frequently passes within harvesting proximity of reagents (Black Lotus, Deep Mushroom, Frost Flower, Ore, Red Mandrake), silver chests, and health wisps. Blindly pathing to every entity across the zone derails quest progression and risks pulling street patrols. Conversely, ignoring nearby resources wastes free gold and crafting components.
