@@ -25,6 +25,8 @@
    - `DispatchSteering_UnconfirmedRelease_TripsRecoveryHold`: Proves failed key release trips persistent `RecoveryRequired` hold.
    - `DispatchKinematicClick_ValidTarget_DispatchesMouseDownAndUp`: Validates bounded mouse click with dwell.
    - `DispatchKinematicClick_OutOfBounds_Rejected`: Confirms rejection of coordinates outside 1280x720 bounds.
+   - `DispatchKinematicClick_CombatPassButton_DispatchesWithinBounds`: Confirms combat pass button click dispatches within bounds.
+   - `DispatchKinematicClick_CombatCardAndTarget_DispatchesWithinBounds`: Confirms card click and duel target click sequence dispatches within bounds.
 
 ## 3. Red Team / Blue Team Adversarial Audit
 - **Stuck Key Protection**: Mid-pulse loop polls every 10ms; any focus loss, user keypress, or cancellation breaks hold and executes guaranteed release in `finally`.
@@ -32,7 +34,7 @@
 - **Viewport Bounds Defense**: Coordinates strictly verified within $0 \le X \le 1280, 0 \le Y \le 720$.
 
 ## 4. Test & Quality Gate Evidence
-- `dotnet test ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj --filter FullyQualifiedName~DesktopInputActuatorTests`: 9 passed, 0 failed.
+- `dotnet test ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj --filter FullyQualifiedName~DesktopInputActuatorTests`: 11 passed, 0 failed.
 - `dotnet format whitespace --verify-no-changes`: clean.
 - `dotnet format analyzers --verify-no-changes`: 0 warnings, 0 errors.
 - `dotnet build -c Release -warnaserror`: 0 warnings, 0 errors.

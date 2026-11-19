@@ -73,6 +73,9 @@ pub struct ReplayFrame {
 
 ## 4. Batch Replay Execution & Reporting
 
+> [!NOTE]
+> `.local/replays/` is an ephemeral, git-ignored runtime target directory for user/CLI-generated evaluation artifacts. It is not tracked in the repository and is not yet generated on local disk until `maelstrom-replay` or trace export is executed.
+
 Once transformed, traces are executed through the standalone `maelstrom-replay` CLI:
 
 ```powershell

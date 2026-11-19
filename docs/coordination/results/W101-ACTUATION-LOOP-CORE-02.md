@@ -29,7 +29,7 @@
 - **Deadlock Free**: Offloaded via `Task.Run` with `.ConfigureAwait(false)` to prevent UI thread lockups.
 
 ## 4. Test & Quality Gate Evidence
-- `dotnet test ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj --filter "FullyQualifiedName~DesktopInputActuatorTests|FullyQualifiedName~JobDeckHostActuationTests"`: 14 passed, 0 failed.
+- `dotnet test ProjectMaelstrom/ProjectMaelstrom.Tests/ProjectMaelstrom.Tests.csproj --filter "FullyQualifiedName~DesktopInputActuatorTests|FullyQualifiedName~JobDeckHostActuationTests"`: 16 passed, 0 failed (11 in `DesktopInputActuatorTests` + 5 in `JobDeckHostActuationTests`).
 - `dotnet format whitespace --verify-no-changes`: clean.
 - `dotnet format analyzers --verify-no-changes`: 0 warnings, 0 errors.
 - `dotnet build -c Release -warnaserror`: 0 warnings, 0 errors.
