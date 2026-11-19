@@ -1,5 +1,6 @@
 # Documentation map
 
+- [Worker manual](../WORKER_MANUAL.md) — one-page entry point for agents: claim, stay in scope, prove with evidence, hand back.
 - [Current roadmap](ROADMAP.md) — ordered integration work, current installed/source distinction and acceptance gates.
 - [W101 automation readiness](W101_AUTOMATION_READINESS.md) — task-by-task progress, remaining gates and dependency order; live demonstrations distinguished from complete unattended routines.
 - [Cards, routines and decks](ROUTINE_EXECUTION_MODEL.md) — Action Cards, Routine Cards and the Routine Deck; shared constraints, verified results and controlled interruption in game-player terms.
@@ -23,6 +24,7 @@
 - [Selected quest conversation](W101_QUEST_STEP_20261110.md) — optional quest text, reusable repeated menus, bounded conversation pilot and evidence.
 
 - [Open issues: report and plan (2026-11-19)](OPEN_ISSUES_REPORT_AND_PLAN_20261119.md) — draft answer on patch discovery/recovery and each open issue, written in the who/what/when/where/why/how and before/during/after format.
+- [Legacy root files](history/legacy-root/README.md) — Aaroneous Automation Suite and Smart Trainer era documents moved out of the repository root; historical, not current policy.
 - [Project organization](PROJECT_ORGANIZATION.md) — current sources of truth, parallel lanes and evidence rules.
 - [Backend control plane](BACKEND_CONTROL_PLANE.md) — backend-first operation contract, CLI/API/MCP/UI coverage audit, Rust-to-C# named pipe IPC integration (MaelstromAutonomyBridge), and staged parity plan.
 - [Game workstreams](GAME_WORKSTREAMS.md) and [structured board](coordination/workstreams.json) — task inventory, ownership, dependencies and next actions.

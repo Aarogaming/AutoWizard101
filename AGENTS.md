@@ -21,7 +21,8 @@ Every response that proposes, performs or reports work covers all of: **Who** (o
 - Before finalizing: run format + lint + tests.
 
 ## Start here
-- Read `docs/PROJECT_ORGANIZATION.md`, `docs/PRODUCT.md`, `docs/ROADMAP.md` and the relevant workstream in `docs/coordination/workstreams.json`.
+- New here? Read `WORKER_MANUAL.md` first (about 3 minutes); it is enough to claim a task, stay in scope and hand it back with evidence.
+- Read `docs/PROJECT_ORGANIZATION.md`, `docs/PRODUCT.md`, `docs/ROADMAP.md` and the relevant workstream in `docs/coordination/workstreams.json` only when the task touches product direction, sequencing or a workstream's status.
 - `docs/INDEX.md` is the documentation map. Dated reports are historical evidence, not the current project status.
 - Before edits, claim a bounded task and declare owned paths using `docs/coordination/EXTERNAL_AGENT_GUIDE.md`. All agents share this checkout. Existing modified/untracked files belong to ongoing work: never reset, clean, discard, mass-format or commit them without explicit direction.
 - Keep research, implementation, offline verification, installation and live qualification separate. A successful proposal/dispatch is not proof of a game outcome.

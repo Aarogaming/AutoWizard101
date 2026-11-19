@@ -7,6 +7,7 @@ This is the AutoWizard101 repository; existing code is the starting material.
 
 ## Start here
 
+- [Worker manual](WORKER_MANUAL.md): one page for agents and contributors: claim, stay in scope, prove, hand back.
 - [Project organizer](docs/PROJECT_ORGANIZATION.md): current workstreams, ownership and evidence rules.
 - [Workstream board](docs/GAME_WORKSTREAMS.md): legacy projects, minigames and independent background tasks.
 - [Parallel-agent guide](docs/coordination/EXTERNAL_AGENT_GUIDE.md): scoped assignments for Codex, Claude or Gemini; read [AGENTS.md](AGENTS.md) before editing.
