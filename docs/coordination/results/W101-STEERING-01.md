@@ -3,7 +3,7 @@
 **Task**: Option 1 - Local Steering Controller (Pure Pursuit) & Odometry Watchdog  
 **Owner**: `root`  
 **Workstream**: `W101-NAVIGATION`  
-**Status**: Released  
+**Status**: Released (claims audited 2026-11-19: core claims verified, caveats below)  
 **Date**: 2026-11-18  
 **Owned Paths**:
 - `crates/maelstrom-core/src/steering.rs`
@@ -76,3 +76,14 @@ The objective of `W101-STEERING-01` is implementing Option 1: translating discre
 ### Audit Finding 3:
 - **Red Team Attack**: Does keyboard steering chatter/hunt across zero heading error?
 - **Blue Team Mitigation**: A deadband tolerance of $0.08\text{ rad} \approx 4.5^\circ$ suppresses micro-pulses, ensuring stable straight-line driving without oscillations.
+
+---
+
+## Audit corrections (2026-11-19)
+Checked against `steering.rs` and the tests; `cargo test -p maelstrom-core --offline` steering tests pass (5 unit tests in `steering.rs`, 3 in `tests/steering_tests.rs`).
+- **Verified:** the deadband (0.08 rad), turn-in-place threshold (0.85 rad, about 48.7 degrees), 250 ms forward cadence, forward-only lookahead search from the closest waypoint, 1.5 s / 5.0 unit stall detection, and the 500 ms reverse then 350 ms left unstuck sequence all match the code. The controller is also constructed in `maelstrom_bridge.rs`.
+- **"Arrival deceleration" is overstated.** There is no deceleration or speed profile: reaching the arrival radius returns an `arrived()` command with zero pulses. Movement is discrete key pulses, so "smooth arcs" means alternating `W` with `A`/`D` pulses sized from an assumed `turn_rate_rad_per_sec`.
+- **The model is not calibrated to the game.** Turn rate, movement speed and the 25-unit lookahead are assumed constants; no recorded Wizard101 movement was used to fit them, and no test checks them against real displacement. The tests use hand-built poses and waypoint lists.
+- **Closest-waypoint search is global.** `select_lookahead_point` scans the whole path each tick, so on a path that doubles back near itself the "closest" index can jump to a later segment. The fix described in Audit Finding 1 prevents locking onto waypoints behind a straight path but does not cover that case.
+- **Test list details:** the doc says the stationary test ran "10 seconds"; the loop is 20 observation cycles. The "34 unit + 10 integration", "44" and "99/99" totals are historical and no longer match the tree.
+- The watchdog and unstuck maneuver are logic-only here; nothing demonstrates recovery from a real in-game snag.
