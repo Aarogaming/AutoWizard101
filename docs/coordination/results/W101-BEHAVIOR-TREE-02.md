@@ -92,3 +92,10 @@ The objective of `W101-BEHAVIOR-TREE-02` is implementing Option 2: a native, zer
 ### Audit Finding 3:
 - **Red Team Attack**: Invariant Compliance (`Facts ≠ Authority ≠ Actions`). Does the tree submit Win32 inputs directly?
 - **Blue Team Verification**: No. The Behavior Tree only emits declarative proposal intents into the blackboard (`proposal_channel`). Physical input dispatch is strictly gated behind the external single-owner input scheduler and lease.
+
+---
+
+## Audit note (2026-11-19)
+Scope: wording about `no_std` and dependencies only; the rest of this report was not re-audited in this pass.
+- The "zero-dependency" wording means no third-party crates beyond what `maelstrom-core` already uses; `behavior_tree.rs` imports only `alloc` types, and no `no_std` claim is made here. It was not checked in this pass whether the tests cover every node type described.
+- The crate runs as a `std` library; it currently depends on `serde`, `uuid` and optional codec crates. Adding `libm` or similar to support `no_std` would be a new dependency decision.

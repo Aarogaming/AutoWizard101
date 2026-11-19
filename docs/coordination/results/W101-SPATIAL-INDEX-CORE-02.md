@@ -79,3 +79,10 @@ test result: ok. 62 unit tests + 40 integration tests = 102 passed; 0 failed; fi
   - `crates/maelstrom-core/src/lib.rs`
   - `crates/maelstrom-core/tests/costmap_tests.rs`
   - `docs/coordination/results/W101-SPATIAL-INDEX-CORE-02.md`
+
+---
+
+## Audit note (2026-11-19)
+Scope: wording about `no_std` and dependencies only; the rest of this report was not re-audited in this pass.
+- Any `no_std` or "zero-dependency" wording applies only in the sense that `spatial_index.rs` imports `alloc` types and `serde` and no other third-party crate. `maelstrom-core` does not build with `--no-default-features` (22 errors), so `no_std` use is not supported.
+- The crate runs as a `std` library; it currently depends on `serde`, `uuid` and optional codec crates. Adding `libm` or similar to support `no_std` would be a new dependency decision.

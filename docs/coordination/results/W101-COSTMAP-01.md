@@ -74,3 +74,10 @@ Addressing the kinetic and navigational limitations of classical shortest-path A
    - $t=20$: dist = 150.0 > repulsion radius (80.0) $\rightarrow$ `COST_FREE` (0).
 6. **`test_integration_additive_and_max_composition`**: Verifies `Max` returns $\max(\text{inflation}, \text{zone})$ and `Additive` returns $\min(252, \text{inflation} + \text{zone})$.
 7. **`test_integration_moving_mob_intercept_prediction`**: Demonstrates that a destination passable at $t=0$ is flagged `COST_LETHAL_OBSTACLE` at $t=5$ when a crossing mob intercepts it, while a lateral detour remains `COST_FREE`.
+
+---
+
+## Audit note (2026-11-19)
+Scope: wording about `no_std` and dependencies only; the rest of this report was not re-audited in this pass.
+- The "no_std compatibility" claim for `Vec2D` is wrong: `maelstrom-core` does not build with `--no-default-features` (22 errors, for example `f64::floor`, `sin`, `cos` and `round` need `std` or `libm`). `costmap.rs` uses `alloc` types plus `serde`, so "no external dependencies" is also imprecise: it depends on `serde`.
+- The crate runs as a `std` library; it currently depends on `serde`, `uuid` and optional codec crates. Adding `libm` or similar to support `no_std` would be a new dependency decision.

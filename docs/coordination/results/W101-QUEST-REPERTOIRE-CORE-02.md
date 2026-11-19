@@ -53,3 +53,10 @@
 - `rustfmt --edition 2021`: clean across all owned paths.
 - `python tools/check_project_board.py`: Valid (30 workstreams, zero broken links).
 - `python tools/check_text_encoding.py`: 0 violations.
+
+---
+
+## Audit note (2026-11-19)
+Scope: wording about `no_std` and dependencies only; the rest of this report was not re-audited in this pass.
+- The "full `#![no_std]` / `alloc` compatibility" claim is wrong: `maelstrom-core` does not build with `--no-default-features` (22 errors, for example `f64::floor`, `sin`, `cos` and `round` need `std` or `libm`). The quest modules use `alloc` types and `serde`; "zero OS/UI calls" is not contradicted by the imports checked.
+- The crate runs as a `std` library; it currently depends on `serde`, `uuid` and optional codec crates. Adding `libm` or similar to support `no_std` would be a new dependency decision.
