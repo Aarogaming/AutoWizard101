@@ -4,7 +4,7 @@
 - **Claim ID**: `W101-DECK-SWITCH-CORE-02`
 - **Workstream**: `W101-COMBAT`
 - **Task**: Pre-Battle Deck Profile Switcher Implementation (goap.rs + combat_geometry.rs)
-- **Status**: Completed
+- **Status**: Library code and offline unit tests delivered; not wired to any caller, screen coordinates unsourced, never run live (see Audit note)
 
 ## 1. Executive Summary
 This milestone implements the Pre-Battle Deck Profile Switcher engine across `crates/maelstrom-core/src/goap.rs` and `crates/maelstrom-core/src/combat_geometry.rs`. Because deck composition is locked once entering a combat sigil or duel circle in Wizard101, deck profiles (`MobAoE`, `BossFeint`, `SchoolPrism`, `HealSupport`) must be checked and switched prior to combat engagement in a verified safe zone.
@@ -80,3 +80,51 @@ test result: ok. 65 unit tests + 45 integration tests = 110 passed; 0 failed; fi
   - `crates/maelstrom-core/tests/goap_tests.rs`
   - `crates/maelstrom-core/tests/combat_geometry_tests.rs`
   - `docs/coordination/results/W101-DECK-SWITCH-CORE-02.md`
+
+---
+
+## Audit note (2026-11-19, Claude)
+
+Checked against `crates/maelstrom-core/src/goap.rs`, `crates/maelstrom-core/src/combat_geometry.rs`,
+`crates/maelstrom-core/tests/goap_tests.rs`, `crates/maelstrom-core/tests/combat_geometry_tests.rs`, and a fresh
+`CARGO_BUILD_JOBS=2 cargo test -p maelstrom-core --offline` run. Nothing was run against a live game. The status above was
+changed from "Completed": the code and its offline tests exist, but the summary describes more than they deliver.
+
+**Verified.** `DeckProfileTag` has the four variants with the strings `mob_aoe`, `boss_feint`, `school_prism` and
+`heal_support`, and converts into `StateValue`. The four actions have the preconditions and effects listed in Section 1:
+`EnsureDeckProfile` requires `in_combat == false` and `safe_from_mobs == true`; `EnterSigil` and `PullMob` require the
+matching `active_deck_profile`; `RetreatToSafeZone` sets `safe_from_mobs = true` and `near_target_mob = "none"`.
+`SpellbookTab` has the six listed tabs, and every pixel anchor in Section 1 equals its constant in the source. All eight
+named tests exist and pass. `rustfmt --check` on the four owned Rust files is clean, and `cargo clippy -p maelstrom-core
+--all-targets -- -D warnings` is clean (crate-scoped; a workspace-wide clippy run was not repeated).
+
+**Corrections.**
+1. **Test counts are a snapshot, not reproducible.** "65 unit + 45 integration = 110" does not match today's run of the
+   same crate: 66 unit tests and 102 integration tests (17 integration binaries). "100% test pass rate" for the whole
+   workspace is only as good as the run behind it; `cargo test --workspace --locked` passed in CI run 44586189238 (the
+   `rust-tests` job at da76aeb), which is the evidence to cite.
+2. **The safe-zone guarantee covers one action, not the module.** The Red Team claim that the planner "must insert
+   `RetreatToSafeZone`" holds for `EnsureDeckProfile` and only for the hand-built action set in
+   `test_pre_battle_deck_switch_requires_safe_from_mobs`. The same file defines `action_swap_deck_shortcut`
+   (`DeckSwapShortcut`, cost 0.05) whose only precondition is `in_combat == false`. By cost (0.05 against 5.0 plus the
+   retreat), a cost-minimising planner offered both would take the shortcut and skip the safe-zone requirement; this is
+   derived from the costs and was not executed. That function has no test and no caller, and `Ctrl+K` is sourced only to a
+   Gemini note (`private/w101-onboarding-corpus-gemini-20261119.md`, repeated in `docs/EPISTEMIC_RUNTIME_HARDENING.md`),
+   not to any observation of the game.
+3. **"Redundant toggle churn" is not prevented by the action.** `EnsureDeckProfile` has no "profile differs"
+   precondition, so it is applicable even when the target profile is already active. A redundant switch is avoided only
+   because the A* search minimises cost and stops at the goal. No test starts with the target profile already active.
+   The integration test `test_integration_pre_battle_deck_profile_planning` never sets `safe_from_mobs` to `false`
+   (it starts `true` and `WinStreetCombat` sets it `true`), so it does not exercise the safe-zone constraint.
+4. **"Click drift verified" is not supported.** The 720p and 1080p tests assert that each constant is multiplied by the
+   scale factor (1.6/1.2 and 2.4/1.8); they restate the formula and show nothing about where a click lands in the game.
+   The base is 800x600 (4:3) and is stretched with different factors in x and y to reach 16:9, which assumes the game UI
+   scales that way; no capture or observation in this repository supports that assumption. None of the anchors
+   (`760, 560`, `240, 72`, `280, 108`, `520, 108`, `400, 510`, `624, 72`, nor the Quests/Friends/Help positions written as
+   inline literals) cites a source. The menu inventory in `docs/coordination/results/GEM-MENU-INVENTORY-90.md` identifies
+   the deck screen by UI-tree path (`Root/WorldView/DeckConfiguration`), not by these pixels.
+5. **"Switcher engine implemented" overstates the scope.** What exists is one enum, four action constructors and a set of
+   coordinate constants. No function or test outside these two source files and their own tests references
+   `DeckProfileTag`, any of the five action constructors or `SpellbookGeometry`; nothing opens the Spellbook, selects or
+   equips a deck, or closes it, and the profile descriptions ("Low-pip blade + 4-pip AoE") are design intent with no code
+   mapping a tag to a real deck.
