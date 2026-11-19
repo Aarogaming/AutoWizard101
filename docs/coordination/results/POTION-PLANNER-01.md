@@ -49,3 +49,8 @@ The Potion Motion planner is implemented in `tools/potion_motion_board.py`, vali
   - `live_qualified: false`.
   - All operations are completely offline and deterministic.
   - Replayable via synthetic fixture datasets.
+
+---
+
+## Audit note (2026-11-19)
+`python -m unittest discover -s tools/tests -p "test_potion*.py"` runs 9 tests and passes, so the count of 9 is correct. The test names in the list above are not: the file now contains `test_dimensions_and_cell_access`, `test_bent_l_shape_group_counted`, `test_diagonal_contact_does_not_count`, `test_unknown_cells_never_match`, `test_row_shift_non_wrapping`, `test_row_shift_wrapping_preserves_multiset`, `test_column_shift_non_wrapping`, `test_find_best_moves_proposal_generation` and `test_synthetic_cases_fixture`. The fixtures are synthetic boards; the report's own statement that live gameplay is not qualified stands.
