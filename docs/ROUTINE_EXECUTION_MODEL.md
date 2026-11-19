@@ -224,12 +224,16 @@ When an Action Node proposes a physical interaction (such as mouse clicks on com
 
 ### 5. Host IPC Bridge (`MaelstromAutonomyBridge`)
 
+> **Status (audit 2026-11-19, Claude):** design intent. The bridge is a read-only snapshot client with an offline decision
+> step; nothing returns its result to the host. See [Backend control plane, Section 5](BACKEND_CONTROL_PLANE.md) and
+> [W101-IPC-CORE-02, Audit note](coordination/results/W101-IPC-CORE-02.md).
+
 The perception-decision loop is orchestrated across the named pipe bridge (`\\.\pipe\maelstrom-deck-<HASH>`):
 1. `MaelstromNativeBridge` retrieves `snapshot` observations from `JobDeckHost.cs`.
 2. `NativeHostState` projects verified facts into `W101Blackboard`.
 3. The Behavior Tree ticks and selects an action intent.
 4. Local controllers (Pure Pursuit steering and kinematic trajectory generators) compute parameterized action structures.
-5. The resulting `AutonomyCycleResult` is returned to the host for single-owner actuation under verified input leases.
+5. The resulting `AutonomyCycleResult` is returned to the Rust caller (design intent: the host then actuates it under verified input leases; no such return path exists yet).
 
 ### 6. Goal-Oriented Action Planning (GOAP)
 

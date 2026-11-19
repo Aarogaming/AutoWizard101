@@ -57,6 +57,12 @@ Do not try to repair the recent desktop focus incident by sending inputs through
 
 ## 5. Rust Core / C# Host IPC Integration (`MaelstromAutonomyBridge`)
 
+> **Status (audit 2026-11-19, Claude):** partly aspirational. In code today: a read-only snapshot client over the named pipe
+> and an offline decision step (`MaelstromAutonomyBridge::process_state`), used only by the replay harness and tests. Not
+> true yet: the host does not emit `spatialPosition` or `combatActive`, stale vitals are carried forward, nothing sends a
+> result or an `actuate` request from Rust to the host, and the live `step_cycle` path has never run. Details:
+> [W101-IPC-CORE-02, Audit note](coordination/results/W101-IPC-CORE-02.md).
+
 The integration between the high-performance native Rust core (`maelstrom-core`, `maelstrom-fallback`) and the C# host (`JobDeckHost.cs` / `OperationScheduler.cs`) proceeds through the existing, verified named-pipe protocol:
 
 1. **Named Pipe Transport**:
@@ -64,7 +70,7 @@ The integration between the high-performance native Rust core (`maelstrom-core`,
    - Wire framing: 4-byte Little-Endian length prefix followed by UTF-8 JSON payload (budget: 2 to 262,144 bytes).
 2. **Perception-Decision Synchronization Cycle**:
    - `MaelstromNativeBridge` issues a bounded `snapshot` command to the host named pipe.
-   - Host returns qualified, fresh facts (`health`, `mana`, `potions`, `nativeIdle`, `spatialPosition`, `combatActive`).
+   - Host returns qualified, fresh facts (`health`, `mana`, `potions`, `nativeIdle`); the host emits no `spatialPosition` or `combatActive` fact, which the Rust side nevertheless reads as raw keys (see the status note above).
    - `NativeHostState::update_blackboard(&self, bb: &mut W101Blackboard)` projects qualified telemetry into the Rust Behavior Tree blackboard.
    - Reactive Behavior Tree (`build_w101_canonical_tree()`) ticks against the blackboard, evaluating priority conditions (Combat > Potion Recovery > Kinematic Stuck > Quest Nav > Idle).
    - If navigation is active, `PurePursuitController` tracks the path and computes `SteeringCommand` pulses (`W`, `A`, `D`, `S`).

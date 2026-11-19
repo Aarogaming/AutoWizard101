@@ -26,7 +26,7 @@
 - [Open issues: report and plan (2026-11-19)](OPEN_ISSUES_REPORT_AND_PLAN_20261119.md) — draft answer on patch discovery/recovery and each open issue, written in the who/what/when/where/why/how and before/during/after format.
 - [Legacy root files](history/legacy-root/README.md) — Aaroneous Automation Suite and Smart Trainer era documents moved out of the repository root; historical, not current policy.
 - [Project organization](PROJECT_ORGANIZATION.md) — current sources of truth, parallel lanes and evidence rules.
-- [Backend control plane](BACKEND_CONTROL_PLANE.md) — backend-first operation contract, CLI/API/MCP/UI coverage audit, Rust-to-C# named pipe IPC integration (MaelstromAutonomyBridge), and staged parity plan.
+- [Backend control plane](BACKEND_CONTROL_PLANE.md) — backend-first operation contract, CLI/API/MCP/UI coverage audit, a read-only Rust-to-C# named pipe snapshot client with offline decision logic (MaelstromAutonomyBridge; not yet wired back to the host), and staged parity plan.
 - [Game workstreams](GAME_WORKSTREAMS.md) and [structured board](coordination/workstreams.json) — task inventory, ownership, dependencies and next actions.
 - [External-agent guide](coordination/EXTERNAL_AGENT_GUIDE.md) — bounded task briefs and shared-checkout coordination for Codex, Claude or Gemini.
 - [Shared routine graphs](ROUTINE_GRAPHS.md) — reusable transition runner, registered actions and offline rehearsal.
