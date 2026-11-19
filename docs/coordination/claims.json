@@ -5321,6 +5321,17 @@
         "docs/coordination/results/MCP-CAPABILITY-CLASSES-01.md"
       ],
       "notes": "Owner-directed 2026-11-19 (maelstrom import #2 from the Aaroneous audit). Port the capability-class POLICY from D:\\Aaroneous\\docs\u0007rchitecture\\MCP_SERVICE_CONTRACT.md (ReadOnlyInspection / BoundedProposal / Verification / Mutation; unclassified tool defaults to Mutation) into tools/maelstrom_mcp_server.py: an explicit class per registered tool, default-deny for unknown tool names, and enforcement in handle_tool_call so a mutation-class tool is refused unless explicitly granted for the session (default OFF). Existing inspection/proposal behaviour must keep passing the existing test suite; no new dependencies. AUTHORITY: the three owned paths only. NOT AUTHORIZED: changing scheduler/lease behaviour, live/game work, other agents' files (docs/OPEN_ISSUES_* is in-flight elsewhere), releasing."
+    },
+    {
+      "task_id": "CROSS-AGENT-EVIDENCE-RULES-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "docs/coordination/EXTERNAL_AGENT_GUIDE.md",
+        "docs/coordination/results/CROSS-AGENT-EVIDENCE-RULES-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-19 (maelstrom import #3 from the Aaroneous/devtools audit). Add the cross-agent evidence-attribution rules from D:\u0007aroneous-devtools\\governance\\CROSS_AGENT_COORDINATION_PROTOCOL.md to EXTERNAL_AGENT_GUIDE.md: a relayed subagent or second-session result is not evidence without the same packet (exact command, exit code or quoted success line, retained log path); requesting the packet across identities is mandatory, not optional. The 24h claim-expiry rule from the source protocol is noted as a PROPOSAL only (claims.json has no expiry mechanism yet), not inserted as an enforced rule. AUTHORITY: the two owned paths. NOT AUTHORIZED: claims.json schema changes, other guides, releasing."
     }
   ]
 }
