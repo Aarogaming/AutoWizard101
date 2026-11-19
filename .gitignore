@@ -368,3 +368,6 @@ MigrationBackup/
 !crates/maelstrom-fallback/src/bin/*.rs
 !crates/maelstrom-ide/src/bin/
 !crates/maelstrom-ide/src/bin/*.rs
+
+# Private inbox: unofficial drop folder for transcripts, notes and scratch files; never committed
+/private/
