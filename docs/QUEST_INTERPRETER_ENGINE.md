@@ -105,3 +105,13 @@ All NPC conversations, quest offers, and reward turn-ins follow an identical, bo
   - Main avenue navigation corridor, Haunted Tower entrance, Kraken Gate, Galvanost Tower, Tempest Nexus.
   - NPC Anchors: `Duncan Grimwater`, `Artur Wethersfield`.
   - Mob spawn clusters: Scarlet Screamer, Rotting Fodder, Lumbering Troll.
+
+---
+
+## Audit note (2026-11-19, Claude)
+
+This document describes **intended** quest-interpreter behaviour. The implementation in
+`crates/maelstrom-core/src/quest_interpreter.rs` covers text classification into the six archetypes and a dialogue state
+machine only. There is no jitter or 250-650 ms timing, no deck equipping, kill or drop tracking, realm hopping or sigil
+countdown handling, `QuestAcceptPolicy` currently has no effect, and the module is not called by any runtime path. The
+`Ctrl+Shift+Q` key is unverified. Details: `docs/coordination/results/W101-QUEST-INTERPRETER-CORE-02.md`.

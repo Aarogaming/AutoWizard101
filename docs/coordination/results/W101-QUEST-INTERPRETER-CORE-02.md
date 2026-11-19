@@ -4,7 +4,7 @@
 - **Claim ID**: `W101-QUEST-INTERPRETER-CORE-02`
 - **Workstream**: `CORE-TRANSITIONS`
 - **Task**: Data-Driven Quest Interpreter & Decoupled World Topology Implementation
-- **Status**: Completed
+- **Status**: Draft module (see Audit note): unit-tested parsing and dialogue state machine; not integrated, not live-qualified
 
 ## 1. Executive Summary
 This milestone implements the Data-Driven Quest Interpreter in `crates/maelstrom-core/src/quest_interpreter.rs` and decouples quest execution from the underlying world topology in `crates/maelstrom-core/src/quest_domain.rs`. By mapping raw HUD observations and Quest Helper vectors into **six canonical objective archetypes**, Maelstrom executes arbitrary quests dynamically without requiring one-off quest scripts.
@@ -85,3 +85,56 @@ test result: ok. 58 unit tests + 38 integration tests = 96 passed; 0 failed; fin
   - `crates/maelstrom-core/src/lib.rs`
   - `crates/maelstrom-core/tests/quest_domain_tests.rs`
   - `docs/coordination/results/W101-QUEST-INTERPRETER-CORE-02.md`
+
+---
+
+## Audit note (2026-11-19, Claude)
+
+Verified against `crates/maelstrom-core/src/quest_interpreter.rs`, `crates/maelstrom-core/src/quest_domain.rs`
+and `crates/maelstrom-core/tests/quest_domain_tests.rs`. The status above was changed from "Completed" to a draft
+status because several behaviours described below are not in the code. Nothing was run against a live game.
+
+**Verified present.**
+- The six `QuestArchetype` variants, `W101QuestFact` with `fallback_bearing_deg: Option<f64>` (the [0, 360) range is a
+  doc comment, not enforced), and the six `DialogueState` variants.
+- Three failed interact pulses move the machine to `StuckBackoff` with `cooldown_ms: 2500`
+  (`test_dialogue_state_machine_stuck_backoff` pins this).
+- The four zone constants, the eight named anchors (each name appears once), the ASCII case-insensitive
+  `find_spatial_anchor`, and GOAP travel actions Commons <-> Olde Town <-> Triton Avenue (plus Firecat Alley and
+  Cyclops Lane). These are travel actions, not portal geometry.
+- The seven unit tests and three integration tests named in section 2 exist and pass today.
+
+**Not supported by the code (corrections).**
+1. **`QuestAcceptPolicy` has no effect.** Both match arms in `on_dialogue_page` return the same `Accept` proposal,
+   and `is_mainline` is never consulted by the state machine. The claim "evaluates `AcceptMainlineOnly` vs
+   `AcceptAllInZone`" is false. Defect not fixed here: it needs an API decision (the machine receives no mainline flag).
+2. **No humanized cadence.** There is no jitter, log-normal or 250-650 ms timing anywhere in
+   `quest_interpreter.rs`. The state machine returns proposal strings only; its only durations are the constants
+   2500 ms and 3000 ms.
+3. **Attack Vector 2 is largely invented.** `parry3d` is not a dependency and is not referenced anywhere under
+   `crates/`. `on_interact_failed` only sets `StuckBackoff` and returns true: nothing halts a behavior-tree leaf,
+   re-queries Z-height or retries, and nothing leaves `StuckBackoff` except `finish_interaction`. A second backoff path
+   (25 or more dialogue pages, 3000 ms) is not mentioned.
+4. **Attack Vector 1's fallback does not exist in this module.** `parse_from_text` recognises only the English prefixes
+   `Talk to`, `Explore`/`Go to`, `Defeat`, `Collect` and `Use`, case-sensitively. Any other wording returns `None`, so no
+   `W101QuestFact` exists and the compass bearing, which is carried only inside a parsed fact, is dropped. No code or test
+   here connects the bearing to Pure Pursuit steering.
+5. **Attack Vector 3 is narrower than stated.** Only the anchor lookup ignores ASCII case; nothing normalises
+   whitespace, despite the heading.
+6. **The archetype action chains are intended behaviour, not implemented.** The module classifies text and runs dialogue
+   states. Nothing equips a `mob_aoe` deck, tracks kill or drop counters, hops realms, or waits for a sigil countdown and
+   duels (no such code in `quest_interpreter.rs` or `quest_domain.rs`).
+7. **Boss detection is a keyword heuristic.** A title containing "tower", or a target containing "boss" or "kraken", selects
+   `BossSigilInstance`; "Go to <Tower>" is `ExploreLandmark`. The hard-coded "kraken" is a one-off, which conflicts with
+   "arbitrary quests without one-off scripts".
+8. **Test counts are not reproducible.** "58 unit + 38 integration = 96" does not match today:
+   `cargo test -p maelstrom-core --offline` gives 66 unit + 102 integration tests (17 test files), 0 failed.
+   `quest_domain_tests.rs` alone has 15 tests.
+9. **Not integrated.** Outside its own tests, `quest_interpreter` is only declared in `lib.rs`; no runtime path calls it.
+   It is a unit-tested draft module, not live-qualified.
+10. **`Ctrl+Shift+Q` is unverified.** The Quest Helper key appears only in Gemini-era design docs
+    (`docs/EPISTEMIC_RUNTIME_HARDENING.md`, `docs/QUEST_INTERPRETER_ENGINE.md`), not in
+    `docs/WIZARD101_GAME_KNOWLEDGE.md`.
+
+The clippy, rustfmt, board-gate and encoding lines in section 2 were not re-run for this audit; only the test counts above
+were re-measured.
