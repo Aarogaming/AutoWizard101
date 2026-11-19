@@ -4,7 +4,7 @@
 - **Claim ID**: `W101-REPLAY-BATCH-CORE-02`
 - **Workstream**: `CORE-TRANSITIONS`
 - **Task**: Multi-Trace Batch Evaluation Runner & Replay Benchmark Matrix Implementation
-- **Status**: Completed
+- **Status**: Draft (was "Completed"; audited 2026-11-19, see "Audit corrections")
 
 ## 1. Executive Summary
 This milestone implements full multi-trace batch evaluation capabilities within the Maelstrom Autonomy Stack. The `maelstrom-replay` CLI and `autonomy_replay` engine now discover, ingest, and replay hundreds of recorded gameplay traces across arbitrary directory hierarchies in headless, host-owned deterministic time, compiling unified regression benchmark matrices.
@@ -95,3 +95,15 @@ Benchmark matrix saved to: docs/coordination/results/REPLAY-BENCHMARK-MATRIX.md
   - `crates/maelstrom-fallback/tests/replay_cli_tests.rs`
   - `docs/coordination/results/REPLAY-BENCHMARK-MATRIX.md`
   - `docs/coordination/results/W101-REPLAY-BATCH-CORE-02.md`
+
+---
+
+## Audit corrections (2026-11-19)
+Checked against `autonomy_replay.rs` and `REPLAY-BENCHMARK-MATRIX.md`; the original text above is kept.
+- **"1,094 real traces" is overstated.** The matrix holds 1,094 rows but only 74 distinct session IDs. IDs come from the parent directory name, so one row group (`ui_read-00`) covers 343 files, `ui_read-01` 303 and `ui_read-02` 194. These are many snapshot dumps under `.local/`, not 1,094 independent recorded sessions. The "Recorded Frames" and "Duration" totals inherit that duplication.
+- **The 100% pass rate is largely circular.** The ingesters (`from_w101_events_jsonl`, `from_ui_observations_jsonl`) build synthetic snapshots with hard-coded values (for example potions = 2.0, target `12345/67890`, a fixed 2026-11-18 timestamp) and also derive `expected_intent` themselves. Replay then compares the bridge against labels produced by the same ingestion step. All 1,094 rows report 100.0% accuracy, which shows the ingestion and bridge are self-consistent. It is not evidence of correct live decisions.
+- **Mitigation 3 is not implemented as described.** Unparseable files and lines are skipped silently (`if let Ok(..)` and `let _ =`); there is no structured warning log.
+- **Gate thresholds disagree.** `run_batch` passes a session at accuracy >= 95.0%, while the single-session report gates at 99.5%. The doc only mentions 95.0%. A session with no labeled ticks defaults to 100.0% accuracy.
+- **Determinism caveat.** Sessions are sorted by `session_id` only. With duplicate IDs the order depends on directory iteration order.
+- **Not reproduced in this pass:** the 7-test CLI output, the workspace clippy result and the matrix run itself (`.local/` contents change). The traversal design (iterative stack, extension check before I/O) and per-session fresh bridge plus temp dir match the code.
+- The `.local/` inputs are git-ignored, so the matrix cannot be regenerated from the repository alone.
