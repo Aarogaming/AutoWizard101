@@ -237,3 +237,8 @@ To scale beyond hardcoded starter quests across all 16+ worlds, the system abstr
 6. `Boss / Sigil Instance`
 
 The underlying spatial navigation, portal transitions, and named NPC/landmark anchors remain decoupled within `quest_domain.rs`, allowing any quest in Olde Town, Triton Avenue, or beyond to be executed dynamically through the shared template engine. See [QUEST_INTERPRETER_ENGINE.md](file:///f:/Modlists/AutoWizard101/docs/QUEST_INTERPRETER_ENGINE.md).
+
+> **Audit note (2026-11-19, Claude).** This section states intended scope. The interpreter classifies five English
+> phrasings into the six archetypes and has a dialogue state machine; it does not execute quests, and nothing outside its
+> tests calls it. Named anchors exist for eight entities in Olde Town and Triton Avenue only, and no quest beyond the
+> starter quests listed above has been planned or run. Details: `docs/coordination/results/W101-QUEST-INTERPRETER-CORE-02.md`.

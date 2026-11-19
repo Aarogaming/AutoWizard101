@@ -4,7 +4,7 @@
 - **Claim ID**: `W101-QUEST-INTERPRETER-DOCS-01`
 - **Workstream**: `CORE-TRANSITIONS`
 - **Task**: Data-Driven Quest Interpreter & Dialogue Engine Specification
-- **Status**: Completed
+- **Status**: Documentation delivered; describes behaviour that is not implemented (see Audit note)
 
 ## 1. Executive Summary
 This document registers the specification and design for the Data-Driven Quest Interpreter in `crates/maelstrom-core/src/quest_interpreter.rs`, replacing hardcoded per-quest scripts with a scalable template engine based on six canonical objective archetypes.
@@ -29,3 +29,26 @@ This document registers the specification and design for the Data-Driven Quest I
   - `docs/W101_QUEST_REPERTOIRE.md`
   - `docs/INDEX.md`
   - `docs/coordination/results/W101-QUEST-INTERPRETER-DOCS-01.md`
+
+---
+
+## Audit note (2026-11-19, Claude)
+
+Checked against `crates/maelstrom-core/src/quest_interpreter.rs`, `docs/QUEST_INTERPRETER_ENGINE.md`,
+`docs/W101_QUEST_REPERTOIRE.md` and `docs/INDEX.md`. The status above was changed from "Completed": the documents were
+written, but they describe behaviour that is not implemented. Nothing was run against a live game.
+
+**Verified.** The specification file exists and lists the six archetypes; Section 8 of `docs/W101_QUEST_REPERTOIRE.md`
+references the archetype engine; `docs/INDEX.md` links the specification; named anchors for Olde Town and Triton Avenue
+exist in `crates/maelstrom-core/src/quest_domain.rs`.
+
+**Corrections.**
+1. **"Randomized human cadence" is not implemented.** The dialogue state machine contains no jitter or timing code; see
+   the audit note in `docs/coordination/results/W101-QUEST-INTERPRETER-CORE-02.md`.
+2. **The Red Team mitigation does not hold.** The compass bearing is carried only inside a successfully parsed
+   `W101QuestFact`. `parse_from_text` returns `None` for any wording outside five English prefixes, so when parsing
+   fails the bearing is dropped, not used as a fallback. "Guaranteed" is an absolute the evidence does not support, and
+   no code or test here connects the bearing to movement, nor does any recorded live run show that following it reaches
+   an objective door or NPC trigger volume.
+3. **"A scalable template engine replacing hardcoded scripts" overstates it.** The module is a five-pattern text
+   classifier plus a dialogue state machine, and nothing outside its own tests calls it.
