@@ -1,5 +1,7 @@
 # Claim Evidence: W101-REPLAY-CLI-CORE-02
 
+Status: **Draft** (audited 2026-11-19; see "Audit corrections" at the end).
+
 ## 1. Overview
 - **Task ID**: `W101-REPLAY-CLI-CORE-02`
 - **Workstream**: `CORE-TRANSITIONS`
@@ -38,3 +40,15 @@
 - `rustfmt --edition 2021`: clean across all owned paths.
 - `python tools/check_project_board.py`: Valid (30 workstreams, zero broken links).
 - `python tools/check_text_encoding.py`: 0 violations.
+
+---
+
+## Audit corrections (2026-11-19)
+Checked against `bin/maelstrom-replay.rs` and `autonomy_replay.rs`; the original text above is kept.
+- Verified: `cargo test -p maelstrom-fallback --offline --test replay_cli_tests` passes. The file now holds 7 tests (the 2 named here plus 5 added by later batch and ingestion work), not 2.
+- **The documented CLI flags do not exist.** The binary takes a positional trace path plus `--markdown <file>`, `--json <file>`, `--max-curvature`, `--max-jerk`, and the later batch flags (`--batch-dir`, `--matrix-out`, `--matrix-json`). There is no `--trace`, `--out-json`, `--out-md`, `--summary-only` or `--quiet`.
+- **Exit codes and thresholds are misdescribed.** The single-trace gate fails (exit code 2, message on stderr) only when decision accuracy is below **95.0%**, not 99.5%. Curvature and jerk violations do not affect the exit code. Input errors (missing file, parse failure) exit with 1. The 99.5% figure applies only to the markdown report's status badge.
+- **`initial_waypoints` type differs.** It is `Option<Vec<(f64, f64, f64)>>`, not `Vec<Waypoint>`; `initial_goal` is `Option<String>` as stated.
+- **"Preserving 100% decision accuracy"** describes a hand-built test fixture whose labels were written alongside the trace; it is not a measurement on recorded data.
+- **"Graceful error handling"** holds for file and JSON errors (they return `Result`). Not verified here: behaviour on every corrupt-input case, since no corrupt-file test exists in `replay_cli_tests.rs`.
+- Not reproduced: the "139 passed across 5 crates" workspace count and the clippy run; counts have changed since.
