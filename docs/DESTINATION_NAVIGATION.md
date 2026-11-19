@@ -105,3 +105,41 @@ disconnect were verified. This is one-location corroboration, not moving-feed or
 cross-zone qualification. No movement occurred in those probes.
 
 Task110 live calibration checkpoint: right100ms operation9d137e96875e4661a5705ce91afed023, left100ms01f67afdbc7840bcb39813988321892c and forward100msd9f249d8c80042dd88761feb3304f0cc all completed with nativeIdle verified. Eight samples per window captured right yaw+0.241275rad, left-0.291540rad, forward deltaXY(48.907349,-36.790131), approximately61.20units. Sampling intervals roughly47-63ms; nominal key duration is NOT a measured latency/velocity profile. Each moving window used40reads/384bytes. Context/atomicity remain explicitly unqualified; this proves changing readings during bounded action, not continuous route control or clearance.75 focused native checks pass. Next: persistent qualified sampling, coordinate/heading convention calibration and typed portal arrival before Commons->Dance route promotion. No controller remains active; no installation performed.
+
+## Nav2 3-layer costmap & dynamic threat repulsion (2026-11-18)
+
+Implemented natively in pure Rust (`crates/maelstrom-core/src/costmap.rs`, claim `W101-COSTMAP-01`) under the unburdened operational reality (no client-side anti-cheat; server-side kinematic displacement checks $\Delta d / \Delta t \le v_{\text{max}}$ and server-authoritative combat). Replaces bare Euclidean distance pathing with layered spatial costing compatible with Nav2 conventions:
+
+### Layer structure
+1. **Layer 1: Static Geometry (`PolygonZone`)**:
+   - Traversal cost penalties assigned to polygon regions (e.g. street penalty `50..=127`, sidewalk penalty `0`).
+   - Point-in-polygon containment testing via the ray-casting Jordan curve theorem.
+   - Gives the A* planner a cost heuristic to prefer sidewalks and margins without asserting false "sidewalk immunity" (mobs still override).
+2. **Layer 2: Footprint & Obstacle Clearance Inflation (`FootprintInflation`)**:
+   - Inscribed player/mount radius $R_{\text{inscribed}}$ (e.g. 25 unmounted, 45 mounted) and outer clearance buffer $R_{\text{inflation}}$ (e.g. 75).
+   - Orthogonal distance projection to solid obstacle segments (`ObstacleSegment`).
+   - For $d \le R_{\text{inscribed}}$: returns `COST_INSCRIBED_INFLATED` (253).
+   - For $R_{\text{inscribed}} < d < R_{\text{inflation}}$: strictly monotonic linear decay from 252 down to 1.
+   - For $d \ge R_{\text{inflation}}$: returns `COST_FREE` (0).
+3. **Layer 3: Dynamic Mob Radar & Repulsive Field (`DynamicMobActor`)**:
+   - Evaluates roaming patrol mobs with position $(x, y)$, velocity vector $(\Delta x/\Delta t, \Delta y/\Delta t)$, aggro radius $R_{\text{aggro}}$, and repulsion radius $R_{\text{repulse}}$.
+   - **Forward Trajectory Projection**: Evaluates predicted mob location at player arrival time:
+     $$\vec{P}_{\text{pred}}(t_{\text{arrival}}) = \vec{P}_0 + \vec{V} \cdot t_{\text{arrival}}$$
+   - **Inverse-Square Repulsive Potential Field**:
+     - Inside aggro cylinder ($d \le R_{\text{aggro}}$): `COST_LETHAL_OBSTACLE` (254).
+     - Inside repulsion buffer ($R_{\text{aggro}} < d \le R_{\text{repulse}}$):
+       $$\text{Cost} = \min\left(253, \; \max\left(1, \; \text{round}\left( k \cdot \frac{1}{(d - R_{\text{aggro}} + 1.0)^2} \right)\right)\right)$$
+     - Outside buffer: `COST_FREE` (0).
+4. **Composition & Gradient Extraction (`Nav2Costmap`)**:
+   - Consolidates layers via `CostmapComposition::Max` or `CostmapComposition::Additive`.
+   - `sample_repulsive_gradient(point, arrival_time_s, delta)` computes $(-\nabla C)$ via central differences, providing the physical repulsive force vector pushing away from approaching mobs and walls.
+
+### Red Team/Blue Team audit findings & roadmap
+An adversarial audit on 2026-11-18 identified three hardening requirements and two subsequent architectural stages:
+1. **Verticality & Elevation Aware Filtering (Complete - W101-HARDENING-01)**: Added vertical elevation tolerance $|Z_P - Z_{\text{mob}}| \le \Delta Z_{\text{max}}$ on `DynamicMobActor` and `Nav2Costmap` to prevent mobs patrolling beneath bridges from projecting phantom lethal obstacles onto overhead paths.
+2. **Lookahead Clamping (Complete - W101-HARDENING-01)**: Clamped trajectory projection time $t \le 3.0\text{s}$ to prevent linear extrapolation runaway on curved patrol splines.
+3. **Asset Ingestion Bridge (Complete - W101-ZONE-COSTMAP-02)**: Integrated `ZoneNavMesh` in `crates/maelstrom-core/src/costmap.rs` parsing binary little-endian `zone.nav` files matching `NavigationMap.cs`. Implemented dynamic multi-point edge segment evaluation and Dijkstra shortest safe path planning (`find_safest_path`), automatically deflecting paths around approaching enemy mobs.
+4. **Behavior Tree Orchestration (In Progress - W101-BEHAVIOR-TREE-02)**: Embeds a deterministic Priority Behavior Tree (`behavior_tree.rs`) where `FollowNavMeshPath` runs as an interruptible leaf action under higher-priority Combat, Vital Recovery, and Stuck Recovery branches.
+5. **Local Steering Controller & Odometry Watchdog (Planned - Option 1)**: Translates planned waypoint paths into smooth kinematic key pulses (`W`, `A`, `D`) using Pure Pursuit / Dynamic Window Approach (DWA) coupled with an odometry stall detector ($\Delta \text{pos} < \epsilon$ over $>1.5\text{s}$) to trigger stuck recovery.
+6. **Dynamic 3D Spatial Indexing (W101-SPATIAL-INDEX-DOCS-01 / CORE-02)**: Replaces linear entity scans with a cache-coherent 3D Bounding Volume Hierarchy (BVH / R-Tree Spatial Index) in `crates/maelstrom-core/src/spatial_index.rs`, providing $O(\log n)$ range queries, nearest-neighbor reagent discovery, and cylinder-vs-capsule corridor clearance checks. See [SPATIAL_INDEXING_ROBOTICS.md](SPATIAL_INDEXING_ROBOTICS.md).
+7. **Opportunistic Detour Budget Filter (W101-DETOUR-FILTER-DOCS-01 / CORE-02)**: Evaluates candidate entity detours using the differential cost equation $(C_{\text{detour}} + C_{\text{resume}}) - C_{\text{direct}} < \text{budget}$ coupled with corridor mob-aggro thresholding to siphon pathing safely to reagents and chests. See [OPPORTUNISTIC_DETOUR_FILTER.md](OPPORTUNISTIC_DETOUR_FILTER.md).

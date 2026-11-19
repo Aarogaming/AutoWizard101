@@ -150,3 +150,109 @@ replay and selected conversations are connected deck adapters at this checkpoint
 The benefit is composability and traceable behavior. Timeouts and state checks
 reduce stalled or mismatched actions; they do not guarantee perfect gameplay,
 instant cancellation of broken dependencies or unattended 24/7 operation.
+
+---
+
+## Hierarchical Behavior Trees for State Orchestration & Interruption Handling
+
+Flat `if/else` state machines and simple state transition graphs break down rapidly when an autonomous agent encounters nested, asynchronous interruptions (e.g. *Questing along a route $\to$ Unexpectedly pulled into combat $\to$ Health/Mana depleted $\to$ Need Potion / Refill $\to$ Kinematic snag on world geometry $\to$ Resume original quest*). 
+
+To resolve this, Maelstrom embeds a native, deterministic **Behavior Tree (BT)** engine (`crates/maelstrom-core/src/behavior_tree.rs`).
+
+### 1. Priority-Based Preemption
+
+Behavior Trees evaluate execution hierarchies from top to bottom on every decision tick against a shared, typed `Blackboard` of verified facts:
+
+```
+[Priority Selector: Root]
+├── [Branch 1: Combat Interruption] (Highest Priority)
+│    ├── Condition: in_combat == true
+│    └── Subtree: CombatRoutine (ObserveTurn -> SelectSpell -> Cast -> AwaitResult)
+├── [Branch 2: Vital Recovery]
+│    ├── Sequence: PotionRecovery
+│    │    ├── Condition: mana_pct < 0.20 || health_pct < 0.25
+│    │    ├── Condition: has_potion == true
+│    │    └── Action: DrinkPotion (Emits potion proposal, verifies resource gain)
+├── [Branch 3: Kinematic Stuck Recovery]
+│    ├── Sequence: UnstuckManeuver
+│    │    ├── Condition: is_stuck == true (odometry watchdog: Δpos < ε over >1.5s)
+│    │    └── Action: ExecuteUnstuckPulse (Reverse pulse 0.5s -> Yaw rotate 45° -> Clear latch)
+├── [Branch 4: Quest Navigation]
+│    ├── Sequence: NavigateToObjective
+│    │    ├── Condition: has_active_goal == true
+│    │    └── Action: FollowNavMeshPath (Dynamic Dijkstra over Nav2 Costmap)
+└── [Branch 5: Idle Fallback] (Lowest Priority)
+     └── Action: YieldIdle (Safe resting state)
+```
+
+Because a Priority `Selector` evaluates its children strictly in priority order from left to right on every tick:
+1. If an agent is navigating (`Branch 4: Running`) and suddenly encounters an aggressive mob (`in_combat` flips to `true`), the next tick immediately evaluates `Branch 1` to `Running` / `Success`.
+2. The `Selector` automatically calls `reset()` on the interrupted `NavigateToObjective` branch, clearing running action latches without requiring complex manual interrupt flags.
+3. Once combat concludes (`in_combat` flips to `false`), the root selector falls through to `Branch 2`, `Branch 3`, and back to `Branch 4`, cleanly resuming quest progression.
+
+### 2. Node Composition & Lifecycle
+
+- **`BtStatus`**: Every node returns one of three discrete execution states:
+  - `Success`: The node achieved its goal.
+  - `Failure`: The node could not achieve its goal or its precondition was not met.
+  - `Running`: The node has submitted an asynchronous action proposal and is awaiting completion evidence.
+- **Composites**:
+  - `Selector` (Fallback): Executes children in order; returns `Success` or `Running` on the first non-failure; returns `Failure` if all children fail.
+  - `Sequence`: Executes children in order; returns `Failure` or `Running` on the first non-success; returns `Success` only if all children succeed.
+  - `Parallel`: Evaluates multiple children concurrently with configurable success/failure thresholds.
+- **Decorators**:
+  - `Inverter`: Flips `Success` $\leftrightarrow$ `Failure`; passes `Running` through.
+  - `Retry`: Re-executes a child node up to $N$ times upon `Failure`.
+  - `ForceSuccess` / `ForceFailure`: Normalizes terminal status.
+- **Leaves**:
+  - `ConditionNode`: Read-only predicates querying blackboard facts.
+  - `ActionNode`: Emits structured task proposals onto the blackboard intent channel.
+
+### 3. Separation of Concerns: Facts ≠ Authority ≠ Actions
+
+The Behavior Tree adheres strictly to Maelstrom's safety invariants:
+1. **Blackboard**: Contains only *Facts* derived from observation adapters (e.g., entity positions, mana percentage, combat state, odometry deltas).
+2. **Behavior Tree**: Purely evaluates logic and selects an *Intent* (e.g., `Proposal::DrinkPotion`, `Proposal::FollowWaypoints`). It has zero direct input authority.
+3. **Scheduler & Lease**: Translates intents into bounded physical actions only after verifying lease ownership, target window identity, countdowns, and user takeover flags.
+
+### 4. Kinematic Motion & Biomechanical Input Profiles
+
+When an Action Node proposes a physical interaction (such as mouse clicks on combat spell cards or keyboard navigation pulses):
+1. **Mouse Trajectories**: Rather than teleporting or moving along straight lines, mouse actions pass through the kinematic trajectory planner (`kinematics.rs`). The planner applies WindMouse physical simulation (gravity, damping, stochastic wind drift) or cubic Bézier minimum-jerk curves with Fitts's law acquisition timing. See [Kinematic input profiles](KINEMATIC_INPUT_PROFILES.md).
+2. **Temporal Jitter**: Keypresses and mouse click hold times are modulated by log-normal distributions ($\mu = \ln(75\text{ms})$, $\sigma = 0.22$), eliminating robotic isochronous timing.
+3. **Dispatch Pipeline**: The resulting `KinematicPlan` provides timestamped coordinate waypoints to the platform actuator under the verified input lease.
+
+### 5. Host IPC Bridge (`MaelstromAutonomyBridge`)
+
+The perception-decision loop is orchestrated across the named pipe bridge (`\\.\pipe\maelstrom-deck-<HASH>`):
+1. `MaelstromNativeBridge` retrieves `snapshot` observations from `JobDeckHost.cs`.
+2. `NativeHostState` projects verified facts into `W101Blackboard`.
+3. The Behavior Tree ticks and selects an action intent.
+4. Local controllers (Pure Pursuit steering and kinematic trajectory generators) compute parameterized action structures.
+5. The resulting `AutonomyCycleResult` is returned to the host for single-owner actuation under verified input leases.
+
+### 6. Goal-Oriented Action Planning (GOAP)
+
+For long-horizon quest prerequisite chains, Maelstrom employs a two-tier autonomy architecture:
+1. **Tier 1 (GOAP Macro Planning)**: An $A^*$ state-space search engine (`goap.rs`) plans the optimal sequence of actions satisfying goal preconditions (e.g. traveling between zones, refilling potions, acquiring quest items). See [Goal-Oriented Action Planning](GOAP_ACTION_PLANNING.md).
+2. **Tier 2 (Behavior Tree Tactical Execution)**: Executes the current GOAP action while reactively arbitrating instantaneous events (combat encounters, vital dips, physical snags). Dynamic replanning is triggered if state deviations invalidate active plan preconditions.
+
+### 7. Wizard City Starter & Unicorn Way Quest Domain Repertoire
+
+The concrete action repertoire for Wizard City starter questlines (*"The Lore of Magic"*, *"Enrollment"*, *"A Good Impression"*), the subsequent Unicorn Way combat progression (*"Finding Out"*, Private O'Ryan, Lost Soul & Skeletal Pirate combat, Private Stillson, Lady Oriel), topological zone transitions, NPC interaction bounding geometry, and potion fountain checkpoints is grounded in `crates/maelstrom-core/src/quest_domain.rs`. See [W101 Quest Repertoire](W101_QUEST_REPERTOIRE.md) and [W101 Unicorn Way Quest Domain](W101_QUEST_UNICORN_WAY.md).
+
+### 8. Offline Autonomy Replay Harness
+
+To qualify the two-tier autonomy stack against multi-hour recorded game session traces without live client execution, Maelstrom provides an offline replay harness (`crates/maelstrom-fallback/src/autonomy_replay.rs`). The harness measures decision accuracy ($\ge 99.5\%$), replanning frequency, trajectory curvature smoothness, and kinematic minimum-jerk compliance. See [Offline Autonomy Replay Harness](OFFLINE_AUTONOMY_REPLAY.md).
+
+### 9. Desktop Input Actuator Under Verified Lease
+
+Actuation of parameterized autonomy proposals into physical Windows input events is performed by `DesktopInputActuator.cs`. Dispatches execute strictly under `GameInputLease.Current` with continuous mid-pulse monitoring, foreground focus checks, pre-resume countdown enforcement, and verified key/mouse release. See [Desktop Input Actuator](DESKTOP_INPUT_ACTUATOR.md).
+
+### 10. Combat Dueling Loop Integration
+
+The end-to-end combat dueling loop integrates Behavior Tree combat preemption (`Branch 1: CombatBranch`), `CombatGeometry` coordinate transformation and 1280x720 viewport scaling, card and target selection, pass fallback, and `DesktopInputActuator` kinematic click execution. See [Combat Dueling Loop](COMBAT_DUELING_LOOP.md).
+
+
+
+

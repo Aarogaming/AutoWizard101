@@ -1,0 +1,89 @@
+# Real Gameplay Trace Ingestion & Batch Offline Replay
+
+## 1. Overview & Architecture
+
+To qualify the Maelstrom autonomy architecture against real gameplay without connecting to live Wizard101 game processes, recorded observation streams stored under `.local` are transformed into standardized `AutonomyReplaySession` trace files.
+
+These traces represent empirical recordings of client UI trees, loading transitions, spatial coordinates, and combat states. Ingesting them into the `maelstrom-replay` offline harness enables deterministic, repeatable benchmarking of decision accuracy, reactive preemption speed, and trajectory curvature.
+
+```mermaid
+flowchart LR
+    subgraph Local Gameplay Artifacts [.local]
+        Events[events.jsonl: Routine Operations]
+        UIObs[ui-observations.jsonl: UI Tree & Combat States]
+        Timing[timing.json / result.json: 3205 Viewport Frames]
+    end
+
+    subgraph Trace Ingestion Adapter
+        Events --> Ingest[Ingestion Adapter: Observation Mapper]
+        UIObs --> Ingest
+        Timing --> Ingest
+        Ingest --> Session[AutonomyReplaySession JSON]
+    end
+
+    subgraph Offline Evaluation [maelstrom-replay]
+        Session --> Replay[AutonomyReplayHarness]
+        Replay --> Bridge[MaelstromAutonomyBridge & BehaviorTree]
+        Bridge --> ReportMD[Benchmark Statistical Report .md]
+        Bridge --> MetricsJSON[Metrics Output .json]
+    end
+```
+
+---
+
+## 2. Source Trace Inventory (`.local`)
+
+| Source Path | Data Format | Observations / Frames | Operational Content |
+| :--- | :--- | :--- | :--- |
+| `.local/quest-step-check/TestData/Routines/w101-operations/events.jsonl` | JSON Lines (`kind: observation/action_receipt`) | 19 events (900ms duration) | Navigation landmarks, sigil interaction, loading screen transitions, menu cancellation, and native Idle entry. |
+| `.local/deck-release-20261111/combat-structure-live-data/.../ui-observations.jsonl` | JSON Lines (`kind: tree/loading/ready`) | 16 observation events | Live client UI tree dumps (PID 27396, HWND 1914306730), `PlanningPhase`, `DuelTimerWindow`, `windowHUD`, and `idleText`. |
+| `.local/clean-capture-baseline-20261103/recording/timing.json` | JSON Array (`capture_timestamp_ms`) | 3,205 verified video frames | 60.03 seconds of sustained 1280x720 capture timing with zero dropped frames. |
+
+---
+
+## 3. Schema Transformation Pipeline
+
+Raw observations are mapped into `ReplayFrame` structures containing typed `NativeHostState` snapshots:
+
+```rust
+pub struct ReplayFrame {
+    pub timestamp_ms: u64,
+    pub state: NativeHostState,
+    pub expected_intent: Option<String>,
+}
+```
+
+### Transformation Invariants:
+1. **Facts Normalization**:
+   - `combatActive`: Extracted from `combatContext.planningVisible` or combat tree nodes.
+   - `zoneName`: Extracted from scene landmarks or candidate zone annotations (e.g. `"WizardCity_Commons"`).
+   - `spatialPosition`: Mapped from odometry or synthetic trajectory anchors.
+2. **Aliases Generation**:
+   - `health` / `health.max`: Projected as `REAL` / `DINT` fresh aliases.
+   - `mana` / `mana.max`: Projected as `REAL` / `DINT` fresh aliases.
+   - `potions`: Projected as count of filled bottles.
+   - `nativeIdle`: Set to `true` when `states.nativeIdle` is true or `idleText` node is present.
+3. **Ground-Truth Intent Labeling**:
+   - Navigation steps map to `PROPOSAL:StepWaypoint`.
+   - Combat planning frames map to `PROPOSAL:CombatTurn`.
+   - Low vitals map to `PROPOSAL:DrinkPotion`.
+   - Menu opening/idling map to `None` or safe idle fallback.
+
+---
+
+## 4. Batch Replay Execution & Reporting
+
+Once transformed, traces are executed through the standalone `maelstrom-replay` CLI:
+
+```powershell
+maelstrom-replay `
+  --trace .local/replays/w101-operations-real.json `
+  --out-json .local/replays/metrics-w101-operations.json `
+  --out-md .local/replays/report-w101-operations.md
+```
+
+### Verification Criteria:
+- **Decision Accuracy Threshold**: $\ge 99.5\%$ of labeled ticks must match ground-truth intent.
+- **Max Curvature**: $\kappa < 5.0\text{ rad/m}$.
+- **Kinematic Jerk**: $J < 10.0\text{ m/s}^3$.
+- **Zero Process Mutation**: 100% offline evaluation with zero OS hook or window manipulation.

@@ -4,6 +4,8 @@
 - [W101 automation readiness](W101_AUTOMATION_READINESS.md) — task-by-task progress, remaining gates and dependency order; live demonstrations distinguished from complete unattended routines.
 - [Cards, routines and decks](ROUTINE_EXECUTION_MODEL.md) — Action Cards, Routine Cards and the Routine Deck; shared constraints, verified results and controlled interruption in game-player terms.
 - [Architecture audit](ARCHITECTURE_AUDIT_20261111.md) — callable operations, card constraints, layered contracts, knowledge accuracy and concrete gaps.
+- [Ontology normalization](architecture/ONTOLOGY_NORMALIZATION.md) — the Facts != Authority != Actions invariant, the six primitives (State/Transition/Relationship/Constraint/Trust/Perspective) and the leak register; interpretation and audit surface only, no rewrite authorized.
+- [Repository census](architecture/REPOSITORY_CENSUS.md) — Phase 1 inventory: every major subsystem mapped to path, purpose, category, primitives and evidence; paths existence-checked.
 - [Capability inventory](../research/maelstrom-capabilities.json) — checked, non-executable map of selected workflow families; not a complete runtime registry.
 - [Card collection and Routine Deck](JOB_DECK.md) — configurable cards, front/back editor, quotas, generic quest auto-fill, shared scheduler and local API/MCP; installed checkpoint is recorded separately from later source changes.
 - [Installed deck release](coordination/results/CORE-DECK-RELEASE-02.md) and [later source checkpoint](coordination/results/W101-COMBAT-CONNECT-06.md) — distribution and newer implementation evidence; neither is complete auto-questing.
@@ -18,6 +20,7 @@
 - [Selected quest conversation](W101_QUEST_STEP_20261110.md) — optional quest text, reusable repeated menus, bounded conversation pilot and evidence.
 
 - [Project organization](PROJECT_ORGANIZATION.md) — current sources of truth, parallel lanes and evidence rules.
+- [Backend control plane](BACKEND_CONTROL_PLANE.md) — backend-first operation contract, CLI/API/MCP/UI coverage audit, Rust-to-C# named pipe IPC integration (MaelstromAutonomyBridge), and staged parity plan.
 - [Game workstreams](GAME_WORKSTREAMS.md) and [structured board](coordination/workstreams.json) — task inventory, ownership, dependencies and next actions.
 - [External-agent guide](coordination/EXTERNAL_AGENT_GUIDE.md) — bounded task briefs and shared-checkout coordination for Codex, Claude or Gemini.
 - [Shared routine graphs](ROUTINE_GRAPHS.md) — reusable transition runner, registered actions and offline rehearsal.
@@ -85,7 +88,23 @@
 - [Read-only snack planner](PET_SNACK_PLANNER.md) — deterministic suggestions from supplied observations, with separate goals, reserves and budgets; no feeding.
 - [Game knowledge database](GAME_KNOWLEDGE_DATABASE.md) — tested local schema, source chronology, conflicting claims and staged domain imports; application integration pending.
 - [First knowledge importer](W101_KNOWLEDGE_IMPORT.md) — bounded pet-snack ledger to a new SQLite bundle with provenance and commit/hash receipt; no runtime enablement.
-- [Game audio cues](GAME_AUDIO_CUES.md) — current recorder limits, repaired legacy audio path and proposed opt-in process-specific capture and cue learning.
+- [Game audio cues](GAME_AUDIO_CUES.md) — selected-process WASAPI loopback, native Goertzel spectral classifier (W101-AUDIO-CORE-02), acoustic signature profiles (splash, fanfare, timer), and Blackboard routing.
+- [Kinematic input profiles](KINEMATIC_INPUT_PROFILES.md) — non-robotic input dispatch, WindMouse physics simulation, cubic Bézier minimum-jerk curves, Fitts's law acquisition durations, and log-normal dwell time jitter.
+- [Goal-Oriented Action Planning](GOAP_ACTION_PLANNING.md) — macro quest prerequisite chaining, A* state-space search, action graph synthesis, and Behavior Tree two-tier autonomy coordination.
+- [W101 Quest Repertoire](W101_QUEST_REPERTOIRE.md) — canonical Wizard City starter questline modeling ("The Lore of Magic", "Enrollment", "A Good Impression"), domain actions, zone transitions, NPC interaction bounds, and potion checkpoint restoration.
+- [W101 Unicorn Way Quest Domain](W101_QUEST_UNICORN_WAY.md) — Unicorn Way progression ("Finding Out", Private O'Ryan, Lost Soul & Skeletal Pirate combat encounters, "Grim Tales", Private Stillson, Lady Oriel sanctuary), dialogue geometries, and pre-combat health replenishment invariants.
+- [Data-Driven Quest Interpreter](QUEST_INTERPRETER_ENGINE.md) — generic 6 canonical objective archetypes, universal dialogue and quest-accept state machine, quest helper compass vector, and decoupled world topology in Olde Town and Triton Avenue.
+- [Offline Autonomy Replay Harness](OFFLINE_AUTONOMY_REPLAY.md) — multi-hour recorded game session trace replayer, decision accuracy measurement, replanning frequency, trajectory curvature smoothness, and kinematic minimum-jerk validation without live client access.
+- [Autonomy Replay CLI](AUTONOMY_REPLAY_CLI.md) — standalone 'maelstrom-replay' CLI tool, trace file ingestion, and comprehensive statistical reporting in Markdown and JSON.
+- [Real Trace Ingestion](REAL_TRACE_INGESTION.md) — real gameplay observation and UI event stream ingestion (.local artifacts) for batch offline replay benchmarking and quality gating.
+- [Replay Batch Benchmark](REPLAY_BATCH_BENCHMARK.md) — multi-trace batch evaluation runner in maelstrom-replay CLI, directory ingestion, aggregate metrics collection, and unified Markdown benchmark matrix specification.
+- [Desktop Input Actuator](DESKTOP_INPUT_ACTUATOR.md) — physical actuation bridge wiring SteeringCommandSummary and KinematicPlanSummary into the C# scheduler under GameInputLease with countdown, focus, and cancellation invariants.
+- [JobDeckHost Actuation Loop](JOB_DECK_ACTUATION_LOOP.md) — named pipe 'actuate' command specification, routing autonomy intents into DesktopInputActuator under simulated playback and live verified lease modes.
+- [Combat Dueling Loop](COMBAT_DUELING_LOOP.md) — end-to-end combat dueling loop integration connecting Behavior Tree combat preemption, 1280x720 viewport coordinate scaling, card/target selection, pass fallback, and DesktopInputActuator kinematic clicks.
+- [Pre-Battle Deck Profile Switching](PRE_BATTLE_DECK_PROFILES.md) — out-of-combat deck verification, safe-zone margin checks, encounter archetype tagging (MobAoE, BossFeint, SchoolPrism, HealSupport), spellbook UI geometry, and GOAP EnsureDeckProfile action integration.
+- [Combat Turn Evaluator Engine](COMBAT_TURN_EVALUATOR.md) — turn-by-turn card scoring, regular vs. power pip arithmetic, blade/trap damage multiplier estimation, lethal kill threshold checks, and target pedestal arbitration.
+- [Reality Runtime Primitive Ontology](REALITY_RUNTIME_ONTOLOGY.md) — the 7 irreducible grammar primitives of reality (Manifold, Entity, Affordance, Connector, Hazard, Resource, Predicate), epistemic control loops, and mapping from Wizard101 Gamebryo telemetry into domain-agnostic schemas.
+- [Acoustic Fishing Reflex Engine](ACOUSTIC_FISHING_REFLEX.md) — energy budget preconditions, lead-cast kinematics, acoustic bobber splash reflex gating (<= 150ms), fishing state machine transitions, and catch resolution.
 - [Capture cancellation review](WINDOW_CAPTURE_CANCELLATION_REVIEW.md) — pending native-copy lifetime repair and tests needed for bounded caller cancellation.
 - [Installed W101 sources](W101_LOCAL_INSTALLATION_SOURCES.md) — bounded archive inventory, candidate pet/spell/minigame/navigation data and read-only import plan.
 - [Legacy qualification matrix](W101_LEGACY_QUALIFICATION.md) — all 25 supplied archives, independent alternatives, component tests, reproduced defects and build blockers.
@@ -93,7 +112,9 @@
 - [W101 capability integration map](W101_CAPABILITY_INTEGRATION_MAP.md) — all archive/tool roles, teacher-to-native paths, proposed operations, scheduler repairs and dependency-gated acceptance criteria.
 - [Shared operations](SHARED_OPERATIONS.md) — implemented bounded queue, native/Python input ownership, run history, scheduled Pet Dance review and remaining live gates.
 - [Shared operations validation](SHARED_OPERATIONS_VALIDATION_20261108.md) — installed release, tests, preserved user data and the brief native Idle return check.
-- [Destination navigation](W101_DESTINATION_NAVIGATION.md) — intended route/port planning, enemy avoidance, outcome checks and native Idle restoration.
+- [Destination navigation](DESTINATION_NAVIGATION.md) — candidate graph to owned execution, Nav2 3-layer costmap engine (W101-COSTMAP-01), ZoneNavMesh asset bridge (W101-ZONE-COSTMAP-02), Behavior Tree state orchestration (ROUTINE_EXECUTION_MODEL.md), threat repulsion and native Idle restoration; early requirements in [W101 destination navigation](W101_DESTINATION_NAVIGATION.md).
+- [Dynamic 3D Spatial Indexing](SPATIAL_INDEXING_ROBOTICS.md) — 3D Bounding Volume Hierarchy (BVH / R-Tree Spatial Index) in costmap.rs, O(log n) mob aggro cylinder and reagent queries, and corridor clearance verification.
+- [Opportunistic Detour Filter](OPPORTUNISTIC_DETOUR_FILTER.md) — dynamic detour budget equation, corridor threat and mob-aggro thresholding, and behavior tree opportunistic resource harvesting.
 - [W101 route demonstration](W101_ROUTE_DEMONSTRATION.md) — passive video and navigation-key recording, human-ready coordination, measured capture limits and route-learning boundaries.
 - [Recorded Commons route and Tiny UI study](W101_DEMONSTRATION_20261108.md) — human route and Dance footage, synchronized input evidence, native arrow calibration and fade-transition gap.
 - [W101 operating knowledge and version history](W101_GAME_RESEARCH_20261108.md) — sourced travel mechanics, chronological changes, Tiny UI requirements, current observations and the first Pavilion route.
