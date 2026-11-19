@@ -45,6 +45,9 @@ jobs:
       - name: Claim evidence gate
         run: python tools/check_claim_evidence.py --strict
 
+      - name: Response format gate
+        run: python tools/check_response_format.py --strict
+
       - name: Text encoding gate
         run: python tools/check_text_encoding.py --quiet
 

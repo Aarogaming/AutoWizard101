@@ -21,6 +21,7 @@
 - [Earlier W101 workflow checkpoint](W101_WORKFLOW_STATUS_20261110.md) — November 10 routines/UI and conditional-switching gaps; use the current readiness map above for later progress.
 - [Selected quest conversation](W101_QUEST_STEP_20261110.md) — optional quest text, reusable repeated menus, bounded conversation pilot and evidence.
 
+- [Open issues: report and plan (2026-11-19)](OPEN_ISSUES_REPORT_AND_PLAN_20261119.md) — draft answer on patch discovery/recovery and each open issue, written in the who/what/when/where/why/how and before/during/after format.
 - [Project organization](PROJECT_ORGANIZATION.md) — current sources of truth, parallel lanes and evidence rules.
 - [Backend control plane](BACKEND_CONTROL_PLANE.md) — backend-first operation contract, CLI/API/MCP/UI coverage audit, Rust-to-C# named pipe IPC integration (MaelstromAutonomyBridge), and staged parity plan.
 - [Game workstreams](GAME_WORKSTREAMS.md) and [structured board](coordination/workstreams.json) — task inventory, ownership, dependencies and next actions.

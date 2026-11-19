@@ -9,6 +9,12 @@ Maelstrom is a lightweight desktop game-player and experiment workbench: users s
 - Never commit secrets. Don’t print secrets in logs.
 - If a requirement is ambiguous, propose 2-3 options and ask the user (me) which to choose.
 
+## Response format (every plan, proposal, issue response and report)
+Every response that proposes, performs or reports work covers all of: **Who** (owner, implementer, approver, who is affected), **What** (deliverable and what is out of scope), **When** (order, trigger, what it waits on), **Where** (paths, systems, offline vs live, branch/PR), **Why** (problem, risk, evidence of need), **How** (concrete steps, commands, tests), plus **Before** (preconditions, authorizations, baselines, backups), **During** (safeguards, stop conditions, who watches, what is logged) and **After** (verification, evidence, cleanup/rollback, follow-ups, what remains unproven).
+- Short items are fine; write `n/a - reason` for an item that does not apply. Silently dropping one is not allowed.
+- Written plans and reports under `docs/` that opt in with `<!-- response-format: 5w1h-bda -->` on line 1 use one `## R<n>` section per response; `python tools/check_response_format.py --strict` checks them. Chat replies are not machine-checked, so this rule and review are the control.
+- Details and template: `docs/coordination/EXTERNAL_AGENT_GUIDE.md` (Response format). Example: `docs/OPEN_ISSUES_REPORT_AND_PLAN_20261119.md`.
+
 ## Repo workflow
 - Branch naming: maelstrom/<short-task-name>
 - Commit style: conventional commits (feat:, fix:, refactor:, test:, docs:)
@@ -32,6 +38,7 @@ Run from this repository root in PowerShell. No new production dependencies with
 - Python tests: `python -m unittest discover -s tools/tests -p test_<component>.py` (stdlib tests; optional vision tools use existing isolated environments).
 - Python formatting: `python -m black --check <owned changed Python paths>`; syntax: `python -m compileall -q <owned changed Python paths>`. Run any component-specific lint/checker too; do not claim a linter ran if it was unavailable.
 - Project-board check: `python tools/check_project_board.py`.
+- Response-format check: `python tools/check_response_format.py --strict`.
 - Offline routine replay: native executable `--replay-routine <routine.json> <session.json> <new-report.json>`; no desktop input is available in this mode. See `docs/ROUTINE_GRAPHS.md`.
 - Packaging/installation: follow `PACKAGING.md` only when assigned. An offline task does not authorize live gameplay or installation.
 

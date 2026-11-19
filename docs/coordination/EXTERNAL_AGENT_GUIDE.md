@@ -164,3 +164,31 @@ python tools/check_claim_evidence.py --strict
 
 The gates only catch what can be checked offline; they do not replace review of the
 claims themselves.
+
+## Response format (who, what, when, where, why, how; before, during, after)
+
+Every plan, proposal, issue response, status report and completion report states all nine items. A reader should
+be able to act on it without asking a follow-up question.
+
+| Item | Answer in one line |
+| --- | --- |
+| Who | owner, implementer, approver, who is affected |
+| What | the deliverable; what is explicitly out of scope |
+| When | order, trigger or deadline; what it waits on |
+| Where | paths, systems, offline or live, branch/PR |
+| Why | the problem, the risk, the evidence of need |
+| How | concrete steps, commands, tests |
+| Before | preconditions, authorizations, baseline measurements, backups |
+| During | safeguards, stop conditions, who watches, what is logged, what happens on failure |
+| After | verification, evidence, cleanup or rollback, follow-ups, what is still unproven |
+
+Rules:
+
+1. Write `n/a - reason` for an item that does not apply; do not omit it.
+2. "After" must name what remains unproven. A dispatched or proposed step is not proof of an outcome.
+3. In a document, put `<!-- response-format: 5w1h-bda -->` in the first 5 lines and use one `## R<n>. Title` section per
+   response, with bold labels such as `**Who.**`. Then run `python tools/check_response_format.py --strict`.
+4. Live gameplay, installs and dependency adoption still need the explicit scope and approvals in `AGENTS.md`; a
+   complete "Before" section does not grant them.
+
+Example: `docs/OPEN_ISSUES_REPORT_AND_PLAN_20261119.md`.
