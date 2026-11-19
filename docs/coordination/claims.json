@@ -6,6 +6,426 @@
   "note": "2026-11-11 architecture audit and canonical validation repair complete; scoped claims released. Gemini OBS-02 reservation remains active. Roadmap distinguishes installed deck from source-only combat/sign-in/validation changes.",
   "claims": [
     {
+      "task_id": "W101-FISHING-CORE-02",
+      "state": "active",
+      "owner": "coordinator",
+      "notes": "Implementation of Acoustic Fishing Reflex Engine in fishing_domain.rs: energy budget checks, lead-cast kinematics, acoustic splash reflex strike gating (<= 150ms), fishing state machine, and catch telemetry.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/fishing_domain.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/fishing_domain_tests.rs",
+        "docs/coordination/results/W101-FISHING-CORE-02.md"
+      ],
+      "workstream_id": "W101-ENERGY"
+    },
+    {
+      "task_id": "W101-FISHING-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation of Acoustic Fishing Reflex Engine: energy budget preconditions, lead-cast kinematics, acoustic bobber splash reflex gating (<= 150ms), fishing state machine transitions, and catch resolution.",
+      "owned_paths": [
+        "docs/ACOUSTIC_FISHING_REFLEX.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-FISHING-DOCS-01.md"
+      ],
+      "workstream_id": "W101-ENERGY"
+    },
+    {
+      "task_id": "W101-COMBAT-EVAL-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of turn-by-turn combat decision engine (pip calculations, blade/trap damage multiplier estimation, card scoring, lethal kill thresholding, and target selection) in combat_turn_evaluator.rs.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/combat_turn_evaluator.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/combat_turn_evaluator_tests.rs",
+        "docs/coordination/results/W101-COMBAT-EVAL-CORE-02.md"
+      ],
+      "workstream_id": "W101-COMBAT"
+    },
+    {
+      "task_id": "W101-COMBAT-EVAL-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for concrete turn-by-turn combat evaluation (pip accounting, blade/trap multiplier tracking, card scoring, lethal kill estimation, and target selection).",
+      "owned_paths": [
+        "docs/COMBAT_TURN_EVALUATOR.md",
+        "docs/COMBAT_DUELING_LOOP.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-COMBAT-EVAL-DOCS-01.md"
+      ],
+      "workstream_id": "W101-COMBAT"
+    },
+    {
+      "task_id": "W101-ONTOLOGY-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of 7 irreducible reality runtime primitives (Manifold, Entity, Affordance, Connector, Hazard, Resource, Predicate) in ontology.rs, grounding mappings, and formal epistemic invariant validation.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/ontology.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/ontology_tests.rs",
+        "docs/coordination/results/W101-ONTOLOGY-CORE-02.md"
+      ],
+      "workstream_id": "CORE-KNOWLEDGE"
+    },
+    {
+      "task_id": "W101-ONTOLOGY-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for the 7 irreducible reality runtime primitives (Manifold, Entity, Affordance, Connector, Hazard, Resource, Predicate) and mapping from Wizard101 Gamebryo telemetry into domain-agnostic reality schemas.",
+      "owned_paths": [
+        "docs/REALITY_RUNTIME_ONTOLOGY.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-ONTOLOGY-DOCS-01.md"
+      ],
+      "workstream_id": "CORE-KNOWLEDGE"
+    },
+    {
+      "task_id": "W101-DECK-SWITCH-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of pre-battle deck profile switching in goap.rs (DeckProfileTag, safe-zone preconditions, EnsureDeckProfile action) and SpellbookGeometry in combat_geometry.rs.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/combat_geometry.rs",
+        "crates/maelstrom-core/src/goap.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/goap_tests.rs",
+        "crates/maelstrom-core/tests/combat_geometry_tests.rs",
+        "docs/coordination/results/W101-DECK-SWITCH-CORE-02.md"
+      ],
+      "workstream_id": "W101-COMBAT"
+    },
+    {
+      "task_id": "W101-DECK-SWITCH-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for pre-battle deck profile switching, safe-zone preconditions, encounter tag matching (mob_aoe, boss_feint, school_prism), spellbook UI geometry, and GOAP integration.",
+      "owned_paths": [
+        "docs/PRE_BATTLE_DECK_PROFILES.md",
+        "docs/COMBAT_DUELING_LOOP.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-DECK-SWITCH-DOCS-01.md"
+      ],
+      "workstream_id": "W101-COMBAT"
+    },
+    {
+      "task_id": "W101-DETOUR-FILTER-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of opportunistic detour budget filter in costmap.rs (delta C equation, dual-corridor mob-aggro safety check) and Behavior Tree OpportunisticDetour leaf in behavior_tree.rs.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/costmap.rs",
+        "crates/maelstrom-core/src/behavior_tree.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/costmap_tests.rs",
+        "crates/maelstrom-core/tests/behavior_tree_tests.rs",
+        "docs/coordination/results/W101-DETOUR-FILTER-CORE-02.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-DETOUR-FILTER-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for opportunistic detour budget filter, dynamic (C_detour + C_resume) - C_direct < budget equation, corridor mob aggro potential thresholding, and behavior tree detour leaf injection.",
+      "owned_paths": [
+        "docs/OPPORTUNISTIC_DETOUR_FILTER.md",
+        "docs/DESTINATION_NAVIGATION.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-DETOUR-FILTER-DOCS-01.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-SPATIAL-INDEX-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of dynamic 3D spatial indexing (AABB3D, SpatialEntity3D, SpatialTree3D) in spatial_index.rs, O(log n) range and nearest neighbor queries, corridor clearance checking, and integration into Nav2Costmap in costmap.rs.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/spatial_index.rs",
+        "crates/maelstrom-core/src/costmap.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/costmap_tests.rs",
+        "docs/coordination/results/W101-SPATIAL-INDEX-CORE-02.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-SPATIAL-INDEX-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for dynamic 3D spatial indexing (3D R-Tree / BVH) in costmap.rs, O(log n) mob aggro cylinder and reagent queries, and corridor clearance verification.",
+      "owned_paths": [
+        "docs/SPATIAL_INDEXING_ROBOTICS.md",
+        "docs/DESTINATION_NAVIGATION.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-SPATIAL-INDEX-DOCS-01.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-QUEST-INTERPRETER-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of Data-Driven Quest Interpreter in quest_interpreter.rs (6 canonical objective archetypes, universal dialogue state machine, Quest Helper compass vector) and decoupled world topology for Olde Town and Triton Avenue in quest_domain.rs.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/quest_interpreter.rs",
+        "crates/maelstrom-core/src/quest_domain.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/quest_domain_tests.rs",
+        "docs/coordination/results/W101-QUEST-INTERPRETER-CORE-02.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-QUEST-INTERPRETER-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for the generic data-driven quest interpreter engine, 6 canonical objective archetypes, universal dialogue/accept state machine, and spatial world topology anchors for Olde Town and Triton Avenue.",
+      "owned_paths": [
+        "docs/QUEST_INTERPRETER_ENGINE.md",
+        "docs/W101_QUEST_REPERTOIRE.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-QUEST-INTERPRETER-DOCS-01.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-REPLAY-BATCH-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of multi-trace batch evaluation runner in autonomy_replay.rs and maelstrom-replay CLI, directory ingestion, aggregate metrics collection, and generation of REPLAY-BENCHMARK-MATRIX.md.",
+      "owned_paths": [
+        "crates/maelstrom-fallback/src/autonomy_replay.rs",
+        "crates/maelstrom-fallback/src/bin/maelstrom-replay.rs",
+        "crates/maelstrom-fallback/tests/replay_cli_tests.rs",
+        "docs/coordination/results/REPLAY-BENCHMARK-MATRIX.md",
+        "docs/coordination/results/W101-REPLAY-BATCH-CORE-02.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-REPLAY-BATCH-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for multi-trace batch evaluation runner in maelstrom-replay CLI, directory ingestion, aggregate metrics collection, and unified Markdown benchmark matrix specification.",
+      "owned_paths": [
+        "docs/REPLAY_BATCH_BENCHMARK.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-REPLAY-BATCH-DOCS-01.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-TRACE-INGEST-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of real gameplay trace ingestion in autonomy_replay.rs (parsing w101 operations and UI observations), conversion to AutonomyReplaySession, and end-to-end replay benchmarking tests.",
+      "owned_paths": [
+        "crates/maelstrom-fallback/src/autonomy_replay.rs",
+        "crates/maelstrom-fallback/tests/replay_cli_tests.rs",
+        "docs/coordination/results/W101-TRACE-INGEST-CORE-02.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-TRACE-INGEST-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for real gameplay trace ingestion (.local session and UI event streams), conversion to AutonomyReplaySession format, and batch offline replay verification reporting.",
+      "owned_paths": [
+        "docs/REAL_TRACE_INGESTION.md",
+        "docs/AUTONOMY_REPLAY_CLI.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-TRACE-INGEST-DOCS-01.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-COMBAT-DUEL-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of end-to-end combat dueling loop: CombatGeometry viewport scaling and card/target/pass resolution, MaelstromAutonomyBridge combat turn intent generation, and DesktopInputActuator end-to-end dueling click verification.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/combat_geometry.rs",
+        "crates/maelstrom-fallback/src/maelstrom_bridge.rs",
+        "crates/maelstrom-fallback/tests/autonomy_bridge_tests.rs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/DesktopInputActuatorTests.cs",
+        "docs/coordination/results/W101-COMBAT-DUEL-CORE-02.md"
+      ],
+      "workstream_id": "W101-COMBAT"
+    },
+    {
+      "task_id": "W101-COMBAT-DUEL-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for end-to-end combat dueling loop integration: Behavior Tree CombatTurn execution, CombatGeometry viewport scaling, card selection, target selection, pass fallback, and DesktopInputActuator kinematic click dispatch.",
+      "owned_paths": [
+        "docs/COMBAT_DUELING_LOOP.md",
+        "docs/ROUTINE_EXECUTION_MODEL.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-COMBAT-DUEL-DOCS-01.md"
+      ],
+      "workstream_id": "W101-COMBAT"
+    },
+    {
+      "task_id": "W101-QUEST-UNICORN-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of Unicorn Way questline action repertoire (Private O'Ryan, Grim Tales, Lost Soul and Skeletal Pirate combat encounters), dialogue geometries, and pre-combat health replenishment tests.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/quest_domain.rs",
+        "crates/maelstrom-core/tests/quest_domain_tests.rs",
+        "docs/coordination/results/W101-QUEST-UNICORN-CORE-02.md"
+      ],
+      "workstream_id": "W101-QUESTS"
+    },
+    {
+      "task_id": "W101-QUEST-UNICORN-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for Unicorn Way questline action repertoire (Private O'Ryan, Grim Tales, Lost Soul and Skeletal Pirate combat encounters), dialogue geometries, and combat recovery invariants.",
+      "owned_paths": [
+        "docs/W101_QUEST_UNICORN_WAY.md",
+        "docs/W101_QUEST_REPERTOIRE.md",
+        "docs/ROUTINE_EXECUTION_MODEL.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-QUEST-UNICORN-DOCS-01.md"
+      ],
+      "workstream_id": "W101-QUESTS"
+    },
+    {
+      "task_id": "W101-REPLAY-CLI-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of maelstrom-replay CLI binary and Markdown/JSON statistical report formatting.",
+      "owned_paths": [
+        "crates/maelstrom-fallback/src/autonomy_replay.rs",
+        "crates/maelstrom-fallback/src/bin/maelstrom-replay.rs",
+        "crates/maelstrom-fallback/tests/replay_cli_tests.rs",
+        "docs/coordination/results/W101-REPLAY-CLI-CORE-02.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-REPLAY-CLI-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for the autonomy replay CLI tool ('maelstrom-replay'), trace file formats, and comprehensive statistical markdown/JSON reporting.",
+      "owned_paths": [
+        "docs/AUTONOMY_REPLAY_CLI.md",
+        "docs/OFFLINE_AUTONOMY_REPLAY.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-REPLAY-CLI-DOCS-01.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-ACTUATION-LOOP-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of JobDeckHost 'actuate' command and DesktopInputActuator simulation factory for simulated playback and live lease execution.",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/DesktopInputActuator.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostActuationTests.cs",
+        "docs/coordination/results/W101-ACTUATION-LOOP-CORE-02.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-ACTUATION-LOOP-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for the JobDeckHost end-to-end actuation event loop ('actuate' command), wiring SteeringCommandSummary and KinematicPlanSummary to DesktopInputActuator under simulated playback and live lease modes.",
+      "owned_paths": [
+        "docs/JOB_DECK_ACTUATION_LOOP.md",
+        "docs/BACKEND_CONTROL_PLANE.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-ACTUATION-LOOP-DOCS-01.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-ACTUATOR-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Implementation of DesktopInputActuator wiring SteeringCommandSummary and KinematicPlanSummary into the C# scheduler under GameInputLease, enforcing countdown, focus, and cancellation invariants.",
+      "owned_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/DesktopInputActuator.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/DesktopInputActuatorTests.cs",
+        "docs/coordination/results/W101-ACTUATOR-CORE-02.md"
+      ],
+      "workstream_id": "W101-NAVIGATION"
+    },
+    {
+      "task_id": "W101-ACTUATOR-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Documentation for DesktopInputActuator wiring SteeringCommandSummary and KinematicPlanSummary into the C# scheduler under the single input lease, enforcing countdown, focus, and cancellation invariants.",
+      "owned_paths": [
+        "docs/DESKTOP_INPUT_ACTUATOR.md",
+        "docs/DESKTOP_INPUT_OPTIONS.md",
+        "docs/ROUTINE_EXECUTION_MODEL.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-ACTUATOR-DOCS-01.md"
+      ],
+      "workstream_id": "W101-NAVIGATION"
+    },
+    {
+      "task_id": "W101-REPLAY-HARNESS-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Offline replay harness implementation for the autonomy stack: ReplayFrame parsing, multi-hour trace evaluation through MaelstromAutonomyBridge, decision accuracy, replanning rate, curvature, and jerk metrics.",
+      "owned_paths": [
+        "crates/maelstrom-fallback/src/autonomy_replay.rs",
+        "crates/maelstrom-fallback/src/lib.rs",
+        "crates/maelstrom-fallback/tests/autonomy_replay_tests.rs",
+        "docs/coordination/results/W101-REPLAY-HARNESS-CORE-02.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-REPLAY-HARNESS-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Offline replay harness documentation for the autonomy stack: multi-hour session trace replaying through MaelstromAutonomyBridge, decision accuracy, replan metrics, and trajectory curvature profiling.",
+      "owned_paths": [
+        "docs/OFFLINE_AUTONOMY_REPLAY.md",
+        "docs/ROUTINE_EXECUTION_MODEL.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-REPLAY-HARNESS-DOCS-01.md"
+      ],
+      "workstream_id": "CORE-TRANSITIONS"
+    },
+    {
+      "task_id": "W101-QUEST-REPERTOIRE-CORE-02",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Wizard City starter questline GOAP action repertoire (Lore of Magic, Enrollment, Golem Court), zone transitions, and potion checkpoint restoration.",
+      "owned_paths": [
+        "crates/maelstrom-core/src/quest_domain.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/quest_domain_tests.rs",
+        "docs/coordination/results/W101-QUEST-REPERTOIRE-CORE-02.md"
+      ],
+      "workstream_id": "W101-QUESTS"
+    },
+    {
+      "task_id": "W101-QUEST-REPERTOIRE-DOCS-01",
+      "state": "released",
+      "owner": "coordinator",
+      "notes": "Wizard City starter questline GOAP repertoire documentation (Lore of Magic, Enrollment, Golem Court), zone transition topology, and potion checkpoint restoration.",
+      "owned_paths": [
+        "docs/W101_QUEST_REPERTOIRE.md",
+        "docs/ROUTINE_EXECUTION_MODEL.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-QUEST-REPERTOIRE-DOCS-01.md"
+      ],
+      "workstream_id": "W101-QUESTS"
+    },
+    {
       "task_id": "W101-MODULE-BIND-04",
       "state": "released",
       "owner": "w101_binding",
@@ -4289,20 +4709,25 @@
     },
     {
       "task_id": "W101-CLIENT-REVIEW-83",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsMapper.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsCycle.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsMapperTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ForegroundAdmissionTests.cs",
+        "tools/tests/test_w101_ui_tree.py",
+        "tools/w101_ui_tree.py",
         "docs/coordination/results/W101-CLIENT-REVIEW-83.md"
       ],
-      "notes": "Owner-directed 2026-11-18, single pass over two defects found during the first live facts-watch attempt (read-only, owner present; run exited 2/observer-fault with no facts published and no input dispatched). (1) DIAGNOSTICS: W101FactsSession uses a bare catch that discards the exception, so the report says only 'observer-fault' and the real fixed diagnostic code never reaches the operator; surface a bounded reason without exposing addresses, bytes or raw exceptions (UiCompatibilityError already restricts to fixed codes). (2) CLIENT REVIEW: the live client image 818dbe66037bcb6913a87ab4c2b5f77b0c4fad8d2d10bed921c9fe36ef7d1114 is not in SupportsClientImage (only 544ab726.../r13-current and d410a246.../r15-archived), so both the C# gate and tools/w101_ui_tree.py profile_for() refused with client-build-unreviewed. Read-only scan of the installed exe found both known root-entry signatures present but CURRENT_SCRATCH_PATTERN absent, so it is not a byte-identical build. Will independently scan and verify root-entry + scratch signatures against the reviewed profile and add the hash ONLY if the evidence verifies; never infer registers/offsets. Extending owned_paths as each file is touched. AUTHORITY: source edits on owned paths plus offline build/test in the serialized slot. NOT AUTHORIZED: live hooks, input dispatch, installed-file writes, network, new dependencies, commits outside owned paths."
+      "notes": "Owner-directed 2026-11-18, single pass over two defects found during the first live facts-watch attempt (read-only, owner present; run exited 2/observer-fault with no facts published and no input dispatched). (1) DIAGNOSTICS: W101FactsSession uses a bare catch that discards the exception, so the report says only 'observer-fault' and the real fixed diagnostic code never reaches the operator; surface a bounded reason without exposing addresses, bytes or raw exceptions (UiCompatibilityError already restricts to fixed codes). (2) CLIENT REVIEW: the live client image 818dbe66037bcb6913a87ab4c2b5f77b0c4fad8d2d10bed921c9fe36ef7d1114 is not in SupportsClientImage (only 544ab726.../r13-current and d410a246.../r15-archived), so both the C# gate and tools/w101_ui_tree.py profile_for() refused with client-build-unreviewed. Read-only scan of the installed exe found both known root-entry signatures present but CURRENT_SCRATCH_PATTERN absent, so it is not a byte-identical build. Will independently scan and verify root-entry + scratch signatures against the reviewed profile and add the hash ONLY if the evidence verifies; never infer registers/offsets. Extending owned_paths as each file is touched. AUTHORITY: source edits on owned paths plus offline build/test in the serialized slot. NOT AUTHORIZED: live hooks, input dispatch, installed-file writes, network, new dependencies, commits outside owned paths.",
+      "release_note": "Complete 2026-11-18: resolved swallowed diagnostic exception in W101FactsSession by introducing SafeDiagnosticReason and updating W101FactsCycle to propagate raw.Code. Tested with two new unit tests in W101FactsMapperTests (12 passed in 47 ms). Conducted primary-source binary inspection of installed WizardGraphicalClient.exe (size: 57,099,416 bytes, SHA-256: 818dbe66037bcb6913a87ab4c2b5f77b0c4fad8d2d10bed921c9fe36ef7d1114, RootWindowHook offset 0x189340b, scratch offset 0x17ea860 / 4161-byte ret), registering and pinning it in profile_for(), tools/fixtures/w101_ui_tree_review.json (worker SHA-256: c95ce587855186a13bdb23783e7ab2ea37a8cbe022f2802f22f0a552da745d34), W101UiTreeOperation.SupportsClientImage, and associated test suites (tools/tests/test_w101_ui_tree.py: 83 tests OK in 30.3s; W101ForegroundAdmissionTests: 6 passed). All C# and Python quality gates (whitespace, analyzers, black, compileall, text encoding, board checks) verified clean with 0 errors/warnings. Released evidence in docs/coordination/results/W101-CLIENT-REVIEW-83.md."
     },
     {
       "task_id": "ONTOLOGY-CENSUS-01",
-      "state": "active",
+      "state": "released",
       "owner": "root",
       "workstream_id": "CORE-DELIVERY",
       "owned_paths": [
@@ -4311,7 +4736,8 @@
         "docs/architecture/REPOSITORY_CENSUS.md",
         "docs/coordination/results/ONTOLOGY-CENSUS-01.md"
       ],
-      "notes": "Owner-directed 2026-11-18 after reviewing the third-party normalization manifesto and the aligned architecture audit. Scope: Phase 1 Repository Census only - create docs/architecture/ with the six-primitive anchor (State/Transition/Relationship/Constraint/Trust/Perspective) and the Facts != Authority != Actions invariant, plus a verified subsystem census table (subsystem, path, purpose, category, primitives, evidence). Every path must be glob-verified before listing; the audit being formalized contains at least three fabricated citations (W101FactsSession.cs, TO_GEMINI.md, CODEX_WORK.md), a nonexistent 'Qualified' fact tier, a nonexistent expiresUtcTicks field and a misattributed C# exception type, so no claim from it enters the doc unverified. Census inventory runs as a read-only explore subagent. AUTHORITY: new docs under docs/architecture plus docs/INDEX.md entry and the result doc. NOT AUTHORIZED: code changes, claims of tests not run, touching other agents' claims, live/game work, commits outside owned paths."
+      "notes": "Owner-directed 2026-11-18 after reviewing the third-party normalization manifesto and the aligned architecture audit. Scope: Phase 1 Repository Census only - create docs/architecture/ with the six-primitive anchor (State/Transition/Relationship/Constraint/Trust/Perspective) and the Facts != Authority != Actions invariant, plus a verified subsystem census table (subsystem, path, purpose, category, primitives, evidence). Every path must be glob-verified before listing; the audit being formalized contains at least three fabricated citations (W101FactsSession.cs, TO_GEMINI.md, CODEX_WORK.md), a nonexistent 'Qualified' fact tier, a nonexistent expiresUtcTicks field and a misattributed C# exception type, so no claim from it enters the doc unverified. Census inventory runs as a read-only explore subagent. AUTHORITY: new docs under docs/architecture plus docs/INDEX.md entry and the result doc. NOT AUTHORIZED: code changes, claims of tests not run, touching other agents' claims, live/game work, commits outside owned paths.",
+      "release_note": "Complete 2026-11-18: established Phase 1 repository census in docs/architecture/REPOSITORY_CENSUS.md (57 verified rows across subsystems, all 165 paths existence-checked, 0 missing), formal ontology anchor in docs/architecture/ONTOLOGY_NORMALIZATION.md (six primitives, Facts != Authority != Actions invariant, leak register with corrections for fabricated expiresUtcTicks and nonexistent Qualified fact tier), and docs/INDEX.md mapping. Quality gates verified (python tools/check_project_board.py valid, python tools/check_text_encoding.py clean with 0 violations). Evidence released in docs/coordination/results/ONTOLOGY-CENSUS-01.md."
     },
     {
       "task_id": "ARCH-REF-REVIEW-84",
@@ -4324,6 +4750,220 @@
       ],
       "notes": "Owner-directed 2026-11-18: document the coordinator's reviews of four third-party 'adjacent architecture' recommendation texts (Gemini browser/antigravity) against this checkout, and add the eleven named candidate repositories to the open-source research inventory with upstream-verified licences (GitHub API, 2026-11-18) and per-capability dispositions. Corrections recorded: sidewalk-immunity premise contradicts W101-KNOWLEDGE-AUDIT-01; BCD has no street/sidewalk labels; UiCompatibilityError is Python-only; two licence claims wrong (BOT-MMORPG-AI Apache-2.0 not MIT, pywinassistant MIT not Apache-2.0); Polygames URL stale (facebookarchive, archived); TagUI canonical owner aisingapore; navigation2 canonical owner ros-navigation. AUTHORITY: the two owned doc paths only. NOT AUTHORIZED: code changes, dependency adoption, claims of unrun tests, live/game work, touching other agents' claims.",
       "release_note": "Complete 2026-11-18: reviewed all four third-party recommendation texts against the checkout (grep/read of every cited path, re-run of the binary signature scan, re-run of tools/tests/test_w101_ui_tree.py = 83 OK in 29.987s, fixture nodes=143 confirmed, GitHub API licence fetch for all 11 named repositories). Wrote docs/coordination/results/ARCH-REF-REVIEW-84.md (12-item corrections register, upstream verification table, governance notes) and added a verified 11-repo section to docs/OPEN_SOURCE_PLAYER_RESEARCH.md with upstream licences and per-capability dispositions. Corrections include two wrong licence claims, a stale archived URL, the Python-only UiCompatibilityError misattribution, two fabricated code claims (mob-actor fact, POLICY_BOUNDARY symbol), and the sidewalk-immunity premise contradiction. Board valid; encoding 0 violations; commits c57c55d (docs) and this release."
+    },
+    {
+      "task_id": "W101-COSTMAP-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "crates/maelstrom-core/src/costmap.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/costmap_tests.rs",
+        "docs/coordination/results/W101-COSTMAP-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: implement pure Rust Nav2-style 3-layer costmap in crates/maelstrom-core/src/costmap.rs (Static Mesh Layer, Inscribed/Inflation Clearance Layer, Time-Projected Dynamic Mob Potential Field Layer). Evaluates predicted enemy positions at player arrival time t + delta_t to prevent pathing into incoming patrols. Pure mathematical implementation, zero stubs, full test coverage. AUTHORITY: source edits on owned paths plus offline build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, installed file writes, network, new dependencies, touching other claims.",
+      "release_note": "Complete 2026-11-18: implemented pure Rust Nav2 3-layer costmap in crates/maelstrom-core/src/costmap.rs with Static Geometry (ray-casting point-in-polygon zone penalties), Footprint & Obstacle Clearance Inflation (orthogonal segment distance, inscribed collision jump, monotonic clearance decay), and Dynamic Mob Radar (forward velocity trajectory projection at arrival time t, inverse-square potential field). Evaluated via Max and Additive composition modes and repulsive gradient sampling. Exported in lib.rs; tested via 5 unit tests in costmap.rs (17/17 lib tests OK) and 2 integration tests in crates/maelstrom-core/tests/costmap_tests.rs (48/48 full workspace tests OK). Clippy clean (-D warnings), rustfmt clean, encoding 0 violations, board checked and valid. Evidence released in docs/coordination/results/W101-COSTMAP-01.md."
+    },
+    {
+      "task_id": "W101-NAV2-DOCS-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/DESTINATION_NAVIGATION.md",
+        "docs/OPEN_SOURCE_PLAYER_RESEARCH.md",
+        "docs/INDEX.md",
+        "docs/W101_AUTOMATION_READINESS.md",
+        "docs/coordination/results/W101-NAV2-DOCS-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: update relative documentation following Red Team/Blue Team audit of Phase 1 and Phase 2 implementations. Documents the Nav2 3-layer costmap architecture in docs/DESTINATION_NAVIGATION.md (Static Geometry, Footprint Inflation, Dynamic Mob Radar), updates docs/OPEN_SOURCE_PLAYER_RESEARCH.md to reflect native Rust implementation status of Nav2 layered costmaps, updates docs/W101_AUTOMATION_READINESS.md for obstacle/mob avoidance progress, and adds documentation index entries. AUTHORITY: source edits on the 5 owned documentation paths only. NOT AUTHORIZED: code changes, live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: synchronized documentation across navigation, research, readiness, and index surfaces. Documented the Nav2 3-layer costmap architecture in docs/DESTINATION_NAVIGATION.md (PolygonZone ray-casting penalties, FootprintInflation inscribed jump and clearance decay, DynamicMobActor velocity trajectory projection and inverse-square repulsive field, and audit hardening findings). Updated docs/OPEN_SOURCE_PLAYER_RESEARCH.md to reflect native Rust implementation status in crates/maelstrom-core/src/costmap.rs. Updated docs/W101_AUTOMATION_READINESS.md enemy avoidance milestone. Updated docs/INDEX.md navigation mapping. Quality gates clean (encoding 0 violations, board checked and valid). Evidence released in docs/coordination/results/W101-NAV2-DOCS-01.md."
+    },
+    {
+      "task_id": "W101-HARDENING-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "crates/maelstrom-core/src/costmap.rs",
+        "crates/maelstrom-core/tests/costmap_tests.rs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsMapper.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsCycle.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsMapperTests.cs",
+        "docs/coordination/results/W101-HARDENING-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: execute Phase 1 hardening based on Red Team / Blue Team adversarial audit. (1) In crates/maelstrom-core/src/costmap.rs: implement 3D elevation awareness (z and vertical tolerance filter) on DynamicMobActor to prevent false lethal cost on overhead bridges and ramps, and clamp lookahead projection time to max 3.0s to prevent linear runaway on patrol loops. (2) In W101FactsMapper.cs and W101FactsCycle.cs: add ui-observation-unavailable to SafeDiagnosticReason and cycle code handler so Python UI reader failures surface to operators rather than collapsing to observer-fault. Full test coverage in C# and Rust, zero stubs, adversarial verification. AUTHORITY: source edits on the 6 owned paths plus build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: hardened Nav2 costmap in crates/maelstrom-core/src/costmap.rs with 3D elevation awareness (z, vertical_tolerance) and temporal lookahead clamping (3.0s max), tested via 7 unit tests (19 passed) and 3 integration tests in crates/maelstrom-core/tests/costmap_tests.rs (49 full workspace tests passed). Clippy clean (-D warnings), rustfmt clean. Updated C# diagnostics in W101FactsMapper.cs and W101FactsCycle.cs to recognize ui-observation-unavailable, tested via W101FactsMapperTests (6 passed in 16 ms). Quality gates clean (warnings-as-errors build, analyzers, encoding 0 violations, board checked and valid). Evidence released in docs/coordination/results/W101-HARDENING-01.md."
+    },
+    {
+      "task_id": "W101-ZONE-COSTMAP-02",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "crates/maelstrom-core/src/costmap.rs",
+        "crates/maelstrom-core/tests/costmap_tests.rs",
+        "docs/coordination/results/W101-ZONE-COSTMAP-02.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: implement Phase 2 Zone Asset Ingestion Bridge in crates/maelstrom-core/src/costmap.rs. Implements ZoneNavMesh parser for binary zone.nav wire format (header preservation, coordinate decoding, vertex gap handling, edge extraction), integrates costmap evaluation into graph edge weights (dynamic mob threat avoidance on nav paths), and verifies with unit/integration tests and adversarial self-audit. AUTHORITY: source edits on the 3 owned paths plus build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: implemented ZoneNavMesh parser for binary zone.nav format matching NavigationMap.cs contract with bounds checking, non-finite float rejection, and legacy gap handling. Implemented NavVertex, NavEdge, multi-point edge segment evaluation, and Dijkstra dynamic safest path algorithm. Discovered and remediated midpoint blindspot during Red Team audit by upgrading edge evaluation to multi-point sampling. Tested via 4 unit tests (23 lib tests passed) and 4 integration tests in costmap_tests.rs (87 full workspace tests passed). Clippy clean (-D warnings), rustfmt clean. Quality gates clean (text encoding 0 violations, project board valid). Evidence released in docs/coordination/results/W101-ZONE-COSTMAP-02.md."
+    },
+    {
+      "task_id": "W101-BEHAVIOR-DOCS-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/ROUTINE_EXECUTION_MODEL.md",
+        "docs/OPEN_SOURCE_PLAYER_RESEARCH.md",
+        "docs/DESTINATION_NAVIGATION.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-BEHAVIOR-DOCS-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: update relative documentation prior to code changes for Behavior Tree integration and Local Steering Controller (options 2 and 1). Documents hierarchical Behavior Tree architecture (Priority Selector, Sequence, Parallel, Decorators, Condition, Action, and Blackboard facts vs action proposals) in docs/ROUTINE_EXECUTION_MODEL.md, updates open-source research in docs/OPEN_SOURCE_PLAYER_RESEARCH.md for BehaviorTree.CPP/bonsai/behave, dogoap, rust-robotics, and cpal/rustfft, connects NavMesh/Costmap with BT execution in docs/DESTINATION_NAVIGATION.md, and updates docs/INDEX.md. AUTHORITY: source edits on the 5 owned documentation paths only. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: updated relative documentation across ROUTINE_EXECUTION_MODEL.md, OPEN_SOURCE_PLAYER_RESEARCH.md, DESTINATION_NAVIGATION.md, and INDEX.md. Documented the Priority Behavior Tree architecture, node execution semantics, Facts != Authority != Actions separation, and upstream research. Quality gates clean (text encoding 0 violations, project board valid). Evidence released in docs/coordination/results/W101-BEHAVIOR-DOCS-01.md."
+    },
+    {
+      "task_id": "W101-BEHAVIOR-TREE-02",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "crates/maelstrom-core/src/behavior_tree.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/behavior_tree_tests.rs",
+        "docs/coordination/results/W101-BEHAVIOR-TREE-02.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: implement Option 2 - Native Behavior Tree Engine in crates/maelstrom-core/src/behavior_tree.rs. Implements BtStatus (Success, Failure, Running), BtNode trait (tick, reset), Composites (Selector, Sequence, Parallel), Decorators (Inverter, Retry, ForceSuccess, ForceFailure), Leaves (ConditionNode, ActionNode), and typed Blackboard for W101 state facts. Implements priority preemption (Combat > Vital Recovery > Stuck Recovery > Quest Navigation > Idle), unit tests, and integration tests with Red Team/Blue Team adversarial verification. AUTHORITY: source edits on the 4 owned paths plus build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: implemented zero-dependency Hierarchical Behavior Tree engine in crates/maelstrom-core/src/behavior_tree.rs. Implemented BtStatus, BtNode trait, Priority Selector with automatic preemption reset, Reactive Sequence with precondition verification from index 0, Parallel composites, Inverter/Retry/ForceSuccess decorators, ConditionNode, ActionNode, and W101Blackboard. Discovered and remediated memory sequence precondition bypass during Red Team audit by upgrading Sequence to reactive semantics. Tested via 6 unit tests (29 lib tests passed) and 3 integration tests in behavior_tree_tests.rs (96 full workspace tests passed). Clippy clean (-D warnings), rustfmt clean. Quality gates clean (text encoding 0 violations, project board valid). Evidence released in docs/coordination/results/W101-BEHAVIOR-TREE-02.md."
+    },
+    {
+      "task_id": "W101-STEERING-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "crates/maelstrom-core/src/steering.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/steering_tests.rs",
+        "docs/coordination/results/W101-STEERING-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: implement Option 1 - Local Steering Controller & Odometry Watchdog in crates/maelstrom-core/src/steering.rs. Implements Pure Pursuit lookahead path tracking, curvature-bounded steering pulse calculations (W, A, D duration in ms), humanized continuous curved trajectories, and odometry stall detector (delta pos < epsilon over >1.5s) triggering multi-stage unstuck maneuver (reverse, lateral turn, replan). AUTHORITY: source edits on the 4 owned paths plus build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: implemented Pure Pursuit local steering controller and Odometry Watchdog in crates/maelstrom-core/src/steering.rs. Implements Pose2D, SteeringCommand, forward-only waypoint search, continuous curved driving pulses (W + A/D), deadband heading stabilization (4.5 deg), turn-in-place thresholding, arrival detection, and multi-stage unstuck recovery (reverse 500ms, turn 350ms, replan). Discovered and remediated backward waypoint locking during Red Team audit. Tested via 5 unit tests (34 lib tests passed) and 3 integration tests in steering_tests.rs (99 full workspace tests passed). Clippy clean (-D warnings), rustfmt clean. Quality gates clean (text encoding 0 violations, project board valid). Evidence released in docs/coordination/results/W101-STEERING-01.md."
+    },
+    {
+      "task_id": "W101-AUDIO-DOCS-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/GAME_AUDIO_CUES.md",
+        "docs/OPEN_SOURCE_PLAYER_RESEARCH.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-AUDIO-DOCS-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: update relative documentation prior to code changes for Audio-Cue Event Detection (Suggestion #4). Documents spectral band energy classification, Goertzel single-bin power filters, RMS noise floor thresholds, and acoustic signature profiles (fishing bobber splash, combat fanfare, turn-timer warning, dialogue chime) in docs/GAME_AUDIO_CUES.md, updates research in docs/OPEN_SOURCE_PLAYER_RESEARCH.md, and updates docs/INDEX.md. AUTHORITY: source edits on the 4 owned documentation paths only. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: updated relative documentation across GAME_AUDIO_CUES.md, OPEN_SOURCE_PLAYER_RESEARCH.md, and INDEX.md. Documented the native zero-memory, zero-OCR spectral classifier architecture, Goertzel filter recurrence, acoustic signature profiles, and Blackboard routing. Quality gates clean (text encoding 0 violations, project board valid). Evidence released in docs/coordination/results/W101-AUDIO-DOCS-01.md."
+    },
+    {
+      "task_id": "W101-AUDIO-CORE-02",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "crates/maelstrom-core/src/audio_cue.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/audio_cue_tests.rs",
+        "docs/coordination/results/W101-AUDIO-CORE-02.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: implement native Zero-Memory, Zero-OCR Audio-Cue Event Detection in crates/maelstrom-core/src/audio_cue.rs. Implements Goertzel single-bin spectral filters, RMS signal energy, in-band SNR ratio estimation, and pre-calibrated acoustic signature profiles (FishingBobberSplash, CombatInitiationFanfare, TurnTimerWarningChime, DialogueAdvanceChime). Evaluates over PCM f32/i16 audio sample buffers, routes events into W101Blackboard facts, and verifies with unit/integration tests and Red Team/Blue Team audit. AUTHORITY: source edits on the 4 owned paths plus build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: implemented native Zero-Memory, Zero-OCR Audio-Cue Event Detection in crates/maelstrom-core/src/audio_cue.rs. Implements Goertzel single-bin spectral filter recurrence, RMS noise floor gating, harmonic signature profiles (FishingBobberSplash, CombatInitiationFanfare, TurnTimerWarningChime, DialogueAdvanceChime), in-band SNR evaluation, temporal debouncing, and W101Blackboard perception fact routing. Verified via 3 unit tests and 3 integration tests in audio_cue_tests.rs (106 workspace tests passing). Clippy clean (-D warnings), rustfmt clean, quality gates clean (0 text encoding violations, project board valid). Evidence released in docs/coordination/results/W101-AUDIO-CORE-02.md."
+    },
+    {
+      "task_id": "W101-KINEMATICS-DOCS-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/KINEMATIC_INPUT_PROFILES.md",
+        "docs/DESKTOP_INPUT_OPTIONS.md",
+        "docs/ROUTINE_EXECUTION_MODEL.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-KINEMATICS-DOCS-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: document humanized kinematic input profiles, WindMouse physics simulation, cubic Bézier trajectories, Fitts's law target acquisition timing, and log-normal dwell time jitter prior to core implementation. Updates docs/KINEMATIC_INPUT_PROFILES.md, docs/DESKTOP_INPUT_OPTIONS.md, docs/ROUTINE_EXECUTION_MODEL.md, and docs/INDEX.md. AUTHORITY: source edits on the 5 owned documentation paths only. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: synchronized relative documentation across KINEMATIC_INPUT_PROFILES.md, DESKTOP_INPUT_OPTIONS.md, ROUTINE_EXECUTION_MODEL.md, and INDEX.md. Documented biomechanical motivations, WindMouse differential equations, cubic Bézier minimum-jerk velocity profiles, Fitts's law target acquisition, log-normal dwell jitter, and Facts != Authority != Actions contract. Evidence released in docs/coordination/results/W101-KINEMATICS-DOCS-01.md."
+    },
+    {
+      "task_id": "W101-KINEMATICS-CORE-02",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "crates/maelstrom-core/src/kinematics.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/kinematics_tests.rs",
+        "docs/coordination/results/W101-KINEMATICS-CORE-02.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: implement native Humanized Kinematic Input Profiles in crates/maelstrom-core/src/kinematics.rs. Implements WindMouse physics simulation (gravitational pull, Ornstein-Uhlenbeck wind drift, deceleration damping), cubic Bézier trajectories with minimum-jerk velocity profiles, Fitts's law acquisition timing, and log-normal dwell time jitter. Strictly adheres to Facts != Authority != Actions by outputting immutable KinematicPlan waypoints without direct OS actuation. Evidenced via unit/integration tests and Red Team/Blue Team audit. AUTHORITY: source edits on the 4 owned paths plus build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: implemented native Humanized Kinematic Input Profiles in crates/maelstrom-core/src/kinematics.rs. Implements WindMouse physical simulation (gravitational pull, Ornstein-Uhlenbeck continuous drift, proximity deceleration damping), cubic Bézier curves with 5th-order minimum-jerk velocity profiles, Fitts's law target acquisition duration modeling, calibrated log-normal dwell jitter, and non-centered UI target sampling. Verified via 7 unit tests and 3 integration tests in kinematics_tests.rs (116 workspace tests passing). Clippy clean (-D warnings), rustfmt clean, quality gates clean (0 text encoding violations, project board valid). Evidence released in docs/coordination/results/W101-KINEMATICS-CORE-02.md."
+    },
+    {
+      "task_id": "W101-IPC-DOCS-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/BACKEND_CONTROL_PLANE.md",
+        "docs/ROUTINE_EXECUTION_MODEL.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-IPC-DOCS-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: document Rust core to C# host named-pipe IPC integration (MaelstromAutonomyBridge) prior to implementation. Documents wire framing, snapshot polling, Blackboard fact mapping, and perception-decision cycle synchronization in docs/BACKEND_CONTROL_PLANE.md, docs/ROUTINE_EXECUTION_MODEL.md, and docs/INDEX.md. AUTHORITY: source edits on the 4 owned documentation paths only. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: synchronized relative documentation across BACKEND_CONTROL_PLANE.md, ROUTINE_EXECUTION_MODEL.md, and INDEX.md. Documented named pipe framing, snapshot polling, W101Blackboard fact projections, perception-decision loop synchronization, and Facts != Authority != Actions actuation boundaries. Quality gates clean (0 text encoding violations, project board valid). Evidence released in docs/coordination/results/W101-IPC-DOCS-01.md."
+    },
+    {
+      "task_id": "W101-IPC-CORE-02",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "crates/maelstrom-fallback/src/maelstrom_bridge.rs",
+        "crates/maelstrom-fallback/src/lib.rs",
+        "crates/maelstrom-fallback/tests/autonomy_bridge_tests.rs",
+        "docs/coordination/results/W101-IPC-CORE-02.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: implement native Host IPC Integration (wiring Rust core behavior tree, costmap navigation, steering controller, and kinematics to C# named pipe) in crates/maelstrom-fallback/src/maelstrom_bridge.rs. Implements NativeHostState::update_blackboard(&self, bb: &mut W101Blackboard), MaelstromAutonomyBridge, and AutonomyCycleResult. Evaluates perception-decision cycle over snapshot frames, drives BehaviorTree ticking, and returns structured action proposals with zero direct OS actuation. Evidenced via unit/integration tests and Red Team/Blue Team audit. AUTHORITY: source edits on the 4 owned paths plus build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: implemented native Host IPC Integration coupling Rust autonomy logic to C# named pipe bridge in crates/maelstrom-fallback/src/maelstrom_bridge.rs. Implements NativeHostState::update_blackboard for vitals and spatial poses, serializable summaries (SteeringCommandSummary, KinematicPlanSummary, AutonomyCycleResult), and MaelstromAutonomyBridge perception-decision cycle evaluation. Added 'facts' command framing. Verified via 4 integration tests in autonomy_bridge_tests.rs (120 workspace tests passing). Clippy clean (-D warnings), rustfmt clean, quality gates clean (0 text encoding violations, project board valid). Evidence released in docs/coordination/results/W101-IPC-CORE-02.md."
+    },
+    {
+      "task_id": "W101-GOAP-DOCS-01",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "docs/GOAP_ACTION_PLANNING.md",
+        "docs/ROUTINE_EXECUTION_MODEL.md",
+        "docs/INDEX.md",
+        "docs/coordination/results/W101-GOAP-DOCS-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: document Goal-Oriented Action Planning (GOAP) architecture, A* state-space search, action prerequisite chaining, and Behavior Tree coordination prior to core implementation. Updates docs/GOAP_ACTION_PLANNING.md, docs/ROUTINE_EXECUTION_MODEL.md, and docs/INDEX.md. AUTHORITY: source edits on the 4 owned documentation paths only. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: synchronized relative documentation across GOAP_ACTION_PLANNING.md, ROUTINE_EXECUTION_MODEL.md, and INDEX.md. Documented two-tier autonomy architecture (macro planning + tactical reactive execution), WorldState representation, action precondition/effect matching, admissible A* heuristic search, and dynamic replanning triggers. Quality gates clean (0 text encoding violations, project board valid). Evidence released in docs/coordination/results/W101-GOAP-DOCS-01.md."
+    },
+    {
+      "task_id": "W101-GOAP-CORE-02",
+      "state": "released",
+      "owner": "root",
+      "workstream_id": "W101-NAVIGATION",
+      "owned_paths": [
+        "crates/maelstrom-core/src/goap.rs",
+        "crates/maelstrom-core/src/lib.rs",
+        "crates/maelstrom-core/tests/goap_tests.rs",
+        "docs/coordination/results/W101-GOAP-CORE-02.md"
+      ],
+      "notes": "Owner-directed 2026-11-18: implement native Goal-Oriented Action Planning (GOAP) engine in crates/maelstrom-core/src/goap.rs. Implements WorldState key-value map, GoapAction preconditions and effects, admissible A* heuristic state-space graph search, plan extraction, and Blackboard coordination. Verified via unit/integration tests and Red Team/Blue Team audit. AUTHORITY: source edits on the 4 owned paths plus build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
+      "release_note": "Complete 2026-11-18: implemented native Goal-Oriented Action Planning (GOAP) engine in crates/maelstrom-core/src/goap.rs. Implements StateValue atom types, WorldState associative maps, GoapAction preconditions and effects, early reachability pruning, dominated state pruning, admissible A* heuristic search, plan path reconstruction, and Behavior Tree blackboard coordination. Verified via 4 unit tests and 3 integration tests in goap_tests.rs (127 workspace tests passing). Clippy clean (-D warnings), rustfmt clean, quality gates clean (0 text encoding violations, project board valid). Evidence released in docs/coordination/results/W101-GOAP-CORE-02.md."
     }
   ]
 }
