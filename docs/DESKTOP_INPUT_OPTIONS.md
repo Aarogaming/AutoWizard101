@@ -86,3 +86,12 @@ backend behind the existing action registry, shared input owner and policy.
 No benchmark here establishes better latency, broader game compatibility, game
 approval or undetectability. This is an exploratory design note, not authorization
 to implement or install a driver.
+
+## Kinematic Trajectories & Biomechanical Profiles
+
+Regardless of transport (`SendInput`, Raw Input, or synthetic events), input dispatched without realistic human kinematic profiles exhibits immediate statistical anomalies (instant cursor teleportation, constant-velocity linear segments, isochronous click delays). See [Kinematic input profiles](KINEMATIC_INPUT_PROFILES.md) for the native mathematical models (WindMouse physics simulation, cubic Bézier minimum-jerk curves, Fitts's law acquisition durations, and log-normal dwell time jitter) governing non-robotic cursor and keystroke dispatch.
+
+## Desktop Input Actuator Wiring
+
+Physical actuation of steering commands (`SteeringCommandSummary`) and mouse trajectories (`KinematicPlanSummary`) is handled by `DesktopInputActuator` under the single input lease (`GameInputLease`). See [Desktop Input Actuator](DESKTOP_INPUT_ACTUATOR.md).
+

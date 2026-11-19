@@ -105,6 +105,7 @@ internal sealed class JobDeckHost : IAsyncDisposable
                     "connect" => Connect(args),
                     "disconnect" => Disconnect(),
                     "observe" => Observe(),
+                    "actuate" => Actuate(args),
                     _ => throw new ArgumentException("Unknown deck command.")
                 };
                 return new(true, result);
@@ -197,6 +198,121 @@ internal sealed class JobDeckHost : IAsyncDisposable
         _learningUntil = learning ? DateTime.UtcNow.AddSeconds(60) : null;
         _learningRun = learning ? Guid.NewGuid().ToString("N") : null;
         return new { learning, until = _learningUntil, maximumSeconds = 60 };
+    }
+    private object Actuate(JsonElement args)
+    {
+        var simulation = args.TryGetProperty("simulation", out var simProp) && simProp.GetBoolean();
+        var target = args.TryGetProperty("target", out var targetProp) ? targetProp.GetString() : null;
+
+        if (string.IsNullOrWhiteSpace(target))
+        {
+            if (_session != null)
+            {
+                target = W101QuestStep.TargetBinding(_session.Target);
+            }
+            else if (simulation)
+            {
+                target = "pid-123-start-456";
+            }
+            else
+            {
+                throw new InvalidOperationException("Connect W101 or provide an admitted target ID.");
+            }
+        }
+
+        var hasSteering = args.TryGetProperty("steering", out var steeringProp) && steeringProp.ValueKind == JsonValueKind.Object;
+        var hasKinematic = args.TryGetProperty("kinematic", out var kinematicProp) && kinematicProp.ValueKind == JsonValueKind.Object;
+
+        if (!hasSteering && !hasKinematic)
+        {
+            throw new ArgumentException("Provide either 'steering' or 'kinematic' intent parameters.");
+        }
+
+        SteeringCommandSummary? steering = hasSteering
+            ? steeringProp.Deserialize<SteeringCommandSummary>(JobDeckRules.Json)
+            : null;
+        KinematicPlanSummary? kinematic = hasKinematic
+            ? kinematicProp.Deserialize<KinematicPlanSummary>(JobDeckRules.Json)
+            : null;
+
+        if (simulation)
+        {
+            var actuator = DesktopInputActuator.CreateSimulation(out var recordedEvents);
+            var req = new OperationRequest(Guid.NewGuid().ToString("N"), "simulation.actuate", "v1", 60, true, target, new Dictionary<string, string>());
+            var opContext = new OperationContext(req, _dataRoot, null);
+
+            RoutineReceipt receipt;
+            if (steering != null)
+            {
+                receipt = Task.Run(() => actuator.DispatchSteeringAsync(steering, opContext, target, () => true, default)).GetAwaiter().GetResult();
+            }
+            else
+            {
+                receipt = Task.Run(() => actuator.DispatchKinematicClickAsync(kinematic!, opContext, target, () => true, default)).GetAwaiter().GetResult();
+            }
+
+            return new
+            {
+                accepted = receipt.Accepted,
+                released = receipt.InputReleased,
+                proposalId = receipt.ProposalId,
+                actionId = receipt.ActionId,
+                timeMs = receipt.TimeMs,
+                simulation = true,
+                dispatchedEvents = recordedEvents.Select(e => new { type = e.Type, target = e.Target, up = e.Up }).ToArray()
+            };
+        }
+        else
+        {
+            if (_session == null || (!_travelEnabled && !_questEnabled))
+            {
+                throw new InvalidOperationException("Connect W101 and enable travel/quest actions before live actuation.");
+            }
+
+            var liveLease = GameInputLease.Current;
+            if (liveLease == null || !liveLease.CanDispatch)
+            {
+                return new
+                {
+                    accepted = false,
+                    released = true,
+                    proposalId = "actuate.rejected",
+                    actionId = "game.actuate",
+                    timeMs = DateTime.UtcNow.Ticks / 10000.0,
+                    simulation = false,
+                    note = "No active GameInputLease held. Physical actuation rejected."
+                };
+            }
+
+            var runtime = new DesktopInputRuntime(
+                (k, up) => false,
+                (x, y, up) => false,
+                () => DateTime.UtcNow.Ticks / 10000.0,
+                Task.Delay);
+            var actuator = new DesktopInputActuator(runtime);
+            var req = new OperationRequest(Guid.NewGuid().ToString("N"), "live.actuate", "v1", 60, true, target, new Dictionary<string, string>());
+            var opContext = new OperationContext(req, _dataRoot, liveLease);
+
+            RoutineReceipt receipt;
+            if (steering != null)
+            {
+                receipt = Task.Run(() => actuator.DispatchSteeringAsync(steering, opContext, target, () => _session != null, default)).GetAwaiter().GetResult();
+            }
+            else
+            {
+                receipt = Task.Run(() => actuator.DispatchKinematicClickAsync(kinematic!, opContext, target, () => _session != null, default)).GetAwaiter().GetResult();
+            }
+
+            return new
+            {
+                accepted = receipt.Accepted,
+                released = receipt.InputReleased,
+                proposalId = receipt.ProposalId,
+                actionId = receipt.ActionId,
+                timeMs = receipt.TimeMs,
+                simulation = false
+            };
+        }
     }
     private object Observe(bool includeQuest = true, bool includeResources = true)
     {
