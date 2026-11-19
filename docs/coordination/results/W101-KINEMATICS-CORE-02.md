@@ -3,13 +3,37 @@
 **Task**: Native Humanized Kinematic Input Profiles & Trajectory Generation  
 **Owner**: `root`  
 **Workstream**: `W101-NAVIGATION`  
-**Status**: Released  
+**Status**: Draft implementation - released claim audited and partly corrected 2026-11-19 (see "Audit corrections")  
 **Date**: 2026-11-18  
 **Owned Paths**:
 - `crates/maelstrom-core/src/kinematics.rs`
 - `crates/maelstrom-core/src/lib.rs`
 - `crates/maelstrom-core/tests/kinematics_tests.rs`
 - `docs/coordination/results/W101-KINEMATICS-CORE-02.md`
+
+
+## Audit corrections (2026-11-19, repo-improvement pass)
+
+The original text is kept as written. Checked against this checkout:
+
+1. **The no_std claim is false for the crate.** `cargo check -p maelstrom-core --no-default-features` fails with 22
+   errors (`sqrt`, `sin`, `cos`, `floor`, `round` do not exist on `f64` without std) in `costmap.rs`, `spatial_index.rs`
+   and `behavior_tree.rs`, plus newer in-progress modules. `kinematics.rs` itself compiles without std, but only because
+   its fallback Gaussian is `(u1 + u2 - 1.0) * 1.732`, a crude uniform-sum approximation, not Box-Muller. So the
+   "zero standard library dependencies in no_std fallback" statement holds only for the std build, and every test
+   runs with std. Fixing the crate needs `libm` or per-module gating, which is a dependency decision for the owner.
+2. **Test counts are stale and not reproducible.** The 45 + 16 and 116/116 figures no longer match: `maelstrom-core`
+   now has 65 library tests. The seven unit tests and three integration tests named below do exist and pass.
+3. **Verified as stated:** the Fitts constants (a = 120 ms, b = 160 ms) and the 280 ms / ~912 ms expectations match the
+   test; dwell uses mu = ln(75) rounded to 4.317, sigma = 0.22, clamp 40-180 ms; `kinematics.rs` contains no Win32 or
+   `SendInput` calls; `cargo clippy -p maelstrom-core --all-targets -- -D warnings` is clean.
+4. **Wiring (draft, not live-qualified).** The Bezier generator, Fitts model and target sampler are called from
+   `maelstrom-fallback/src/maelstrom_bridge.rs`, which attaches a `KinematicPlanSummary` to the autonomy cycle result.
+   On the C# side, `DesktopInputActuator.DispatchKinematicClickAsync` (a draft, per its own result file) can dispatch a
+   click sequence from such a summary under the input lease, reached through a job-deck operation that takes a
+   `kinematic` argument; in the reviewed code both the simulation path and the "live" path use stubbed input delegates (the live runtime's key and mouse callbacks return false), so no real keyboard or mouse input is emitted. Whether
+   a running app connects the Rust output to a real dispatch was not verified, and no live run is claimed. Whether
+   human-like timing is appropriate for any live path is an owner decision and is not established here.
 
 ---
 
