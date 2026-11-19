@@ -111,13 +111,21 @@ def claim_violations(root):
 
     Defects: released without release_note; release_note without an evidence
     marker; an owned path that does not exist; an owned path that git reports as
-    uncommitted. Paths under .local/ are skipped (gitignored data). Returns None
-    when claims.json cannot be read, so callers fail instead of passing silently.
+    uncommitted while no ACTIVE claim owns it (claimed in-flight work is exempt).
+    Paths under .local/ are skipped (gitignored data). Returns None when
+    claims.json cannot be read, so callers fail instead of passing silently.
     """
     claims = load_claims(root)
     if claims is None:
         return None
     dirty = dirty_paths(root)
+    active_owned = {
+        p
+        for claim in claims
+        if claim.get("state") == "active"
+        for p in claim.get("owned_paths", []) or []
+        if isinstance(p, str)
+    }
     found = []
     for claim in claims:
         if claim.get("state") != "released":
@@ -136,9 +144,13 @@ def claim_violations(root):
                 continue
             if not (root / owned).exists():
                 found.append(task + ": owned path missing: " + owned)
-            elif dirty is not None and (
-                owned in dirty
-                or any(d.startswith(owned.rstrip("/") + "/") for d in dirty)
+            elif (
+                dirty is not None
+                and owned not in active_owned
+                and (
+                    owned in dirty
+                    or any(d.startswith(owned.rstrip("/") + "/") for d in dirty)
+                )
             ):
                 found.append(task + ": owned path not committed: " + owned)
     return found

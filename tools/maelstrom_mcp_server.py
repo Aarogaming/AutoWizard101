@@ -8,6 +8,7 @@ evaluation, minigame solving, and telemetry policy inspection.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import sys
 from typing import Any, Dict, List, Optional
@@ -169,11 +170,65 @@ def _validate_routine_graph(graph_data: Any) -> Dict[str, Any]:
     }
 
 
+# Capability classes, ported as POLICY (not code) from D:\Aaroneous
+# docs/architecture/MCP_SERVICE_CONTRACT.md: every tool must declare a class;
+# an unregistered tool name defaults to MUTATION and is default-denied unless
+# the session explicitly grants it. No current tool is classed mutation: the
+# native CLI/lease remains the only input-dispatch path.
+CAPABILITY_INSPECTION = "ReadOnlyInspection"
+CAPABILITY_PROPOSAL = "BoundedProposal"
+CAPABILITY_VERIFICATION = "Verification"
+CAPABILITY_MUTATION = "Mutation"
+CAPABILITY_CLASSES = frozenset(
+    {
+        CAPABILITY_INSPECTION,
+        CAPABILITY_PROPOSAL,
+        CAPABILITY_VERIFICATION,
+        CAPABILITY_MUTATION,
+    }
+)
+DEFAULT_UNCLASSIFIED_CLASS = CAPABILITY_MUTATION
+MUTATION_GRANT_ENV = "MAELSTROM_MCP_ALLOW_MUTATION"
+TOOL_CLASSES: Dict[str, str] = {
+    "list_game_workspaces": CAPABILITY_INSPECTION,
+    "get_w101_policy_state": CAPABILITY_INSPECTION,
+    "validate_routine_graph": CAPABILITY_VERIFICATION,
+    "evaluate_combat_damage": CAPABILITY_VERIFICATION,
+    "solve_potion_motion_grid": CAPABILITY_VERIFICATION,
+    "plan_combat_turn": CAPABILITY_VERIFICATION,
+    "maelstrom_get_alias_register": CAPABILITY_INSPECTION,
+    "maelstrom_get_session_telemetry": CAPABILITY_INSPECTION,
+    "maelstrom_inspect_routine_deck": CAPABILITY_INSPECTION,
+    "maelstrom_deal_job_card": CAPABILITY_PROPOSAL,
+    "maelstrom_step_deck_loop": CAPABILITY_PROPOSAL,
+    "maelstrom_deck_command": CAPABILITY_PROPOSAL,
+    "maelstrom_get_capability_catalog": CAPABILITY_INSPECTION,
+    "maelstrom_list_target_windows": CAPABILITY_INSPECTION,
+    "maelstrom_connect_observation_target": CAPABILITY_INSPECTION,
+    "maelstrom_observe_connected_target": CAPABILITY_INSPECTION,
+    "maelstrom_get_w101_facts": CAPABILITY_INSPECTION,
+    "maelstrom_check_observation_progress": CAPABILITY_INSPECTION,
+    "maelstrom_disconnect_observation_target": CAPABILITY_INSPECTION,
+    "maelstrom_read_circuit_snapshot": CAPABILITY_INSPECTION,
+    "maelstrom_propose_bazaar_action": CAPABILITY_PROPOSAL,
+    "maelstrom_read_circuit_bus": CAPABILITY_INSPECTION,
+    "maelstrom_propose_anchor_actuation": CAPABILITY_PROPOSAL,
+    "compile_macro_demonstration": CAPABILITY_PROPOSAL,
+}
+
+
 class MaelstromMcpServer:
     """In-memory MCP protocol dispatcher over JSON-RPC 2.0."""
 
-    def __init__(self, root_dir: Optional[Path] = None):
+    def __init__(
+        self,
+        root_dir: Optional[Path] = None,
+        allow_mutation: Optional[bool] = None,
+    ):
         self.root_dir = root_dir or ROOT
+        if allow_mutation is None:
+            allow_mutation = os.environ.get(MUTATION_GRANT_ENV, "") == "1"
+        self._mutation_granted = bool(allow_mutation)
 
     def get_tool_definitions(self) -> List[Dict[str, Any]]:
         return [
@@ -606,6 +661,20 @@ class MaelstromMcpServer:
         ]
 
     def handle_tool_call(self, name: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        capability = TOOL_CLASSES.get(name, DEFAULT_UNCLASSIFIED_CLASS)
+        if capability == CAPABILITY_MUTATION and not self._mutation_granted:
+            return {
+                "ok": False,
+                "error": "capability-denied",
+                "capabilityClass": capability,
+                "registered": name in TOOL_CLASSES,
+                "reason": (
+                    "Mutation-class tools are default-denied; register an "
+                    "explicit capability class or grant the session "
+                    + MUTATION_GRANT_ENV
+                    + "=1."
+                ),
+            }
         if name == "list_game_workspaces":
             packs_dir = self.root_dir / "tools/fixtures/game_packs"
             packs = []

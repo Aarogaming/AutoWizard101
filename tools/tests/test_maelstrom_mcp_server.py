@@ -9,7 +9,14 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools"))
 
-from maelstrom_mcp_server import MaelstromMcpServer
+from maelstrom_mcp_server import (
+    CAPABILITY_CLASSES,
+    CAPABILITY_MUTATION,
+    DEFAULT_UNCLASSIFIED_CLASS,
+    MUTATION_GRANT_ENV,
+    TOOL_CLASSES,
+    MaelstromMcpServer,
+)
 
 
 class MaelstromMcpServerTests(unittest.TestCase):
@@ -755,6 +762,54 @@ class MaelstromMcpServerTests(unittest.TestCase):
         self.assertTrue(ready["action_permitted"])
         self.assertEqual("actuate-anchor", ready["executive_intent"]["command"])
         self.assertIn("actuate-anchor", ready["cli_invocation"])
+
+
+class CapabilityClassTests(unittest.TestCase):
+    """Every tool declares a capability class; unregistered names default to Mutation."""
+
+    def setUp(self):
+        self.server = MaelstromMcpServer(root_dir=ROOT)
+
+    def test_every_registered_tool_declares_a_class(self):
+        names = {t["name"] for t in self.server.get_tool_definitions()}
+        self.assertEqual(set(), names - set(TOOL_CLASSES), "unclassified tools")
+        self.assertEqual(set(), set(TOOL_CLASSES) - names, "stale class entries")
+
+    def test_classes_are_within_the_four(self):
+        self.assertTrue(set(TOOL_CLASSES.values()) <= CAPABILITY_CLASSES)
+        self.assertEqual(CAPABILITY_MUTATION, DEFAULT_UNCLASSIFIED_CLASS)
+
+    def test_no_current_tool_is_classed_mutation(self):
+        # Documented current state: input dispatch stays behind the native CLI
+        # and the single-owner lease; if a tool becomes mutation, it must be
+        # granted explicitly per session.
+        self.assertEqual(
+            [], [n for n, c in TOOL_CLASSES.items() if c == CAPABILITY_MUTATION]
+        )
+
+    def test_unregistered_tool_is_default_denied(self):
+        reply = self.server.handle_tool_call("no_such_tool", {})
+        self.assertEqual("capability-denied", reply["error"])
+        self.assertEqual(CAPABILITY_MUTATION, reply["capabilityClass"])
+        self.assertFalse(reply["registered"])
+
+    def test_session_grant_opens_the_mutation_gate(self):
+        granted = MaelstromMcpServer(root_dir=ROOT, allow_mutation=True)
+        # Gate passes, then the pre-existing unknown-tool error is reached.
+        with self.assertRaises(ValueError):
+            granted.handle_tool_call("no_such_tool", {})
+
+    def test_environment_grant_is_honoured(self):
+        with mock.patch.dict("os.environ", {MUTATION_GRANT_ENV: "1"}):
+            granted = MaelstromMcpServer(root_dir=ROOT)
+        with self.assertRaises(ValueError):
+            granted.handle_tool_call("no_such_tool", {})
+
+    def test_inspection_tools_are_not_denied(self):
+        reply = self.server.handle_tool_call("get_w101_policy_state", {})
+        self.assertFalse(
+            isinstance(reply, dict) and reply.get("error") == "capability-denied"
+        )
 
 
 if __name__ == "__main__":

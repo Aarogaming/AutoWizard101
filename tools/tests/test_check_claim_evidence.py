@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import check_claim_evidence as checker
@@ -167,6 +168,29 @@ class RegistryChecks(unittest.TestCase):
         code, output = self.run_main()
         self.assertEqual(1, code)
         self.assertIn("unreadable", output)
+
+    def test_dirty_path_owned_by_active_claim_is_exempt(self):
+        target = self.root / "tools" / "live.py"
+        target.parent.mkdir(parents=True)
+        target.write_text("x = 1\n", encoding="utf-8")
+        dirty = "tools/live.py"
+        self.write_claims(
+            [
+                self.released(note="evidence 1babc96", paths=[dirty]),
+                {
+                    "task_id": "ACTIVE-1",
+                    "state": "active",
+                    "owned_paths": [dirty],
+                },
+            ]
+        )
+        with mock.patch.object(checker, "dirty_paths", return_value={dirty}):
+            self.assertEqual([], checker.claim_violations(self.root))
+        self.write_claims([self.released(note="evidence 1babc96", paths=[dirty])])
+        with mock.patch.object(checker, "dirty_paths", return_value={dirty}):
+            found = checker.claim_violations(self.root)
+        self.assertEqual(1, len(found))
+        self.assertIn("not committed", found[0])
 
 
 if __name__ == "__main__":
