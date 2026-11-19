@@ -1,5 +1,7 @@
 # Claim Evidence: W101-REPLAY-HARNESS-CORE-02
 
+Status: **Draft** (audited 2026-11-19; see "Audit corrections" at the end).
+
 ## 1. Overview
 - **Task ID**: `W101-REPLAY-HARNESS-CORE-02`
 - **Workstream**: `CORE-TRANSITIONS`
@@ -36,3 +38,14 @@
 - `rustfmt --edition 2021`: clean across all owned paths.
 - `python tools/check_project_board.py`: Valid (30 workstreams, zero broken links).
 - `python tools/check_text_encoding.py`: 0 violations.
+
+---
+
+## Audit corrections (2026-11-19)
+Checked against `autonomy_replay.rs` and `autonomy_replay_tests.rs`; the original text above is kept.
+- Verified: the three named tests exist and pass (`cargo test -p maelstrom-fallback --offline --test autonomy_replay_tests`: 3 passed). The type names, the 5.0 curvature and 10.0 jerk default thresholds, and the zero-frame and disconnected-state behaviour match the code.
+- **"Multi-hour" is wrong.** The 1000-frame test spans 99.9 seconds of synthetic time (`duration_ms() == 99_900`). Its frames and its `expected_intent` labels are hand-written in the test, so the 100% accuracy shows the bridge agrees with the author's own labels. It is not a recorded trace.
+- **The jerk metric is not the stated formula.** The doc gives `J = dist/T^3 * 60`. The code computes `dist / T^3 * 0.001` (no factor of 60), where `dist` is the distance from a hard-coded screen centre (640, 360) to the plan target, not from the real start point. It is a rough scale-dependent proxy, so the "humanized jerk < 10.0" assertion does not demonstrate human-like motion.
+- **Replan assertion is weaker than described.** The test comment says "at least 3 replans"; the assertion is `replan_count >= 2`.
+- **"Zero OS/UI calls" needs a qualifier.** Replay itself is offline, but the module does read and write files (`from_file`, `to_file`, trace discovery, and temp directories in `run_batch`). No named-pipe or game-client access was found.
+- Not reproduced: the "137 passed across 5 crates" workspace count, the clippy run and the project-board and encoding gates; the counts have changed since this was written.
