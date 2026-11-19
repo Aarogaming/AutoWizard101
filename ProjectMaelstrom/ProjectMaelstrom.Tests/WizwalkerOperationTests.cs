@@ -253,14 +253,18 @@ public sealed class WizwalkerOperationTests : IDisposable
         var runtime = new WizwalkerRuntime(_ => true, WizwalkerWorker.ExecuteAsync);
         var ticket = WizwalkerOperation.Submit(scheduler, new(_target, true), FakeWorkerLaunch(source), runtime);
         var marker = Path.Combine(_root, "operations", ticket.Request.Id, "fake-read-started");
-        var deadline = DateTime.UtcNow.AddSeconds(4);
+        // Python start-up on a loaded CI runner has taken longer than the previous 4 s bound; wait generously and say which case failed.
+        var deadline = DateTime.UtcNow.AddSeconds(20);
         while (!File.Exists(marker) && !ticket.Completion.IsCompleted && DateTime.UtcNow < deadline) await Task.Delay(20);
-        Assert.True(File.Exists(marker), "Fake Python client did not reach its read.");
+        Assert.True(File.Exists(marker), ticket.Completion.IsCompleted
+            ? "The operation finished before the fake Python client reached its read."
+            : "Fake Python client did not reach its read within 20 seconds.");
         var pid = int.Parse(File.ReadAllText(Path.Combine(Path.GetDirectoryName(marker)!, "fake-worker.pid")));
         using var child = System.Diagnostics.Process.GetProcessById(pid);
         Assert.Throws<InvalidOperationException>(() => GameInputLease.Acquire("competitor", Locks));
         ticket.Cancel();
-        var receipt = await ticket.Completion.WaitAsync(TimeSpan.FromSeconds(8));
+        // The forced path chains several 2 s transport waits (grace, kill, output drain), so 8 s left little slack.
+        var receipt = await ticket.Completion.WaitAsync(TimeSpan.FromSeconds(20));
         Assert.True(child.HasExited, "The owned fake worker must exit before its terminal receipt.");
         Assert.Equal(forced ? OperationState.CleanupFailed : OperationState.Cancelled, receipt.State);
         if (forced) Assert.Throws<InvalidOperationException>(() => GameInputLease.Acquire("next", Locks));
