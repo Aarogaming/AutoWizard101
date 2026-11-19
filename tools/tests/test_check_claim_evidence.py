@@ -2,6 +2,7 @@
 
 from contextlib import redirect_stdout
 import io
+import json
 from pathlib import Path
 import sys
 import tempfile
@@ -69,6 +70,103 @@ class ClaimEvidenceTests(unittest.TestCase):
         self.assertIn("1 warning(s)", output.getvalue())
         with redirect_stdout(io.StringIO()):
             self.assertEqual(1, checker.main(["--root", str(self.root), "--strict"]))
+
+
+class RegistryChecks(unittest.TestCase):
+    """Released claims must carry an evidenced release_note and existing owned paths."""
+
+    def setUp(self):
+        local = checker.ROOT / ".local"
+        local.mkdir(exist_ok=True)
+        temporary = tempfile.TemporaryDirectory(prefix="registry-tests-", dir=local)
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+
+    def write_claims(self, claims):
+        path = self.root / checker.CLAIMS
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"claims": claims}), encoding="utf-8")
+
+    def write_baseline(self, ids):
+        path = self.root / checker.BASELINE
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("\n".join(ids) + "\n", encoding="utf-8")
+
+    @staticmethod
+    def released(note=None, paths=None):
+        claim = {"task_id": "T-1", "state": "released"}
+        if note is not None:
+            claim["release_note"] = note
+        if paths is not None:
+            claim["owned_paths"] = paths
+        return claim
+
+    def run_main(self, argv=None):
+        with redirect_stdout(io.StringIO()) as output:
+            code = checker.main(["--root", str(self.root)] + (argv or []))
+        return code, output.getvalue()
+
+    def test_released_without_note_is_a_violation(self):
+        self.write_claims([self.released()])
+        found = checker.claim_violations(self.root)
+        self.assertEqual(1, len(found))
+        self.assertIn("without release_note", found[0])
+
+    def test_note_without_evidence_marker_is_a_violation(self):
+        self.write_claims([self.released(note="Done, tests passed.")])
+        found = checker.claim_violations(self.root)
+        self.assertEqual(1, len(found))
+        self.assertIn("no evidence marker", found[0])
+
+    def test_note_with_commit_hash_passes(self):
+        self.write_claims([self.released(note="Fixed and released in 1babc96.")])
+        self.assertEqual([], checker.claim_violations(self.root))
+
+    def test_missing_owned_path_is_a_violation(self):
+        self.write_claims(
+            [self.released(note="evidence 1babc96", paths=["docs/gone.md"])]
+        )
+        found = checker.claim_violations(self.root)
+        self.assertEqual(1, len(found))
+        self.assertIn("owned path missing", found[0])
+
+    def test_local_owned_paths_are_skipped(self):
+        self.write_claims(
+            [self.released(note="evidence 1babc96", paths=[".local/data/x.json"])]
+        )
+        self.assertEqual([], checker.claim_violations(self.root))
+
+    def test_active_claims_are_not_checked(self):
+        self.write_claims([{"task_id": "T-2", "state": "active"}])
+        self.assertEqual([], checker.claim_violations(self.root))
+
+    def test_baseline_grandfathers_a_legacy_violation(self):
+        self.write_claims([self.released()])
+        self.write_baseline(["T-1"])
+        code, output = self.run_main()
+        self.assertEqual(0, code)
+        self.assertIn("0 new registry violation(s)", output)
+
+    def test_new_violation_fails_even_without_strict(self):
+        self.write_claims([self.released()])
+        code, output = self.run_main()
+        self.assertEqual(1, code)
+        self.assertIn("REGISTRY: T-1", output)
+
+    def test_stale_baseline_entry_fails(self):
+        self.write_claims([self.released(note="evidence 1babc96")])
+        self.write_baseline(["T-1"])
+        code, output = self.run_main()
+        self.assertEqual(1, code)
+        self.assertIn("BASELINE STALE: T-1", output)
+
+    def test_unreadable_claims_fails_instead_of_passing(self):
+        path = self.root / checker.CLAIMS
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("not json", encoding="utf-8")
+        code, output = self.run_main()
+        self.assertEqual(1, code)
+        self.assertIn("unreadable", output)
 
 
 if __name__ == "__main__":

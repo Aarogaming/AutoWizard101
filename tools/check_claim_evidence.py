@@ -13,9 +13,17 @@ A report that carries an "Audit corrections", "Audit note", "Update note" or
 "Integration review correction" section has acknowledged its defects and is skipped,
 as are gap audits that list proposed tests. Warnings do not change the exit code
 unless --strict is given.
+
+Registry checks (always enforced, independent of --strict): a claim whose state is
+"released" must carry a release_note containing an evidence marker (commit hash,
+exit code, command or log path), and every owned path must exist and be committed.
+Legacy violations are grandfathered in tools/claim_evidence_baseline.txt; a
+baseline entry that no longer violates is itself an error, so the baseline can
+only shrink.
 """
 
 import argparse
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -41,6 +49,99 @@ BANNED = (
     "proven fact",
     "guaranteed optimal",
 )
+
+CLAIMS = "docs/coordination/claims.json"
+BASELINE = "tools/claim_evidence_baseline.txt"
+NOTE_MARKER = re.compile(
+    r"(\b[0-9a-f]{7,40}\b|exit code|```|`(?:python|cargo|dotnet|git) |\.log\b|command)",
+    re.IGNORECASE,
+)
+
+
+def load_claims(root):
+    """Claims list, or None when claims.json is missing or unreadable."""
+    path = root / CLAIMS
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        claims = data["claims"]
+    except (ValueError, KeyError, TypeError, OSError):
+        return None
+    return claims if isinstance(claims, list) else None
+
+
+def load_baseline(root):
+    """Task IDs grandfathered by tools/claim_evidence_baseline.txt (absent file = empty)."""
+    path = root / BASELINE
+    if not path.is_file():
+        return set()
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    return {
+        line.strip()
+        for line in text.splitlines()
+        if line.strip() and not line.startswith("#")
+    }
+
+
+def dirty_paths(root):
+    """Paths git reports as modified/untracked, or None when git is unavailable."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "status", "--porcelain"],
+            capture_output=True,
+            check=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    found = set()
+    for line in result.stdout.decode("utf-8", "replace").splitlines():
+        entry = line[3:] if len(line) > 3 else ""
+        if " -> " in entry:
+            entry = entry.split(" -> ")[-1]
+        entry = entry.strip('"')
+        if entry:
+            found.add(entry)
+    return found
+
+
+def claim_violations(root):
+    """One string per defect in a RELEASED claim, each prefixed with its task_id.
+
+    Defects: released without release_note; release_note without an evidence
+    marker; an owned path that does not exist; an owned path that git reports as
+    uncommitted. Paths under .local/ are skipped (gitignored data). Returns None
+    when claims.json cannot be read, so callers fail instead of passing silently.
+    """
+    claims = load_claims(root)
+    if claims is None:
+        return None
+    dirty = dirty_paths(root)
+    found = []
+    for claim in claims:
+        if claim.get("state") != "released":
+            continue
+        task = str(claim.get("task_id", "?"))
+        note = str(claim.get("release_note", "") or "").strip()
+        if not note:
+            found.append(task + ": released without release_note")
+        elif not NOTE_MARKER.search(note):
+            found.append(
+                task + ": release_note has no evidence marker "
+                "(commit hash, exit code, command or log path)"
+            )
+        for owned in claim.get("owned_paths", []) or []:
+            if not isinstance(owned, str) or owned.startswith(".local/"):
+                continue
+            if not (root / owned).exists():
+                found.append(task + ": owned path missing: " + owned)
+            elif dirty is not None and (
+                owned in dirty
+                or any(d.startswith(owned.rstrip("/") + "/") for d in dirty)
+            ):
+                found.append(task + ": owned path not committed: " + owned)
+    return found
 
 
 def tracked_files(root=ROOT):
@@ -146,7 +247,47 @@ def main(argv=None):
         total += len(found)
         for warning in found:
             print(report.name + ": " + warning)
-    print("Claim evidence check: " + str(total) + " warning(s)")
+    violations = claim_violations(args.root)
+    if violations is None:
+        if (args.root / CLAIMS).is_file():
+            print(
+                "Claim evidence check: "
+                + CLAIMS
+                + " exists but is unreadable; failing instead of passing silently."
+            )
+            return 1
+        violations = []
+        print(
+            "Claim evidence check: no "
+            + CLAIMS
+            + " at this root; registry checks skipped."
+        )
+    baseline = load_baseline(args.root)
+    flagged = {item.split(":", 1)[0] for item in violations}
+    fresh = [item for item in violations if item.split(":", 1)[0] not in baseline]
+    stale = sorted(baseline - flagged)
+    for item in violations:
+        if item.split(":", 1)[0] in baseline:
+            pass  # legacy, grandfathered: reported as a count below
+    for item in fresh:
+        print("REGISTRY: " + item)
+    for task in stale:
+        print(
+            "BASELINE STALE: "
+            + task
+            + " no longer violates; delete its baseline line (baseline only shrinks)"
+        )
+    print(
+        "Claim evidence check: "
+        + str(total)
+        + " warning(s), "
+        + str(len(fresh))
+        + " new registry violation(s), "
+        + str(len(stale))
+        + " stale baseline entr(ies)"
+    )
+    if fresh or stale:
+        return 1
     return 1 if total and args.strict else 0
 
 
