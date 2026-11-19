@@ -88,3 +88,12 @@ Snapshot hashes (SHA256):
 Unknown: unrecorded Gemini/Antigravity session results outside the reviewed repository, any later concurrent edits, exact dependency-cache/toolchain readiness, current binary provenance, cross-language parity and performance benefit. No private agent/chat history was accessed. The located handoff, Git scaffold commit and prior architecture review are the relevant available continuation evidence.
 
 Integration request: coordinator review this report, reconcile stale inventory wording when appropriate, and assign only the next bounded offline task. No central board/claim edit by this worker. Running processes/desktop use: none.
+
+---
+
+## Update note (2026-11-19, static spot-check)
+This report is a 2026-11-12 snapshot and is partly out of date. Re-checked by source inspection only (the `#[test]` count below was not run):
+- **Resolved since:** the spell-deck delimiter mismatch (Rust now uses `\+`, `\,`, `\;`; see `RUST-PROMOTION-AUDIT-01`); `maelstrom-platform` now has Win32 implementations (`WinWindowTracker`, `WinScreenCapturer`, `WinInputActuator`, still without a production caller); executables now exist (`maelstrom-bridge`, `maelstrom-replay`, `maelstrom-rust-preview`); `maelstrom-ide` now depends on `eframe`/`egui`/`egui_tiles`; `pet_dance.rs` now latches a `fault` and has 8 tests; the tracked legacy `ProjectMaelstrom/ProjectMaelstrom/rust_port` directory no longer exists.
+- **Stale count:** "16 `#[test]` declarations" is now about 233 across `crates/` (declaration count, not a pass count).
+- **Still open as of this check:** `wad_reader.rs` has no tests and no visible size or count limits (the unbounded-allocation finding stands); the `no_std` question is settled the other way (the crate is a `std` library and does not build with `--no-default-features`), so item 4 should not be read as "portability unproven but intended".
+- Not re-checked: the dance parity details beyond the fault latch, the `bazaar_bot` and `player_controller` behaviours, and the ranked task table (which remains a proposal, not delivered work).
