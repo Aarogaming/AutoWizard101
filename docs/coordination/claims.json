@@ -3,7 +3,7 @@
   "kind": "maelstrom-task-claims",
   "executable": false,
   "maintained_by": "coordinator",
-  "note": "2026-11-11 architecture audit and canonical validation repair complete; scoped claims released. Gemini OBS-02 reservation remains active. Roadmap distinguishes installed deck from source-only combat/sign-in/validation changes.",
+  "note": "2026-11-11 architecture audit and canonical validation repair complete; scoped claims released. Gemini OBS-02 reservation remains active. (Update 2026-11-19: W101-COMBAT-OBS-02 is released without deliverables; see its release_note. 162 missing release notes were backfilled and two phantom path sets corrected.) Roadmap distinguishes installed deck from source-only combat/sign-in/validation changes.",
   "claims": [
     {
       "task_id": "CORE-BORROW-SEMANTICS-01",
@@ -608,7 +608,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleBindingsTests.cs",
         "docs/coordination/results/W101-MODULE-BIND-04.md"
       ],
-      "workstream_id": "CORE-TRANSITIONS"
+      "workstream_id": "CORE-TRANSITIONS",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-MODULE-RUNTIME-04",
@@ -620,7 +621,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleOperationTests.cs",
         "docs/coordination/results/W101-MODULE-RUNTIME-04.md"
       ],
-      "workstream_id": "CORE-TRANSITIONS"
+      "workstream_id": "CORE-TRANSITIONS",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-MODULE-CARDS-04",
@@ -633,7 +635,8 @@
         "docs/JOB_DECK.md",
         "docs/coordination/results/W101-MODULE-CARDS-04.md"
       ],
-      "workstream_id": "CORE-TRANSITIONS"
+      "workstream_id": "CORE-TRANSITIONS",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-16. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-MODULE-INTEGRATION-04",
@@ -646,7 +649,8 @@
         "docs/ROADMAP.md",
         "docs/coordination/results/W101-MODULE-INTEGRATION-04.md"
       ],
-      "workstream_id": "CORE-TRANSITIONS"
+      "workstream_id": "CORE-TRANSITIONS",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-MODULE-ADAPTER-03",
@@ -660,7 +664,8 @@
         "docs/coordination/results/CORE-MODULE-ADAPTER-03.md",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleReplay.cs"
       ],
-      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install."
+      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-MODULE-CARDS-03",
@@ -674,7 +679,8 @@
         "docs/coordination/results/CORE-MODULE-CARDS-03.md",
         "ProjectMaelstrom/ProjectMaelstrom/JobDeckForm.cs"
       ],
-      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install."
+      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-16. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-MODULE-REVIEW-03",
@@ -684,7 +690,8 @@
       "owned_paths": [
         "docs/coordination/results/CORE-MODULE-REVIEW-03.md"
       ],
-      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install."
+      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-MODULE-INTEGRATION-03",
@@ -697,7 +704,8 @@
         "docs/ROADMAP.md",
         "docs/coordination/results/CORE-MODULE-INTEGRATION-03.md"
       ],
-      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install."
+      "notes": "Offline module-card integration; root owns serialized builds. No game input/install. Integrated;2097native tests and analyzer checks pass. No live qualification/install.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "state": "released",
@@ -710,7 +718,8 @@
       "owner": "root",
       "notes": "Offline integration validation and board updates Integrated offline;2075native/15MCP tests pass. Source-only.",
       "task_id": "CORE-CATALOG-INTEGRATION-02",
-      "workstream_id": "CORE-DELIVERY"
+      "workstream_id": "CORE-DELIVERY",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-OBSERVATION-02",
@@ -724,7 +733,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/DeckObservationRefreshTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
         "docs/coordination/results/CORE-OBSERVATION-02.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "workstream_id": "CORE-DELIVERY",
@@ -738,7 +748,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/JobFactCatalogTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckTests.cs",
         "docs/coordination/results/CORE-CAPABILITY-02.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "workstream_id": "CORE-DELIVERY",
@@ -753,7 +764,8 @@
         "docs/JOB_DECK.md",
         "docs/coordination/results/CORE-CATALOG-SURFACE-02.md",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 6 of 6 owned repo files are committed; latest commit touching them 2026-11-17. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-CONTRACT-REPAIR-01",
@@ -768,7 +780,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
         "docs/JOB_DECK.md",
         "docs/coordination/results/CORE-CONTRACT-REPAIR-01.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 6 of 6 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-CAPABILITY-MAP-01",
@@ -780,7 +793,8 @@
         "research/maelstrom-capabilities.json",
         "tools/check_capability_inventory.py",
         "tools/tests/test_check_capability_inventory.py"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Contents not re-verified."
     },
     {
       "task_id": "CORE-ARCH-AUDIT-01",
@@ -796,7 +810,8 @@
         "docs/ARCHITECTURE_AUDIT_20261111.md",
         "docs/WIZARD101_GAME_KNOWLEDGE.md",
         "docs/ROUTINE_EXECUTION_MODEL.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "CORE-CARD-AUDIT-01",
@@ -806,7 +821,8 @@
       "notes": "Read-only code audit; report only. No builds or gameplay. Completed and integrated by root;2059native/31Python checks and actual headless validation bridge pass. No new installation or gameplay qualification.",
       "owned_paths": [
         "docs/coordination/results/CORE-CARD-AUDIT-01.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-REUSE-AUDIT-01",
@@ -816,7 +832,8 @@
       "notes": "Read-only Aaroneous/Devtools and imported repository review; report only. Completed and integrated by root;2059native/31Python checks and actual headless validation bridge pass. No new installation or gameplay qualification.",
       "owned_paths": [
         "docs/coordination/results/CORE-REUSE-AUDIT-01.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-KNOWLEDGE-AUDIT-01",
@@ -826,7 +843,8 @@
       "notes": "Audit game reference accuracy/provenance against current primary sources; report only, no game input. Completed and integrated by root;2059native/31Python checks and actual headless validation bridge pass. No new installation or gameplay qualification.",
       "owned_paths": [
         "docs/coordination/results/W101-KNOWLEDGE-AUDIT-01.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present and carries a 2026-11-19 audit note."
     },
     {
       "task_id": "W101-COMBAT-DUEL-10",
@@ -838,7 +856,8 @@
         "tools/w101_duel_reader.py",
         "tools/tests/test_w101_duel_reader.py",
         "docs/coordination/results/W101-COMBAT-DUEL-10.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-SIGNIN-01",
@@ -852,7 +871,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/GameCredentialStoreTests.cs",
         "docs/W101_SIGN_IN.md",
         "docs/coordination/results/W101-SIGNIN-01.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-COMBAT-CONNECT-06",
@@ -880,7 +900,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerWorker.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerWorkerTests.cs"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 19 of 19 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-COMBAT-INPUT-07",
@@ -892,7 +913,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CombatInput.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CombatInputTests.cs",
         "docs/coordination/results/W101-COMBAT-INPUT-07.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-COMBAT-READ-08",
@@ -904,7 +926,8 @@
         "tools/w101_combat_reader.py",
         "tools/tests/test_w101_combat_reader.py",
         "docs/coordination/results/W101-COMBAT-READ-08.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-COMBAT-BATTLE-09",
@@ -916,7 +939,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CombatBattleOperation.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CombatBattleOperationTests.cs",
         "docs/coordination/results/W101-COMBAT-BATTLE-09.md"
-      ]
+      ],
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "owned_paths": [
@@ -949,7 +973,8 @@
       "task_id": "CORE-DECK-RELEASE-02",
       "state": "released",
       "workstream_id": "CORE-DELIVERY",
-      "owner": "root"
+      "owner": "root",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 24 of 24 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "owned_paths": [
@@ -961,7 +986,8 @@
       "task_id": "W101-COMBAT-PLAN-03",
       "state": "released",
       "workstream_id": "W101-COMBAT",
-      "owner": "combat_planner"
+      "owner": "combat_planner",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "owned_paths": [
@@ -973,7 +999,8 @@
       "task_id": "W101-COMBAT-LOOP-04",
       "state": "released",
       "workstream_id": "W101-COMBAT",
-      "owner": "combat_loop"
+      "owner": "combat_loop",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "owned_paths": [
@@ -985,7 +1012,8 @@
       "task_id": "W101-COMBAT-SOURCE-05",
       "state": "released",
       "workstream_id": "W101-COMBAT",
-      "owner": "combat_sources"
+      "owner": "combat_sources",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-COMBAT-OBS-02",
@@ -993,12 +1021,10 @@
       "owner": "gemini",
       "state": "released",
       "owned_paths": [
-        "tools/w101_combat_snapshot.py",
-        "tools/tests/test_w101_combat_snapshot.py",
-        "tools/fixtures/combat/observation-contract-v1.json",
-        "docs/coordination/results/W101-COMBAT-OBS-02.md"
+        "docs/coordination/tasks/W101-COMBAT-OBS-02.md"
       ],
-      "notes": "User requested more Gemini work. Reserved combat observation/validation bridge, pure offline only; no second scheduler/controller. Brief docs/coordination/tasks/W101-COMBAT-OBS-02.md."
+      "notes": "User requested more Gemini work. Reserved combat observation/validation bridge, pure offline only; no second scheduler/controller. Brief docs/coordination/tasks/W101-COMBAT-OBS-02.md.",
+      "release_note": "Released without deliverables (recorded 2026-11-19): none of the reserved files was ever committed (tools/w101_combat_snapshot.py, tools/tests/test_w101_combat_snapshot.py, tools/fixtures/combat/observation-contract-v1.json, docs/coordination/results/W101-COMBAT-OBS-02.md); only the task brief docs/coordination/tasks/W101-COMBAT-OBS-02.md exists. The reserved paths were removed and owned_paths now names only the task brief; no combat observation bridge from this claim exists in the repository."
     },
     {
       "task_id": "DECK-API-TESTS-01",
@@ -1010,7 +1036,8 @@
         "tools/tests/test_maelstrom_deck_client.py",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckRecoveryTests.cs"
       ],
-      "notes": "Subagent writes bounded native transport/MCP bridge tests only; coordinator runs build/tests. Source handed back to root for integration and serial checks."
+      "notes": "Subagent writes bounded native transport/MCP bridge tests only; coordinator runs build/tests. Source handed back to root for integration and serial checks.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-17. Contents not re-verified."
     },
     {
       "task_id": "W101-DESTINATION-PREFLIGHT-01",
@@ -1022,7 +1049,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestIntent.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101QuestIntentTests.cs"
       ],
-      "notes": "Read-only source and saved-evidence audit for destination pilot. No game/process/desktop access or builds. Source handed back to root for integration and serial checks."
+      "notes": "Read-only source and saved-evidence audit for destination pilot. No game/process/desktop access or builds. Source handed back to root for integration and serial checks.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CARD-ART-01",
@@ -1035,7 +1063,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CardArtworkTests.cs",
         "docs/coordination/results/CARD-ART-01.md"
       ],
-      "notes": "User requested a Gemini assignment. Reserved disjoint artwork helper, provenance and tests; no builds or live access. Brief docs/coordination/tasks/CARD-ART-01.md. Deliverable report says ready for coordinator integration; root accepts source for review and integration."
+      "notes": "User requested a Gemini assignment. Reserved disjoint artwork helper, provenance and tests; no builds or live access. Brief docs/coordination/tasks/CARD-ART-01.md. Deliverable report says ready for coordinator integration; root accepts source for review and integration.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-DECK-01",
@@ -1093,7 +1122,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerOperationTests.cs",
         "tools/fixtures/wizwalker_fake_worker.py"
       ],
-      "notes": "Source checkpoint integrated: generic deck and native front/back cards, same scheduler/owner, real API/MCP, generic quest intent and configurable conversation adapter. 1859 native and 24 Python tests pass; scoped format/analyzers and board checks pass. Actual built-app offline replay completed once with duplicate suppression and clean host shutdown. No game inputs, live attachment, installation or task-owned controller left running. See docs/coordination/results/CORE-DECK-01.md. Combat bridge is separately assigned to Gemini."
+      "notes": "Source checkpoint integrated: generic deck and native front/back cards, same scheduler/owner, real API/MCP, generic quest intent and configurable conversation adapter. 1859 native and 24 Python tests pass; scoped format/analyzers and board checks pass. Actual built-app offline replay completed once with duplicate suppression and clean host shutdown. No game inputs, live attachment, installation or task-owned controller left running. See docs/coordination/results/CORE-DECK-01.md. Combat bridge is separately assigned to Gemini.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 49 of 49 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-QUEST-STEP-18",
@@ -1128,7 +1158,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Completed optional quest context and shared repeated-menu conversation. First live action turned in talk objective then exposed mid-dialogue objective changes; repaired and preserved partial evidence. Follow-up9a0c596712694b969822305e1a19afdb completed offer in12.9s with3 released advances and Fireglobe Theatre objective; all4 observers restored/disconnected,guard clean,zero remaining task processes.1688 full native/31 Python tests pass;10 conversation tests include successful live sequence replay. Scoped format/analyzers/syntax/board/diff checks pass. Workflow readiness and Dealer/deck/API/MCP architecture documented; those broader features remain planned. Source not installed. Myst was an accidental macro; no future-game entry added."
+      "notes": "Completed optional quest context and shared repeated-menu conversation. First live action turned in talk objective then exposed mid-dialogue objective changes; repaired and preserved partial evidence. Follow-up9a0c596712694b969822305e1a19afdb completed offer in12.9s with3 released advances and Fireglobe Theatre objective; all4 observers restored/disconnected,guard clean,zero remaining task processes.1688 full native/31 Python tests pass;10 conversation tests include successful live sequence replay. Scoped format/analyzers/syntax/board/diff checks pass. Workflow readiness and Dealer/deck/API/MCP architecture documented; those broader features remain planned. Source not installed. Myst was an accidental macro; no future-game entry added.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 26 of 26 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "ROUTINE-FOUNDATION-20261109",
@@ -1643,7 +1674,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputRecovery.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/GameInputRecoveryTransactionTests.cs"
       ],
-      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits."
+      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-12. Contents not re-verified."
     },
     {
       "task_id": "INPUT-RECOVERY-UI-08",
@@ -1658,7 +1690,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/InputRecoveryPresentationTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/InputRecoveryUiTests.cs"
       ],
-      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits."
+      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 6 of 6 owned repo files are committed; latest commit touching them 2026-11-13. Contents not re-verified."
     },
     {
       "task_id": "INPUT-RECOVERY-DRAIN-08",
@@ -1669,7 +1702,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationRecoveryDrainTests.cs"
       ],
-      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits."
+      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "INPUT-RECOVERY-FLOW-08",
@@ -1689,7 +1723,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits."
+      "notes": "Integrated and offline validated:1507 native tests,62 Python/board checks,14-file format/analyzers. Recovery UI, shared drain and evidence-preserving fresh verification complete in source. See docs/INPUT_RECOVERY_FLOW_20261110.md. No game/desktop/model/install; real verifier remains unqualified. Re-claim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 11 of 11 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "INPUT-RECOVERY-INSTALL-09",
@@ -1705,7 +1740,8 @@
         "docs/ROADMAP.md",
         "docs/INDEX.md"
       ],
-      "notes": "Package/install completed;14 installer tests and isolated lifecycle pass. Installed binaries match;972 original files pass bounded preservation checks. User takeover stopped desktop before recovery dialog; verification incomplete. See docs/INPUT_RECOVERY_INSTALL_20261110.md. Reclaim before further edits."
+      "notes": "Package/install completed;14 installer tests and isolated lifecycle pass. Installed binaries match;972 original files pass bounded preservation checks. User takeover stopped desktop before recovery dialog; verification incomplete. See docs/INPUT_RECOVERY_INSTALL_20261110.md. Reclaim before further edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "INPUT-RECOVERY-LIVE-10",
@@ -1721,7 +1757,8 @@
         "docs/ROADMAP.md",
         "docs/INDEX.md"
       ],
-      "notes": "Installed recovery UI and real quiet verifier passed once from a legacy-clean guard;15 saved-evidence consistency checks pass. No routines or settings changed; no gameplay. All Maelstrom windows closed by17:45:03 UTC. See docs/INPUT_RECOVERY_LIVE_20261110.md. Reclaim before further edits."
+      "notes": "Installed recovery UI and real quiet verifier passed once from a legacy-clean guard;15 saved-evidence consistency checks pass. No routines or settings changed; no gameplay. All Maelstrom windows closed by17:45:03 UTC. See docs/INPUT_RECOVERY_LIVE_20261110.md. Reclaim before further edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "W101-TELEMETRY-REVIEW-11",
@@ -1735,7 +1772,8 @@
         "docs/W101_UI_ONLY_BOUNDARY.md",
         "docs/W101_MEMORY_OBSERVATION_RESEARCH.md"
       ],
-      "notes": "Read-only code review complete;14 native/8 Python tests pass with mocks only. Architectural exception explicitly approved by owner and recorded in AGENTS/product/boundary docs; no production/provider edits or live memory access. Concrete gaps tracked in review."
+      "notes": "Read-only code review complete;14 native/8 Python tests pass with mocks only. Architectural exception explicitly approved by owner and recorded in AGENTS/product/boundary docs; no production/provider edits or live memory access. Concrete gaps tracked in review.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-17. Contents not re-verified."
     },
     {
       "task_id": "W101-CLIENT-EXCEPTION-12",
@@ -1759,7 +1797,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Expanded owner-approved W101 client-side functionality recorded across working agreement, product, current context, roadmap and legacy maps. Network manipulation excluded. Documentation/plan only; no executable guards changed or tools activated.30 Python/board tests and plan checks pass; native rerun interrupted without result, unchanged source hashes preserve earlier14-test evidence. Reclaim before edits."
+      "notes": "Expanded owner-approved W101 client-side functionality recorded across working agreement, product, current context, roadmap and legacy maps. Network manipulation excluded. Documentation/plan only; no executable guards changed or tools activated.30 Python/board tests and plan checks pass; native rerun interrupted without result, unchanged source hashes preserve earlier14-test evidence. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 15 of 15 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "W101-WIZWALKER-13",
@@ -1784,7 +1823,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Optional source-pinned loading observation integrated through existing native scheduler/control owner and one supervised Python worker. W101 workspace opt-in/Stop entry added.1535 native tests incl23 adapter cases and79 Python checks pass; scoped formatting/analyzers pass. Actual fake-child transport, cooperative stop and forced cleanup guard tested. No live game/desktop/model/package/install. See docs/WIZWALKER_ADAPTER_20261110.md. Reclaim before edits."
+      "notes": "Optional source-pinned loading observation integrated through existing native scheduler/control owner and one supervised Python worker. W101 workspace opt-in/Stop entry added.1535 native tests incl23 adapter cases and79 Python checks pass; scoped formatting/analyzers pass. Actual fake-child transport, cooperative stop and forced cleanup guard tested. No live game/desktop/model/package/install. See docs/WIZWALKER_ADAPTER_20261110.md. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 16 of 16 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "W101-WIZWALKER-LIVE-14",
@@ -1811,7 +1851,8 @@
         "docs/HEADLESS_CLI.md",
         "scripts/build_desktop.ps1"
       ],
-      "notes": "Integrated strict headless CLI and dependency preflight. Two live W101 nonloading snapshots completed in643/641ms with verified disconnect and clean shared guard; no gameplay or desktop input during CLI checks.1562 native,80 Python,14 installer tests pass. Portable and installer built; packaged help and isolated install/update/uninstall pass. Actual installation awaits user action-time confirmation for Setup-20261110-193143-7250d6. Positive loading transition remains unqualified. Reclaim paths before further edits."
+      "notes": "Integrated strict headless CLI and dependency preflight. Two live W101 nonloading snapshots completed in643/641ms with verified disconnect and clean shared guard; no gameplay or desktop input during CLI checks.1562 native,80 Python,14 installer tests pass. Portable and installer built; packaged help and isolated install/update/uninstall pass. Actual installation awaits user action-time confirmation for Setup-20261110-193143-7250d6. Positive loading transition remains unqualified. Reclaim paths before further edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 18 of 18 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "W101-WIZWALKER-INSTALL-15",
@@ -1826,7 +1867,8 @@
         "docs/ASSISTANT_CONTEXT.md",
         "docs/ROADMAP.md"
       ],
-      "notes": "Confirmed tested installer installed as11d29e86169b472ab46b3a4f2f64de02; binaries match payload.1163 data files preserved,341 small hashes match. Installed CLI help/windows/status/default user data passed; one W101 nonloading read709ms, cleanup confirmed, guard clean, worker exited. W101 visibly native Idle before headless read; no inputs sent. Desktop work ended and test/installer windows closed. Positive loading transition remains unqualified. Evidence: .local/wizwalker-installed-20261110 and docs/WIZWALKER_LIVE_20261110.md."
+      "notes": "Confirmed tested installer installed as11d29e86169b472ab46b3a4f2f64de02; binaries match payload.1163 data files preserved,341 small hashes match. Installed CLI help/windows/status/default user data passed; one W101 nonloading read709ms, cleanup confirmed, guard clean, worker exited. W101 visibly native Idle before headless read; no inputs sent. Desktop work ended and test/installer windows closed. Positive loading transition remains unqualified. Evidence: .local/wizwalker-installed-20261110 and docs/WIZWALKER_LIVE_20261110.md.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 6 of 6 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "W101-LOADING-16",
@@ -1861,7 +1903,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceTrialOptionsTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleRunner.cs"
       ],
-      "notes": "Loading watch and optional shared routine condition complete in source.1601 native tests and scoped formatting/analyzers pass. Real Dance loading and six user-demonstrated zone loading periods verified;105 zone readings all clean disconnects. Final native Idle visually confirmed; guard clean; worker exited. Combined opt-in postgame path is offline-only; new source not packaged/installed. No updater added. See docs/W101_LOADING_TRANSITION_20261110.md.16 Python adapter tests and board validation also pass. All task-owned test processes stopped."
+      "notes": "Loading watch and optional shared routine condition complete in source.1601 native tests and scoped formatting/analyzers pass. Real Dance loading and six user-demonstrated zone loading periods verified;105 zone readings all clean disconnects. Final native Idle visually confirmed; guard clean; worker exited. Combined opt-in postgame path is offline-only; new source not packaged/installed. No updater added. See docs/W101_LOADING_TRANSITION_20261110.md.16 Python adapter tests and board validation also pass. All task-owned test processes stopped.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 26 of 26 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "W101-UI-TREE-17",
@@ -1888,7 +1931,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerLoadingWatchTests.cs",
         "tools/fixtures/w101_ui_tree_live_20261110.json"
       ],
-      "notes": "Implemented optional bounded UI observer and exact-build maintained Deimos hook subset; initial legacy rejection preserved. Four live UI checks:130 trees,518 scheduled loading reads,zero failures,clean restoration/disconnect/guard,zero remaining task processes. User clarified quest dialogue close advances quest: final Quinn conversation left open. Seven replay fixtures;1629 native/25 Python tests. No desktop control or installation; final scoped format/analyzers/syntax,25 Python tests and30-workstream board checks pass. Source observer slice complete; shared routine consumption and installation are separate follow-ups. Reclaim paths before further edits."
+      "notes": "Implemented optional bounded UI observer and exact-build maintained Deimos hook subset; initial legacy rejection preserved. Four live UI checks:130 trees,518 scheduled loading reads,zero failures,clean restoration/disconnect/guard,zero remaining task processes. User clarified quest dialogue close advances quest: final Quinn conversation left open. Seven replay fixtures;1629 native/25 Python tests. No desktop control or installation; final scoped format/analyzers/syntax,25 Python tests and30-workstream board checks pass. Source observer slice complete; shared routine consumption and installation are separate follow-ups. Reclaim paths before further edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 18 of 18 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "W101-MODULE-INPUT-05",
@@ -1899,7 +1943,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleInput.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleInputTests.cs"
       ],
-      "notes": "Bounded addressed X/Escape input under existing owner; offline only; root owns builds. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+      "notes": "Bounded addressed X/Escape input under existing owner; offline only; root owns builds. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "W101-MODULE-ADMISSION-05",
@@ -1922,7 +1967,8 @@
         "docs/W101_AUTOMATION_READINESS.md",
         "docs/INDEX.md"
       ],
-      "notes": "Reviewed reader pin admission; offline verification; no live actions. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+      "notes": "Reviewed reader pin admission; offline verification; no live actions. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 14 of 14 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-PROMPT-EVIDENCE-05",
@@ -1933,7 +1979,8 @@
         "tools/w101_ui_tree.py",
         "tools/tests/test_w101_ui_tree.py"
       ],
-      "notes": "Bounded optional exact-path current/stable interaction title evidence; no live or build. Root updates C# DTO and worker hash. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+      "notes": "Bounded optional exact-path current/stable interaction title evidence; no live or build. Root updates C# DTO and worker hash. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "W101-MODULE-OBSERVER-05",
@@ -1944,7 +1991,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleObserver.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleObserverTests.cs"
       ],
-      "notes": "Concrete bounded UI-tree plus current capture OCR provider under existing owner; source/offline only. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+      "notes": "Concrete bounded UI-tree plus current capture OCR provider under existing owner; source/offline only. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "W101-MODULE-PROBE-05",
@@ -1955,7 +2003,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleProbe.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleProbeTests.cs"
       ],
-      "notes": "CLI-ready observation-only real provider admission; no input/live; root owns CLI. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05."
+      "notes": "CLI-ready observation-only real provider admission; no input/live; root owns CLI. Integrated:2173native/50Python tests, scoped formatting/analyzers pass. Second authorized read-only probe confirmed nativeIdle via tree/OCR,clean disconnect,zeroinputs. No installation or live action qualification. See W101-MODULE-INTEGRATION-05.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-12. Contents not re-verified."
     },
     {
       "task_id": "W101-IDLE-CYCLE-06",
@@ -1966,7 +2015,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleCycle.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101IdleCycleTests.cs"
       ],
-      "notes": "Receipt-bound idle/wake/options cycle using shared RoutineRunner; offline only, root builds. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+      "notes": "Receipt-bound idle/wake/options cycle using shared RoutineRunner; offline only, root builds. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-12. Contents not re-verified."
     },
     {
       "task_id": "W101-CONTROL-SCOPE-06",
@@ -1977,7 +2027,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ControlScopeTests.cs"
       ],
-      "notes": "Bounded CLI foreground/activity scope using existing monitor and input owner; no live execution, root builds. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+      "notes": "Bounded CLI foreground/activity scope using existing monitor and input owner; no live execution, root builds. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "W101-CYCLE-INTEGRATION-06",
@@ -2006,7 +2057,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleRecognition.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleRecognitionTests.cs"
       ],
-      "notes": "Concrete cycle/provider/input/CLI; bounded live through Maelstrom after offline tests, no purchases/quest advancement. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+      "notes": "Concrete cycle/provider/input/CLI; bounded live through Maelstrom after offline tests, no purchases/quest advancement. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 20 of 20 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-ROUTE-PROVENANCE-06",
@@ -2023,7 +2075,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Resources/Macros/olde-town-to-shopping-district.macro.json",
         "ProjectMaelstrom/ProjectMaelstrom/Resources/Macros/pet-pavilion-to-commons.macro.json"
       ],
-      "notes": "Remove false verified-route claims; prevent unqualified example coordinates becoming executable route; document actual demonstration anchors. Offline only. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+      "notes": "Remove false verified-route claims; prevent unqualified example coordinates becoming executable route; document actual demonstration anchors. Offline only. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 8 of 8 owned repo files are committed; latest commit touching them 2026-11-12. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-MENU-RECOGNITION-06",
@@ -2037,7 +2090,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101MenuRecognitionTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDancePostGameTests.cs"
       ],
-      "notes": "Review/fix scale-aware Options Idle recognition from current savedpixels whenavailable; no live/build. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+      "notes": "Review/fix scale-aware Options Idle recognition from current savedpixels whenavailable; no live/build. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "W101-NAV-INPUT-07",
@@ -2048,7 +2102,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationInput.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationInputTests.cs"
       ],
-      "notes": "Bounded W/A/D transport for navigation, shared control owner, offline tests; root owns build/live. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+      "notes": "Bounded W/A/D transport for navigation, shared control owner, offline tests; root owns build/live. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-13. Contents not re-verified."
     },
     {
       "task_id": "W101-NAV-PROBE-07",
@@ -2059,7 +2114,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationProbe.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationProbeTests.cs"
       ],
-      "notes": "One explicit short movement for route teaching under shared owner with before/after evidence; not arrival qualification. Offline implementation, root live/build. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+      "notes": "One explicit short movement for route teaching under shared owner with before/after evidence; not arrival qualification. Offline implementation, root live/build. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "W101-OWNED-READ-07",
@@ -2070,7 +2126,8 @@
         "tools/w101_ui_tree.py",
         "tools/tests/test_w101_ui_tree.py"
       ],
-      "notes": "Optional two-tree owned snapshot, preserves watch behavior and cleanup; lightweight offline tests only. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+      "notes": "Optional two-tree owned snapshot, preserves watch behavior and cleanup; lightweight offline tests only. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "W101-MENU-TIMING-07",
@@ -2081,7 +2138,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceMenuInput.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceMenuInputTests.cs"
       ],
-      "notes": "Bounded cursor-settle and click sequence, preserve user takeover and release. Offline implementation, root live/build. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits."
+      "notes": "Bounded cursor-settle and click sequence, preserve user takeover and release. Offline implementation, root live/build. Integrated source checkpoint:2302native/59focusedPython tests, scoped checks. Automatic Idle/wake/ensureIdle observed; no movement/route qualification or installation. See W101-CYCLE-INTEGRATION-06. Reclaim before edits.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-16. Contents not re-verified."
     },
     {
       "task_id": "W101-VISIT-08",
@@ -2094,7 +2152,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationVisitTests.cs"
       ],
-      "notes": "Agent implementation frozen; coordinator owns integration fixes, scoped formatting and tests. Integrated:2315native tests; scoped format/analyzers pass; two CLI motion/Idle visits independently confirmed by user. No installation or route-arrival claim."
+      "notes": "Agent implementation frozen; coordinator owns integration fixes, scoped formatting and tests. Integrated:2315native tests; scoped format/analyzers pass; two CLI motion/Idle visits independently confirmed by user. No installation or route-arrival claim.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "W101-VISIT-INTEGRATION-08",
@@ -2110,7 +2169,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "CLI visit integration, build/tests/live and evidence updates. Integrated:2315native tests; scoped format/analyzers pass; two CLI motion/Idle visits independently confirmed by user. No installation or route-arrival claim."
+      "notes": "CLI visit integration, build/tests/live and evidence updates. Integrated:2315native tests; scoped format/analyzers pass; two CLI motion/Idle visits independently confirmed by user. No installation or route-arrival claim.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-NAV-FEEDBACK-09",
@@ -2126,7 +2186,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Add optional observed corrective steering to existing navigation graph; deterministic offline tests, no new runtime or live recognition claims. Source integration complete;2341native tests and scoped checks pass. Live retry qualification deferred by user; no installation."
+      "notes": "Add optional observed corrective steering to existing navigation graph; deterministic offline tests, no new runtime or live recognition claims. Source integration complete;2341native tests and scoped checks pass. Live retry qualification deferred by user; no installation.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-IDLE-RETRY-10",
@@ -2146,7 +2207,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101IdleFailsafe.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101IdleFailsafeTests.cs"
       ],
-      "notes": "Bounded native-Idle finalization retries and explicit quiet-resume policy through current owner; gameplay is never replayed on uncertain receipt. Root owns sequential tests/live. Source integration complete;2341native tests and scoped checks pass. Live retry qualification deferred by user; no installation."
+      "notes": "Bounded native-Idle finalization retries and explicit quiet-resume policy through current owner; gameplay is never replayed on uncertain receipt. Root owns sequential tests/live. Source integration complete;2341native tests and scoped checks pass. Live retry qualification deferred by user; no installation.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 11 of 11 owned repo files are committed; latest commit touching them 2026-11-17. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-IDLE-INTEGRATION-11",
@@ -2171,7 +2233,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ModuleAdmission.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ModuleAdmissionTests.cs"
       ],
-      "notes": "Offline integration of shared finalizer into quest CLI/deck and Dance postgame; audit primitives/unsupported bindings separately. No live or installation. Integrated offline:2349tests and scoped formatting/analyzers pass. Coverage and remaining HomeMovementLease migration documented. No live or install."
+      "notes": "Offline integration of shared finalizer into quest CLI/deck and Dance postgame; audit primitives/unsupported bindings separately. No live or installation. Integrated offline:2349tests and scoped formatting/analyzers pass. Coverage and remaining HomeMovementLease migration documented. No live or install.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 16 of 16 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-HOME-IDLE-12",
@@ -2189,7 +2252,8 @@
         "docs/coordination/workstreams.json",
         "docs/coordination/claims.json"
       ],
-      "notes": "Shared-owner runtime bridge and visual Idle finalization for home movement. Offline only; no capture/input/install. Offline integration complete:2366native tests, scoped checks and whitespace pass. Original scheduler owner retained, UI lease disposal removed. Live and install remain pending."
+      "notes": "Shared-owner runtime bridge and visual Idle finalization for home movement. Offline only; no capture/input/install. Offline integration complete:2366native tests, scoped checks and whitespace pass. Original scheduler owner retained, UI lease disposal removed. Live and install remain pending.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 9 of 9 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-ROUTE-LANDMARKS-13",
@@ -2203,7 +2267,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Bounded offline visual route landmark prototype on saved demonstration and notified current-frame evidence. No direct input, no prototype dispatcher activation. Observation-only prototype and report complete;4tests/Black/syntax pass. Live alignment test requires pending user Ready; no autonomous route qualification. Reopened for notified D300 evidence and bounded SIFT comparison; no more live actions. D300 notified check completed; final saved Idle verified, user could not verify. SIFT comparison recognizes post-turn anchor;5tests/Black/syntax pass. Route still unqualified."
+      "notes": "Bounded offline visual route landmark prototype on saved demonstration and notified current-frame evidence. No direct input, no prototype dispatcher activation. Observation-only prototype and report complete;4tests/Black/syntax pass. Live alignment test requires pending user Ready; no autonomous route qualification. Reopened for notified D300 evidence and bounded SIFT comparison; no more live actions. D300 notified check completed; final saved Idle verified, user could not verify. SIFT comparison recognizes post-turn anchor;5tests/Black/syntax pass. Route still unqualified.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-ROUTE-GEOMETRY-14",
@@ -2223,7 +2288,8 @@
         "tools/w101_pose_reader.py",
         "tools/tests/test_w101_pose_reader.py"
       ],
-      "notes": "Offline spatial support and reference-relative alignment diagnostics; saved footage validation. No input or new dependencies. Live calibration stopped before input with generic readiness error; add bounded scope diagnostics to Idle report, offline tests. User explicitly authorized repair/integration of broken external calibration contribution. Completed offline geometry, bounded pose decoder and diagnostics repair;2369 native/15 Python tests pass. Notified turn retry user-confirmed; no forward movement, live pose or route qualification."
+      "notes": "Offline spatial support and reference-relative alignment diagnostics; saved footage validation. No input or new dependencies. Live calibration stopped before input with generic readiness error; add bounded scope diagnostics to Idle report, offline tests. User explicitly authorized repair/integration of broken external calibration contribution. Completed offline geometry, bounded pose decoder and diagnostics repair;2369 native/15 Python tests pass. Notified turn retry user-confirmed; no forward movement, live pose or route qualification.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 11 of 11 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-POSE-CONNECT-15",
@@ -2247,7 +2313,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101NavigationVisit.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101NavigationVisitTests.cs"
       ],
-      "notes": "Optional serialized player-pose observation through existing CLI owner, offline first, notified live checks only; no automatic coordinate movement until qualified. Source integrated and2378native/62Python tests pass; live pose and deflected forward movement observed. Dorm waypoint trial blocked before input by foreground. No input active; no arrival qualification."
+      "notes": "Optional serialized player-pose observation through existing CLI owner, offline first, notified live checks only; no automatic coordinate movement until qualified. Source integrated and2378native/62Python tests pass; live pose and deflected forward movement observed. Dorm waypoint trial blocked before input by foreground. No input active; no arrival qualification.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 15 of 15 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-FOREGROUND-16",
@@ -2270,7 +2337,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerOperation.cs",
         "docs/ROADMAP.md"
       ],
-      "notes": "Explicit user-authorized quiet foreground admission; retain takeover guard, fresh restarted target, bounded dorm test. Source integrated;2385native checks pass. Live restarted client changed root register/scratch profile; hook withheld,0inputs. Fixed false recovery classification and added pre-admission build check. Existing recovery not cleared; waypoint/Idle pending compatible profile and recovery."
+      "notes": "Explicit user-authorized quiet foreground admission; retain takeover guard, fresh restarted target, bounded dorm test. Source integrated;2385native checks pass. Live restarted client changed root register/scratch profile; hook withheld,0inputs. Fixed false recovery classification and added pre-admission build check. Existing recovery not cleared; waypoint/Idle pending compatible profile and recovery.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 14 of 14 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-PROFILE-RECOVERY-17",
@@ -2290,7 +2358,8 @@
         "docs/coordination/workstreams.json",
         "docs/coordination/claims.json"
       ],
-      "notes": "Offline profile and explicit verified CLI recovery implemented. 2386 native/56 UI tests pass. Live recovery blocked by unavailable desktop; W101 absent. No movement or verified Idle; see result report."
+      "notes": "Offline profile and explicit verified CLI recovery implemented. 2386 native/56 UI tests pass. Live recovery blocked by unavailable desktop; W101 absent. No movement or verified Idle; see result report.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 11 of 11 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-LIVE-RECOVERY-18",
@@ -2304,7 +2373,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "CLI diagnostics isolate rejected verifier foreground. No game input; recovery retained. W101 confirmed in elevated context; earlier absence inference corrected. Live profile/waypoint/Idle pending."
+      "notes": "CLI diagnostics isolate rejected verifier foreground. No game input; recovery retained. W101 confirmed in elevated context; earlier absence inference corrected. Live profile/waypoint/Idle pending.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CONTROL-COUNTDOWN-19",
@@ -2322,7 +2392,8 @@
         "docs/coordination/workstreams.json",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/CliInputRecovery.cs"
       ],
-      "notes": "Source integrated;2392native tests and scoped formatting/analyzers pass. Five-second shared W101 action overlay, optional sound, ten-second recovery foreground fallback. Not installed/live-qualified; see result report."
+      "notes": "Source integrated;2392native tests and scoped formatting/analyzers pass. Five-second shared W101 action overlay, optional sound, ten-second recovery foreground fallback. Not installed/live-qualified; see result report.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 9 of 9 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RELEASE-COUNTDOWN-20",
@@ -2336,7 +2407,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Installed via tested CLI installer; installed recovery rejected foreground and timed out. No gameplay. Countdown/sound/live adapter/waypoint/Idle unverified."
+      "notes": "Installed via tested CLI installer; installed recovery rejected foreground and timed out. No gameplay. Countdown/sound/live adapter/waypoint/Idle unverified.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RECOVERY-DESKTOP-21",
@@ -2352,7 +2424,8 @@
         "docs/coordination/workstreams.json",
         "docs/HEADLESS_CLI.md"
       ],
-      "notes": "Fixed/installed windowless recovery; live source recovery and new-profile UI/pose restoration passed.2394tests. Installed recheck honored activity cancellation. Native Idle text unresolved, no movement."
+      "notes": "Fixed/installed windowless recovery; live source recovery and new-profile UI/pose restoration passed.2394tests. Installed recheck honored activity cancellation. Native Idle text unresolved, no movement.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-IDLE-PROFILE-22",
@@ -2368,7 +2441,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Source Idle text profile repair;58Python/2394native tests pass. Live awake recognition/restoration passes; positiveIdle/countdown/waypoint blocked before input by rejected foreground. Architecture review recorded."
+      "notes": "Source Idle text profile repair;58Python/2394native tests pass. Live awake recognition/restoration passes; positiveIdle/countdown/waypoint blocked before input by rejected foreground. Architecture review recorded.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-WAKE-IDEMPOTENT-23",
@@ -2385,7 +2459,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101ControlScope.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/ActionStartNoticeTests.cs"
       ],
-      "notes": "Wake idempotence and wide no-activation banner installed.2398native tests. Live60ms36unit waypoint candidate within4units, returnIdle verified; installed observation passes. User missed banner; remote visibility/sound not confirmed."
+      "notes": "Wake idempotence and wide no-activation banner installed.2398native tests. Live60ms36unit waypoint candidate within4units, returnIdle verified; installed observation passes. User missed banner; remote visibility/sound not confirmed.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 8 of 8 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-FEEDBACK-24",
@@ -2403,7 +2478,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "2405native tests pass. Two varied feedback arrivals confirmed twice with Idle returns; integration failure and takeover interruption retained. Explicit Idle-only cleanup passed; game left Idle. Source only; turn/route gates remain."
+      "notes": "2405native tests pass. Two varied feedback arrivals confirmed twice with Idle returns; integration failure and takeover interruption retained. Explicit Idle-only cleanup passed; game left Idle. Source only; turn/route gates remain.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 9 of 9 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-CHARACTER-25",
@@ -2417,7 +2493,8 @@
         "docs/coordination/results/W101-CHARACTER-25.md",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Offline foundation only;2412 tests. Live selection/identity, persisted profiles and CLI binding pending."
+      "notes": "Offline foundation only;2412 tests. Live selection/identity, persisted profiles and CLI binding pending.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-CHARACTER-26",
@@ -2443,7 +2520,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/LoadingTransitionGate.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/LoadingTransitionGateTests.cs"
       ],
-      "notes": "2425 native/59 reader tests; formatting/analyzers pass. Selection and loaded Fire106 evidence live; home was user-assisted; Idle independently observed. CLI qualification stages, profiles/loading gate source only; single-call deck/house qualification remains pending."
+      "notes": "2425 native/59 reader tests; formatting/analyzers pass. Selection and loaded Fire106 evidence live; home was user-assisted; Idle independently observed. CLI qualification stages, profiles/loading gate source only; single-call deck/house qualification remains pending.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 17 of 17 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-CHARACTER-27",
@@ -2482,7 +2560,8 @@
       "owned_paths": [
         "docs/coordination/results/RUST-PORT-AUDIT-30.md"
       ],
-      "notes": "Source-only review completed in RUST-PORT-AUDIT-30.md. Five crates; no C# production bridge found; dirty runner blockers and codec/Dance parity gaps. No builds/tests/runtime claims. Coordinator reviewed findings."
+      "notes": "Source-only review completed in RUST-PORT-AUDIT-30.md. Five crates; no C# production bridge found; dirty runner blockers and codec/Dance parity gaps. No builds/tests/runtime claims. Coordinator reviewed findings.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present and carries a 2026-11-19 audit note."
     },
     {
       "task_id": "RUST-PARITY-31",
@@ -2494,7 +2573,8 @@
         "crates/maelstrom-fallback/src/pet_dance.rs",
         "docs/coordination/results/RUST-PARITY-31.md"
       ],
-      "notes": "Offline codec/Dance increment reviewed: 11 core and 8 Dance tests pass; scoped formatting passes; Clippy exits 0 with unowned warnings. Compatibility/resource limits documented; no production bridge or live integration. Build slot released."
+      "notes": "Offline codec/Dance increment reviewed: 11 core and 8 Dance tests pass; scoped formatting passes; Clippy exits 0 with unowned warnings. Compatibility/resource limits documented; no production bridge or live integration. Build slot released.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "PROJECT-STATUS-31",
@@ -2505,7 +2585,8 @@
         "docs/coordination/results/PROJECT-STATUS-20261112.md",
         "docs/ROADMAP.md"
       ],
-      "notes": "All-front progress report and roadmap refreshed with qualified travel evidence, remaining workflow gaps and owner-reported port cooldown semantics. No live actions or installation."
+      "notes": "All-front progress report and roadmap refreshed with qualified travel evidence, remaining workflow gaps and owner-reported port cooldown semantics. No live actions or installation.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RUST-CONFORMANCE-32",
@@ -2518,7 +2599,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/component-parity-v1.tsv",
         "docs/coordination/results/RUST-CONFORMANCE-32.md"
       ],
-      "notes": "Shared 56-case corpus passes Rust integration and native test; scoped formatting/analyzers/Clippy pass. External serde_json unit-test dependency regression preserved and reported. No runtime substitution."
+      "notes": "Shared 56-case corpus passes Rust integration and native test; scoped formatting/analyzers/Clippy pass. External serde_json unit-test dependency regression preserved and reported. No runtime substitution.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-TRAVEL-32",
@@ -2528,7 +2610,8 @@
       "owned_paths": [
         "docs/coordination/results/W101-TRAVEL-32.md"
       ],
-      "notes": "Second travel/Home/Idle succeeded; active then inactive timer observed, exact cooldown wait unqualified. Waypoint attempts withheld on focus/takeover; no movement. No running CLI."
+      "notes": "Second travel/Home/Idle succeeded; active then inactive timer observed, exact cooldown wait unqualified. Waypoint attempts withheld on focus/takeover; no movement. No running CLI.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RUST-DANCE-CONFORMANCE-33",
@@ -2541,7 +2624,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/dance-observations-v1.tsv",
         "docs/coordination/results/RUST-DANCE-CONFORMANCE-33.md"
       ],
-      "notes": "390 shared observations/15 scenarios pass in C# and Rust; scoped format/analyzers pass; Clippy warnings only in unowned runner. No production bridge."
+      "notes": "390 shared observations/15 scenarios pass in C# and Rust; scoped format/analyzers pass; Clippy warnings only in unowned runner. No production bridge.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RUST-WAYPOINT-CONFORMANCE-34",
@@ -2555,7 +2639,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TestData/RustParity/waypoint-observations-v1.tsv",
         "docs/coordination/results/RUST-WAYPOINT-CONFORMANCE-34.md"
       ],
-      "notes": "Coordinator integrated/reviewed bounded increment; results in task report. No claim of universal resumable routines or full walking-route qualification."
+      "notes": "Coordinator integrated/reviewed bounded increment; results in task report. No claim of universal resumable routines or full walking-route qualification.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-RUNNING-CAPTION-34",
@@ -2567,7 +2652,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101RunningNoticeTests.cs",
         "docs/coordination/results/W101-RUNNING-CAPTION-34.md"
       ],
-      "notes": "Coordinator integrated/reviewed bounded increment; results in task report. No claim of universal resumable routines or full walking-route qualification."
+      "notes": "Coordinator integrated/reviewed bounded increment; results in task report. No claim of universal resumable routines or full walking-route qualification.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-FOCUS-34",
@@ -2581,7 +2667,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FocusResumeTests.cs",
         "docs/coordination/results/W101-FOCUS-34.md"
       ],
-      "notes": "Coordinator integrated/reviewed bounded increment; results in task report. No claim of universal resumable routines or full walking-route qualification."
+      "notes": "Coordinator integrated/reviewed bounded increment; results in task report. No claim of universal resumable routines or full walking-route qualification.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-OVERLAY-CONTROLS-35",
@@ -2635,7 +2722,8 @@
         "docs/coordination/results/TEACHING-WORKSHOP-36.md",
         "ProjectMaelstrom/ProjectMaelstrom/GameWorkspaceForm.cs"
       ],
-      "notes": "Source increment complete; 2530 full checkpoint and final12 focused tests pass, formatting/analyzers/board pass. No live capture or installation. See TEACHING-WORKSHOP-36 result; remaining telemetry/automatic learning gates explicit."
+      "notes": "Source increment complete; 2530 full checkpoint and final12 focused tests pass, formatting/analyzers/board pass. No live capture or installation. See TEACHING-WORKSHOP-36 result; remaining telemetry/automatic learning gates explicit.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "TEACHING-STATE-37",
@@ -2652,7 +2740,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingReviewCli.cs",
         "ProjectMaelstrom/ProjectMaelstrom/Program.cs"
       ],
-      "notes": "Offline increment complete: 2538 tests, format/analyzers, actual CLI smoke passed. Saved-state import and local proposals connected; continuous live telemetry and API/MCP teaching endpoints pending. See result report."
+      "notes": "Offline increment complete: 2538 tests, format/analyzers, actual CLI smoke passed. Saved-state import and local proposals connected; continuous live telemetry and API/MCP teaching endpoints pending. See result report.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 8 of 8 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "TEACHING-CONTINUOUS-38",
@@ -2670,7 +2759,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingReviewCli.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TeachingStateTrackTests.cs"
       ],
-      "notes": "Source integration and short live observation complete; 2544 tests, format/analyzers, CLI workflow checked. No input sent; Idle and clean disconnect observed. Teacher action/long soak/model training still pending. Report TEACHING-CONTINUOUS-38."
+      "notes": "Source integration and short live observation complete; 2544 tests, format/analyzers, CLI workflow checked. No input sent; Idle and clean disconnect observed. Teacher action/long soak/model training still pending. Report TEACHING-CONTINUOUS-38.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 9 of 9 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "TEACHING-ACTION-39",
@@ -2685,7 +2775,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
         "docs/coordination/results/TEACHING-ACTION-39.md"
       ],
-      "notes": "Bounded live teacher cycle, saved capture/input/state, source-linked first-action card and CLI replay succeeded; Idle restored. 2548 tests + scoped checks. Report records failed capture attempts/repair and limits; no install."
+      "notes": "Bounded live teacher cycle, saved capture/input/state, source-linked first-action card and CLI replay succeeded; Idle restored. 2548 tests + scoped checks. Report records failed capture attempts/repair and limits; no install.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 6 of 6 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "TEACHING-RELEASE-40",
@@ -2695,7 +2786,8 @@
       "owned_paths": [
         "docs/coordination/results/TEACHING-RELEASE-40.md"
       ],
-      "notes": "Fresh teacher capture, frozen-card held-out replay, package/install if passed. No new runtime edits planned. HEADLESS_CLI remains under root W101-CHARACTER-27 ownership."
+      "notes": "Fresh teacher capture, frozen-card held-out replay, package/install if passed. No new runtime edits planned. HEADLESS_CLI remains under root W101-CHARACTER-27 ownership.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-LOGIC-REUSE-41",
@@ -2705,7 +2797,8 @@
       "owned_paths": [
         "docs/coordination/results/CORE-LOGIC-REUSE-41.md"
       ],
-      "notes": "Offline logic-engine reuse research and Rust status; overlay edits under existing root OVERLAY-CONTROLS-35 claim."
+      "notes": "Offline logic-engine reuse research and Rust status; overlay edits under existing root OVERLAY-CONTROLS-35 claim.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-NODERED-42",
@@ -2720,7 +2813,8 @@
         "integrations/node-red/bridge.test.js",
         "docs/coordination/results/CORE-NODERED-42.md"
       ],
-      "notes": "Optional bridge and bounded subscriptions offline/installed-host verified; overlay installed. See result42. Node-RED UI runtime not installed."
+      "notes": "Optional bridge and bounded subscriptions offline/installed-host verified; overlay installed. See result42. Node-RED UI runtime not installed.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 6 of 6 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-NODERED-43",
@@ -2733,7 +2827,8 @@
         "integrations/node-red/editor-smoke.test.js",
         "docs/coordination/results/CORE-NODERED-43.md"
       ],
-      "notes": "Editor UI and true/false action flow tested offline; example/README/result43. No game attachment."
+      "notes": "Editor UI and true/false action flow tested offline; example/README/result43. No game attachment.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-CARD-AUTHOR-44",
@@ -2750,7 +2845,8 @@
         "integrations/node-red/README.md",
         "docs/coordination/results/CORE-CARD-AUTHOR-44.md"
       ],
-      "notes": "Native card library/catalog front-back authoring, save/load/deal and scheduler replay offline verified; result44. UI polish remains."
+      "notes": "Native card library/catalog front-back authoring, save/load/deal and scheduler replay offline verified; result44. UI polish remains.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 8 of 8 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-CARD-EDITOR-45",
@@ -2766,7 +2862,8 @@
         "integrations/node-red/README.md",
         "docs/coordination/results/CORE-CARD-EDITOR-45.md"
       ],
-      "notes": "Graphical front/back editor and save/load/version/offline replay browser verified; result45 lists condition-replay and UI gaps."
+      "notes": "Graphical front/back editor and save/load/version/offline replay browser verified; result45 lists condition-replay and UI gaps.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-NATIVE-CARDS-46",
@@ -2780,7 +2877,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/RecordedCardReviewTests.cs",
         "docs/coordination/results/CORE-NATIVE-CARDS-46.md"
       ],
-      "notes": "Native backs/typed conditions/export-load and recorded FactBlock review integrated;2557 tests; report46. No install/live. Confirmation and joint action+condition replay remain explicit gaps."
+      "notes": "Native backs/typed conditions/export-load and recorded FactBlock review integrated;2557 tests; report46. No install/live. Confirmation and joint action+condition replay remain explicit gaps.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-CARD-RELEASE-47",
@@ -2793,7 +2891,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/ConditionalRoutineReplayTests.cs",
         "docs/coordination/results/CORE-CARD-RELEASE-47.md"
       ],
-      "notes": "Joint replay checks,2565 native/14 installer tests; native editor update installed, headless replay passed; report47. W101 untouched."
+      "notes": "Joint replay checks,2565 native/14 installer tests; native editor update installed, headless replay passed; report47. W101 untouched.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 4 of 4 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-RECORDING-FACTS-48",
@@ -2808,7 +2907,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TeachingStateTrackTests.cs",
         "docs/coordination/results/CORE-RECORDING-FACTS-48.md"
       ],
-      "notes": "Canonical telemetry facts and teacher export verified offline;2570 tests; result48. No install or game access."
+      "notes": "Canonical telemetry facts and teacher export verified offline;2570 tests; result48. No install or game access.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 6 of 6 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CORE-ALIASES-49",
@@ -2826,7 +2926,8 @@
         "tools/tests/test_maelstrom_mcp_server.py",
         "docs/coordination/results/CORE-ALIASES-49.md"
       ],
-      "notes": "Typed alias projection and shared condition/API/MCP path verified offline;2581 native and30Python tests; result49; no install/live."
+      "notes": "Typed alias projection and shared condition/API/MCP path verified offline;2581 native and30Python tests; result49; no install/live.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 9 of 9 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-RESOURCES-50",
@@ -2844,7 +2945,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ResourceFactsTests.cs",
         "docs/coordination/results/W101-RESOURCES-50.md"
       ],
-      "notes": "Offline resource adapter and canonical current/max evidence; no client attachment or new hook activation. Verified:2587native/3resource Python tests; existing observer3seconds cleaned up. Stats live qualification and demand scan runtime pending."
+      "notes": "Offline resource adapter and canonical current/max evidence; no client attachment or new hook activation. Verified:2587native/3resource Python tests; existing observer3seconds cleaned up. Stats live qualification and demand scan runtime pending.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 9 of 9 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-DATA-AUDIT-51",
@@ -2856,7 +2958,8 @@
         "research/w101-data-supply.json",
         "docs/W101_DATA_SUPPLY.md"
       ],
-      "notes": "Static imported reader catalog and existing installed archive evidence; no process access. Verified:2587native/3resource Python tests; existing observer3seconds cleaned up. Stats live qualification and demand scan runtime pending."
+      "notes": "Static imported reader catalog and existing installed archive evidence; no process access. Verified:2587native/3resource Python tests; existing observer3seconds cleaned up. Stats live qualification and demand scan runtime pending.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "CORE-SCAN-52",
@@ -2870,7 +2973,8 @@
         "docs/coordination/results/CORE-SCAN-52.md",
         "tools/maelstrom_mcp_server.py"
       ],
-      "notes": "Card demand and context prediction integrated into shared observer;2594native tests. Stats signature matched but runtime stats qualification remains incomplete; result52."
+      "notes": "Card demand and context prediction integrated into shared observer;2594native tests. Stats signature matched but runtime stats qualification remains incomplete; result52.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-17. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-STATS-53",
@@ -2890,7 +2994,8 @@
         "research/w101-current-stats-layout.json",
         "docs/W101_DATA_SUPPLY.md"
       ],
-      "notes": "Completed bounded local-file/current-build review:132-property inventory,76 named live scalar candidates, three corroborated current facts, opt-in scheduler/API integration.2599native/73Python tests; probe9 cleaned up. Maxima/potions/vector qualification remains pending; no install or input."
+      "notes": "Completed bounded local-file/current-build review:132-property inventory,76 named live scalar candidates, three corroborated current facts, opt-in scheduler/API integration.2599native/73Python tests; probe9 cleaned up. Maxima/potions/vector qualification remains pending; no install or input.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 11 of 11 owned repo files are committed; latest commit touching them 2026-11-16. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-STATS-54",
@@ -2908,7 +3013,8 @@
         "research/w101-ui-resource-layout.json",
         "docs/W101_DATA_SUPPLY.md"
       ],
-      "notes": "Integrated: exact-build HUD max and PotionButton qualification;12 live canonical facts; optional offline OCR/manual comparison.2601native/89Python tests;probe4 clean. Remaining scalar qualifications require independent evidence; no install/input."
+      "notes": "Integrated: exact-build HUD max and PotionButton qualification;12 live canonical facts; optional offline OCR/manual comparison.2601native/89Python tests;probe4 clean. Remaining scalar qualifications require independent evidence; no install/input.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 9 of 9 owned repo files are committed; latest commit touching them 2026-11-16. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-STATS-PROFILE-54",
@@ -2919,7 +3025,8 @@
         "tools/w101_stats_profile.py",
         "tools/tests/test_w101_stats_profile.py"
       ],
-      "notes": "Integrated: exact-build HUD max and PotionButton qualification;12 live canonical facts; optional offline OCR/manual comparison.2601native/89Python tests;probe4 clean. Remaining scalar qualifications require independent evidence; no install/input."
+      "notes": "Integrated: exact-build HUD max and PotionButton qualification;12 live canonical facts; optional offline OCR/manual comparison.2601native/89Python tests;probe4 clean. Remaining scalar qualifications require independent evidence; no install/input.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-13. Contents not re-verified."
     },
     {
       "task_id": "W101-STATS-55",
@@ -2933,7 +3040,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/W101ResourceFactsTests.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/JobFactCatalogTests.cs"
       ],
-      "notes": "Character-sheet capture/OCR integrated; restarted Death wizard eight numeric comparisons agree; native Idle verified twice. 2602 native,73 observer,14 profile tests. Gold/level remain candidates pending subject-bound qualification; no install."
+      "notes": "Character-sheet capture/OCR integrated; restarted Death wizard eight numeric comparisons agree; native Idle verified twice. 2602 native,73 observer,14 profile tests. Gold/level remain candidates pending subject-bound qualification; no install.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-IDENTITY-56",
@@ -2952,7 +3060,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/CardScanDemand.cs",
         "docs/PRODUCT.md"
       ],
-      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit."
+      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 10 of 10 owned repo files are committed; latest commit touching them 2026-11-17. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-SUBJECT-56",
@@ -2963,7 +3072,8 @@
         "tools/w101_stats_profile.py",
         "tools/tests/test_w101_stats_profile.py"
       ],
-      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit."
+      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-13. Contents not re-verified."
     },
     {
       "task_id": "W101-CHARACTER-GUARD-56",
@@ -2974,7 +3084,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CharacterOperation.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/CharacterSwitchTests.cs"
       ],
-      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit."
+      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "W101-IDENTITY-READER-56",
@@ -2985,7 +3096,8 @@
         "tools/w101_identity.py",
         "tools/tests/test_w101_identity.py"
       ],
-      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit."
+      "notes": "Integrated/validated: current-wizard ownership and gold/level facts, subject-aware cards/profile comparison, character failure Idle guards.2616native/107Python;3clean passive live probes,finalIdle. No install or commit.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "GIT-CHECKPOINT-56",
@@ -2997,7 +3109,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/CardScanDemandTests.cs",
         "docs/coordination/results/GIT-CHECKPOINT-56.md"
       ],
-      "notes": "Local checkpoints9d6f596 and308f71f created after tests/content/hash review. No push. Concurrent Rust changes and legacy-port deletions excluded."
+      "notes": "Local checkpoints9d6f596 and308f71f created after tests/content/hash review. No push. Concurrent Rust changes and legacy-port deletions excluded.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-18. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RUST-NATIVE-BRIDGE-57",
@@ -3020,7 +3133,8 @@
         "docs/coordination/gemini/TO_GEMINI.md",
         "docs/coordination/gemini/STATUS.md"
       ],
-      "notes": "Release60 coordinated; owner retains external Gemini recurrence as wake-up only. Bounded local liaison ended; no ongoing watcher here."
+      "notes": "Release60 coordinated; owner retains external Gemini recurrence as wake-up only. Bounded local liaison ended; no ongoing watcher here.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-17. Contents not re-verified."
     },
     {
       "task_id": "GEMINI-CHANNEL-58",
@@ -3032,7 +3146,8 @@
         "docs/PROJECT_ORGANIZATION.md",
         "docs/coordination/results/GEMINI-CHANNEL-58.md"
       ],
-      "notes": "Channel integrated and documented; contributor ACK pending. Liaison retains outbound/status ownership. No game work."
+      "notes": "Channel integrated and documented; contributor ACK pending. Liaison retains outbound/status ownership. No game work.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-13. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RUST-BRIDGE-REPAIR-59",
@@ -3048,7 +3163,8 @@
         "docs/coordination/results/RUST-BRIDGE-REPAIR-59.md",
         "crates/maelstrom-ide/src/native_poll.rs"
       ],
-      "notes": "Integrated preserved Gemini handback with bridge_repair subagent and root IDE worker;70 offline tests/Clippy/format passed; no live host or install. Build slot released. Local checkpoint0d25009; no push."
+      "notes": "Integrated preserved Gemini handback with bridge_repair subagent and root IDE worker;70 offline tests/Clippy/format passed; no live host or install. Build slot released. Local checkpoint0d25009; no push.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present and carries a 2026-11-19 audit note."
     },
     {
       "task_id": "RUST-BRIDGE-RELEASE-60",
@@ -3064,7 +3180,8 @@
         "PACKAGING.md",
         ".gitignore"
       ],
-      "notes": "Installed507efdea5deb419481628cdb02a44745; installed/current host4readonly calls pass26unknownaliases;2616native/71Rust/14installer+lifecycle pass; no W101 interaction."
+      "notes": "Installed507efdea5deb419481628cdb02a44745; installed/current host4readonly calls pass26unknownaliases;2616native/71Rust/14installer+lifecycle pass; no W101 interaction.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RUST-BUSY-TELEMETRY-61",
@@ -3080,7 +3197,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckObservationTests.cs"
       ],
-      "notes": "Source-only busy recovery/live passive Rust telemetry verified;2627native/76Rust+Clippy passed; cleanup/expiry/disconnect verified; no input/focus/install."
+      "notes": "Source-only busy recovery/live passive Rust telemetry verified;2627native/76Rust+Clippy passed; cleanup/expiry/disconnect verified; no input/focus/install.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RUST-LIVE-RELEASE-62",
@@ -3090,7 +3208,8 @@
       "owned_paths": [
         "docs/coordination/results/RUST-LIVE-RELEASE-62.md"
       ],
-      "notes": "Installed a534bf82cce04f6dba3448b77cf4df79; lifecycle preservation pass; installed4commands/live stats expiry/disconnect/cleanup pass; no inputs/focus. Hourly offline continuation created."
+      "notes": "Installed a534bf82cce04f6dba3448b77cf4df79; lifecycle preservation pass; installed4commands/live stats expiry/disconnect/cleanup pass; no inputs/focus. Hourly offline continuation created.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-14. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RUST-DISCONNECT-63",
@@ -3102,7 +3221,8 @@
         "crates/maelstrom-fallback/tests/native_bridge.rs",
         "docs/coordination/results/RUST-DISCONNECT-63.md"
       ],
-      "notes": "Offline regression reproduced then fixed;56 affected Rust tests/Clippy pass; source-only."
+      "notes": "Offline regression reproduced then fixed;56 affected Rust tests/Clippy pass; source-only.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "RUST-PATH-64",
@@ -3114,7 +3234,8 @@
         "crates/maelstrom-fallback/tests/native_bridge.rs",
         "docs/coordination/results/RUST-PATH-64.md"
       ],
-      "notes": "Tab-only root regression reproduced and repaired;45 fallback tests/Clippy passed;source-only."
+      "notes": "Tab-only root regression reproduced and repaired;45 fallback tests/Clippy passed;source-only.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "TEACHER-BASELINE-65",
@@ -3126,7 +3247,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
         "docs/coordination/results/TEACHER-BASELINE-65.md"
       ],
-      "notes": "Unknown/Loading baseline excluded from teacher action linking;14 focused tests pass;source-only."
+      "notes": "Unknown/Loading baseline excluded from teacher action linking;14 focused tests pass;source-only.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "TEACHER-TAKEOVER-66",
@@ -3138,7 +3260,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
         "docs/coordination/results/TEACHER-TAKEOVER-66.md"
       ],
-      "notes": "Two takeover attribution regressions reproduced then fixed;16 focused tests pass;source-only."
+      "notes": "Two takeover attribution regressions reproduced then fixed;16 focused tests pass;source-only.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "TEACHER-CONTEXT-67",
@@ -3150,7 +3273,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
         "docs/coordination/results/TEACHER-CONTEXT-67.md"
       ],
-      "notes": "Four context interruption regressions reproduced/repaired;20 focused replay tests pass;source-only."
+      "notes": "Four context interruption regressions reproduced/repaired;20 focused replay tests pass;source-only.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "TEACHER-RECOVERY-68",
@@ -3161,7 +3285,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/TeacherActionReplayTests.cs",
         "docs/coordination/results/TEACHER-RECOVERY-68.md"
       ],
-      "notes": "Six independent later-action acceptance cases pass;26 focused tests;test-only offline."
+      "notes": "Six independent later-action acceptance cases pass;26 focused tests;test-only offline.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "INPUT-FOCUS-69",
@@ -3173,7 +3298,8 @@
         "tools/tests/test_compare_game_inputs.py",
         "docs/coordination/results/INPUT-FOCUS-69.md"
       ],
-      "notes": "Cross-focus false match reproduced/fixed;3comparison tests,Black,compileall pass;source-only."
+      "notes": "Cross-focus false match reproduced/fixed;3comparison tests,Black,compileall pass;source-only.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-14. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "INPUT-BUDGET-70",
@@ -3185,7 +3311,8 @@
         "tools/tests/test_compare_game_inputs.py",
         "docs/coordination/results/INPUT-BUDGET-70.md"
       ],
-      "notes": "Bounded32MiB JSON ingestion;4comparison tests/Black/compileall pass;source-only."
+      "notes": "Bounded32MiB JSON ingestion;4comparison tests/Black/compileall pass;source-only.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-14. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "GEM-DANCE-AUDIT-71",
@@ -3195,7 +3322,8 @@
       "owned_paths": [
         "docs/coordination/results/GEM-DANCE-AUDIT-71.md"
       ],
-      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-14. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "GEM-REPLAY-MATRIX-72",
@@ -3206,7 +3334,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/GeminiDanceVisitContractTests.cs",
         "docs/coordination/results/GEM-REPLAY-MATRIX-72.md"
       ],
-      "notes": "Preassigned bounded offline queue; ACK then sequential work; no build/live/core changes/commits. See gemini/QUEUE.md."
+      "notes": "Preassigned bounded offline queue; ACK then sequential work; no build/live/core changes/commits. See gemini/QUEUE.md.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-14. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "GEM-LEGACY-MAP-73",
@@ -3216,7 +3345,8 @@
       "owned_paths": [
         "docs/coordination/results/GEM-LEGACY-MAP-73.md"
       ],
-      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-14. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "DANCE-COURSE-74",
@@ -3228,7 +3358,8 @@
         "docs/coordination/CODEX_WORK.md",
         "docs/coordination/results/DANCE-COURSE-74.md"
       ],
-      "notes": "Roadmap/two queues reconciled;Gemini71-73 preassigned;69Dance tests and passive client readiness pass;next live dispatcher binding. No game inputs."
+      "notes": "Roadmap/two queues reconciled;Gemini71-73 preassigned;69Dance tests and passive client readiness pass;next live dispatcher binding. No game inputs.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "DANCE-SPECIALIST-75",
@@ -3239,7 +3370,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceSpecialistContractTests.cs"
       ],
-      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "DANCE-SCHEDULER-76",
@@ -3253,7 +3385,8 @@
         "docs/coordination/CODEX_WORK.md",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs"
       ],
-      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-16. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CARD-QUALIFICATION-77",
@@ -3265,7 +3398,8 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/CardQualificationTests.cs",
         "docs/CARD_QUALIFICATION.md"
       ],
-      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-14. Contents not re-verified."
     },
     {
       "task_id": "GEM-ENTRY-EVIDENCE-78",
@@ -3275,7 +3409,8 @@
       "owned_paths": [
         "docs/coordination/results/GEM-ENTRY-EVIDENCE-78.md"
       ],
-      "notes": "Accepted corrected report handback GEM-0105 under LIA-0119. Result-screen producer remains explicitly unbound; victory/score remain unverified. Report-only; no builds or live."
+      "notes": "Accepted corrected report handback GEM-0105 under LIA-0119. Result-screen producer remains explicitly unbound; victory/score remain unverified. Report-only; no builds or live.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-16. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "DANCE-FOCUS-79",
@@ -3286,7 +3421,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceVisit.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/GeminiDanceVisitContractTests.cs"
       ],
-      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps."
+      "notes": "Reviewed bounded source/report slice; full2696 native tests pass. See DANCE-SCHEDULER-76.md for remaining live and editor integration gaps.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-14. Contents not re-verified."
     },
     {
       "task_id": "DANCE-ENTRY-80",
@@ -3347,7 +3483,8 @@
       "owned_paths": [
         "docs/coordination/results/GEM-ROUTE-PROVENANCE-83.md"
       ],
-      "notes": "Accepted bounded artifact-provenance review from GEM-0031. Historical route artifacts only; no route/clearance qualification. No source/build/live."
+      "notes": "Accepted bounded artifact-provenance review from GEM-0031. Historical route artifacts only; no route/clearance qualification. No source/build/live.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-16. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "NAV-HEADING-84",
@@ -3592,7 +3729,8 @@
       "owned_paths": [
         "docs/coordination/results/W101-NAV-AUDIT-103.md"
       ],
-      "notes": "Audit delivered; docs only. Installed graphs structurally inspected read-only. Navigation implementation remains pending."
+      "notes": "Audit delivered; docs only. Installed graphs structurally inspected read-only. Navigation implementation remains pending.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-NAV-MAP-104",
@@ -3844,7 +3982,8 @@
       "owned_paths": [
         "docs/coordination/results/GEM-CONNECTOR-125.md"
       ],
-      "notes": "LIA-0102 accepted revised v13 as bounded static review only; route/clearance still unqualified."
+      "notes": "LIA-0102 accepted revised v13 as bounded static review only; route/clearance still unqualified.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-16. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-SETTLED-126",
@@ -4022,7 +4161,8 @@
         "docs/coordination/results/W101-SHAPE-ORDER-139.md",
         ".local/introspection/bcd-classification-139.json"
       ],
-      "notes": "Completed: BCD cylinder order correction and offline source audit. Deimos supports full-dimension box construction; runtime role/body clearance remains unqualified."
+      "notes": "Completed: BCD cylinder order correction and offline source audit. Deimos supports full-dimension box construction; runtime role/body clearance remains unqualified.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-15. 1 owned path(s) are git-ignored .local evidence. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-BODY-PROFILE-140",
@@ -4043,7 +4183,8 @@
       "owned_paths": [
         "docs/coordination/results/W101-CONNECTOR-TRIAL-141.md"
       ],
-      "notes": "Completed: bounded feedback alignment and W60ms connector approach; native Idle verified; collision/route qualification remains open."
+      "notes": "Completed: bounded feedback alignment and W60ms connector approach; native Idle verified; collision/route qualification remains open.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CARD-REPLAY-FIXTURE-CHECK-142",
@@ -4053,7 +4194,8 @@
       "owned_paths": [
         "docs/coordination/CODEX_WORK.md"
       ],
-      "notes": "Offline replay completed; CODEX_WORK path overlapped active DANCE-CAPTURE-82 and was not retained."
+      "notes": "Offline replay completed; CODEX_WORK path overlapped active DANCE-CAPTURE-82 and was not retained.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-15. Contents not re-verified."
     },
     {
       "task_id": "DANCE-REPLAY-PAIRING-143",
@@ -4063,7 +4205,8 @@
       "owned_paths": [
         "docs/coordination/results/DANCE-REPLAY-PAIRING-143.md"
       ],
-      "notes": "Offline mismatch/replay diagnosis recorded; board validation passed."
+      "notes": "Offline mismatch/replay diagnosis recorded; board validation passed.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "GEM-DANCE-REPLAY-SCOPE-144",
@@ -4073,7 +4216,8 @@
       "owned_paths": [
         "docs/coordination/results/GEM-DANCE-REPLAY-SCOPE-144.md"
       ],
-      "notes": "LIA-0105 accepted report-only audit; proposed UI changes remain unimplemented."
+      "notes": "LIA-0105 accepted report-only audit; proposed UI changes remain unimplemented.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-16. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "REPLAY-DIAGNOSTICS-145",
@@ -4087,7 +4231,8 @@
         "ProjectMaelstrom/ProjectMaelstrom/SessionTimelineForm.cs",
         "docs/coordination/results/REPLAY-DIAGNOSTICS-145.md"
       ],
-      "notes": "Implementation and focused verification recorded in REPLAY-DIAGNOSTICS-145; board passed."
+      "notes": "Implementation and focused verification recorded in REPLAY-DIAGNOSTICS-145; board passed.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "GEM-REPLAY-DIAGNOSTICS-146",
@@ -4097,7 +4242,8 @@
       "owned_paths": [
         "docs/coordination/results/GEM-REPLAY-DIAGNOSTICS-146.md"
       ],
-      "notes": "Accepted report-only replay UI/CLI scope audit from GEM-0102. CLI change remains blocked by DANCE-CAPTURE-82 ownership. No source/tests/build/live."
+      "notes": "Accepted report-only replay UI/CLI scope audit from GEM-0102. CLI change remains blocked by DANCE-CAPTURE-82 ownership. No source/tests/build/live.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-REATTACH-147",
@@ -4108,7 +4254,8 @@
         "docs/coordination/results/W101-REATTACH-147.md",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "New process identity, observation, bounded coordinate waypoint and Idle evidence documented; board validated."
+      "notes": "New process identity, observation, bounded coordinate waypoint and Idle evidence documented; board validated.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "W101-LIVE-DISCOVERY-148",
@@ -4120,7 +4267,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Discovery documented: GUI sees W101/PID, Observe button geometry failed, and subsequent focus handoff coincided with an unexpected game menu; attribution unknown. No further input."
+      "notes": "Discovery documented: GUI sees W101/PID, Observe button geometry failed, and subsequent focus handoff coincided with an unexpected game menu; attribution unknown. No further input.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "BACKEND-CONTROL-PLANE-149",
@@ -4132,7 +4280,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Completed source audit of CLI/local API/MCP/UI ownership and documented backend-first operation contract, current parity gaps, and delivery gates in docs/BACKEND_CONTROL_PLANE.md; linked from CORE-DELIVERY. Documentation-only, no source changes, desktop use, or live actions."
+      "notes": "Completed source audit of CLI/local API/MCP/UI ownership and documented backend-first operation contract, current parity gaps, and delivery gates in docs/BACKEND_CONTROL_PLANE.md; linked from CORE-DELIVERY. Documentation-only, no source changes, desktop use, or live actions.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 3 of 3 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "BACKEND-MCP-WINDOWS-153",
@@ -4146,7 +4295,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Added MCP target-window discovery by proxying native host windows; empty-argument validation and exact pass-through tested. 16 MCP Python tests and AST syntax check pass. Black stalled and was cancelled; no native host/live window query or game/desktop actions. See BACKEND-MCP-WINDOWS-153.md."
+      "notes": "Added MCP target-window discovery by proxying native host windows; empty-argument validation and exact pass-through tested. 16 MCP Python tests and AST syntax check pass. Black stalled and was cancelled; no native host/live window query or game/desktop actions. See BACKEND-MCP-WINDOWS-153.md.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "BACKEND-MCP-SESSION-154",
@@ -4160,7 +4310,8 @@
         "docs/coordination/claims.json",
         "docs/coordination/workstreams.json"
       ],
-      "notes": "Completed explicit MCP connect/observe/disconnect flow through native owner. Exact HWND/PID/start-ticks and opt-ins required; quest/travel/resource capabilities forced off; strict args and queued-result fidelity tested. MCP suite 20/20 passes. See BACKEND-MCP-SESSION-154.md. Mocked offline only; no host/live/game/desktop/input or packaging."
+      "notes": "Completed explicit MCP connect/observe/disconnect flow through native owner. Exact HWND/PID/start-ticks and opt-ins required; quest/travel/resource capabilities forced off; strict args and queued-result fidelity tested. MCP suite 20/20 passes. See BACKEND-MCP-SESSION-154.md. Mocked offline only; no host/live/game/desktop/input or packaging.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "BACKEND-OBSERVATION-STATUS-155",
@@ -4174,7 +4325,8 @@
         "docs/coordination/workstreams.json",
         "docs/coordination/CODEX_WORK.md"
       ],
-      "notes": "Updated backend control-plane audit for MCP target-window and observation-session surfaces. Source trace confirms active observer ID is transient; no durable terminal result correlated by request ID. Defined next bounded native receipt contract. Static audit only, no code/build/tests/host/game/desktop/live calls or packaging. See BACKEND-OBSERVATION-STATUS-155.md."
+      "notes": "Updated backend control-plane audit for MCP target-window and observation-session surfaces. Source trace confirms active observer ID is transient; no durable terminal result correlated by request ID. Defined next bounded native receipt contract. Static audit only, no code/build/tests/host/game/desktop/live calls or packaging. See BACKEND-OBSERVATION-STATUS-155.md.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "BACKEND-MCP-PROGRESS-156",
@@ -4190,7 +4342,8 @@
         "docs/coordination/workstreams.json",
         "docs/coordination/CODEX_WORK.md"
       ],
-      "notes": "Added maelstrom_check_observation_progress: exact ID is active only while native observerOperation matches; all cleared/mismatched states return outcome_unknown. Never infers completion from global facts. 22 MCP tests pass. See BACKEND-MCP-PROGRESS-156.md. Mocked offline only; no native owner, game, desktop, or live calls."
+      "notes": "Added maelstrom_check_observation_progress: exact ID is active only while native observerOperation matches; all cleared/mismatched states return outcome_unknown. Never infers completion from global facts. 22 MCP tests pass. See BACKEND-MCP-PROGRESS-156.md. Mocked offline only; no native owner, game, desktop, or live calls.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "BACKEND-MCP-ID-CASE-157",
@@ -4205,7 +4358,8 @@
         "docs/coordination/workstreams.json",
         "docs/coordination/CODEX_WORK.md"
       ],
-      "notes": "Progress checker now compares hexadecimal operation IDs case-insensitively, matching its schema. The 22-test MCP suite and compileall pass; report BACKEND-MCP-ID-CASE-157. Offline only; no live owner/game/desktop calls."
+      "notes": "Progress checker now compares hexadecimal operation IDs case-insensitively, matching its schema. The 22-test MCP suite and compileall pass; report BACKEND-MCP-ID-CASE-157. Offline only; no live owner/game/desktop calls.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 6 of 6 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "LEGACY-AUTOMATUS-WAYPOINT-01",
@@ -4221,7 +4375,8 @@
         "docs/coordination/workstreams.json",
         "docs/coordination/CODEX_WORK.md"
       ],
-      "notes": "Ported Automatus v2 text route-map data into a bounded, hashed, candidate-only importer. Special marker semantics are preserved as opaque values; no controller or game inputs. Offline source review only; tests/build not run."
+      "notes": "Ported Automatus v2 text route-map data into a bounded, hashed, candidate-only importer. Special marker semantics are preserved as opaque values; no controller or game inputs. Offline source review only; tests/build not run.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 7 of 7 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "LEGACY-AUTOMATUS-WAYPOINT-TEST-01",
@@ -4235,7 +4390,8 @@
         "docs/coordination/workstreams.json",
         "docs/coordination/CODEX_WORK.md"
       ],
-      "notes": "Added focused conformance coverage. The filtered test command compiled app/test assemblies but stalled after test discovery without case output; cancelled after ~40s, no pass/failure claimed. See LEGACY-AUTOMATUS-WAYPOINT-01.md."
+      "notes": "Added focused conformance coverage. The filtered test command compiled app/test assemblies but stalled after test discovery without case output; cancelled after ~40s, no pass/failure claimed. See LEGACY-AUTOMATUS-WAYPOINT-01.md.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 5 of 5 owned repo files are committed; latest commit touching them 2026-11-19. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "CLI-AGENT-RUNBOOK-01",
@@ -4246,7 +4402,8 @@
         "docs/CLI_AGENT_OPERATING_PROCEDURES.md",
         "docs/INDEX.md"
       ],
-      "notes": "Added source-backed CLI operating procedures and handoff guide, linked from INDEX and CORE-DELIVERY evidence. No runtime actions or builds."
+      "notes": "Added source-backed CLI operating procedures and handoff guide, linked from INDEX and CORE-DELIVERY evidence. No runtime actions or builds.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 2 of 2 owned repo files are committed; latest commit touching them 2026-11-19. Contents not re-verified."
     },
     {
       "task_id": "GEM-CLI-RUNBOOK-AUDIT-01",
@@ -4256,7 +4413,8 @@
       "owned_paths": [
         "docs/coordination/results/GEM-CLI-RUNBOOK-AUDIT-01.md"
       ],
-      "notes": "Accepted GEM-0106 static audit: no material discrepancies against CLI source and HEADLESS_CLI. Report-only; no runtime qualification."
+      "notes": "Accepted GEM-0106 static audit: no material discrepancies against CLI source and HEADLESS_CLI. Report-only; no runtime qualification.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-15. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "UNIVERSAL-BUS-01",
@@ -4559,8 +4717,8 @@
       "owner": "root",
       "workstream_id": "W101-COMBAT",
       "owned_paths": [
-        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsService.cs",
-        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsServiceTests.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101FactsStore.cs",
+        "ProjectMaelstrom/ProjectMaelstrom.Tests/W101FactsStoreTests.cs",
         "docs/coordination/results/W101-BACKGROUND-API-02.md",
         "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
         "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
@@ -4576,7 +4734,7 @@
         "ProjectMaelstrom/ProjectMaelstrom.Tests/MaelstromCliTests.cs"
       ],
       "notes": "Owner-directed implementation of the background facts service design (W101-BACKGROUND-API-01) in stages. Stage 1: pure bounded fact store with producer/qualification/TTL/identity invalidation and tests. Later stages: publication through the existing local pipe/MCP/CLI and a resident reader under one owner. AUTHORITY: source edits on owned paths plus build/test in the serialized slot (warnaserror, scoped format/analyzers, encoding, board). NOT AUTHORIZED: live/game/desktop, network, install, new dependencies, commits outside owned paths, marking new fact IDs available without a qualified producer. Added read-only pipe facts command via transferred JobDeckHost paths; no fact injection surface. Added offline resident-reader contract (identity-validated, no foreground gate, fake-injected reads); live qualification explicitly deferred. Added pure W101UiTreeResult->facts mapper and bounded session orchestrator with injected cycle; no live attachment. Added offline facts-watch CLI wiring through the existing scheduler/lease and pinned observer; no live qualification.",
-      "release_note": "Offline implementation complete 2026-11-17: bounded facts store, activity flags, mapper, session, resident reader contract, real pinned-observer cycle and --cli facts-watch under the shared scheduler/lease. Verified 3117 native tests pass with -warnaserror; no live run or fact promotion. Live qualification remains a separate owner-authorized task."
+      "release_note": "Offline implementation complete 2026-11-17: bounded facts store, activity flags, mapper, session, resident reader contract, real pinned-observer cycle and --cli facts-watch under the shared scheduler/lease. Verified 3117 native tests pass with -warnaserror; no live run or fact promotion. Live qualification remains a separate owner-authorized task. Correction 2026-11-19: owned paths W101FactsService.cs / W101FactsServiceTests.cs never existed in any commit; replaced with the real W101FactsStore.cs / W101FactsStoreTests.cs."
     },
     {
       "task_id": "W101-ACTIVITY-FLAGS-01",
@@ -4663,7 +4821,8 @@
       "owned_paths": [
         "docs/coordination/results/W101-BG-QUAL-LIVE-01.md"
       ],
-      "notes": "Owner-authorized 2026-11-17 live bounded qualification attempt: W101 idle at home, exact target, foreground confirmed, guard clear. Steps: short focused read-only observation, then an unfocused-pass attempt to document the current foreground gate. NO input, no focus changes by agent, no pin promotion; if cleanup uncertainty appears, honor hold immediately. Reopened 2026-11-17 to correct a false foreground-gate claim: GameWindows.IsCurrent checks process identity (GameWindows.cs:45), not foreground; an unfocused 12-tree pass succeeded with zero W101-foreground samples. Correction committed 2026-11-17; no-foreground qualified for read-only observation."
+      "notes": "Owner-authorized 2026-11-17 live bounded qualification attempt: W101 idle at home, exact target, foreground confirmed, guard clear. Steps: short focused read-only observation, then an unfocused-pass attempt to document the current foreground gate. NO input, no focus changes by agent, no pin promotion; if cleanup uncertainty appears, honor hold immediately. Reopened 2026-11-17 to correct a false foreground-gate claim: GameWindows.IsCurrent checks process identity (GameWindows.cs:45), not foreground; an unfocused 12-tree pass succeeded with zero W101-foreground samples. Correction committed 2026-11-17; no-foreground qualified for read-only observation.",
+      "release_note": "Release note backfilled 2026-11-19 (original release recorded none). 1 of 1 owned repo files are committed; latest commit touching them 2026-11-17. Result doc present; its test and result claims have not been independently re-verified."
     },
     {
       "task_id": "FOREGROUND-DOCS-SYNC-01",
@@ -5136,7 +5295,7 @@
         "docs/coordination/results/W101-GOAP-CORE-02.md"
       ],
       "notes": "Owner-directed 2026-11-18: implement native Goal-Oriented Action Planning (GOAP) engine in crates/maelstrom-core/src/goap.rs. Implements WorldState key-value map, GoapAction preconditions and effects, admissible A* heuristic state-space graph search, plan extraction, and Blackboard coordination. Verified via unit/integration tests and Red Team/Blue Team audit. AUTHORITY: source edits on the 4 owned paths plus build/test in serialized slot. NOT AUTHORIZED: live hooks, input dispatch, touching other agents' claims.",
-      "release_note": "Complete 2026-11-18: implemented native Goal-Oriented Action Planning (GOAP) engine in crates/maelstrom-core/src/goap.rs. Implements StateValue atom types, WorldState associative maps, GoapAction preconditions and effects, early reachability pruning, dominated state pruning, admissible A* heuristic search, plan path reconstruction, and Behavior Tree blackboard coordination. Verified via 4 unit tests and 3 integration tests in goap_tests.rs (127 workspace tests passing). Clippy clean (-D warnings), rustfmt clean, quality gates clean (0 text encoding violations, project board valid). Evidence released in docs/coordination/results/W101-GOAP-CORE-02.md."
+      "release_note": "Complete 2026-11-18: implemented native Goal-Oriented Action Planning (GOAP) engine in crates/maelstrom-core/src/goap.rs. Implements StateValue atom types, WorldState associative maps, GoapAction preconditions and effects, early reachability pruning, dominated state pruning, admissible A* heuristic search, plan path reconstruction, and Behavior Tree blackboard coordination. Verified via 4 unit tests and 3 integration tests in goap_tests.rs (127 workspace tests passing). Clippy clean (-D warnings), rustfmt clean, quality gates clean (0 text encoding violations, project board valid). Evidence released in docs/coordination/results/W101-GOAP-CORE-02.md. Correction 2026-11-19: the heuristic was not admissible when released (it could return a cost-1.5 plan over a cost-1.0 plan); fixed in commit 7f2c5c4 with a regression test. The result doc carries the audit corrections."
     }
   ]
 }
