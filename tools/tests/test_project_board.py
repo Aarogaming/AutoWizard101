@@ -166,6 +166,54 @@ class ProjectBoardTests(unittest.TestCase):
         self.assertTrue(any("unknown workstream" in e for e in errors))
         self.assertTrue(any("exact files" in e for e in errors))
 
+    def released(self, identity, path="evidence.md", note="done"):
+        claim = self.claim(identity, path, state="released")
+        if note is not None:
+            claim["release_note"] = note
+        return claim
+
+    def warnings(self, claims, tracked=None):
+        registry = {"claims": claims}
+        return checker.claim_record_warnings(registry, self.root, tracked)
+
+    def test_released_claim_without_release_note_warns(self):
+        self.assertEqual([], self.warnings([self.released("ok")]))
+        found = self.warnings([self.released("bare", note=None)])
+        self.assertEqual(1, len(found))
+        self.assertIn("no release_note", found[0])
+
+    def test_active_claim_needs_neither_note_nor_files(self):
+        self.assertEqual([], self.warnings([self.claim("wip", "not-yet.py")]))
+
+    def test_released_claim_with_missing_file_warns_but_local_is_skipped(self):
+        found = self.warnings([self.released("ghost", "tools/gone.py")])
+        self.assertTrue(any("missing path" in w for w in found))
+        self.assertEqual(
+            [], self.warnings([self.released("local", ".local/evidence.json")])
+        )
+
+    def test_released_claim_with_uncommitted_file_warns_when_tracked_known(self):
+        self.assertEqual(
+            [], self.warnings([self.released("ok")], tracked={"evidence.md"})
+        )
+        found = self.warnings([self.released("loose")], tracked=set())
+        self.assertTrue(any("uncommitted path" in w for w in found))
+
+    def test_cli_reports_claim_warnings_without_failing_unless_strict(self):
+        path = self.root / "board.json"
+        self.claim_registry([self.released("bare", note=None)])
+        path.write_text(json.dumps(self.board), encoding="utf-8")
+        with patch.object(checker, "git_tracked_files", return_value=None):
+            with redirect_stdout(io.StringIO()) as output:
+                result = checker.main([str(path), "--root", str(self.root)])
+            self.assertEqual(0, result)
+            self.assertIn("Claim record warnings: 1 (advisory)", output.getvalue())
+            with redirect_stdout(io.StringIO()):
+                strict = checker.main(
+                    [str(path), "--root", str(self.root), "--strict-claims"]
+                )
+        self.assertEqual(1, strict)
+
     def test_resolved_link_escape_is_rejected_without_reading_target(self):
         original = Path.resolve
         evidence = self.root / "evidence.md"

@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path, PurePosixPath
 import re
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_BOARD = ROOT / "docs/coordination/workstreams.json"
@@ -43,6 +44,9 @@ def validate(board, root=ROOT, allow_missing_local=False):
     Dependencies are checked for both offline tasks and later runtime composition.
     A completed offline component does not require live-game evidence. This checks
     record integrity and paths, not whether prose claims or reported tests are true.
+    Separately, claim_record_warnings() prints advisory warnings for released claims
+    with no release_note or with owned files that are missing or uncommitted;
+    pass --strict-claims to make those warnings fail the run.
 
     allow_missing_local lets a clean checkout (CI) skip .local/ evidence: those
     paths are gitignored workspace artifacts, so they cannot exist there. The
@@ -392,6 +396,59 @@ def validate(board, root=ROOT, allow_missing_local=False):
     return errors
 
 
+def _nonempty(value):
+    return isinstance(value, str) and bool(value.strip())
+
+
+def claim_record_warnings(registry, root=ROOT, tracked=None):
+    """Return advisory warnings about whether released claims match the checkout.
+
+    The structural validator accepts any well-formed registry. These checks look at
+    evidence instead: a released claim should carry a release_note and every exact
+    owned file should exist (and, when ``tracked`` is given, be committed).
+    Paths under .local/ are git-ignored runtime evidence and are skipped.
+    """
+    warnings = []
+    for claim in registry.get("claims", []):
+        if not isinstance(claim, dict) or claim.get("state") != "released":
+            continue
+        task = str(claim.get("task_id"))
+        if not _nonempty(claim.get("release_note")):
+            warnings.append("Released claim has no release_note: " + task)
+        for value in claim.get("owned_paths") or []:
+            if not _nonempty(value) or value.startswith(".local/"):
+                continue
+            if any(char in value for char in "*?[]"):
+                continue
+            if not (root / value).exists():
+                warnings.append(
+                    "Released claim " + task + " owns a missing path: " + value
+                )
+            elif tracked is not None and value not in tracked:
+                warnings.append(
+                    "Released claim " + task + " owns an uncommitted path: " + value
+                )
+    return warnings
+
+
+def git_tracked_files(root=ROOT):
+    """Return the set of committed files, or None when git is unavailable."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "-z"],
+            capture_output=True,
+            check=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return {
+        name.decode("utf-8", "replace")
+        for name in result.stdout.split(bytes([0]))
+        if name
+    }
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("board", nargs="?", type=Path, default=DEFAULT_BOARD)
@@ -400,6 +457,11 @@ def main(argv=None):
         "--allow-missing-local",
         action="store_true",
         help="clean checkouts (CI) may lack gitignored .local/ evidence",
+    )
+    parser.add_argument(
+        "--strict-claims",
+        action="store_true",
+        help="treat claim-record warnings (missing notes, missing paths) as failures",
     )
     args = parser.parse_args(argv)
     try:
@@ -415,6 +477,28 @@ def main(argv=None):
         for error in errors:
             print("- " + error)
         return 1
+    warnings = []
+    registry_name = board.get("coordination", {}).get("claim_registry")
+    if isinstance(registry_name, str):
+        try:
+            registry = load_board(args.root / registry_name)
+            warnings = claim_record_warnings(
+                registry, args.root, git_tracked_files(args.root)
+            )
+        except (OSError, ValueError):
+            warnings = []
+    if warnings:
+        print(
+            "Claim record warnings: "
+            + str(len(warnings))
+            + (" (failing: --strict-claims)" if args.strict_claims else " (advisory)")
+        )
+        for warning in warnings[:15]:
+            print("- " + warning)
+        if len(warnings) > 15:
+            print("- ... and " + str(len(warnings) - 15) + " more")
+        if args.strict_claims:
+            return 1
     print(
         "Project board valid: "
         + str(len(board["workstreams"]))
