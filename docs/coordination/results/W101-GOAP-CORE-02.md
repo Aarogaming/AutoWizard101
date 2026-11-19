@@ -3,7 +3,7 @@
 **Task**: Native Goal-Oriented Action Planning (GOAP) Engine  
 **Owner**: `root`  
 **Workstream**: `W101-NAVIGATION`  
-**Status**: Released  
+**Status**: Released (claims audited 2026-11-19: treat as draft evidence; see "Audit corrections")  
 **Date**: 2026-11-18  
 **Owned Paths**:
 - `crates/maelstrom-core/src/goap.rs`
@@ -66,3 +66,14 @@ The objective of `W101-GOAP-CORE-02` is implementing a native Goal-Oriented Acti
 - `rustfmt`: Clean across all owned paths.
 - `python tools/check_project_board.py`: Project board valid (30 workstreams, zero broken evidence links).
 - `python tools/check_text_encoding.py`: 0 violations across repository.
+
+---
+
+## Audit corrections (2026-11-19)
+Checked by reading `goap.rs` and the test files; no new test runs in this pass.
+- **"Admissible heuristic ... guaranteeing A* optimality" is not established.** `unsatisfied_count` returns the number of unmet goal atoms (each counted as 1.0), while action costs are clamped to a minimum of 0.1 and one action can satisfy several atoms. For example, a single 0.1-cost action that fixes two atoms gives h = 2 against a true remaining cost of 0.1, so h can overestimate and the search may return a non-optimal plan. The shipped tests (lowest-cost branch 15.0 vs 50.0) do not exercise this case. Treat the planner as a heuristic planner until the heuristic is scaled by the minimum action cost or proven consistent.
+- **"O(1)" reachability pruning is wrong.** The check loops over the unmet goal atoms and the action repertoire, so it is linear in their product.
+- **Search data structures are linear scans.** The open list is scanned for the lowest f-cost each iteration and the closed list is a `Vec<(WorldState, f64)>`; this is fine at the repertoire sizes tested but is not an efficient A* implementation. The hard cap is `max_iterations = 2000` by default.
+- **"zero standard library dependencies in alloc"** is not a meaningful claim; the module uses `alloc` collections (`BTreeMap`, `Vec`) and the crate is a `std` library (see the `no_std` notes in other W101 result docs).
+- **Test lists:** the three listed integration tests exist, but `goap_tests.rs` holds 6 `fn test_` items, and `goap.rs` carries extra unit tests (for example `test_pre_battle_deck_profile_switching`) not described here. The "68" and "127/127" totals are historical.
+- **Evidence scope:** the plans are built from hand-written synthetic action sets for Wizard101-like quests. Nothing here shows the planner running against live game state; the "dynamic replanning" test replans from a hand-built disrupted state.
