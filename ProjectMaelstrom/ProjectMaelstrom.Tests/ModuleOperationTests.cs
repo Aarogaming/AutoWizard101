@@ -3,6 +3,7 @@ using ProjectMaelstrom.Utilities;
 
 namespace ProjectMaelstrom.Tests;
 
+[Collection("Windows OCR")]
 public sealed class ModuleOperationTests : IDisposable
 {
     private readonly string _root = Path.Combine(Path.GetTempPath(), "maelstrom-module-operation-" + Guid.NewGuid().ToString("N"));
@@ -61,7 +62,7 @@ public sealed class ModuleOperationTests : IDisposable
         var ticket = ModuleOperation.SubmitOffline(scheduler, source.Snapshot);
         Assert.False(ticket.Request.WritesGame); Assert.False(ticket.Request.DelegatedInput);
         var receipt = await ticket.Completion.WaitAsync(TimeSpan.FromSeconds(15));
-        Assert.Equal(OperationState.Completed, receipt.State);
+        Assert.True(receipt.State == OperationState.Completed, $"{receipt.State}: {receipt.Message}");
         Assert.Equal(2, receipt.Artifacts.Length);
         Assert.True(otherOwner.IsHeld); Assert.Null(GameInputLease.Current);
         using var admission = JsonDocument.Parse(File.ReadAllText(Artifact(ticket, "module-operation.json")));

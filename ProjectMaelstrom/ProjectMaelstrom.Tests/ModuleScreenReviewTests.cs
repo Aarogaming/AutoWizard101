@@ -4,6 +4,7 @@ using ProjectMaelstrom.Utilities;
 
 namespace ProjectMaelstrom.Tests;
 
+[Collection("Windows OCR")]
 public sealed class ModuleScreenReviewTests : IDisposable
 {
     private readonly string _root = Path.Combine(Path.GetTempPath(), "module-screen-review-" + Guid.NewGuid().ToString("N"));

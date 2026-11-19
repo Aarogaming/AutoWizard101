@@ -2,6 +2,7 @@ using ProjectMaelstrom.Utilities;
 
 namespace ProjectMaelstrom.Tests;
 
+[Collection("Windows OCR")]
 public sealed class ModuleOwnedInputTests : IDisposable
 {
     private readonly string _root = Path.Combine(Path.GetTempPath(), "module-input-tests-" + Guid.NewGuid().ToString("N"));
