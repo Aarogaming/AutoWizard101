@@ -197,7 +197,9 @@ audio-free demonstrations do not substitute for that calibration data.
 
 ## Native Zero-Memory, Zero-OCR Audio-Cue Event Classifier (`audio_cue.rs`)
 
-Simple amplitude detectors (such as the legacy `AudioRecognizer.cs`) trigger false positives on ambient music, background waterfalls, or character footsteps. To provide robust, tamper-proof event detection that is 100% immune to camera angles, lighting conditions, UI scaling, and memory offset shifts, Maelstrom embeds a native, pure-Rust spectral classifier in `crates/maelstrom-core/src/audio_cue.rs` (claim `W101-AUDIO-CORE-02`).
+Simple amplitude detectors (such as the legacy `AudioRecognizer.cs`) trigger false positives on ambient music, background waterfalls, or character footsteps. `crates/maelstrom-core/src/audio_cue.rs` (claim `W101-AUDIO-CORE-02`) adds a pure-Rust spectral classifier that is independent of camera angle, lighting and UI scaling. It has only been exercised on synthetic sine-wave and noise buffers, so its thresholds are uncalibrated against real Wizard101 audio (see the status note below).
+
+> **Status (corrected 2026-11-19):** the frequencies, SNR ratios and debounce times below are the values currently in `audio_cue.rs`. They were chosen by the author, not measured from recorded client audio, and no test feeds real game audio to the detector. Earlier text in this section gave different frequency bands and claimed the profiles were pre-calibrated; that was not supported and has been replaced.
 
 ### 1. Mathematical Architecture: Single-Bin Goertzel & Band Power Ratios
 The classifier operates directly over standard PCM audio sample buffers (44.1 kHz / 48.0 kHz, f32/i16):
@@ -208,28 +210,23 @@ The classifier operates directly over standard PCM audio sample buffers (44.1 kH
    Computes exact spectral energy at target characteristic frequencies with $O(N)$ computational complexity and zero trigonometric runtime overhead:
    $$s_k[n] = x[n] + 2 \cos(\omega_k) s_k[n-1] - s_k[n-2]$$
    $$|X(k)|^2 = s_k^2[N-1] + s_k^2[N-2] - 2 \cos(\omega_k) s_k[N-1] s_k[N-2]$$
-3. **Signal-to-Noise Ratio (SNR) in Target Band**:
-   $$\text{Ratio} = \frac{E_{\text{target}}}{E_{\text{out-of-band}} + \epsilon}$$
-   A cue is verified only when in-band spectral energy substantially exceeds the broad spectrum, eliminating false triggers from volume spikes or broad white noise.
+3. **In-band power ratio**:
+   ratio = in-band Goertzel power / (total signal energy + 1e-12), compared with a per-cue `min_snr_ratio`. A cue is reported only when the ratio and a minimum RMS threshold are both met. Broad noise lowers the ratio; this has been tested only with synthetic noise.
 
-### 2. Pre-Calibrated Acoustic Signature Profiles
-- **`FishingBobberSplash`**:
-  - Center frequency: $2.4\text{ kHz}$ (bandwidth $1.2\text{ kHz} - 3.5\text{ kHz}$).
-  - Temporal envelope: steep acoustic attack ($< 50\text{ ms}$) followed by fast decay ($< 300\text{ ms}$), distinguishing water splash dynamics from ambient lake hum.
-- **`CombatInitiationFanfare`**:
-  - Center frequency: $550\text{ Hz}$ with brass chord harmonics ($300\text{ Hz} - 850\text{ Hz}$).
-  - Triggers instant `in_combat = true` on the first frame of battle circle transition.
-- **`TurnTimerWarningChime`**:
-  - Center frequency: $3.2\text{ kHz}$ ($2.0\text{ kHz} - 4.5\text{ kHz}$ bell resonance).
-  - Fires during the final 5 seconds of the 30-second turn-planning window, triggering fast-turn fallback spell selection.
-- **`DialogueAdvanceChime`**:
-  - Center frequency: $1.9\text{ kHz}$ ($1.5\text{ kHz} - 2.5\text{ kHz}$).
-  - Detects NPC dialogue prompt completion to advance conversation pages.
+### 2. Acoustic signature profiles (current code values, uncalibrated)
+| Cue | Target frequencies (Hz) | Min in-band ratio | Min RMS | Debounce |
+| --- | --- | --- | --- | --- |
+| `FishingBobberSplash` | 1800, 2200, 2600, 3100 | 0.22 | 0.020 | 1.0 s |
+| `CombatInitiationFanfare` | 380, 520, 680, 840 | 0.28 | 0.025 | 2.0 s |
+| `TurnTimerWarningChime` | 2800, 3400, 4200 | 0.32 | 0.015 | 0.8 s |
+| `DialogueAdvanceChime` | 1600, 2100 | 0.30 | 0.015 | 0.5 s |
+
+No attack/decay envelope check is implemented; classification uses spectral power only.
 
 ### 3. Blackboard Routing & Boundary Invariant
 Audio detection conforms strictly to `Facts ≠ Authority ≠ Actions`:
 - Detected cues emit immutable `AudioCueEvent` records.
-- Events update the Behavior Tree `W101Blackboard` facts (`in_combat`, `fishing_splash`, `turn_timer_warning`).
+- `update_blackboard` currently sets `in_combat` for the combat fanfare and proposes `PROPOSAL:ReelInFish` on the blackboard proposal channel for the fishing splash; the turn-timer and dialogue cues only append a status-log line. The blackboard fields `fishing_splash` and `turn_timer_warning` mentioned in earlier text do not exist.
 - The audio engine possesses zero input authority; physical action dispatch remains exclusively owned by the serialized scheduler and input lease.
 
 
