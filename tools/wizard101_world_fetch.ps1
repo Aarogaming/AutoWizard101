@@ -3,7 +3,7 @@
 #   powershell -ExecutionPolicy Bypass -File tools/wizard101_world_fetch.ps1
 #
 # Output:
-#   Saves HTML files to ProjectMaelstrom/Scripts/Library/WizWikiAPI-main/worlds_raw/
+#   Saves HTML files to .local/wiki/worlds_raw/ (git-ignored)
 
 $worldUrls = @(
     "https://www.wizard101.com/game/worlds/wizardcity",
@@ -21,7 +21,7 @@ $worldUrls = @(
     "https://www.wizard101.com/game/worlds/empyea"
 )
 
-$outDir = Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "ProjectMaelstrom\Scripts\Library\WizWikiAPI-main\worlds_raw"
+$outDir = Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath ".local\wiki\worlds_raw"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
 foreach ($url in $worldUrls) {

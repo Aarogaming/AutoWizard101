@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "adapter": "wizwalker-loading-v1",
-  "sourceRoot": "ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/wizwalker/wizwalker-master/wizwalker",
+  "sourceRoot": "third_party/wizwalker/wizwalker-master/wizwalker",
   "sourceVersion": "1.8.1",
   "sourceSha256": "99f0eec7e15da862893bcf6aa3d89c3d1538c0a022c04f198d490cf383cdb2d1",
   "pythonFiles": 53,

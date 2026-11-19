@@ -4,7 +4,7 @@ using ProjectMaelstrom.Models;
 namespace ProjectMaelstrom.Utilities;
 
 /// <summary>
-/// Lightweight loader for offline WizWiki data (mobs/zones) if present in Scripts/Library/WizWikiAPI-main.
+/// Lightweight loader for offline WizWiki data (mobs/zones) if present in Scripts/Data/WizWiki (or the legacy Scripts/Library/WizWikiAPI-main).
 /// Falls back to an empty dataset when no cache is found; intended for optional seek/avoid routing hints.
 /// </summary>
 internal sealed class WizWikiDataService
@@ -65,11 +65,17 @@ internal sealed class WizWikiDataService
         try
         {
             var scriptsRoot = StorageUtils.GetScriptsRoot();
+            // Data/WizWiki is the current location; the old imported-library folder stays as a fallback for existing installs.
+            var dataDir = Path.Combine(scriptsRoot, "Data", "WizWiki");
+            var legacyDir = Path.Combine(scriptsRoot, "Library", "WizWikiAPI-main");
             var candidates = new[]
             {
-                Path.Combine(scriptsRoot, "Library", "WizWikiAPI-main", "wizwiki_cache.json"),
-                Path.Combine(scriptsRoot, "Library", "WizWikiAPI-main", "wizwiki_data.json"),
-                Path.Combine(scriptsRoot, "Library", "WizWikiAPI-main", "wizwiki_companion.json")
+                Path.Combine(dataDir, "wizwiki_cache.json"),
+                Path.Combine(dataDir, "wizwiki_data.json"),
+                Path.Combine(dataDir, "wizwiki_companion.json"),
+                Path.Combine(legacyDir, "wizwiki_cache.json"),
+                Path.Combine(legacyDir, "wizwiki_data.json"),
+                Path.Combine(legacyDir, "wizwiki_companion.json")
             };
 
             var path = candidates.FirstOrDefault(File.Exists);

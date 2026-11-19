@@ -24,7 +24,7 @@ internal sealed record WizwalkerLaunch(string Python, string Worker, string Sour
     internal static WizwalkerLaunch FromWorkspace(string workspace) => new(
         Path.Combine(workspace, ".local", "envs", "deimos", "Scripts", "python.exe"),
         Path.Combine(workspace, "tools", "wizwalker_adapter.py"),
-        Path.Combine(workspace, "ProjectMaelstrom", "ProjectMaelstrom", "Scripts", "Library", "wizwalker", "wizwalker-master", "wizwalker"));
+        Path.Combine(workspace, "third_party", "wizwalker", "wizwalker-master", "wizwalker"));
 }
 
 internal sealed record WizwalkerRequest(int SchemaVersion, string RunId, string Operation, bool Enabled,

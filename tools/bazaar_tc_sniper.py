@@ -19,10 +19,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 
-BAZAAR_ASSET_DIR = (
-    ROOT
-    / "ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/BazaarTCBot/Wizard101-Bazaar-Tc-Farming/Wizard101-Bazaar-Tc-Farming-master"
-)
+BAZAAR_ASSET_DIR = ROOT / "tools/assets/bazaar_tc"
 
 
 # Canonical TC Image Template Registry

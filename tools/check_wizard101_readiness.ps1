@@ -14,9 +14,7 @@ $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path -LiteralPath $RepositoryRoot).Path
 $library = 'ProjectMaelstrom/ProjectMaelstrom/Scripts/Library'
 $definitions = @(
-    @{ Name = 'Deimos-Wizard101'; Source = "$library/Deimos-Wizard101/Deimos.py"; Manifest = "$library/Deimos-Wizard101/manifest.json"; Role = 'External automation application' }
-    @{ Name = 'wizwalker'; Source = "$library/wizwalker/wizwalker-master/pyproject.toml"; Manifest = "$library/wizwalker/manifest.json"; Role = 'Python backend library' }
-    @{ Name = 'wizSDK'; Source = "$library/wizSDK/wizSDK-master/pyproject.toml"; Manifest = "$library/wizSDK/manifest.json"; Role = 'Legacy workflow library' }
+    @{ Name = 'wizwalker'; Source = "third_party/wizwalker/wizwalker-master/pyproject.toml"; Role = 'Python backend library' }
     @{ Name = 'wizard101-companion'; Source = "$library/wizard101-companion/start.bat"; Role = 'Companion application candidate' }
     @{ Name = 'Wizard101_DanceBot'; Source = 'ProjectMaelstrom/ProjectMaelstrom/Scripts/Wizard101_DanceBot/dist/petdance/petdance.exe'; Role = 'Visual automation application' }
     @{ Name = 'moonlight'; Source = "$library/moonlight/pyproject.toml"; Role = 'Offline packet diagnostics' }

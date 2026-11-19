@@ -23,7 +23,8 @@ are available through the existing **Routine runs** view. Visual Observe stays
 independent; this snapshot is not automatically used to make gameplay decisions.
 
 The optional runtime uses the already existing `.local/envs/deimos` Python
-environment and the reviewed wizwalker source under `Scripts/Library/wizwalker`.
+environment and the reviewed wizwalker source under `third_party/wizwalker` (moved there from
+`Scripts/Library/wizwalker` on 2026-11-19; the pinned digest is unchanged).
 Running a check does not install dependencies or launch Deimos. This entry and
 the headless CLI are now installed and qualified for the narrow idle-state read;
 the optional Python backend remains external to the base application package.

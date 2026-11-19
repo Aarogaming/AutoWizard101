@@ -1,7 +1,7 @@
 """Wizard101 Boss Wiki & Creature Intelligence Resolver.
 
 Ingests 1,851 creature and boss entries from WizWiki Central
-(ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/WizWikiAPI-main/wizwiki_companion.json).
+(ProjectMaelstrom/ProjectMaelstrom/Scripts/Data/WizWiki/wizwiki_companion.json).
 Provides instant O(1) resolution for boss health, school, zone, and cheat mechanics.
 """
 
@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 WIKI_JSON_PATH = (
     ROOT
-    / "ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/WizWikiAPI-main/wizwiki_companion.json"
+    / "ProjectMaelstrom/ProjectMaelstrom/Scripts/Data/WizWiki/wizwiki_companion.json"
 )
 
 

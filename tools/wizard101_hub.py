@@ -26,7 +26,7 @@ TOOLS = {
         ("wizwalker", "wizsprinter", "PySimpleGUI", "thefuzz", "pypresence"),
     ),
     "wizwalker": (
-        LIBRARY / "wizwalker/wizwalker-master",
+        Path("third_party/wizwalker/wizwalker-master"),
         "legacy",
         None,
         False,

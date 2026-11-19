@@ -91,7 +91,7 @@ python tools/wizard101_hub.py launch wiztype --output .local/artifacts/client-ty
 python tools/wizard101_hub.py launch moonlight --definitions path/to/dml --capture path/to/input.pcap --output .local/artifacts/decoded.json --typedefs .local/artifacts/client-types-v1.json
 ```
 
-A Companion boss index has already been exported to `ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/WizWikiAPI-main/wizwiki_companion.json`. It is local generated data excluded from Git. A fresh build copies it with the library content. For an existing installation, place an explicitly reviewed export at `Scripts/Library/WizWikiAPI-main/wizwiki_companion.json`, then use Settings → Refresh Wiki Cache or restart. Location text is retained as supplied; this export does not derive navigable world/area routes.
+A Companion boss index has already been exported to `ProjectMaelstrom/ProjectMaelstrom/Scripts/Data/WizWiki/wizwiki_companion.json`. It is local generated data excluded from Git. A fresh build copies it with the `Scripts` content. For an existing installation, place an explicitly reviewed export at `Scripts/Data/WizWiki/wizwiki_companion.json` (the old `Scripts/Library/WizWikiAPI-main/` location is still read as a fallback), then use Settings → Refresh Wiki Cache or restart. Location text is retained as supplied; this export does not derive navigable world/area routes.
 
 For Deimos/DanceBot execution, the hub additionally requires `--policy` pointing to the actual app installation's `Scripts/.cache/execution_policy.conf`. The hub does not edit that file. A disabled or academic policy blocks automation, even when `--execute` is given. Libraries (`wizwalker`, `wizsdk`, `wizdiff`) have no fabricated GUI launch command; wizdiff uses its explicit offline adapter.
 

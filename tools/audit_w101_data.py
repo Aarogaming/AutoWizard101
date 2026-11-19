@@ -7,10 +7,7 @@ from pathlib import Path
 
 
 def inventory(root):
-    library = (
-        root
-        / "ProjectMaelstrom/ProjectMaelstrom/Scripts/Library/wizwalker/wizwalker-master/wizwalker"
-    )
+    library = root / "third_party/wizwalker/wizwalker-master/wizwalker"
     files = sorted((library / "memory/memory_objects").glob("*.py")) + [
         library / "client.py"
     ]

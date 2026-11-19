@@ -401,7 +401,7 @@ internal sealed class ToolIntegrationService : IDisposable
         var source = Path.Combine(Workspace!, ".local", "upstream", "wizard101-companion");
         var database = Path.Combine(source, "boss_wiki.db");
         if (!File.Exists(database)) database = Path.Combine(source, "templates", "boss_wiki.db");
-        var destination = Path.Combine(StorageUtils.GetScriptLibraryPath(), "WizWikiAPI-main", "wizwiki_companion.json");
+        var destination = Path.Combine(StorageUtils.GetScriptsRoot(), "Data", "WizWiki", "wizwiki_companion.json");
         Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
         var temporary = destination + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
