@@ -2,7 +2,7 @@
 //!
 //! Provides $O(\log n)$ range queries, nearest-neighbor entity lookups, and corridor clearance
 //! checks for moving mobs, reagents, silver chests, and NPC anchors.
-//! Designed for `no_std` + `alloc` with zero external dependencies.
+//! Uses no external crates and no OS or UI calls; it currently builds only with std.
 
 use alloc::vec;
 use alloc::vec::Vec;

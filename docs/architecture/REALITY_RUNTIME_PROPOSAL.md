@@ -32,7 +32,7 @@ Treat Maelstrom as an epistemic control loop rather than a set of game scripts:
 | Six vs seven primitives (1) | Anchor has State, Transition, Relationship, Constraint, Trust, Perspective | See "Primitive comparison". |
 | Sanity checks, drift monitoring (3) | `crates/maelstrom-core/src/kinematics.rs`; freshness TTL in `W101FactsStore` | Partly present. Whether residual-triggered halt exists is not verified here. |
 | Meso pathing with repulsive fields (4) | `costmap.rs` (static, footprint-inflation and dynamic mob layers) | Present, in-house. |
-| Spatial registry (5) | `spatial_index.rs` (BVH / R-tree style, `no_std`, zero deps) | Present, in-house. |
+| Spatial registry (5) | `spatial_index.rs` (BVH / R-tree style, no external crates) | Present, in-house. |
 | Micro steering (4) | `steering.rs`, `waypoint_feedback.rs` | Present. |
 | Goal planner (4) | `goap.rs`, [GOAP_ACTION_PLANNING.md](../GOAP_ACTION_PLANNING.md) | Present. |
 | Generic quest interpreter (4) | `quest_interpreter.rs`, `quest_domain.rs`, [QUEST_INTERPRETER_ENGINE.md](../QUEST_INTERPRETER_ENGINE.md) | Present. |
@@ -42,8 +42,8 @@ Treat Maelstrom as an epistemic control loop rather than a set of game scripts:
 | Patch-resilient re-grounding (5) | none located | **Gap candidate.** |
 
 Correction to the note: it assumes external crates (`parry3d`, `petgraph`, `rstar`,
-`rusqlite`, `pathfinding`, a GOAP crate, and others). `maelstrom-core` is `no_std` +
-`alloc` and currently depends only on `serde`, `uuid` and optional codec crates, and
+`rusqlite`, `pathfinding`, a GOAP crate, and others). `maelstrom-core` is a std library (it does not build with
+`--no-default-features`, despite older no_std wording) and currently depends only on `serde`, `uuid` and optional codec crates, and
 its modules say they are implemented without external dependencies. Adding any of
 those crates is a new production dependency and needs explicit approval
 (`AGENTS.md`: no new production dependencies without asking).

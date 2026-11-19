@@ -2,7 +2,7 @@
 //!
 //! Models canonical questlines ("The Lore of Magic", "Enrollment", "A Good Impression"),
 //! topological zone transitions, NPC interaction geometries, and potion replenishment checkpoints.
-//! Designed for zero-heap-allocation in no_std / alloc environments. Adheres to `Facts ≠ Authority ≠ Actions`.
+//! Plain domain logic with no OS or UI calls (it allocates and currently builds only with std). Adheres to `Facts ≠ Authority ≠ Actions`.
 
 use alloc::string::{String, ToString};
 use alloc::vec;

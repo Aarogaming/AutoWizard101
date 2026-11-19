@@ -4,7 +4,7 @@
 //! parses live HUD/tracker strings into `W101QuestFact` primitives, incorporates
 //! the built-in Quest Helper compass vector, and manages NPC dialogue/offer cycles.
 //!
-//! Operates under `Facts ≠ Authority ≠ Actions` without heap churn in `no_std` + `alloc`.
+//! Operates under `Facts ≠ Authority ≠ Actions` with no OS or UI calls (it allocates and currently builds only with std).
 
 use alloc::format;
 use alloc::string::{String, ToString};
