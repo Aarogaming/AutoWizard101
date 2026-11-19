@@ -178,7 +178,7 @@ class DodgeCurriculumTests(unittest.TestCase):
                 load_completed_focus(root, source, study)
 
     def prepare(self, root):
-        root = Path(root)
+        root = Path(root).resolve()
         (root / "application.exe").write_text("application")
         (root / "source.json").write_text("source")
         candidate = root / "candidate.json"

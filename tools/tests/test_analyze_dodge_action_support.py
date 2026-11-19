@@ -65,7 +65,7 @@ class ActionSupportTests(unittest.TestCase):
 
     def test_collector_geometry_and_recorded_hash_are_required(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             pack_file, benchmark = root / "pack.json", root / "benchmark"
             benchmark.mkdir()
             fixture = (
@@ -94,7 +94,7 @@ class ActionSupportTests(unittest.TestCase):
 
     def test_analysis_requires_unchanged_held_out_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             folder = root / ".local/dodge-survival-models/example"
             folder.mkdir(parents=True)
             model_file = folder / "model.json"
@@ -137,7 +137,7 @@ class ActionSupportTests(unittest.TestCase):
 
     def test_analysis_uses_complete_synthetic_recordings_end_to_end(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             pack_file = root / "pack.json"
             fixture = (
                 Path(__file__).resolve().parents[1]

@@ -85,7 +85,7 @@ class ResumeValidationTests(unittest.TestCase):
                     )
 
     def setup_curriculum(self, temp):
-        root = Path(temp)
+        root = Path(temp).resolve()
         app = root / "application.exe"
         app.write_text("application")
         pack = root / "pack.json"

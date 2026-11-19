@@ -14,7 +14,7 @@ from tools.tests.test_benchmark_dodge_scores import MANIFEST, write_report
 
 class BaselineReuseTests(unittest.TestCase):
     def prepare(self, temp):
-        root = Path(temp)
+        root = Path(temp).resolve()
         app = root / "application.exe"
         pack = root / "pack.json"
         app.write_text("application")

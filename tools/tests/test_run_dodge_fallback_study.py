@@ -82,7 +82,7 @@ class FallbackStudyTests(unittest.TestCase):
 
     def test_below_target_does_not_touch_final_games(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             app, first, second = [
                 root / name for name in ("app.exe", "first.json", "second.json")
             ]
@@ -117,7 +117,7 @@ class FallbackStudyTests(unittest.TestCase):
 
     def test_candidate_only_does_not_revalidate_a_worse_candidate(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             app, first, second = [
                 root / name for name in ("app.exe", "first.json", "second.json")
             ]
@@ -151,7 +151,7 @@ class FallbackStudyTests(unittest.TestCase):
 
     def test_qualified_winner_gets_a_separate_final_set(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             app, first, second = [
                 root / name for name in ("app.exe", "first.json", "second.json")
             ]

@@ -78,7 +78,7 @@ class OfflineSurvivalTests(unittest.TestCase):
 
     def test_disjoint_experience_sets_keep_seed_holdouts_separate(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             runs = root / ".local/wsl-dodge-runs"
             runs.mkdir(parents=True)
             fingerprint = {
@@ -267,7 +267,7 @@ class OfflineSurvivalTests(unittest.TestCase):
 
     def test_multiple_policies_keep_seed_splits_and_require_the_same_game(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             runs = root / ".local/wsl-dodge-runs"
             runs.mkdir(parents=True)
             benchmarks = []
@@ -376,7 +376,7 @@ class OfflineSurvivalTests(unittest.TestCase):
 
     def test_completed_recordings_are_split_by_game(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             benchmark = root / ".local/dodge-training/study/benchmarks/00"
             benchmark.mkdir(parents=True)
             runs = root / ".local/wsl-dodge-runs"

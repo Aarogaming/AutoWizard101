@@ -30,7 +30,11 @@ test('fragmented native framing and invalid lengths', async () => {
 test('subscription recovers with snapshot, has sequence and stops', async () => {
     let reads = 0; const events=[];
     const stop = b.subscribe(async () => { reads++; return reads===1 ? {ok:false,error:'offline'} : {ok:true,result:{facts:null}}; }, e=>events.push(e), 1000);
-    await new Promise(r=>setTimeout(r,2150)); stop();
+    // Wait for the third event (about 2 s of chained timers) with a generous deadline, not a fixed sleep:
+    // a loaded CI runner can delay chained timers by more than the old 150 ms margin.
+    const deadline = Date.now() + 10000;
+    while (events.length < 3 && Date.now() < deadline) await new Promise(r=>setTimeout(r,25));
+    stop();
     assert.deepEqual(events.map(e=>e.kind), ['unavailable','snapshot','heartbeat']);
     assert.deepEqual(events.map(e=>e.sequence),[1,2,3]);
     assert.equal(events[1].result.facts,null);

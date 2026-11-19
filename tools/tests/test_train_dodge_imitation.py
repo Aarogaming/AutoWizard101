@@ -92,7 +92,7 @@ class OfflineImitationTests(unittest.TestCase):
 
     def test_split_is_by_recorded_seed_and_incomplete_data_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             benchmark = root / ".local/dodge-training/study/benchmarks/00"
             benchmark.mkdir(parents=True)
             (root / ".local/dodge-benchmarks").mkdir(parents=True)

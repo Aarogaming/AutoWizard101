@@ -37,7 +37,7 @@ class OutcomeCurriculumTests(unittest.TestCase):
 
     def test_low_disk_stops_before_any_game(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             app, explore, baseline = [
                 root / name for name in ("app.exe", "explore.json", "base.json")
             ]
@@ -83,7 +83,7 @@ class OutcomeCurriculumTests(unittest.TestCase):
         action_advantage=False,
     ):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             app, explore, baseline = [
                 root / name for name in ("app.exe", "explore.json", "base.json")
             ]
@@ -291,7 +291,7 @@ class OutcomeCurriculumTests(unittest.TestCase):
 
     def test_fallbacks_share_model_and_openings_before_selection(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
+            root = Path(temp).resolve()
             app, explore, baseline = [
                 root / name for name in ("app.exe", "explore.json", "base.json")
             ]
