@@ -1,14 +1,20 @@
 //! Fallback module for Maelstrom.
 
+pub mod autonomy_replay;
 pub mod bazaar_bot;
 pub mod maelstrom_bridge;
 pub mod pet_dance;
 pub mod player_controller;
 pub mod wad_reader;
 
+pub use autonomy_replay::{
+    AutonomyReplayHarness, AutonomyReplayMetrics, AutonomyReplaySession, BatchBenchmarkResult,
+    ReplayFrame, SessionBenchmarkEntry,
+};
 pub use maelstrom_bridge::{
-    compute_pipe_name, normalize_data_root, BridgeError, BridgeReply, BridgeRequest,
-    MaelstromNativeBridge, NativeHostState, MAXIMUM_BYTES,
+    compute_pipe_name, normalize_data_root, AutonomyCycleResult, BridgeError, BridgeReply,
+    BridgeRequest, KinematicPlanSummary, MaelstromAutonomyBridge, MaelstromNativeBridge,
+    NativeHostState, SteeringCommandSummary, MAXIMUM_BYTES,
 };
 
 use maelstrom_core::{CardPayload, Deck, ExecutionMode, FailPolicy, MacroCard};

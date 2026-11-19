@@ -19,6 +19,17 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use thiserror::Error;
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
+use maelstrom_core::behavior_tree::{
+    build_w101_canonical_tree, BtNode, BtStatus, Selector, W101Blackboard,
+};
+use maelstrom_core::combat_geometry::CombatGeometry;
+use maelstrom_core::costmap::Vec2D;
+use maelstrom_core::kinematics::{
+    sample_target_in_rect, BezierConfig, BezierTrajectoryGenerator, FastPrng, FittsLawModel,
+    KinematicPlan, Point2D,
+};
+use maelstrom_core::steering::{Pose2D, PurePursuitController, SteeringCommand};
+
 pub const MAXIMUM_BYTES: usize = 262_144;
 pub const DEFAULT_TIMEOUT: Duration = Duration::from_secs(8);
 pub const CONNECT_TIMEOUT: Duration = Duration::from_millis(1500);
@@ -301,7 +312,7 @@ pub async fn call_stream<S: AsyncRead + AsyncWrite + Unpin>(
     request_id: Option<String>,
 ) -> Result<BridgeReply, BridgeError> {
     match command {
-        "capabilities" | "catalog" | "state" | "snapshot" => {}
+        "capabilities" | "catalog" | "state" | "snapshot" | "facts" => {}
         _ => return Err(BridgeError::UnsupportedCommand(command.to_string())),
     }
 
@@ -507,6 +518,51 @@ impl NativeHostState {
             s["verifiedCharacterId"].as_str()?
         ))
     }
+
+    /// Projects qualified native host telemetry facts directly into the W101 Behavior Tree Blackboard.
+    pub fn update_blackboard(&self, bb: &mut W101Blackboard) {
+        if !self.connected {
+            bb.status_log
+                .push(String::from("Host disconnected: telemetry invalidated"));
+            bb.in_combat = false;
+            bb.has_potion = false;
+            return;
+        }
+
+        if let (Some(cur), Some(max)) = (self.mana_current, self.mana_max) {
+            if max > 0 {
+                bb.mana_pct = (cur as f64) / (max as f64);
+            }
+        }
+
+        if let (Some(cur), Some(max)) = (self.health_current, self.health_max) {
+            if max > 0 {
+                bb.health_pct = (cur as f64) / (max as f64);
+            }
+        }
+
+        if let Some(potions) = self.potions_current {
+            bb.has_potion = potions >= 1.0;
+        }
+
+        // Check raw snapshot facts for combat, zone, and spatial coordinates
+        if let Some(facts) = self.raw_snapshot.get("facts").and_then(|f| f.as_object()) {
+            if let Some(combat) = facts.get("combatActive").and_then(|v| v.as_bool()) {
+                bb.in_combat = combat;
+            }
+            if let Some(zone) = facts.get("zoneName").and_then(|v| v.as_str()) {
+                bb.current_zone = zone.to_string();
+            }
+            if let Some(pos) = facts.get("spatialPosition").and_then(|v| v.as_array()) {
+                if pos.len() >= 3 {
+                    let x = pos[0].as_f64().unwrap_or(0.0);
+                    let y = pos[1].as_f64().unwrap_or(0.0);
+                    let z = pos[2].as_f64().unwrap_or(0.0);
+                    bb.current_pose = (x, y, z);
+                }
+            }
+        }
+    }
 }
 
 /// Client handle managing native host communication, fact invalidation, and non-overlapping polling.
@@ -574,6 +630,251 @@ impl MaelstromNativeBridge {
     #[cfg(not(windows))]
     pub async fn poll_snapshot(&mut self) -> Result<NativeHostState, BridgeError> {
         self.mark_disconnected("Named pipes only supported on Windows");
+        Err(BridgeError::Io(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "Named pipes only supported on Windows",
+        )))
+    }
+}
+
+/// Serializable summary of a SteeringCommand intent for host IPC logging and replay.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct SteeringCommandSummary {
+    pub forward_pulse_ms: u32,
+    pub turn_left_pulse_ms: u32,
+    pub turn_right_pulse_ms: u32,
+    pub reverse_pulse_ms: u32,
+    pub curvature: f64,
+    pub angle_error_rad: f64,
+    pub is_arrived: bool,
+}
+
+impl From<SteeringCommand> for SteeringCommandSummary {
+    fn from(cmd: SteeringCommand) -> Self {
+        Self {
+            forward_pulse_ms: cmd.forward_pulse_ms,
+            turn_left_pulse_ms: cmd.turn_left_pulse_ms,
+            turn_right_pulse_ms: cmd.turn_right_pulse_ms,
+            reverse_pulse_ms: cmd.reverse_pulse_ms,
+            curvature: cmd.curvature,
+            angle_error_rad: cmd.angle_error_rad,
+            is_arrived: cmd.is_arrived,
+        }
+    }
+}
+
+/// Serializable summary of a KinematicPlan intent for host IPC logging and replay.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct KinematicPlanSummary {
+    pub point_count: usize,
+    pub total_duration_ms: f64,
+    pub dwell_ms: f64,
+    pub target_x: f64,
+    pub target_y: f64,
+}
+
+impl From<&KinematicPlan> for KinematicPlanSummary {
+    fn from(plan: &KinematicPlan) -> Self {
+        let end = plan.end_point().unwrap_or(Point2D::new(0.0, 0.0));
+        Self {
+            point_count: plan.len(),
+            total_duration_ms: plan.total_duration_ms,
+            dwell_ms: plan.dwell_ms,
+            target_x: end.x,
+            target_y: end.y,
+        }
+    }
+}
+
+/// High-level output of one complete perception-decision cycle evaluated by MaelstromAutonomyBridge.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AutonomyCycleResult {
+    pub connected: bool,
+    pub bt_status: String,
+    pub proposed_intent: Option<String>,
+    pub steering_command: Option<SteeringCommandSummary>,
+    pub kinematic_plan: Option<KinematicPlanSummary>,
+    pub current_zone: String,
+    pub health_pct: f64,
+    pub mana_pct: f64,
+    pub has_potion: bool,
+    pub in_combat: bool,
+    pub status_log: Vec<String>,
+}
+
+/// High-performance autonomy bridge coupling the named-pipe client to the native Behavior Tree,
+/// Pure Pursuit steering controller, and kinematic trajectory generator.
+pub struct MaelstromAutonomyBridge {
+    pub bridge: MaelstromNativeBridge,
+    pub blackboard: W101Blackboard,
+    pub behavior_tree: Selector<W101Blackboard>,
+    pub steering_controller: PurePursuitController,
+    pub prng: FastPrng,
+}
+
+impl MaelstromAutonomyBridge {
+    pub fn new<P: AsRef<Path>>(data_root: P) -> Result<Self, BridgeError> {
+        let bridge = MaelstromNativeBridge::new(data_root)?;
+        let blackboard = W101Blackboard::new();
+        let behavior_tree = build_w101_canonical_tree();
+        let steering_controller = PurePursuitController::new(25.0, std::f64::consts::PI, 10.0);
+        let prng = FastPrng::new(0x20261118);
+
+        Ok(Self {
+            bridge,
+            blackboard,
+            behavior_tree,
+            steering_controller,
+            prng,
+        })
+    }
+
+    /// Pure, offline synchronous processing of a NativeHostState snapshot into an AutonomyCycleResult.
+    /// Does not perform I/O; suitable for deterministic testing and replay.
+    pub fn process_state(&mut self, state: &NativeHostState) -> AutonomyCycleResult {
+        state.update_blackboard(&mut self.blackboard);
+
+        if !state.connected {
+            return AutonomyCycleResult {
+                connected: false,
+                bt_status: "Failure".into(),
+                proposed_intent: None,
+                steering_command: None,
+                kinematic_plan: None,
+                current_zone: self.blackboard.current_zone.clone(),
+                health_pct: self.blackboard.health_pct,
+                mana_pct: self.blackboard.mana_pct,
+                has_potion: self.blackboard.has_potion,
+                in_combat: self.blackboard.in_combat,
+                status_log: self.blackboard.status_log.clone(),
+            };
+        }
+
+        let status = self.behavior_tree.tick(&mut self.blackboard);
+        let bt_status_str = match status {
+            BtStatus::Success => "Success",
+            BtStatus::Failure => "Failure",
+            BtStatus::Running => "Running",
+        }
+        .to_string();
+
+        let mut steering_summary = None;
+        let mut kinematic_summary = None;
+
+        if let Some(ref intent) = self.blackboard.proposal_channel {
+            if intent == "PROPOSAL:StepWaypoint" || intent == "PROPOSAL:FollowWaypoints" {
+                let pose = Pose2D::new(
+                    self.blackboard.current_pose.0,
+                    self.blackboard.current_pose.1,
+                    self.blackboard.current_pose.2,
+                );
+                let path: Vec<Vec2D> = self
+                    .blackboard
+                    .active_waypoints
+                    .iter()
+                    .map(|w| Vec2D::new(w.0, w.1))
+                    .collect();
+
+                if !path.is_empty() {
+                    let cmd = self.steering_controller.compute_steering(&pose, &path);
+                    steering_summary = Some(SteeringCommandSummary::from(cmd));
+                }
+            } else if intent.starts_with("PROPOSAL:CombatTurn") {
+                // Generate humanized combat click trajectory targeting calibrated 1280x720 viewport bounds
+                let (target, target_width) = if intent == "PROPOSAL:CombatTurn:Pass" {
+                    let (pass_x, pass_y) = CombatGeometry::get_pass_button_coordinates_720p();
+                    let t = sample_target_in_rect(
+                        pass_x - 18.0,
+                        pass_y - 10.0,
+                        36.0,
+                        20.0,
+                        0.15,
+                        &mut self.prng,
+                    );
+                    (t, 36.0)
+                } else if let Some(target_idx_str) =
+                    intent.strip_prefix("PROPOSAL:CombatTurn:SelectTarget:")
+                {
+                    let idx: usize = target_idx_str.parse().unwrap_or(0);
+                    let (tx, ty) = CombatGeometry::calculate_target_coordinates_720p(idx)
+                        .unwrap_or((208.0, 60.0));
+                    let t = sample_target_in_rect(
+                        tx - 25.0,
+                        ty - 25.0,
+                        50.0,
+                        50.0,
+                        0.15,
+                        &mut self.prng,
+                    );
+                    (t, 50.0)
+                } else {
+                    // Card slot in hand (e.g. "PROPOSAL:CombatTurn:PlayCard:0/4" or generic "PROPOSAL:CombatTurn")
+                    let (slot, total) = if let Some(card_spec) =
+                        intent.strip_prefix("PROPOSAL:CombatTurn:PlayCard:")
+                    {
+                        let parts: Vec<&str> = card_spec.split('/').collect();
+                        let s = parts.first().and_then(|v| v.parse().ok()).unwrap_or(0);
+                        let tot = parts.get(1).and_then(|v| v.parse().ok()).unwrap_or(4);
+                        (s, tot)
+                    } else {
+                        (0, 4)
+                    };
+                    let (card_x, card_y) =
+                        CombatGeometry::get_hand_card_coordinates_720p(slot, total)
+                            .unwrap_or((688.0, 390.0));
+                    let t = sample_target_in_rect(
+                        card_x - 30.0,
+                        card_y - 35.0,
+                        60.0,
+                        70.0,
+                        0.15,
+                        &mut self.prng,
+                    );
+                    (t, 60.0)
+                };
+
+                let start = Point2D::new(
+                    self.blackboard.current_pose.0,
+                    self.blackboard.current_pose.1,
+                );
+                let fitts = FittsLawModel::default();
+                let dur = fitts.calculate_duration_ms(start.distance(&target), target_width);
+                let cfg = BezierConfig::default();
+                let plan = BezierTrajectoryGenerator::generate_trajectory(
+                    start,
+                    target,
+                    dur,
+                    &cfg,
+                    &mut self.prng,
+                );
+                kinematic_summary = Some(KinematicPlanSummary::from(&plan));
+            }
+        }
+
+        AutonomyCycleResult {
+            connected: true,
+            bt_status: bt_status_str,
+            proposed_intent: self.blackboard.proposal_channel.clone(),
+            steering_command: steering_summary,
+            kinematic_plan: kinematic_summary,
+            current_zone: self.blackboard.current_zone.clone(),
+            health_pct: self.blackboard.health_pct,
+            mana_pct: self.blackboard.mana_pct,
+            has_potion: self.blackboard.has_potion,
+            in_combat: self.blackboard.in_combat,
+            status_log: self.blackboard.status_log.clone(),
+        }
+    }
+
+    /// Performs a single perception-decision tick over the named pipe.
+    #[cfg(windows)]
+    pub async fn step_cycle(&mut self) -> Result<AutonomyCycleResult, BridgeError> {
+        let state = self.bridge.poll_snapshot().await?;
+        Ok(self.process_state(&state))
+    }
+
+    #[cfg(not(windows))]
+    pub async fn step_cycle(&mut self) -> Result<AutonomyCycleResult, BridgeError> {
         Err(BridgeError::Io(io::Error::new(
             io::ErrorKind::Unsupported,
             "Named pipes only supported on Windows",

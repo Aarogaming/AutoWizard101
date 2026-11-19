@@ -10,9 +10,20 @@ use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+pub mod audio_cue;
+pub mod behavior_tree;
 pub mod combat_geometry;
+pub mod combat_turn_evaluator;
+pub mod costmap;
 #[cfg(feature = "deck_codec")]
 pub mod deck_encoder;
+pub mod goap;
+pub mod kinematics;
+pub mod ontology;
+pub mod quest_domain;
+pub mod quest_interpreter;
+pub mod spatial_index;
+pub mod steering;
 
 /// School theme determining card frame styling, syntax accents, and IDE filtering.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -241,7 +252,10 @@ mod tests {
     fn test_arbiter_reflex_accepts_above_threshold() {
         let arb = Arbiter::new(0.85);
         let dec = arb.decide(ControlAction::PassTurn, 0.90, 0.80);
-        assert_eq!(dec, ArbiterDecision::DispatchReflex(ControlAction::PassTurn));
+        assert_eq!(
+            dec,
+            ArbiterDecision::DispatchReflex(ControlAction::PassTurn)
+        );
     }
 
     #[test]
