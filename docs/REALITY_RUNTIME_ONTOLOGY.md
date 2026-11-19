@@ -1,5 +1,13 @@
 # Reality Runtime Primitive Ontology
 
+> **Status: design note, partly aspirational (audit 2026-11-19, Claude).** In code today: the seven primitive types and a
+> `RealityWorldModel` aggregate in `crates/maelstrom-core/src/ontology.rs`, with offline unit tests; only `DegradationTier`
+> and `Hazard` are used outside them (`predictive_rollout.rs`). **Not implemented:** epoch invalidation on connector
+> traversal, any traversal or cross-manifold pathfinding, focus or orientation gating, acceleration on entities, hazard
+> kinds other than the aggro cylinder, and the epistemic abort loop. **Not domain-agnostic yet:** several enums hold
+> Wizard101 concepts. The class diagram below is schematic; see the code for exact fields. Details:
+> [W101-ONTOLOGY-DOCS-01, Audit note](coordination/results/W101-ONTOLOGY-DOCS-01.md).
+
 ## 1. Executive Vision: The Epistemic Control Loop
 
 Maelstrom is not an ad-hoc game bot or screen-scraping macro runner; it is a **Reality Environment Runtime**. Rather than hardcoding bespoke control logic for specific games or screens, Maelstrom operates on an **irreducible grammar of existence**:
@@ -80,7 +88,7 @@ classDiagram
 A bounded, continuous or topological coordinate frame $(X, Y, Z, \text{yaw})$ with defined metric rules, gravity, vertical floor tolerances, and traversal constraints (e.g., a loaded 3D Gamebryo zone instance, an arena interior, or a desktop client viewport).
 
 ### 2. `Entity` (Occupant)
-Any identifiable physical occupant in a `Manifold`, carrying a persistent identity, semantic kind (`Player`, `DynamicMob`, `Reagent`, `Chest`, `NpcAnchor`), bounding volume (cylinder/sphere/AABB), and kinematic state $(\mathbf{p}, \mathbf{v}, \mathbf{a})$.
+Any identifiable physical occupant in a `Manifold`, carrying a persistent identity, semantic kind (`Player`, `DynamicMob`, `Reagent`, `Chest`, `NpcAnchor`), bounding volume (cylinder/sphere/AABB), and kinematic state $(\mathbf{p}, \mathbf{v})$ (position and velocity; the code has no acceleration field).
 
 ### 3. `Affordance` (Interaction Surface)
 A localized geometric region or UI element that exposes a valid state transition under proximity, focus, or orientation constraints (e.g. a dialogue trigger prompt, a reagent harvest prompt, a sigil countdown circle, a spell card, or a button widget).
@@ -104,12 +112,12 @@ A typed, timestamped assertion about reality accompanied by confidence metrics (
 | Wizard101 Domain Specifics | Reality Primitive Equivalent | Concrete Rust Representation |
 | :--- | :--- | :--- |
 | `ZoneNavMesh` / Zone Instance | **`Manifold`** | `Manifold::new("OldeTown", bounds, MetricType::NavMesh3D)` |
-| `DynamicMobActor` | **`Entity`** + **`Hazard`** | `Entity::new(id, DynamicMob, pos, vel)` + `Hazard::threat_cylinder(...)` |
-| `SpatialEntity3D` (Reagents, Chests) | **`Entity`** + **`Affordance`** | `Entity::new(id, Reagent, pos)` + `Affordance::interact("X", 3.5)` |
-| `DoorPortal` / Sigil Entry | **`Connector`** | `Connector::new("Commons", "GolemCourt", p1, p2, TraversalKind::Door)` |
-| Roaming Mob Aggro Radius | **`Hazard`** | `Hazard::dynamic_repulsion(id, pos, vel, aggro_r, rep_r, weight)` |
+| `DynamicMobActor` | **`Entity`** + **`Hazard`** | `Entity::new(id, "OldeTown", EntityKind::DynamicMob, pos).with_velocity(vx, vy, vz)` + `Hazard::dynamic_aggro(id, "OldeTown", pos, vel, aggro_r, repulsion_r)` |
+| `SpatialEntity3D` (Reagents, Chests) | **`Entity`** + **`Affordance`** | `Entity::new(id, "OldeTown", EntityKind::Reagent, pos)` + `Affordance::new(id, "OldeTown", AffordanceKind::InteractKey('X'), pos, 3.5)` |
+| `DoorPortal` / Sigil Entry | **`Connector`** | `Connector::new(id, "Commons", "GolemCourt", p1, p2, ConnectorKind::DoorPortal, cost)` |
+| Roaming Mob Aggro Radius | **`Hazard`** | `Hazard::dynamic_aggro(id, manifold_id, pos, vel, aggro_r, repulsion_r)` (penalty weight fixed at 1000.0) |
 | Mana, Health, Potions, Pips | **`Resource`** | `Resource::new("mana", 80.0, 100.0)` |
-| Combat State, Safe Zone, Quest Steps | **`Predicate`** | `Predicate::new("in_combat", StateValue::Bool(false), 0.99)` |
+| Combat State, Safe Zone, Quest Steps | **`Predicate`** | `Predicate::new("in_combat", false, 0.99, now_ms)` |
 
 ---
 
@@ -118,6 +126,6 @@ A typed, timestamped assertion about reality accompanied by confidence metrics (
 1. **Facts $\neq$ Authority $\neq$ Actions**:
    Primitives represent *facts* about the world. They do not possess the *authority* to issue operating system input dispatches. Actions are synthesized only when predicates satisfy goal preconditions and are approved under an active `GameInputLease`.
 2. **Metric Independence**:
-   `Manifold` coordinates can be Euclidean 3D $(x, y, z)$, screen-space pixels $(u, v)$, or graph topological nodes. Pathfinding across manifolds invokes `Connector` traversal costs rather than false geometric assumptions.
+   `Manifold` coordinates can be Euclidean 3D $(x, y, z)$, screen-space pixels $(u, v)$, or graph topological nodes. Pathfinding across manifolds invokes `Connector` traversal costs rather than false geometric assumptions. *(Design intent: connectors are stored, but nothing pathfinds across them yet.)*
 3. **Continuous Epistemic Gating**:
-   Any action in progress is immediately aborted if the grounded `Predicate` state contradicts expected preconditions (e.g. focus lost, health critical, mob intruding upon an affordance).
+   Any action in progress is immediately aborted if the grounded `Predicate` state contradicts expected preconditions (e.g. focus lost, health critical, mob intruding upon an affordance). *(Design intent: not implemented in this module.)*

@@ -4,7 +4,7 @@
 - **Claim ID**: `W101-ONTOLOGY-DOCS-01`
 - **Workstream**: `CORE-KNOWLEDGE`
 - **Task**: Documentation for Reality Runtime Primitive Ontology (7 Irreducible Primitives)
-- **Status**: Completed
+- **Status**: Design documentation delivered; several samples and contracts do not match the code (see Audit note)
 
 ## 1. Executive Summary
 This milestone documents the foundational philosophy and structural taxonomy for treating Maelstrom as a domain-agnostic **Reality Environment Runtime**. Rather than maintaining ad-hoc, brittle game-specific control scripts, all environments (3D Gamebryo zones, mini-game viewports, desktop window frames) map into **seven irreducible existence primitives**.
@@ -46,3 +46,42 @@ This milestone documents the foundational philosophy and structural taxonomy for
   - `docs/REALITY_RUNTIME_ONTOLOGY.md`
   - `docs/INDEX.md`
   - `docs/coordination/results/W101-ONTOLOGY-DOCS-01.md`
+
+---
+
+## Audit note (2026-11-19, Claude)
+
+Checked against `docs/REALITY_RUNTIME_ONTOLOGY.md`, `crates/maelstrom-core/src/ontology.rs`, `crates/maelstrom-core/src/spatial_index.rs`,
+the audit note in `docs/coordination/results/W101-ONTOLOGY-CORE-02.md` (which holds the evidence and the probe results) and
+`docs/INDEX.md`. Nothing was run against a live game. The status above was changed from "Completed": the document exists,
+but several contracts and code samples in it do not match the code.
+
+**Verified.** `docs/REALITY_RUNTIME_ONTOLOGY.md` exists and `docs/INDEX.md` links it. The seven primitives exist as Rust
+types. The `Manifold::new("OldeTown", bounds, MetricType::NavMesh3D)` and `Resource::new("mana", 80.0, 100.0)` samples in the
+mapping table match the code, and the module has no input API, consistent with `Facts != Authority != Actions`.
+
+**Corrections.**
+1. **Five of the seven mapping-table samples name APIs that do not exist or have other signatures.** `Hazard::threat_cylinder`,
+   `Hazard::dynamic_repulsion`, `Affordance::interact` and `TraversalKind::Door` appear nowhere in the code;
+   `Entity::new` takes `(id, manifold_id, kind, position)` and velocity comes from `with_velocity`; `Connector::new` takes seven
+   arguments and a `ConnectorKind`; `Predicate::new` takes four (key, value, confidence, timestamp). The table now shows the
+   real calls.
+2. **Entities have no acceleration.** `(p, v, a)` in this result and in the spec is `(p, v)` in the code.
+3. **The Red Team 2 mitigation does not exist.** Nothing increments a manifold epoch on a connector transition, and
+   predicates are not invalidated by one. Probe: a predicate asserted in one manifold survived switching the active manifold.
+   See the CORE-02 audit note.
+4. **"Primitives are strictly domain-agnostic" is not true of the code.** `ConnectorKind` has `SpiralWorldGate`,
+   `DungeonSigil`, `FastTravelHome`, `FastTravelCommons` and `DungeonSigilCountdown`, `Connector::fast_travel_commons`
+   hardcodes "Commons", `AffordanceKind` has `EmergencyPotion`, and `EntityKind` (in `spatial_index.rs`) has `Reagent`,
+   `SilverChest` and `Sigil`. Wizard101 concepts are in the core enums, not only in payloads.
+5. **Invariants 2 and 3 are design intent.** Connectors are stored but nothing pathfinds across them, and nothing aborts an
+   action in progress when a predicate contradicts its preconditions.
+6. **The class diagram is schematic.** Field names differ (`Affordance` has `parent_entity_id` and `enabled`, not
+   `required_key`; `Hazard` has position, velocity and two radii, not `threat_zone`; `Entity` has `radius` and `half_height`,
+   not a bounding volume).
+7. **"Test Verification" lists no tests, and "complete epistemic loop formulation" is one formula.** The gates named are
+   document checks only.
+8. **The index description overstated the document**; it now says the note is partly aspirational.
+
+**What this evidence does not prove.** This is a read-through against the code and the CORE-02 tests; it does not show that
+any live observation is mapped into these primitives or that any planner uses them.
