@@ -144,7 +144,8 @@ Priorities, in order:
    requires observation-driven decisions, never a tutorial timeline script.
 
 Future integration may adapt saved observations, task receipts and bounded execution
-requests. Rust is deferred until a measured benefit justifies a component. No plugin
+requests. Language choice follows the per-operation efficiency rule in
+`ADR_MAELSTROM_INDEPENDENT.md` (Language selection, 2026-11-19). No plugin
 registry, shared ABI, Guild service or model host is required to continue this roadmap.
 
 ## Verification record: 2026-10-30
