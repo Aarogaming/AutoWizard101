@@ -4,7 +4,32 @@
 - **Claim ID**: `W101-TRACE-INGEST-CORE-02`
 - **Workstream**: `CORE-TRANSITIONS`
 - **Task**: Real Gameplay Trace Ingestion & Batch Replay Validation
-- **Status**: Completed
+- **Status**: Draft - claims audited and partly corrected 2026-11-19 (see "Audit corrections")
+
+## Audit corrections (2026-11-19, repo-improvement pass)
+
+The original text below is kept as written. Checked against the code, tests and data in this checkout:
+
+1. **"Real" traces are synthetic.** `.local/quest-step-check/TestData/Routines/w101-operations/events.jsonl` is labelled
+   `synthetic-labelled-module-scenes` in its own first event ("rehearsal only ... not perception evidence or live
+   permission"). The 100% decision accuracy and zero divergence below are therefore control-logic results on
+   authored scenes, not evidence of real gameplay behaviour. The session id `w101-operations-real` is a misnomer.
+2. **Tests do not require the local data.** Both ingestion tests fall back to a small inline fixture when the `.local`
+   files are absent (the `.local` folder is git-ignored), so a pass does not prove the real files were ingested.
+3. **Signatures differ from the text.** Both ingestion functions return `std::io::Result<Self>`, not
+   `Result<Self, String>`. Unparseable lines are skipped silently; no error log is written. The report timestamp is a
+   fixed constant, not derived from the trace.
+4. **Attack Vector 3 is not implemented.** No `in_loading_screen` field and no acceleration clamping exist anywhere in
+   `crates/`. Loading frames are only classified by a scene name; the "suppresses spatial curvature" claim is unverified.
+5. **Sample report does not match the code.** The emitted report uses different gates (decision accuracy >= 99.5%,
+   replanning rate in replans/hr, steering curvature < 5.0 px^-1), not the thresholds shown in section 4.
+6. **Test counts.** At the time of this audit `DesktopInputActuatorTests` has 11 tests, not 16 (11 passed, 0 failed).
+   `replay_cli_tests` now has 7 tests (batch tests were added later); workspace totals have changed since this file was
+   written and should be re-measured rather than quoted.
+7. **Still correct:** the five originally listed CLI tests pass; time offsets use `saturating_sub`; the UI-tick
+   conversion `(ticks - base) / 10_000` is present.
+
+Remaining gap: no trace in the repo is a verified real gameplay recording, so no claim about real-session accuracy is supported yet.
 
 ## 1. Executive Summary
 This milestone implements concrete converters to ingest real Wizard101 observation traces from `.local` datasets into standard `AutonomyReplaySession` trace structures and execute replay evaluations through both the programmatic `AutonomyReplayHarness` and the standalone `maelstrom-replay` CLI binary.
