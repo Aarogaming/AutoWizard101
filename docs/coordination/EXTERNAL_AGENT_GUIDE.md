@@ -113,6 +113,13 @@ IDs, commands and observed results, resource use, and remaining limits. Identify
 synthetic fixtures explicitly. Do not claim current-client footage exists merely
 because a directory or old capture is mentioned in a document.
 
+Every result doc also carries a standing **"What this evidence does not prove"**
+line, naming the boundary the checks did not cross (adapted from the
+Aaroneous controller-2 README pattern, preserved in `D:\Aaroneous\docs\EVIDENCE_DISCLAIMER.md`):
+for example "checks syntax, not transitive behaviour" or "offline replay only,
+not live qualification". Omitting the line makes readers assume the strongest
+possible reading; state the boundary instead.
+
 Keep the final return short and usable by the coordinator:
 
 ```text

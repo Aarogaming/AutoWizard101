@@ -32,3 +32,12 @@ than none. If wanted, it needs a board-checker change under its own claim.
 - Documentation only: the rule binds agents by review, not by gate (the gates
   check artifacts, not who produced them).
 - Not proven to change any agent's behaviour; effectiveness is unmeasured.
+
+## Addendum (same claim): disclaimer pattern for result docs
+
+Import ④ (2026-11-19): the "Evidence and completion" section now requires every
+result doc to carry a standing **"What this evidence does not prove"** line,
+adapted from the preserved Aaroneous pattern
+(`D:\Aaroneous\docs\EVIDENCE_DISCLAIMER.md`, provenance to the controller-2
+README). Same limits as above: binds by review, not by gate; retroactive
+application to the existing 350+ result docs was not attempted.
