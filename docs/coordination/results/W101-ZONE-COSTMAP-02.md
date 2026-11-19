@@ -3,7 +3,7 @@
 **Task**: Phase 2 Zone Asset Ingestion Bridge & Dynamic NavMesh Costmap Integration  
 **Owner**: `root`  
 **Workstream**: `W101-NAVIGATION`  
-**Status**: Released  
+**Status**: Library code and offline tests delivered; the parser agrees with the C# test fixtures; nothing calls it; edge sampling, arrival-time and loading-screen statements are stronger than the code (see Audit note)  
 **Date**: 2026-11-18  
 **Owned Paths**:
 - `crates/maelstrom-core/src/costmap.rs`
@@ -89,3 +89,93 @@ The objective of `W101-ZONE-COSTMAP-02` is Phase 2 of the autonomous navigation 
 ### Audit Finding 3:
 - **Red Team Attack**: Does `ZoneNavMesh` assume static coordinate frames across loading screens?
 - **Blue Team Mitigation**: No. Each `ZoneNavMesh` belongs strictly to a single zone asset. Loading screen detection invalidates active navigation graphs and flushes local costmap state, respecting zone boundary resets and the architectural invariant `Facts ≠ Authority ≠ Actions`.
+
+---
+
+## Audit note (2026-11-19, Claude)
+
+Checked against `crates/maelstrom-core/src/costmap.rs`, `crates/maelstrom-core/tests/costmap_tests.rs`,
+`ProjectMaelstrom/ProjectMaelstrom/Utilities/NavigationMap.cs`, `ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationMapTests.cs`
+(read, not run), a repository-wide search for every user of `ZoneNavMesh`, `ZoneNavMesh::parse` and `find_safest_path`
+across the `.rs`, `.cs` and `.py` files, `CARGO_BUILD_JOBS=2 cargo test --workspace --offline`, and a throwaway probe
+crate outside the repository (`detour-probe`: two binaries, path dependency on `maelstrom-core`, run offline; not
+committed). Nothing was run against a live game. The status above was changed from "Released": the parser and the
+planner exist and their offline tests pass, but nothing uses them, no real `zone.nav` file has been parsed by Rust, and
+several safety statements are stronger than the code.
+
+**Verified.**
+- The wire layout in `ZoneNavMesh::parse` reads the same as `NavigationMap.Parse`: 6-byte header of three `i16`, 14-byte
+  vertex records (three `f32` and an `i16` index), an `i32` edge count, 4-byte edges, a 10-byte minimum and
+  `MAXIMUM_BYTES` ceiling, 32,767 vertices and 250,000 edges, finite-float check on every record (skipped ones too), index
+  range check, the legacy gap rule (a record is kept only when its index equals the number kept so far), edge endpoints
+  checked against the kept vertices, and exact edge-payload length (trailing bytes rejected). Parity probe: the 20
+  accept/reject cases of `NavigationMapTests.cs` (valid three-vertex line, legacy skipped record, every truncation prefix,
+  four trailing bytes, `MaximumBytes + 1`, NaN and both infinities in a first and in a skipped record, vertex index -1
+  and 1, negative header fields, edge counts -1, max+1 and `int.MaxValue`, edges to missing vertices) were re-encoded
+  in Rust and run through `ZoneNavMesh::parse`: 20 of 20 gave the outcome the C# test expects. The C# side was not
+  executed in this pass.
+- `evaluate_edge_cost` rejects an edge when any sample reaches `COST_INSCRIBED_INFLATED` (253) and otherwise returns
+  `len * (1.0 + max_cost / 50.0)`; `find_safest_path` is Dijkstra over directed edges that returns `None` when every
+  route is rejected. The four unit tests named in section 2 and `test_integration_dynamic_mob_deflects_nav_mesh_path`
+  exist and pass.
+- Audit Finding 1's numbers match the fixture: mob at (50, 30), aggro 20, edge midpoint (25, 15), distance 29.15. Replaying
+  midpoint-only evaluation on the same diamond with both mobs placed gives midpoint costs 29, 29, 113 and 113 for the four
+  edges, all below 253, so a midpoint-only planner would find a path and the final `None` assertion would fail. The
+  earlier deflect-to-the-south assertion would pass either way (the north edges still cost more). The original draft that
+  "failed under midpoint-only sampling" was not available to re-run, so that part rests on this replay.
+- `cargo test --workspace --offline` today: 250 passed, 0 failed across 39 test-result lines (core 66 unit tests plus
+  integration binaries, fallback, ide, platform, reflex). `cargo clippy -p maelstrom-core --offline -- -D warnings`
+  finished with no warnings and `cargo fmt --check -p maelstrom-core` printed no diff. `check_project_board.py` reports 30
+  workstreams.
+
+**Corrections.**
+1. **The sampling does not "eliminate blindspots".** Sampling is capped at five points however long the edge is, so a
+   long edge has samples L/4 apart. Probe: on a 400-unit edge with a mob standing at x=50 (aggro 10; the cost at the mob's
+   own position is 254), the samples fall at 0, 100, 200, 300 and 400, and `evaluate_edge_cost` returned `Some(416.0)`,
+   an accepted edge; with the repulsion radius equal to the aggro radius it returned `Some(400.0)`, no penalty at all.
+   The doc comment on `evaluate_edge_cost` ("guarantee zero blindspots along long edges") has the same overstatement.
+   Thresholds are also off by a boundary: the code uses more than 60 units for five samples and more than 20 for
+   three (probe: an edge of 60.0 got three samples, 60.5 got five), not "at or above 60". Only the three-sample branch
+   is run by any test, since the test edges are 50 and about 58.3 units long; the two-sample and five-sample branches have
+   no test.
+2. **Arrival time is not `t0 + dist / v` of the path, and it is not per sample.** Two defects, both read from the code and
+   shown by the probe. First, every sample on an edge is evaluated at the time the planner reaches the edge's start vertex,
+   not the time the walker reaches each sample: a mob that crosses the far end of a 200-unit edge at t=20 s leaves the
+   edge accepted when evaluated at t=0 (`Some(200.0)`) and rejected when evaluated at t=20 (`None`). Second, the start
+   time is `start_time_s + dist[u] / speed` where `dist[u]` is the cumulative weighted cost, not the cumulative length. With a
+   penalty-100 zone over a 50-unit first edge (weight 150), vertex 1 is treated as reached at 15 s instead of 5 s; the
+   second edge, which costs `Some(150.0)` at the true 5 s, is evaluated at 15 s against a mob that is on it at that
+   moment, and `find_safest_path` returns `None` although the mob stays more than 50 units from the walker during the real
+   crossing (t = 5 s to 10 s at 10 units per second). Weights are
+   never smaller than lengths, so arrival is only ever overestimated, which can invent conflicts and also hide real ones.
+   A non-positive speed is silently replaced by 10.0, and with the default 3.0 s lookahead every mob is held at its
+   3-second position for any later time, so the time axis stops mattering about three seconds into a route.
+3. **"Automatically routes around approaching dynamic mobs" is shown only for stationary mobs.** Every mob in the
+   planner tests (`test_zone_nav_mesh_evaluate_edge_cost_and_pathfinding` and the diamond test) has zero velocity.
+   `test_integration_moving_mob_intercept_prediction` exercises the costmap, not the mesh; `find_safest_path` is called
+   only in three places, all in the diamond test, plus the unit test above. Moving-mob planning is untested.
+4. **Audit Finding 2 describes a loop that does not exist.** "Reactive local replanning on every observation cycle" has no
+   code behind it: `find_safest_path` and `ZoneNavMesh::parse` have no caller outside tests, and `ZoneNavMesh::parse` is only
+   ever fed hand-built synthetic bytes. The behavior tree does not use the mesh. "Repulsive fields extend beyond the aggro
+   radius" holds only when a caller sets `repulsion_radius` above `aggro_radius`; the constructor takes the two
+   independently (the probe above used equal radii). The 3.0 s clamp is real (`test_dynamic_mob_lookahead_clamping`) but see
+   correction 2 for what it does to long routes.
+5. **Audit Finding 3 has no code behind it.** `Nav2Costmap` has no clear, reset or remove operation (mobs, obstacles and
+   zones can only be added), `ZoneNavMesh` carries no zone identifier and no content hash (the C# `NavigationMap` keeps a
+   SHA-256), and no Rust crate mentions loading screens; the only "invalidate" hits are in the fallback bridge on host
+   disconnect. "Each mesh belongs strictly to one zone" is a convention of the caller, which does not exist yet. Loading
+   screens pausing dispatch is a host-side rule in `AGENTS.md`, not a navigation-graph flush.
+6. **The quality-gate numbers are not reproducible.** "23 unit + 4 integration = 27" does not match the tree: `costmap.rs`
+   has 12 unit tests (the crate's lib has 66) and `costmap_tests.rs` has 7 tests, of which only the diamond test belongs to
+   this task. "87/87 across 5 crates" does not match either: a static count of test attributes at the commit that last
+   touched this file (a757776) is 206 across the five crates (core 124), and today's run is 250. Cite the CI evidence
+   instead: `rust-tests` passed in runs 44586189238 (da76aeb) and 44590486074 (f668eea).
+7. **Not claimed here, but a caller would hit it.** `find_safest_path` selects the next vertex with a linear scan (quadratic
+   in the vertex count; about a billion steps for a 32,767-vertex mesh, versus the binary-heap `PriorityQueue` search in
+   the C# `FindPath`), rebuilds the adjacency list on every call, and has no visit budget or blocked-edge set like the C#
+   search. `start == goal` returns the single vertex without a cost check.
+
+**What this evidence does not prove.** Offline tests and probes on synthetic fixtures. They show the parser agrees with
+the C# test cases and that the planner deflects around stationary mobs on two tiny graphs; they do not show that a real
+`zone.nav` parses, that a long edge is safe, that moving mobs are handled in time, or that any routine uses the planner.
+No live qualification and no C# execution in this pass.
