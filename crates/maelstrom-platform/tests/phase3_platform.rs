@@ -1,7 +1,7 @@
 // Phase 3 platform tests
 
-use maelstrom_platform::{ClientOperationGuard, PlatformError, JobObjectGuard, spawn_suspended};
 use maelstrom_core::InputEvent;
+use maelstrom_platform::{spawn_suspended, ClientOperationGuard, JobObjectGuard, PlatformError};
 use windows::Win32::Foundation::CloseHandle;
 
 #[test]
@@ -28,9 +28,12 @@ fn test_job_object_guard_cleanup() {
 #[test]
 fn test_job_object_guard_assign_and_cleanup() {
     let guard = JobObjectGuard::new().expect("Failed to create JobObjectGuard");
-    let pi = spawn_suspended("cmd", &["/C", "timeout", "/t", "5"]).expect("Failed to spawn process");
+    let pi =
+        spawn_suspended("cmd", &["/C", "timeout", "/t", "5"]).expect("Failed to spawn process");
     // Assign the process handle to the job object
-    guard.assign(pi.h_process).expect("Failed to assign process to job");
+    guard
+        .assign(pi.h_process)
+        .expect("Failed to assign process to job");
     unsafe {
         let _ = CloseHandle(pi.h_thread);
         let _ = CloseHandle(pi.h_process);
@@ -39,7 +42,11 @@ fn test_job_object_guard_assign_and_cleanup() {
 
 #[test]
 fn test_input_actuator_placeholder() {
-    let _event = InputEvent::MouseClick { x: 100, y: 200, button: 1 };
+    let _event = InputEvent::MouseClick {
+        x: 100,
+        y: 200,
+        button: 1,
+    };
     #[cfg(not(windows))]
     {
         use maelstrom_platform::INPUT_ACTUATOR;

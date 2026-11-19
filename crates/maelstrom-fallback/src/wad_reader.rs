@@ -1,10 +1,10 @@
 //! KingsIsle WAD (.wad) archive reader ported from libkiwad, wizwad, and ProjectMaelstrom's WadArchiveReader.cs.
 
+use flate2::read::ZlibDecoder;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Cursor, Read, Seek, SeekFrom};
 use std::path::Path;
-use flate2::read::ZlibDecoder;
 
 const KIWAD_MAGIC: &[u8; 5] = b"KIWAD";
 

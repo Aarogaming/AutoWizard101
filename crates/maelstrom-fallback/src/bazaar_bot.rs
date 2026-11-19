@@ -1,9 +1,9 @@
+use crate::player_controller::PlayerController;
+use maelstrom_core::combat_geometry::Point;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::{Duration, Instant};
-use crate::player_controller::PlayerController;
-use maelstrom_core::combat_geometry::Point;
 
 /// Very simple image‑finder stub. In the real system this searches a screenshot for a template.
 fn retrieve_target_image_position(image_path: &Path) -> Option<Point> {
@@ -30,7 +30,10 @@ impl BazaarReagentBot {
     pub fn new() -> Self {
         let app_path = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
         let base_dir = app_path.join("Bazaar");
-        Self { player: PlayerController::new(), base_dir }
+        Self {
+            player: PlayerController::new(),
+            base_dir,
+        }
     }
 
     /// Load reagent names from the Reagents folder.
@@ -47,7 +50,9 @@ impl BazaarReagentBot {
             .filter_map(|entry| {
                 let path = entry.path();
                 if path.extension().and_then(|s| s.to_str()) == Some("png") {
-                    path.file_stem().and_then(|s| s.to_str()).map(|s| s.to_owned())
+                    path.file_stem()
+                        .and_then(|s| s.to_str())
+                        .map(|s| s.to_owned())
                 } else {
                     None
                 }

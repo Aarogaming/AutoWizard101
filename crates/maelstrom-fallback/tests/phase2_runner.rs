@@ -1,9 +1,11 @@
 //! Phase 2 integration tests for maelstrom-fallback.
 
-use maelstrom_core::{AutomationSchool, CardEnchantment, ExecutionMode, CardPayload, Deck, MacroCard};
+use maelstrom_core::{
+    AutomationSchool, CardEnchantment, CardPayload, Deck, ExecutionMode, MacroCard,
+};
 use maelstrom_fallback::{DeckRunner, RunnerCommand, RunnerError};
-use uuid::Uuid;
 use tokio::time::{timeout, Duration};
+use uuid::Uuid;
 
 #[tokio::test]
 async fn test_oneshot_preemption_and_resume() {
@@ -35,8 +37,14 @@ async fn test_oneshot_preemption_and_resume() {
         loop_count: None,
     };
     let runner = DeckRunner::new();
-    let _ = runner.command_sender().send(RunnerCommand::TriggerOneShot).await;
-    timeout(Duration::from_secs(1), runner.run(&deck)).await.expect("Runner timed out").unwrap();
+    let _ = runner
+        .command_sender()
+        .send(RunnerCommand::TriggerOneShot)
+        .await;
+    timeout(Duration::from_secs(1), runner.run(&deck))
+        .await
+        .expect("Runner timed out")
+        .unwrap();
 }
 
 #[test]
@@ -50,7 +58,9 @@ fn test_subdeck_recursion_limit() {
             pip_cost: 1,
             description: "".into(),
             mode: ExecutionMode::SequentialStep,
-            payload: CardPayload::SubDeck { deck_id: Uuid::new_v4() },
+            payload: CardPayload::SubDeck {
+                deck_id: Uuid::new_v4(),
+            },
             default_enchantment: CardEnchantment::default(),
         });
     }
@@ -112,7 +122,13 @@ fn test_legacy_external_timeout_and_cleanup() {
         mode: ExecutionMode::SequentialStep,
         payload: CardPayload::LegacyExternal {
             command: "cmd".into(),
-            args: vec!["/C".into(), "timeout".into(), "/t".into(), "5".into(), "/nobreak".into()],
+            args: vec![
+                "/C".into(),
+                "timeout".into(),
+                "/t".into(),
+                "5".into(),
+                "/nobreak".into(),
+            ],
             timeout_ms: 100,
         },
         default_enchantment: CardEnchantment::default(),

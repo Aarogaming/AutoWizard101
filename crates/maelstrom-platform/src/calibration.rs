@@ -19,7 +19,11 @@ pub struct CalibrationCheckResult {
 }
 
 impl CalibrationCheckResult {
-    pub fn new<N: Into<String>, D: Into<String>>(name: N, status: CalibrationStatus, details: D) -> Self {
+    pub fn new<N: Into<String>, D: Into<String>>(
+        name: N,
+        status: CalibrationStatus,
+        details: D,
+    ) -> Self {
         Self {
             name: name.into(),
             status,
@@ -37,10 +41,7 @@ pub struct ClientCalibrationReport {
     pub timestamp_utc: DateTime<Utc>,
 }
 
-pub fn calibrate_window_geometry(
-    width: u32,
-    height: u32,
-) -> ClientCalibrationReport {
+pub fn calibrate_window_geometry(width: u32, height: u32) -> ClientCalibrationReport {
     let mut checks = Vec::new();
     let mut ready = true;
 
@@ -63,11 +64,23 @@ pub fn calibrate_window_geometry(
     // Aspect ratio check
     let aspect = width as f64 / height as f64;
     let (aspect_name, scale_factor, aspect_status) = if (aspect - (4.0 / 3.0)).abs() <= 0.05 {
-        ("Standard 4:3", width as f64 / 800.0, CalibrationStatus::Passed)
+        (
+            "Standard 4:3",
+            width as f64 / 800.0,
+            CalibrationStatus::Passed,
+        )
     } else if (aspect - (16.0 / 9.0)).abs() <= 0.05 {
-        ("Widescreen 16:9", width as f64 / 1280.0, CalibrationStatus::Passed)
+        (
+            "Widescreen 16:9",
+            width as f64 / 1280.0,
+            CalibrationStatus::Passed,
+        )
     } else if (aspect - (16.0 / 10.0)).abs() <= 0.05 {
-        ("Widescreen 16:10", width as f64 / 1280.0, CalibrationStatus::Passed)
+        (
+            "Widescreen 16:10",
+            width as f64 / 1280.0,
+            CalibrationStatus::Passed,
+        )
     } else {
         (
             "Non-standard",

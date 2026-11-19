@@ -1,7 +1,7 @@
 //! Phase 4 integration tests for the Maelstrom IDE.
 
-use maelstrom_core::{AutomationSchool, MacroCard, CardPayload, CardEnchantment, ExecutionMode};
-use maelstrom_ide::{initialize_workspace, MaelstromIdeApp, IdePane, SpiralTheme};
+use maelstrom_core::{AutomationSchool, CardEnchantment, CardPayload, ExecutionMode, MacroCard};
+use maelstrom_ide::{initialize_workspace, IdePane, MaelstromIdeApp, SpiralTheme};
 use uuid::Uuid;
 
 #[test]
@@ -68,7 +68,13 @@ fn test_phase4_card_deck_and_inspector_manipulation() {
 
     // Select the newly added card for enchantment inspection
     app.state.selected_card_id = Some(new_id);
-    let inspected = app.state.active_deck.cards.iter_mut().find(|c| c.id == new_id).unwrap();
+    let inspected = app
+        .state
+        .active_deck
+        .cards
+        .iter_mut()
+        .find(|c| c.id == new_id)
+        .unwrap();
     inspected.default_enchantment.repeat_count = 3;
     inspected.default_enchantment.pre_delay_ms = 250;
 

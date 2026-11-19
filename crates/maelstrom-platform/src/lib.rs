@@ -57,7 +57,9 @@ pub struct ClientOperationGuard {
 
 impl ClientOperationGuard {
     pub fn new(authorized: bool) -> Self {
-        Self { client_side_memory_authorized: authorized }
+        Self {
+            client_side_memory_authorized: authorized,
+        }
     }
     pub fn check_network_allowed(&self) -> Result<(), PlatformError> {
         Err(PlatformError::NetworkManipulationBlocked)
@@ -73,12 +75,12 @@ impl ClientOperationGuard {
 #[cfg(windows)]
 mod windows_job {
     use super::PlatformError;
-    use windows::Win32::Foundation::{HANDLE, CloseHandle};
+    use windows::core::PCWSTR;
+    use windows::Win32::Foundation::{CloseHandle, HANDLE};
     use windows::Win32::System::JobObjects::{
-        CreateJobObjectW, SetInformationJobObject, JobObjectExtendedLimitInformation,
+        CreateJobObjectW, JobObjectExtendedLimitInformation, SetInformationJobObject,
         JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
     };
-    use windows::core::PCWSTR;
 
     #[derive(Debug)]
     pub struct JobObjectGuard {
@@ -91,7 +93,9 @@ mod windows_job {
                 let job = CreateJobObjectW(None, PCWSTR::null())
                     .map_err(|e| PlatformError::JobObjectError(e.to_string()))?;
                 if job.is_invalid() {
-                    return Err(PlatformError::JobObjectError("CreateJobObject returned invalid handle".into()));
+                    return Err(PlatformError::JobObjectError(
+                        "CreateJobObject returned invalid handle".into(),
+                    ));
                 }
                 let mut info = JOBOBJECT_EXTENDED_LIMIT_INFORMATION::default();
                 info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
@@ -112,7 +116,9 @@ mod windows_job {
     }
     impl Drop for JobObjectGuard {
         fn drop(&mut self) {
-            unsafe { let _ = CloseHandle(self.job_handle); }
+            unsafe {
+                let _ = CloseHandle(self.job_handle);
+            }
         }
     }
     #[derive(Debug)]
@@ -135,16 +141,28 @@ mod windows_job {
     #[derive(Debug)]
     pub struct JobObjectGuard;
     impl JobObjectGuard {
-        pub fn new() -> Result<Self, PlatformError> { Ok(JobObjectGuard) }
-        pub fn assign(&self, _process_handle: ()) -> Result<(), PlatformError> { Ok(()) }
+        pub fn new() -> Result<Self, PlatformError> {
+            Ok(JobObjectGuard)
+        }
+        pub fn assign(&self, _process_handle: ()) -> Result<(), PlatformError> {
+            Ok(())
+        }
     }
     #[derive(Debug)]
-    pub struct ProcessInfo { pub h_process: (), pub h_thread: () }
-    pub fn spawn_suspended(_command: &str, _args: &[&str]) -> Result<ProcessInfo, PlatformError> { Ok(ProcessInfo { h_process: (), h_thread: () }) }
+    pub struct ProcessInfo {
+        pub h_process: (),
+        pub h_thread: (),
+    }
+    pub fn spawn_suspended(_command: &str, _args: &[&str]) -> Result<ProcessInfo, PlatformError> {
+        Ok(ProcessInfo {
+            h_process: (),
+            h_thread: (),
+        })
+    }
 }
 
-pub use windows_job::JobObjectGuard;
 pub use windows_job::spawn_suspended;
+pub use windows_job::JobObjectGuard;
 pub use windows_job::ProcessInfo;
 
 // ---------------------------------------------------------------------------
@@ -152,27 +170,30 @@ pub use windows_job::ProcessInfo;
 // ---------------------------------------------------------------------------
 #[cfg(windows)]
 mod windows_impl {
-    use super::{PlatformError, WindowTracker, ScreenCapturer, InputActuator};
-    use windows::Win32::Foundation::{HWND, WPARAM, LPARAM, RECT};
-    use windows::Win32::UI::WindowsAndMessaging::{
-        FindWindowW, GetClientRect, GetForegroundWindow, PostMessageW,
-        WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEMOVE, WM_KEYDOWN, WM_KEYUP,
-    };
-    use windows::Win32::Graphics::Gdi::{
-        GetDC, ReleaseDC, CreateCompatibleDC, CreateCompatibleBitmap, SelectObject,
-        BitBlt, DeleteDC, DeleteObject, GetDIBits, BITMAPINFO, BITMAPINFOHEADER,
-        BI_RGB, DIB_RGB_COLORS, SRCCOPY,
-    };
-    use windows::core::PCWSTR;
-    use std::ffi::OsStr;
-    use std::os::windows::ffi::OsStrExt;
-    use std::iter::once;
+    use super::{InputActuator, PlatformError, ScreenCapturer, WindowTracker};
     use maelstrom_core::InputEvent;
+    use std::ffi::OsStr;
+    use std::iter::once;
+    use std::os::windows::ffi::OsStrExt;
+    use windows::core::PCWSTR;
+    use windows::Win32::Foundation::{HWND, LPARAM, RECT, WPARAM};
+    use windows::Win32::Graphics::Gdi::{
+        BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetDC,
+        GetDIBits, ReleaseDC, SelectObject, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS,
+        SRCCOPY,
+    };
+    use windows::Win32::UI::WindowsAndMessaging::{
+        FindWindowW, GetClientRect, GetForegroundWindow, PostMessageW, WM_KEYDOWN, WM_KEYUP,
+        WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEMOVE,
+    };
 
     pub struct WinWindowTracker;
     impl WindowTracker for WinWindowTracker {
         fn find_window(&self, title_or_class: &str) -> Result<u64, PlatformError> {
-            let wide: Vec<u16> = OsStr::new(title_or_class).encode_wide().chain(once(0)).collect();
+            let wide: Vec<u16> = OsStr::new(title_or_class)
+                .encode_wide()
+                .chain(once(0))
+                .collect();
             let pcw = PCWSTR::from_raw(wide.as_ptr());
             let hwnd = unsafe { FindWindowW(None, pcw) }
                 .map_err(|_| PlatformError::WindowNotFound(title_or_class.into()))?;
@@ -214,13 +235,25 @@ mod windows_impl {
             unsafe {
                 let hdc_window = GetDC(Some(hwnd_val));
                 if hdc_window.is_invalid() {
-                    return Err(PlatformError::CaptureFailed("GetDC returned null/invalid".into()));
+                    return Err(PlatformError::CaptureFailed(
+                        "GetDC returned null/invalid".into(),
+                    ));
                 }
                 let hdc_mem = CreateCompatibleDC(Some(hdc_window));
                 let h_bitmap = CreateCompatibleBitmap(hdc_window, width, height);
                 let old_obj = SelectObject(hdc_mem, h_bitmap.into());
 
-                let blt_res = BitBlt(hdc_mem, 0, 0, width, height, Some(hdc_window), 0, 0, SRCCOPY);
+                let blt_res = BitBlt(
+                    hdc_mem,
+                    0,
+                    0,
+                    width,
+                    height,
+                    Some(hdc_window),
+                    0,
+                    0,
+                    SRCCOPY,
+                );
                 if blt_res.is_err() {
                     let _ = SelectObject(hdc_mem, old_obj);
                     let _ = DeleteObject(h_bitmap.into());
@@ -271,46 +304,91 @@ mod windows_impl {
                 InputEvent::MouseClick { x, y, button } => {
                     let lparam = (*y << 16) | (*x & 0xFFFF);
                     unsafe {
-                        let _ = PostMessageW(Some(hwnd), WM_LBUTTONDOWN, WPARAM(*button as usize), LPARAM(lparam as isize));
-                        let _ = PostMessageW(Some(hwnd), WM_LBUTTONUP, WPARAM(*button as usize), LPARAM(lparam as isize));
+                        let _ = PostMessageW(
+                            Some(hwnd),
+                            WM_LBUTTONDOWN,
+                            WPARAM(*button as usize),
+                            LPARAM(lparam as isize),
+                        );
+                        let _ = PostMessageW(
+                            Some(hwnd),
+                            WM_LBUTTONUP,
+                            WPARAM(*button as usize),
+                            LPARAM(lparam as isize),
+                        );
                     };
                     Ok(())
                 }
                 InputEvent::MouseMove { x, y } => {
                     let lparam = (*y << 16) | (*x & 0xFFFF);
                     unsafe {
-                        let _ = PostMessageW(Some(hwnd), WM_MOUSEMOVE, WPARAM(0), LPARAM(lparam as isize));
+                        let _ = PostMessageW(
+                            Some(hwnd),
+                            WM_MOUSEMOVE,
+                            WPARAM(0),
+                            LPARAM(lparam as isize),
+                        );
                     };
                     Ok(())
                 }
                 InputEvent::MouseDown { button } => {
                     unsafe {
-                        let _ = PostMessageW(Some(hwnd), WM_LBUTTONDOWN, WPARAM(*button as usize), LPARAM(0));
+                        let _ = PostMessageW(
+                            Some(hwnd),
+                            WM_LBUTTONDOWN,
+                            WPARAM(*button as usize),
+                            LPARAM(0),
+                        );
                     };
                     Ok(())
                 }
                 InputEvent::MouseUp { button } => {
                     unsafe {
-                        let _ = PostMessageW(Some(hwnd), WM_LBUTTONUP, WPARAM(*button as usize), LPARAM(0));
+                        let _ = PostMessageW(
+                            Some(hwnd),
+                            WM_LBUTTONUP,
+                            WPARAM(*button as usize),
+                            LPARAM(0),
+                        );
                     };
                     Ok(())
                 }
                 InputEvent::KeyPress { key_code } => {
                     unsafe {
-                        let _ = PostMessageW(Some(hwnd), WM_KEYDOWN, WPARAM(*key_code as usize), LPARAM(0));
-                        let _ = PostMessageW(Some(hwnd), WM_KEYUP, WPARAM(*key_code as usize), LPARAM(0));
+                        let _ = PostMessageW(
+                            Some(hwnd),
+                            WM_KEYDOWN,
+                            WPARAM(*key_code as usize),
+                            LPARAM(0),
+                        );
+                        let _ = PostMessageW(
+                            Some(hwnd),
+                            WM_KEYUP,
+                            WPARAM(*key_code as usize),
+                            LPARAM(0),
+                        );
                     };
                     Ok(())
                 }
                 InputEvent::KeyDown { key_code } => {
                     unsafe {
-                        let _ = PostMessageW(Some(hwnd), WM_KEYDOWN, WPARAM(*key_code as usize), LPARAM(0));
+                        let _ = PostMessageW(
+                            Some(hwnd),
+                            WM_KEYDOWN,
+                            WPARAM(*key_code as usize),
+                            LPARAM(0),
+                        );
                     };
                     Ok(())
                 }
                 InputEvent::KeyUp { key_code } => {
                     unsafe {
-                        let _ = PostMessageW(Some(hwnd), WM_KEYUP, WPARAM(*key_code as usize), LPARAM(0));
+                        let _ = PostMessageW(
+                            Some(hwnd),
+                            WM_KEYUP,
+                            WPARAM(*key_code as usize),
+                            LPARAM(0),
+                        );
                     };
                     Ok(())
                 }
@@ -320,7 +398,9 @@ mod windows_impl {
                 }
             }
         }
-        fn release_all_keys(&self) -> Result<(), PlatformError> { Ok(()) }
+        fn release_all_keys(&self) -> Result<(), PlatformError> {
+            Ok(())
+        }
     }
 
     pub struct Platform {
@@ -330,7 +410,11 @@ mod windows_impl {
     }
     impl Platform {
         pub fn new() -> Self {
-            Self { window_tracker: WinWindowTracker, screen_capturer: WinScreenCapturer, input_actuator: WinInputActuator }
+            Self {
+                window_tracker: WinWindowTracker,
+                screen_capturer: WinScreenCapturer,
+                input_actuator: WinInputActuator,
+            }
         }
     }
 
@@ -347,25 +431,37 @@ mod windows_impl {
 
 #[cfg(not(windows))]
 mod windows_impl {
-    use super::{PlatformError, WindowTracker, ScreenCapturer, InputActuator};
+    use super::{InputActuator, PlatformError, ScreenCapturer, WindowTracker};
     use maelstrom_core::InputEvent;
     #[derive(Debug, Default)]
     pub struct DummyTracker;
     impl WindowTracker for DummyTracker {
-        fn find_window(&self, _: &str) -> Result<u64, PlatformError> { Err(PlatformError::WindowNotFound("dummy".into())) }
-        fn get_client_bounds(&self, _: u64) -> Result<(i32, i32, u32, u32), PlatformError> { Err(PlatformError::CaptureFailed("dummy".into())) }
-        fn is_in_foreground(&self, _: u64) -> bool { false }
+        fn find_window(&self, _: &str) -> Result<u64, PlatformError> {
+            Err(PlatformError::WindowNotFound("dummy".into()))
+        }
+        fn get_client_bounds(&self, _: u64) -> Result<(i32, i32, u32, u32), PlatformError> {
+            Err(PlatformError::CaptureFailed("dummy".into()))
+        }
+        fn is_in_foreground(&self, _: u64) -> bool {
+            false
+        }
     }
     #[derive(Debug, Default)]
     pub struct DummyCapturer;
     impl ScreenCapturer for DummyCapturer {
-        fn capture_client_area(&self, _: u64) -> Result<Vec<u8>, PlatformError> { Err(PlatformError::CaptureFailed("dummy".into())) }
+        fn capture_client_area(&self, _: u64) -> Result<Vec<u8>, PlatformError> {
+            Err(PlatformError::CaptureFailed("dummy".into()))
+        }
     }
     #[derive(Debug, Default)]
     pub struct DummyActuator;
     impl InputActuator for DummyActuator {
-        fn dispatch_event(&self, _: u64, _: &InputEvent) -> Result<(), PlatformError> { Err(PlatformError::ActuationFailed("dummy".into())) }
-        fn release_all_keys(&self) -> Result<(), PlatformError> { Ok(()) }
+        fn dispatch_event(&self, _: u64, _: &InputEvent) -> Result<(), PlatformError> {
+            Err(PlatformError::ActuationFailed("dummy".into()))
+        }
+        fn release_all_keys(&self) -> Result<(), PlatformError> {
+            Ok(())
+        }
     }
 
     pub struct Platform {
@@ -375,7 +471,11 @@ mod windows_impl {
     }
     impl Platform {
         pub fn new() -> Self {
-            Self { window_tracker: DummyTracker, screen_capturer: DummyCapturer, input_actuator: DummyActuator }
+            Self {
+                window_tracker: DummyTracker,
+                screen_capturer: DummyCapturer,
+                input_actuator: DummyActuator,
+            }
         }
     }
 
@@ -391,6 +491,6 @@ mod windows_impl {
 }
 
 #[cfg(windows)]
-pub use windows_impl::{INPUT_ACTUATOR, SCREEN_CAPTURER, WINDOW_TRACKER, Platform};
+pub use windows_impl::{Platform, INPUT_ACTUATOR, SCREEN_CAPTURER, WINDOW_TRACKER};
 #[cfg(not(windows))]
-pub use windows_impl::{INPUT_ACTUATOR, SCREEN_CAPTURER, WINDOW_TRACKER, Platform};
+pub use windows_impl::{Platform, INPUT_ACTUATOR, SCREEN_CAPTURER, WINDOW_TRACKER};
