@@ -42,7 +42,7 @@ against a real equipment-only patch. Any executable rebuild, even a tiny one, ch
 memory-reading features until someone pins the new hash. The message says visual-only operation remains separate;
 this audit did not re-test the visual-only paths.
 
-Priority order: R1 (patch resilience), R2 (live qualification), R3 (first real CI run), R5 (owner decisions), R6
+Priority order: R1 (patch resilience), R2 (live qualification), R3 (first CI run: done, corrected 2026-11-19), R5 (owner decisions), R6
 (stale claims and work-in-progress), then R4, R7, R8, R9.
 
 ## R1. Patch discovery, verification and recovery
@@ -125,28 +125,61 @@ can stop at any time.
 **After.** Save the receipt, hash and cleanup evidence; update the claim; record failures as failures. No completion
 claim for any other build or for combat.
 
-## R3. CI has never run on GitHub
+## R3. First CI run on GitHub (done; corrected 2026-11-19)
 
-**Who.** Owner (repository settings and the first push), then an agent for fixes.
+This section was a plan written before any run. It said CI had never run, that the workflow had five jobs and that it was
+unknown whether Actions was enabled. All three were wrong or are now out of date, so it is rewritten as a record. Run
+numbers and results below were read from GitHub on 2026-11-19; the causes are labelled as proven or not.
 
-**What.** Get `.github/workflows/ci.yml` (five jobs) to run once on GitHub and record the result.
+**Who.** The owner enabled Actions (it had been disabled) and set the repository policy to `allowed_actions: all`. Agents
+fixed the failures under the owner's Autofix authorization, with small test-only commits pushed to PR #77.
 
-**When.** On the next push to PR #77, once Actions is confirmed enabled.
+**What.** `.github/workflows/ci.yml` has four jobs, not five: `build-and-test`, `python-tests`, `rust-tests` and
+`node-tests`, all on `windows-latest`. Result: all four passed on `f668eea` (run 44590486074, `pull_request`). Out of
+scope: adding `cargo fmt` or `clippy` to CI (toolchain drift risk, already decided), and any production code change.
 
-**Where.** GitHub Actions for this repository; the result recorded in the PR and in `private/improvement-log.md`.
+**When.** Actions was disabled until the owner enabled it on 2026-11-19. Three runs followed:
 
-**Why.** The workflow passed a local fresh-clone simulation, but PR #77 shows no checks configured, and GitHub-only
-differences (runner OS, paths, toolchain versions) are untested. Whether Actions is enabled is unknown from here.
+| Run | Trigger, commit | Result |
+|---|---|---|
+| 44586189238 | `workflow_dispatch`, `da76aeb` | `python-tests` failed (23 errors of 922 tests), `node-tests` failed (1 of 12); `build-and-test`, `rust-tests` passed |
+| 44589053478 | `pull_request`, `a2169ea` | `build-and-test` failed (1 of 3135 tests); the other three passed |
+| 44590486074 | `pull_request`, `f668eea` | all four passed |
 
-**How.** Check the repository's Actions tab, enable workflows if prompted, push, read the five job results, fix
-environment-only failures with small commits.
+**Where.** GitHub Actions for this repository, on PR #77. Fix commits: `a2169ea` (Python and Node tests) and `f668eea`
+(C# test). Run pages: `https://github.com/Aarogaming/AutoWizard101/actions/runs/<run number above>`.
 
-**Before.** Confirm the job list matches the local gates; do not add `cargo fmt`/`clippy` to CI (toolchain drift risk,
-already decided).
+**Why.** The earlier local fresh-clone simulation passed all four jobs and could not have caught these, because they
+depend on the runner:
+1. *Python, proven.* The runner's temp folder is spelled `C:\Users\RUNNER~1\...` by `tempfile` but
+   `C:\Users\runneradmin\...` once resolved. Eight Dodge test files built their root from the unresolved path, the
+   benchmark summary stored report paths as given, and the loaders re-resolve them, so saved and recomputed summaries
+   differed. Reproduced locally by pointing `TEMP` at a directory junction: the same 23 errors with the same per-file
+   counts. The tests now resolve their root. A short user name such as `aarog` has no 8.3 short form, so local runs
+   could not show it.
+2. *Node, best-supported cause, not proven.* The heartbeat test needed three chained 1 s timers inside a fixed 2150 ms
+   sleep (123 to 147 ms of slack measured locally). It now waits for the third event with a 10 s deadline. It was not
+   reproduced under load.
+3. *C#, best-supported cause, not proven.* `ActualChildCancellationConfirmsExitOrKeepsRecoveryBlocked(forced: True)`
+   waited 4 s for a fake Python worker to start and failed once in 3135 tests, while its sibling variant passed. The same
+   message also appears if the operation ends early, so a slow start is likely, not shown. Its marker wait and its 8 s
+   receipt wait (the forced path chains four 2 s transport waits) are now 20 s.
 
-**During.** Watch the first run only; do not poll repeatedly or enable auto-merge.
+**How.** Read each failed job's log through the Actions API, reproduce locally where possible (bare virtual environment,
+clean export of the commit, junction `TEMP`), fix the test setup, run the full suite and the gates, push, read the new
+run. Only the first run was a manual `workflow_dispatch`; the later runs are triggered by pushes to the PR.
 
-**After.** Record the run link and any failures in the log and the PR; a red job is reported as red.
+**Before.** The job list was checked against the local gates; `cargo fmt` and `clippy` stay out of CI. The first run was
+the baseline.
+
+**During.** Watch each run once; no polling loop and no auto-merge. No production code, workflow file or repository
+setting was changed by agents.
+
+**After.** All four jobs are green at `f668eea`. Not proven: that the Node and C# timing causes are the real ones, and a
+single green run does not show they cannot recur; a repeat failure of either test means looking at the code under test,
+not widening the wait again. Still open: `actions/checkout@v4` runs on Node 24 instead of 20 (a notice only), and the
+policy is `allowed_actions: all`. The workflows use only `actions/checkout@v4` and `actions/setup-dotnet@v4`, so
+`selected` with GitHub-owned actions only remains an owner option; changing it is the owner's decision.
 
 ## R4. Result documents only mechanically swept
 
