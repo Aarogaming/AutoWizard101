@@ -1,6 +1,7 @@
 # Humanized Kinematic Input Profiles
 
 **Date**: 2026-11-18  
+**Status**: Design reference, partly implemented; see "Audit notes" at the end (audited 2026-11-19)  
 **Workstream**: `W101-NAVIGATION` / `CORE-DELIVERY`  
 **Reference Document**: Mathematical formulation, biomechanical modeling, and runtime contract for non-robotic input dispatch.
 
@@ -142,3 +143,16 @@ $$f(t; \mu, \sigma) = \frac{1}{t \sigma \sqrt{2\pi}} \exp\left(-\frac{(\ln t - \
    - Random drift and perturbations utilize an internal deterministic linear congruential generator (LCG) or Xorshift PRNG when seeded, allowing identical replay in offline tests and simulation.
 3. **Zero Heap Allocations in Hot Loops**:
    - Uses fixed-capacity point arrays or pre-allocated vectors.
+
+---
+
+## Audit notes (2026-11-19)
+Checked against `crates/maelstrom-core/src/kinematics.rs` and `steering.rs`; the text above is kept.
+- **Implemented as described:** WindMouse generator with Ornstein-Uhlenbeck-style wind (1/sqrt3 and 1/sqrt5 factors) and proximity damping; XorShift64* seeded PRNG; cubic Bezier trajectory using the 10t^3 - 15t^4 + 6t^5 timing polynomial; Fitts model with a = 120 ms and b = 160 ms (the worked examples, about 822 ms and 315 ms, check out arithmetically); log-normal dwell profiles (click mu 4.317, sigma 0.22; cadence mu 4.867, sigma 0.28). The 7 `kinematics` unit tests pass.
+- **Not as described:**
+  - The "asymmetric" profile (acceleration to tau = 0.35, then prolonged braking) is not in the code. The minimum-jerk polynomial is symmetric and no 0.35 split exists.
+  - Bezier control points sit at fixed 0.33 and 0.67 along the chord with Gaussian lateral offsets, not along an initial velocity vector. Target points come from a separate `sample_target_in_rect` (Gaussian clustering around the centre), not uniform sampling in the box.
+  - "Zero heap allocations in hot loops / fixed-capacity arrays": paths use `Vec::with_capacity`, one allocation per generated path.
+  - The "+/-12 ms log-normal edge jitter" for `W`/`A`/`D` pulses is not in `steering.rs`; no jitter or log-normal sampling was found there.
+- **"Empirical Baseline Calibration" is overstated.** The Fitts and dwell constants are generic starting values, not measured from human or game data. The quoted percentile range for clicks (48-120 ms) is approximate; the code clamps dwell to 40-180 ms.
+- **Wiring:** the generated plans are consumed by the C# actuator only as a summary and the reviewed live/simulation paths use stubbed delegates (see the kinematics audit in `W101-KINEMATICS-CORE-02`). Nothing here is evidence of any live game outcome.
