@@ -5309,6 +5309,18 @@
         "docs/coordination/results/CLAIM-EVIDENCE-REGISTRY-01.md"
       ],
       "notes": "Owner-directed 2026-11-19 (maelstrom side of the devtools import). Extend the existing check_claim_evidence.py (result-doc citation checks, 12d9c07/aeb8a62) with claims-registry checks: released claims must carry a release_note with an evidence marker (commit hash / exit code / command / log path); released claims' owned_paths must exist on disk and be committed. Legacy violations are grandfathered via tools/claim_evidence_baseline.txt as a ratchet: a baseline entry that no longer violates is an error (baseline can only shrink). Authored after reading D:\u0007aroneous-devtools\\scripts\\check_coordination_evidence.py (MIT, ported pattern, no code copied verbatim). AUTHORITY: the four owned paths only. NOT AUTHORIZED: editing claims.json states/notes of other claims, releasing, live/game work, new dependencies, other agents' files."
+    },
+    {
+      "task_id": "MCP-CAPABILITY-CLASSES-01",
+      "state": "active",
+      "owner": "root",
+      "workstream_id": "CORE-DELIVERY",
+      "owned_paths": [
+        "tools/maelstrom_mcp_server.py",
+        "tools/tests/test_maelstrom_mcp_server.py",
+        "docs/coordination/results/MCP-CAPABILITY-CLASSES-01.md"
+      ],
+      "notes": "Owner-directed 2026-11-19 (maelstrom import #2 from the Aaroneous audit). Port the capability-class POLICY from D:\\Aaroneous\\docs\u0007rchitecture\\MCP_SERVICE_CONTRACT.md (ReadOnlyInspection / BoundedProposal / Verification / Mutation; unclassified tool defaults to Mutation) into tools/maelstrom_mcp_server.py: an explicit class per registered tool, default-deny for unknown tool names, and enforcement in handle_tool_call so a mutation-class tool is refused unless explicitly granted for the session (default OFF). Existing inspection/proposal behaviour must keep passing the existing test suite; no new dependencies. AUTHORITY: the three owned paths only. NOT AUTHORIZED: changing scheduler/lease behaviour, live/game work, other agents' files (docs/OPEN_ISSUES_* is in-flight elsewhere), releasing."
     }
   ]
 }
