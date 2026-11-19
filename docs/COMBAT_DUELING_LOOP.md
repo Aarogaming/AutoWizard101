@@ -113,6 +113,9 @@ All combat clicks are dispatched by `DesktopInputActuator.DispatchKinematicClick
 
 Before entering combat, deck profiles (`MobAoE`, `BossFeint`, `SchoolPrism`, `HealSupport`) must be verified and switched while strictly outside combat in a verified safe zone. See [Pre-Battle Deck Profile Switching](PRE_BATTLE_DECK_PROFILES.md) for full geometry, safe-margin preconditions, and GOAP integration contracts.
 
+> **Status (audit 2026-11-19):** design intent. The safe-zone distance rule and the Spellbook sequence are not implemented;
+> see the status banner in [Pre-Battle Deck Profile Switching](PRE_BATTLE_DECK_PROFILES.md).
+
 ---
 
 ## 7. Concrete Turn-by-Turn Card Evaluation

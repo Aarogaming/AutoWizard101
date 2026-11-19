@@ -1,5 +1,15 @@
 # Pre-Battle Deck Profile Switching & Spellbook Verification
 
+> **Status: design note, partly aspirational (audit 2026-11-19, Claude).** In code today: the `DeckProfileTag` enum, five GOAP
+> action constructors (`EnsureDeckProfile`, `EnterSigil`, `PullMob`, `RetreatToSafeZone`, `DeckSwapShortcut`) and the
+> coordinate constants of Section 3 (`crates/maelstrom-core/src/goap.rs`, `combat_geometry.rs`); nothing calls them and
+> nothing was run against the game. **Not implemented:** the 40.0 and 25.0 distance checks (the code has only a boolean
+> `safe_from_mobs`), the "profile != target" precondition and zero cost in Section 4 (preconditions are equality-only and
+> the action costs 5.0), `HealthAbove(0.80)`, the Section 5 latch, `HardInterrupt` and `AvoidMobAggro`, and the Spellbook
+> open, navigate, equip and close sequence. **Unsourced:** the game-mechanic statements and card names in Sections 1 and 2,
+> and the bounding boxes in Section 3. Details:
+> [W101-DECK-SWITCH-DOCS-01, Audit note](coordination/results/W101-DECK-SWITCH-DOCS-01.md).
+
 ## 1. Operational Rationale & Invariant Requirements
 
 In Wizard101, deck composition is strictly **locked upon entering a combat sigil or duel circle**. A player cannot swap decks, add treasure cards, or alter card counts once the duel initiation fanfare sounds. 
