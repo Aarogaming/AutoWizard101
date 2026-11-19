@@ -65,4 +65,35 @@ public sealed class W101FactsMapperTests
         Assert.Equal("recovery-hold", await session.RunAsync(store, CancellationToken.None));
         Assert.Equal(W101FactQualification.Unknown, store.Get("nativeIdle", T0)!.Qualification);
     }
+
+    [Fact]
+    public async Task SessionPropagatesKnownDiagnosticCode()
+    {
+        var store = new W101FactsStore(W101FactsMapper.ProposedFacts);
+        var session = new W101FactsSession(
+            _ => throw new InvalidOperationException("client-build-unreviewed"),
+            () => (true, ""),
+            delay: (_, _) => Task.CompletedTask, maximumCycles: 2);
+        Assert.Equal("client-build-unreviewed", await session.RunAsync(store, CancellationToken.None));
+        Assert.Equal("client-build-unreviewed", store.Get("nativeIdle", T0)!.Reason);
+
+        var session2 = new W101FactsSession(
+            _ => throw new InvalidOperationException("ui-observation-unavailable"),
+            () => (true, ""),
+            delay: (_, _) => Task.CompletedTask, maximumCycles: 2);
+        Assert.Equal("ui-observation-unavailable", await session2.RunAsync(store, CancellationToken.None));
+        Assert.Equal("ui-observation-unavailable", store.Get("nativeIdle", T0)!.Reason);
+    }
+
+    [Fact]
+    public async Task SessionMasksGenericExceptionAsObserverFault()
+    {
+        var store = new W101FactsStore(W101FactsMapper.ProposedFacts);
+        var session = new W101FactsSession(
+            _ => throw new Exception("raw exception string containing 0x7FFF0000"),
+            () => (true, ""),
+            delay: (_, _) => Task.CompletedTask, maximumCycles: 2);
+        Assert.Equal("observer-fault", await session.RunAsync(store, CancellationToken.None));
+        Assert.Equal("observer-fault", store.Get("nativeIdle", T0)!.Reason);
+    }
 }

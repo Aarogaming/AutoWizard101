@@ -111,13 +111,19 @@ internal sealed class W101FactsSession
                 store.InvalidateTarget("cancelled");
                 return "cancelled";
             }
-            catch
+            catch (Exception ex)
             {
-                store.InvalidateTarget("observer-fault");
-                return "observer-fault";
+                var reason = SafeDiagnosticReason(ex);
+                store.InvalidateTarget(reason);
+                return reason;
             }
             if (i + 1 < _maximumCycles) await _delay(500, token).ConfigureAwait(false);
         }
         return $"cycle-budget:{mapped}";
     }
+
+    private static string SafeDiagnosticReason(Exception ex) =>
+        ex.Message is "client-build-unreviewed" or "root-signature-unavailable" or "root-instruction-changed" or "scratch-signature-unavailable" or "dependency-unavailable" or "ui-observation-unavailable"
+            ? ex.Message
+            : "observer-fault";
 }

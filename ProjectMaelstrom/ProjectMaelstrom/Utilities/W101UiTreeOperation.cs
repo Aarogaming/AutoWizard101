@@ -41,6 +41,7 @@ internal static class W101UiTreeOperation
 {
     internal static bool SupportsClientImage(string imageSha256) =>
         string.Equals(imageSha256, "544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(imageSha256, "818dbe66037bcb6913a87ab4c2b5f77b0c4fad8d2d10bed921c9fe36ef7d1114", StringComparison.OrdinalIgnoreCase) ||
         string.Equals(imageSha256, "d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a", StringComparison.OrdinalIgnoreCase);
     internal const string Id = "w101.ui-tree-observe";
     internal const string Version = "w101-ui-tree-v1";
@@ -51,7 +52,7 @@ internal static class W101UiTreeOperation
     internal const int StartupAllowanceSeconds = 30;
     internal const int CooperativeStopSeconds = 8;
     internal const int TimeoutAllowanceSeconds = 45;
-    internal const string WorkerSha256 = "960f27532d91b87aa4cc4fac25afa1716926b05fd462d169460fa72967e00f73";
+    internal const string WorkerSha256 = "c95ce587855186a13bdb23783e7ab2ea37a8cbe022f2802f22f0a552da745d34";
     internal const string PoseReaderSha256 = "d6463168ad2342747655d06d265a12c67cf2d3bbe9bbf960e75b9e833463e9af";
     private static readonly string[] StateNames = ["interactionPrompt", "dialogue", "menu", "nativeIdle"];
     private static readonly W101UiTreeRuntime Runtime = new(target => target.IsCurrent(), ExecuteObservedAsync);

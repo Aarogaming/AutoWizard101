@@ -24,6 +24,17 @@ internal static class W101FactsCycle
         var receipt = await ticket.Completion.ConfigureAwait(false);
         var resultPath = receipt.Artifacts.FirstOrDefault(p =>
             Path.GetFileName(p) == "ui-result.json");
+        if (resultPath is not null && File.Exists(resultPath))
+        {
+            var raw = JsonSerializer.Deserialize<W101UiTreeResult>(
+                GameExperiments.BoundedBytes(resultPath, W101UiTreeOperation.MaximumResultBytes),
+                WizwalkerOperation.Json);
+            if (raw is not null && !string.IsNullOrWhiteSpace(raw.Code) &&
+                raw.Code is "client-build-unreviewed" or "root-signature-unavailable" or "root-instruction-changed" or "scratch-signature-unavailable" or "dependency-unavailable" or "ui-observation-unavailable")
+            {
+                throw new InvalidOperationException(raw.Code);
+            }
+        }
         if (receipt.State != OperationState.Completed || resultPath is null)
             throw new InvalidOperationException("Facts observation stopped: " + receipt.Message);
         var result = JsonSerializer.Deserialize<W101UiTreeResult>(

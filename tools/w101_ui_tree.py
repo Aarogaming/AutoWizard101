@@ -101,10 +101,13 @@ CURRENT_ROOT_ENTRY = bytes.fromhex("49 8b 8d d8 00 00 00")
 ARCHIVED_LAYOUT_IMAGE_SHA256 = (
     "d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a"
 )
+REVIEWED_BUILD_20261118_SHA256 = (
+    "818dbe66037bcb6913a87ab4c2b5f77b0c4fad8d2d10bed921c9fe36ef7d1114"
+)
 
 
 def profile_for(image):
-    if image == CURRENT_IMAGE_SHA256:
+    if image in (CURRENT_IMAGE_SHA256, REVIEWED_BUILD_20261118_SHA256):
         return "r13-current", CURRENT_ROOT_ENTRY, 4100
     if image == ARCHIVED_LAYOUT_IMAGE_SHA256:
         return "r15-archived", bytes.fromhex("49 8b 8f d8 00 00 00"), 3900

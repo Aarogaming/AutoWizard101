@@ -1496,6 +1496,10 @@ class ContractTests(unittest.TestCase):
             ui.profile_for(ui.CURRENT_IMAGE_SHA256),
         )
         self.assertEqual(
+            ("r13-current", ui.CURRENT_ROOT_ENTRY, 4100),
+            ui.profile_for(ui.REVIEWED_BUILD_20261118_SHA256),
+        )
+        self.assertEqual(
             ("r15-archived", bytes.fromhex("49 8b 8f d8 00 00 00"), 3900),
             ui.profile_for(ui.ARCHIVED_LAYOUT_IMAGE_SHA256),
         )

@@ -8,6 +8,7 @@ public sealed class W101ForegroundAdmissionTests
     public void OnlyExplicitlyReviewedBuildsAdmitUiAdapter()
     {
         Assert.True(W101UiTreeOperation.SupportsClientImage("544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e"));
+        Assert.True(W101UiTreeOperation.SupportsClientImage("818dbe66037bcb6913a87ab4c2b5f77b0c4fad8d2d10bed921c9fe36ef7d1114"));
         Assert.True(W101UiTreeOperation.SupportsClientImage("d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a"));
         Assert.False(W101UiTreeOperation.SupportsClientImage(""));
         Assert.False(W101UiTreeOperation.SupportsClientImage(new string('f', 64)));
