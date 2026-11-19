@@ -42,6 +42,7 @@ class ClaimEvidenceTests(unittest.TestCase):
 
     def test_local_and_external_names_are_not_checked(self):
         self.assertEqual([], self.check("`.local/replays/out.json` `other/x.py`"))
+        self.assertEqual([], self.check("`ProjectMaelstrom/App/bin/Release/App.exe`"))
 
     def test_test_count_must_match_file(self):
         good = "`cargo test --test demo_tests`: 2 passed"

@@ -33,6 +33,8 @@ PATH_TOKEN = re.compile(
 TEST_TOKEN = re.compile("^test_[A-Za-z0-9_]+$")
 TEST_DEF = re.compile("(?:fn|def) (test_[A-Za-z0-9_]+)")
 COUNT_CLAIM = re.compile("--test ([A-Za-z0-9_]+).*?([0-9]+) passed")
+# Git-ignored build output; never expected to be committed.
+BUILD_OUTPUT = ("/bin/", "/obj/", "/target/")
 BANNED = (
     "100% reliable",
     "immutably proven",
@@ -88,6 +90,8 @@ def check_report(text, root, files, test_names):
         return []
     warnings = []
     for token in sorted(set(re.findall("`([^`]+)`", text))):
+        if any(part in token for part in BUILD_OUTPUT):
+            continue
         if PATH_TOKEN.match(token) and "..." not in token:
             if token not in files and not (root / token).exists():
                 warnings.append("cited path does not exist: " + token)
