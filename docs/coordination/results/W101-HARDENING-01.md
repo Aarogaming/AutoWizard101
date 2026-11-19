@@ -66,3 +66,8 @@ Following the Red Team / Blue Team adversarial audit, two concrete architectural
    Wizard101 aggro cylinders in the Gamebryo physics engine are vertical bounding cylinders with defined flat caps, not spherical fuzzy shells. A sharp step at $\Delta Z_{\text{tolerance}}$ mirrors the engine's discrete vertical cylinder test ($|z - z_{\text{mob}}| \le h_{\text{cylinder}}$). A default tolerance of $50.0$ units matches character height bounds.
 2. *Conservative Clamping Safety*:
    Assuming the mob remains at $P(3\text{s})$ for $t > 3\text{s}$ is strictly *conservative*: it continues to treat the mob's near-future position as hazardous rather than erroneously assuming the space has emptied. In robotic navigation, a frozen terminal position heuristic prevents aggressive cutting behind dynamic obstacles.
+
+---
+
+## Audit note (2026-11-19)
+`cargo test -p maelstrom-core --offline --test costmap_tests` now runs 7 tests and passes; the "3 passed" figure above was true only for the file as it stood when written. The "49 tests" workspace total is likewise historical. Found by `tools/check_claim_evidence.py`; the rest of this report was not re-audited.

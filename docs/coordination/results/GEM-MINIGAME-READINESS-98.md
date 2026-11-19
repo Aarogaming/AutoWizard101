@@ -192,3 +192,8 @@ A critical finding of this audit is that **all three minigames currently have of
 - **Git HEAD Verified**: HEAD `6dd15e5` (`maelstrom/rust-architecture-v1`).
 - **Zero Modification Invariant**: No production/test code edited; zero tests/builds executed; zero live game interaction.
 - **Deliverable**: Audit report delivered to [`docs/coordination/results/GEM-MINIGAME-READINESS-98.md`](file:///F:/Modlists/AutoWizard101/docs/coordination/results/GEM-MINIGAME-READINESS-98.md).
+
+---
+
+## Audit note (2026-11-19)
+The imported `Scripts/Library/Deimos-Wizard101` tree cited above (including `src/auto_pet.py`) was moved out of the repository during the 2026-11-19 imported-project archive cleanup, so that path no longer exists here. The assessment of that script describes the archived copy, not anything in the working tree. Found by `tools/check_claim_evidence.py`.

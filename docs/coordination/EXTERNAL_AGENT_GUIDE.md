@@ -132,3 +132,35 @@ installation success, publish a release or enable runtime capabilities yourself.
 The coordinator reviews the diff, resolves ownership, runs integration checks,
 and records the accepted checkpoint. No task should be described as “100% reliable”
 from a finite sample; state the measured numerator, denominator and conditions.
+
+## Evidence contract (enforced by gates, not by good intentions)
+
+These rules exist because past reports mixed solid code with unreliable bookkeeping
+(wrong test counts, releases with no note or no committed files, citations of paths
+that never existed). Two scripts now check the mechanical parts; run both before you
+report and fix what they print:
+
+```powershell
+python tools/check_project_board.py --strict-claims
+python tools/check_claim_evidence.py --strict
+```
+
+1. **Copy numbers from output you just ran.** Every test count, row count or timing in
+   a report must come from a command you executed in this session, quoted with its
+   command line. If you did not run it, write "not run" instead of estimating.
+2. **Cite only what exists.** Backticked repo paths and `test_*` names in a result doc
+   must exist in the checkout. Cite `.local/` evidence only for files you listed on disk.
+3. **Do not release early.** A claim may be `released` only when every owned file is
+   committed and `release_note` states what was delivered, what was verified and what
+   was not. A claim that delivered nothing says so.
+4. **No absolute words for finite samples.** Avoid "100% reliable", "proven fact",
+   "immutably proven" and "guaranteed optimal"; report numerator, denominator and
+   conditions instead.
+5. **Fix, then disclose.** When a later check shows an earlier report was wrong, keep the
+   original text and add a dated "Audit corrections" section; the evidence checker treats
+   that section as an acknowledged defect.
+6. **Drafts are drafts.** Synthetic fixtures, hand-written labels and assumed constants
+   are stated as such. A passing test of a synthetic case is not a live outcome.
+
+The gates only catch what can be checked offline; they do not replace review of the
+claims themselves.

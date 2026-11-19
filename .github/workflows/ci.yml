@@ -40,7 +40,10 @@ jobs:
       # Bare runner Python: optional vision/audio stacks (NumPy, Pillow, OpenCV)
       # are absent, so the guarded suites skip instead of erroring.
       - name: Project board gate
-        run: python tools/check_project_board.py --allow-missing-local
+        run: python tools/check_project_board.py --allow-missing-local --strict-claims
+
+      - name: Claim evidence gate
+        run: python tools/check_claim_evidence.py --strict
 
       - name: Text encoding gate
         run: python tools/check_text_encoding.py --quiet

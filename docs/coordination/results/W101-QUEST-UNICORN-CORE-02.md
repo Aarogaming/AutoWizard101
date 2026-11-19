@@ -52,3 +52,8 @@
 - `rustfmt --edition 2021`: clean across all owned paths.
 - `python tools/check_project_board.py`: Valid (30 workstreams, zero broken links).
 - `python tools/check_text_encoding.py`: 0 violations.
+
+---
+
+## Audit note (2026-11-19)
+`cargo test -p maelstrom-core --offline --test quest_domain_tests` now runs 15 tests and passes; the "12 passed" figure above was true only for the file as it stood when written. Found by `tools/check_claim_evidence.py`; the rest of this report was not re-audited.
