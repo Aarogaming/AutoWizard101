@@ -3,6 +3,7 @@
 //! BehaviorTree state transitions, PurePursuit steering command generation,
 //! and Kinematic trajectory generation.
 
+use maelstrom_fallback::autonomy_replay::simulated_alias;
 use maelstrom_fallback::{MaelstromAutonomyBridge, NativeHostState};
 use serde_json::json;
 
@@ -27,9 +28,6 @@ fn make_test_snapshot(
             "targetId": "12345/67890",
             "source": "reviewed-w101-ui-tree",
             "observedUtc": now_str,
-            "combatActive": combat_active,
-            "zoneName": "WizardCity_Commons",
-            "spatialPosition": [pos_x, pos_y, pos_z],
             "wizardSubject": {
                 "profileId": "prof-1",
                 "name": "Alex",
@@ -39,6 +37,11 @@ fn make_test_snapshot(
             }
         },
         "aliases": [
+            simulated_alias("combat.active", "BOOL", combat_active, now_str),
+            simulated_alias("zone.name", "STRING", "WizardCity_Commons", now_str),
+            simulated_alias("position.x", "REAL", pos_x, now_str),
+            simulated_alias("position.y", "REAL", pos_y, now_str),
+            simulated_alias("position.z", "REAL", pos_z, now_str),
             {
                 "id": "health",
                 "dataType": "REAL",
@@ -181,7 +184,7 @@ fn test_autonomy_bridge_combat_interruption_and_kinematic_card_plan() {
 
     let result = bridge.process_state(&state);
     assert!(result.connected);
-    assert!(result.in_combat);
+    assert_eq!(result.in_combat, Some(true));
     assert_eq!(result.bt_status, "Running");
     assert_eq!(
         result.proposed_intent.as_deref(),
@@ -206,7 +209,7 @@ fn test_autonomy_bridge_combat_dueling_pass_intent() {
     bridge.blackboard.combat_turn_action = Some(String::from("Pass"));
 
     let result = bridge.process_state(&state);
-    assert!(result.in_combat);
+    assert_eq!(result.in_combat, Some(true));
     assert_eq!(
         result.proposed_intent.as_deref(),
         Some("PROPOSAL:CombatTurn:Pass")

@@ -59,9 +59,10 @@ Do not try to repair the recent desktop focus incident by sending inputs through
 
 > **Status (audit 2026-11-19, Claude):** partly aspirational. In code today: a read-only snapshot client over the named pipe
 > and an offline decision step (`MaelstromAutonomyBridge::process_state`), used only by the replay harness and tests. Not
-> true yet: the host does not emit `spatialPosition` or `combatActive`, stale vitals are carried forward, nothing sends a
-> result or an `actuate` request from Rust to the host, and the live `step_cycle` path has never run. Details:
-> [W101-IPC-CORE-02, Audit note](coordination/results/W101-IPC-CORE-02.md).
+> true yet: the host publishes no combat, zone or position fact (the bridge now reads them only as qualified aliases, so
+> against today's host they are unknown and every cycle ends `Withheld`), nothing sends a result or an `actuate` request
+> from Rust to the host, and the live `step_cycle` path has never run. Details:
+> [W101-IPC-CORE-02, Audit note and follow-up](coordination/results/W101-IPC-CORE-02.md).
 
 The integration between the high-performance native Rust core (`maelstrom-core`, `maelstrom-fallback`) and the C# host (`JobDeckHost.cs` / `OperationScheduler.cs`) proceeds through the existing, verified named-pipe protocol:
 
@@ -70,8 +71,8 @@ The integration between the high-performance native Rust core (`maelstrom-core`,
    - Wire framing: 4-byte Little-Endian length prefix followed by UTF-8 JSON payload (budget: 2 to 262,144 bytes).
 2. **Perception-Decision Synchronization Cycle**:
    - `MaelstromNativeBridge` issues a bounded `snapshot` command to the host named pipe.
-   - Host returns qualified, fresh facts (`health`, `mana`, `potions`, `nativeIdle`); the host emits no `spatialPosition` or `combatActive` fact, which the Rust side nevertheless reads as raw keys (see the status note above).
-   - `NativeHostState::update_blackboard(&self, bb: &mut W101Blackboard)` projects qualified telemetry into the Rust Behavior Tree blackboard.
+   - Host returns qualified, fresh facts (`health`, `mana`, `potions`, `nativeIdle`); the host emits no combat, zone or position fact. The Rust side takes those only from aliases named `combat.active`, `zone.name` and `position.x|y|z`, qualified like the vitals (fresh, typed, identity-matched); until the host publishes them they stay unknown.
+   - `NativeHostState::update_blackboard(&self, bb: &mut W101Blackboard)` projects qualified telemetry into the Rust Behavior Tree blackboard. A fact that is not a fresh qualified reading becomes a value that proposes nothing and is reported as `None` in the `AutonomyCycleResult`; a cycle whose combat state or pose is unknown ends `Withheld` without ticking the tree, and a disconnected host ends `Failure`.
    - Reactive Behavior Tree (`build_w101_canonical_tree()`) ticks against the blackboard, evaluating priority conditions (Combat > Potion Recovery > Kinematic Stuck > Quest Nav > Idle).
    - If navigation is active, `PurePursuitController` tracks the path and computes `SteeringCommand` pulses (`W`, `A`, `D`, `S`).
    - If UI interaction is active, `WindMouseGenerator` or `BezierTrajectoryGenerator` generates an immutable `KinematicPlan`.

@@ -1,3 +1,4 @@
+use maelstrom_fallback::autonomy_replay::simulated_alias;
 use maelstrom_fallback::{
     AutonomyReplayHarness, AutonomyReplaySession, MaelstromAutonomyBridge, NativeHostState,
     ReplayFrame,
@@ -29,9 +30,6 @@ fn make_test_frame(
             "targetId": "12345/67890",
             "source": "reviewed-w101-ui-tree",
             "observedUtc": now_str,
-            "combatActive": combat_active,
-            "zoneName": "WizardCity_Commons",
-            "spatialPosition": [pos_x, pos_y, 0.0],
             "wizardSubject": {
                 "profileId": "prof-1",
                 "name": "Alex",
@@ -41,6 +39,11 @@ fn make_test_frame(
             }
         },
         "aliases": [
+            simulated_alias("combat.active", "BOOL", combat_active, now_str),
+            simulated_alias("zone.name", "STRING", "WizardCity_Commons", now_str),
+            simulated_alias("position.x", "REAL", pos_x, now_str),
+            simulated_alias("position.y", "REAL", pos_y, now_str),
+            simulated_alias("position.z", "REAL", 0.0, now_str),
             {
                 "id": "health",
                 "dataType": "REAL",

@@ -368,6 +368,15 @@ pub struct NativeHostState {
     pub unavailable_facts: Vec<String>,
     pub is_simulation: bool,
     pub native_idle: Option<bool>,
+    /// Combat state from the `combat.active` alias; `None` when it is missing, stale or ill-typed.
+    /// The live host publishes no such alias yet, so against it this is always `None`.
+    pub combat_active: Option<bool>,
+    /// Zone name from the `zone.name` alias (trimmed, non-empty, at most 128 characters, no control
+    /// characters); `None` otherwise.
+    pub zone_name: Option<String>,
+    /// World position from the `position.x`, `position.y` and `position.z` aliases; `None` unless all
+    /// three are fresh, typed and finite.
+    pub position: Option<[f64; 3]>,
     pub raw_snapshot: serde_json::Value,
     pub wizard_subject: Option<serde_json::Value>,
 }
@@ -419,11 +428,13 @@ impl NativeHostState {
                 return None;
             }
             let expected = match key {
-                "nativeIdle" => "BOOL",
+                "nativeIdle" | "combat.active" => "BOOL",
+                "zone.name" => "STRING",
                 "gold.current" | "wizard.level" | "health.max" | "mana.max" | "energy.max" => {
                     "DINT"
                 }
-                "health" | "mana" | "energy" | "potions" | "potions.max" => "REAL",
+                "health" | "mana" | "energy" | "potions" | "potions.max" | "position.x"
+                | "position.y" | "position.z" => "REAL",
                 _ => return None,
             };
             if a["dataType"].as_str() != Some(expected) {
@@ -451,6 +462,18 @@ impl NativeHostState {
         };
         let real = |key: &str| alias_value(key).and_then(|v| v.as_f64());
         let idle = alias_value("nativeIdle").and_then(|v| v.as_bool());
+        let combat_active = alias_value("combat.active").and_then(|v| v.as_bool());
+        let zone_name = alias_value("zone.name")
+            .and_then(|v| v.as_str())
+            .map(str::trim)
+            .filter(|z| {
+                !z.is_empty() && z.chars().count() <= 128 && !z.chars().any(char::is_control)
+            })
+            .map(str::to_owned);
+        let position = match (real("position.x"), real("position.y"), real("position.z")) {
+            (Some(x), Some(y), Some(z)) => Some([x, y, z]),
+            _ => None,
+        };
         let subject = (integer("wizard.level").is_some() || integer("gold.current").is_some())
             .then(|| {
                 facts
@@ -501,6 +524,9 @@ impl NativeHostState {
                 })
                 .unwrap_or_default(),
             native_idle: idle,
+            combat_active,
+            zone_name,
+            position,
             raw_snapshot: val.clone(),
             wizard_subject: subject,
             is_simulation: false,
@@ -519,49 +545,45 @@ impl NativeHostState {
         ))
     }
 
-    /// Projects qualified native host telemetry facts directly into the W101 Behavior Tree Blackboard.
+    /// Health as a ratio of the fresh typed maximum; `None` unless both readings are fresh and the
+    /// maximum is above zero.
+    pub fn health_ratio(&self) -> Option<f64> {
+        ratio(self.health_current, self.health_max)
+    }
+
+    /// Mana as a ratio of the fresh typed maximum; `None` unless both readings are fresh and the
+    /// maximum is above zero.
+    pub fn mana_ratio(&self) -> Option<f64> {
+        ratio(self.mana_current, self.mana_max)
+    }
+
+    /// Whether at least one potion is held; `None` when the potion count is not a fresh reading.
+    pub fn potion_held(&self) -> Option<bool> {
+        self.potions_current.map(|potions| potions >= 1.0)
+    }
+
+    /// Projects the qualified typed facts into the Behavior Tree blackboard.
+    ///
+    /// The blackboard cannot express "unknown", so every fact that is not a fresh, qualified reading
+    /// takes a value that proposes nothing: no combat, full vitals (no recovery), no potion (never
+    /// propose drinking one), an empty zone and a placeholder origin pose. Nothing is carried over from
+    /// an earlier snapshot. `MaelstromAutonomyBridge::process_state` reports unknown facts as `None` and
+    /// does not tick the tree without a known combat state and pose, so those placeholders never drive a
+    /// proposal.
     pub fn update_blackboard(&self, bb: &mut W101Blackboard) {
         if !self.connected {
             bb.status_log
                 .push(String::from("Host disconnected: telemetry invalidated"));
-            bb.in_combat = false;
-            bb.has_potion = false;
-            return;
         }
 
-        if let (Some(cur), Some(max)) = (self.mana_current, self.mana_max) {
-            if max > 0 {
-                bb.mana_pct = (cur as f64) / (max as f64);
-            }
-        }
-
-        if let (Some(cur), Some(max)) = (self.health_current, self.health_max) {
-            if max > 0 {
-                bb.health_pct = (cur as f64) / (max as f64);
-            }
-        }
-
-        if let Some(potions) = self.potions_current {
-            bb.has_potion = potions >= 1.0;
-        }
-
-        // Check raw snapshot facts for combat, zone, and spatial coordinates
-        if let Some(facts) = self.raw_snapshot.get("facts").and_then(|f| f.as_object()) {
-            if let Some(combat) = facts.get("combatActive").and_then(|v| v.as_bool()) {
-                bb.in_combat = combat;
-            }
-            if let Some(zone) = facts.get("zoneName").and_then(|v| v.as_str()) {
-                bb.current_zone = zone.to_string();
-            }
-            if let Some(pos) = facts.get("spatialPosition").and_then(|v| v.as_array()) {
-                if pos.len() >= 3 {
-                    let x = pos[0].as_f64().unwrap_or(0.0);
-                    let y = pos[1].as_f64().unwrap_or(0.0);
-                    let z = pos[2].as_f64().unwrap_or(0.0);
-                    bb.current_pose = (x, y, z);
-                }
-            }
-        }
+        bb.in_combat = self.combat_active.unwrap_or(false);
+        bb.current_zone = self.zone_name.clone().unwrap_or_default();
+        bb.current_pose = self
+            .position
+            .map_or((0.0, 0.0, 0.0), |p| (p[0], p[1], p[2]));
+        bb.health_pct = self.health_ratio().unwrap_or(1.0);
+        bb.mana_pct = self.mana_ratio().unwrap_or(1.0);
+        bb.has_potion = self.potion_held().unwrap_or(false);
     }
 }
 
@@ -690,15 +712,19 @@ impl From<&KinematicPlan> for KinematicPlanSummary {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AutonomyCycleResult {
     pub connected: bool,
+    /// `Success`, `Failure` or `Running` from the tree; `Failure` also when disconnected; `Withheld` when
+    /// the cycle did not tick the tree because the combat state or the pose is unknown.
     pub bt_status: String,
     pub proposed_intent: Option<String>,
     pub steering_command: Option<SteeringCommandSummary>,
     pub kinematic_plan: Option<KinematicPlanSummary>,
-    pub current_zone: String,
-    pub health_pct: f64,
-    pub mana_pct: f64,
-    pub has_potion: bool,
-    pub in_combat: bool,
+    /// Facts below are what the host reported as fresh, qualified readings this cycle. `None` means
+    /// unknown (missing, stale or ill-typed), never `false`, an invented zone or a full-health default.
+    pub current_zone: Option<String>,
+    pub health_pct: Option<f64>,
+    pub mana_pct: Option<f64>,
+    pub has_potion: Option<bool>,
+    pub in_combat: Option<bool>,
     pub status_log: Vec<String>,
 }
 
@@ -735,19 +761,14 @@ impl MaelstromAutonomyBridge {
         state.update_blackboard(&mut self.blackboard);
 
         if !state.connected {
-            return AutonomyCycleResult {
-                connected: false,
-                bt_status: "Failure".into(),
-                proposed_intent: None,
-                steering_command: None,
-                kinematic_plan: None,
-                current_zone: self.blackboard.current_zone.clone(),
-                health_pct: self.blackboard.health_pct,
-                mana_pct: self.blackboard.mana_pct,
-                has_potion: self.blackboard.has_potion,
-                in_combat: self.blackboard.in_combat,
-                status_log: self.blackboard.status_log.clone(),
-            };
+            return Self::cycle_result(state, "Failure", self.blackboard.status_log.clone());
+        }
+
+        // The tree cannot tell "not in combat" from "combat state unknown", and it steers and measures
+        // detour arrival from the pose, so it is not ticked until both are fresh, qualified readings.
+        if state.combat_active.is_none() || state.position.is_none() {
+            self.blackboard.proposal_channel = None;
+            return Self::cycle_result(state, "Withheld", self.blackboard.status_log.clone());
         }
 
         let status = self.behavior_tree.tick(&mut self.blackboard);
@@ -851,18 +872,32 @@ impl MaelstromAutonomyBridge {
             }
         }
 
+        let mut result =
+            Self::cycle_result(state, &bt_status_str, self.blackboard.status_log.clone());
+        result.proposed_intent = self.blackboard.proposal_channel.clone();
+        result.steering_command = steering_summary;
+        result.kinematic_plan = kinematic_summary;
+        result
+    }
+
+    /// A cycle result carrying only what this snapshot observed; the caller fills in any proposal.
+    fn cycle_result(
+        state: &NativeHostState,
+        bt_status: &str,
+        status_log: Vec<String>,
+    ) -> AutonomyCycleResult {
         AutonomyCycleResult {
-            connected: true,
-            bt_status: bt_status_str,
-            proposed_intent: self.blackboard.proposal_channel.clone(),
-            steering_command: steering_summary,
-            kinematic_plan: kinematic_summary,
-            current_zone: self.blackboard.current_zone.clone(),
-            health_pct: self.blackboard.health_pct,
-            mana_pct: self.blackboard.mana_pct,
-            has_potion: self.blackboard.has_potion,
-            in_combat: self.blackboard.in_combat,
-            status_log: self.blackboard.status_log.clone(),
+            connected: state.connected,
+            bt_status: bt_status.to_string(),
+            proposed_intent: None,
+            steering_command: None,
+            kinematic_plan: None,
+            current_zone: state.zone_name.clone(),
+            health_pct: state.health_ratio(),
+            mana_pct: state.mana_ratio(),
+            has_potion: state.potion_held(),
+            in_combat: state.combat_active,
+            status_log,
         }
     }
 
@@ -937,6 +972,13 @@ pub fn poll_snapshot_blocking(
             io::ErrorKind::Unsupported,
             "Named pipes only supported on Windows",
         )))
+    }
+}
+
+fn ratio(current: Option<i32>, max: Option<i32>) -> Option<f64> {
+    match (current, max) {
+        (Some(current), Some(max)) if max > 0 => Some(f64::from(current) / f64::from(max)),
+        _ => None,
     }
 }
 

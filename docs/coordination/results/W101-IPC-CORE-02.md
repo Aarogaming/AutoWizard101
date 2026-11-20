@@ -3,7 +3,7 @@
 **Task**: Host IPC Integration: Wiring Rust Core Autonomy Engine to C# Named Pipe Bridge  
 **Owner**: `root`  
 **Workstream**: `W101-NAVIGATION`  
-**Status**: Offline bridge and fixture-driven tests delivered; inputs do not match the host and nothing returns results to it (see Audit note)  
+**Status**: Offline bridge and fixture-driven tests delivered; the host publishes none of the combat, zone or position facts the decision step needs and nothing returns results to it (see Audit note and its follow-up)  
 **Date**: 2026-11-18  
 **Owned Paths**:
 - `crates/maelstrom-fallback/src/maelstrom_bridge.rs`
@@ -129,3 +129,31 @@ input API: a search for `SendInput`, `keybd_event`, `mouse_event`, `PostMessage`
 **What this evidence does not prove.** Offline unit tests, hand-built snapshots and a scratch probe only: they show how the
 bridge treats the JSON it is given, not that the real host sends that JSON, that any proposal reaches the host or the game,
 or that the bridge works over a live pipe.
+
+**Follow-up (2026-11-19, Claude).** Corrections 1 to 4 are fixed on branch `maelstrom/bridge-host-facts`; corrections 5 to 8 are
+unchanged. In `crates/maelstrom-fallback/src/maelstrom_bridge.rs`:
+- `update_blackboard` no longer reads `raw_snapshot["facts"]`. Combat, zone and position now come only from typed aliases that
+  pass the same qualification as the vitals (connected host, fresh `observedUtc`, quality "fresh", matching target, source and
+  game, unique id, expected data type): `combat.active` (BOOL), `zone.name` (STRING, trimmed, 1 to 128 characters, no control
+  characters) and `position.x`, `position.y`, `position.z` (REAL, all three finite). Anything else is `None` in
+  `NativeHostState` (`combat_active`, `zone_name`, `position`).
+- Nothing is carried over from an earlier snapshot, and defaults no longer pass as readings. The blackboard cannot express
+  "unknown", so unknown facts take values that propose nothing (no combat, full vitals, no potion, empty zone, origin pose).
+  `AutonomyCycleResult` now reports what the snapshot observed: `current_zone`, `health_pct`, `mana_pct`, `has_potion` and
+  `in_combat` are `Option`s, `None` meaning missing, stale or ill-typed.
+- `process_state` does not tick the tree when the combat state or the pose is unknown: `bt_status` is `Withheld`, the proposal
+  channel is cleared and no steering or kinematic plan is produced. A disconnected host still ends `Failure`.
+- Fixtures: `autonomy_replay::simulated_alias` builds the typed aliases for the replay builders (`from_w101_events_jsonl`,
+  `from_ui_observations_jsonl`), which now also mark their frames `is_simulation`, and for the integration tests.
+- New tests in `crates/maelstrom-fallback/tests/host_fact_qualification_tests.rs` (11; the nine behavior tests fail on the previous
+  code): raw `facts` keys alone never reach the decision step; fresh typed aliases are used; stale typed combat does not drive a
+  proposal; an incomplete position is not zero-filled; a known pose still steers; stale vitals do not carry forward; absent
+  vitals are not reported as full health; a disconnect clears the reported facts; an unknown combat state gives `Withheld`; and
+  two parsing tests for well-formed and ill-typed world aliases.
+
+What this does not change: the live host still publishes none of `combat.active`, `zone.name` or `position.*`
+(`JobFactCatalog.cs` has no such fact, and its zone value exists only as a `Candidate`-qualified W101 fact). Against today's host the
+bridge therefore reports them unknown and every cycle ends `Withheld`; the alias names are this bridge's contract for a host that
+does not publish them yet, not something checked against a host. The combat click plan still starts at the world position
+(correction 5), nothing sends a result to the host (correction 6), and the Red Team row's wording above is superseded by this
+follow-up rather than rewritten.

@@ -55,9 +55,10 @@ pub struct ReplayFrame {
 
 ### Transformation Invariants:
 1. **Facts Normalization**:
-   - `combatActive`: Extracted from `combatContext.planningVisible` or combat tree nodes.
-   - `zoneName`: Extracted from scene landmarks or candidate zone annotations (e.g. `"WizardCity_Commons"`).
-   - `spatialPosition`: Mapped from odometry or synthetic trajectory anchors.
+   - `combat.active` (BOOL alias): Extracted from `combatContext.planningVisible` or combat tree nodes.
+   - `zone.name` (STRING alias): Extracted from scene landmarks or candidate zone annotations (e.g. `"WizardCity_Commons"`).
+   - `position.x`, `position.y`, `position.z` (REAL aliases): Mapped from odometry or synthetic trajectory anchors.
+   - These are SIMULATED typed aliases (`autonomy_replay::simulated_alias`) with the frame's synthetic timestamp, and the frame is marked `is_simulation`. The bridge no longer reads raw `facts` keys, so the names matter: nothing else reaches the decision step.
 2. **Aliases Generation**:
    - `health` / `health.max`: Projected as `REAL` / `DINT` fresh aliases.
    - `mana` / `mana.max`: Projected as `REAL` / `DINT` fresh aliases.

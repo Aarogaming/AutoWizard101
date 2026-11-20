@@ -16,6 +16,31 @@ pub struct ReplayFrame {
     pub expected_intent: Option<String>,
 }
 
+/// A SIMULATED typed alias for replay frames and tests.
+///
+/// Combat state, zone and position reach the decision step only as fresh, typed, identity-matched
+/// aliases named `combat.active`, `zone.name` and `position.x|y|z`. The live host publishes none of them
+/// today (`JobFactCatalog.cs` defines no combat, zone or position fact), so every value built with this
+/// helper is a fixture, not an observation. The replay builders in this module also give their frames
+/// synthetic timestamps and positions.
+pub fn simulated_alias<T: Serialize>(
+    id: &str,
+    data_type: &str,
+    value: T,
+    observed_utc: &str,
+) -> serde_json::Value {
+    serde_json::json!({
+        "id": id,
+        "dataType": data_type,
+        "value": value,
+        "quality": "fresh",
+        "targetId": "12345/67890",
+        "observedUtc": observed_utc,
+        "source": "reviewed-w101-ui-tree",
+        "gameId": "wizard101"
+    })
+}
+
 impl ReplayFrame {
     pub fn new(timestamp_ms: u64, state: NativeHostState, expected_intent: Option<String>) -> Self {
         Self {
@@ -189,13 +214,15 @@ impl AutonomyReplaySession {
                                 "targetId": "12345/67890",
                                 "source": "reviewed-w101-ui-tree",
                                 "observedUtc": now_str,
-                                "combatActive": false,
-                                "zoneName": "WizardCity_Commons",
-                                "spatialPosition": [pos_x, 100.0, 0.0],
                                 "nativeIdle": is_idle,
                                 "loading": is_loading,
                             },
                             "aliases": [
+                                simulated_alias("combat.active", "BOOL", false, now_str),
+                                simulated_alias("zone.name", "STRING", "WizardCity_Commons", now_str),
+                                simulated_alias("position.x", "REAL", pos_x, now_str),
+                                simulated_alias("position.y", "REAL", 100.0, now_str),
+                                simulated_alias("position.z", "REAL", 0.0, now_str),
                                 {
                                     "id": "health",
                                     "dataType": "REAL",
@@ -262,7 +289,9 @@ impl AutonomyReplaySession {
 
                         let parse_time =
                             std::time::UNIX_EPOCH + std::time::Duration::from_secs(1795041000);
-                        let state = NativeHostState::from_snapshot_json_at(&snapshot, parse_time);
+                        let mut state =
+                            NativeHostState::from_snapshot_json_at(&snapshot, parse_time);
+                        state.is_simulation = true;
                         frames.push(ReplayFrame {
                             timestamp_ms: time_ms,
                             state,
@@ -333,13 +362,15 @@ impl AutonomyReplaySession {
                             "targetId": "12345/67890",
                             "source": "reviewed-w101-ui-tree",
                             "observedUtc": now_str,
-                            "combatActive": is_combat,
-                            "zoneName": "WizardCity_Commons",
-                            "spatialPosition": [100.0, 100.0, 0.0],
                             "nativeIdle": is_idle,
                             "loading": is_loading,
                         },
                         "aliases": [
+                            simulated_alias("combat.active", "BOOL", is_combat, now_str),
+                            simulated_alias("zone.name", "STRING", "WizardCity_Commons", now_str),
+                            simulated_alias("position.x", "REAL", 100.0, now_str),
+                            simulated_alias("position.y", "REAL", 100.0, now_str),
+                            simulated_alias("position.z", "REAL", 0.0, now_str),
                             {
                                 "id": "health",
                                 "dataType": "REAL",
@@ -406,7 +437,8 @@ impl AutonomyReplaySession {
 
                     let parse_time =
                         std::time::UNIX_EPOCH + std::time::Duration::from_secs(1795041000);
-                    let state = NativeHostState::from_snapshot_json_at(&snapshot, parse_time);
+                    let mut state = NativeHostState::from_snapshot_json_at(&snapshot, parse_time);
+                    state.is_simulation = true;
                     frames.push(ReplayFrame {
                         timestamp_ms: time_ms,
                         state,

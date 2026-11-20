@@ -67,3 +67,8 @@ the 2 to 262,144 byte budget match `JobDeckWire.cs`. The statement that the Rust
 
 **What this evidence does not prove.** This is a read-through against the code and the CORE-02 tests; it does not show a
 live pipe session or any actuation driven by the Rust bridge.
+
+**Follow-up (2026-11-19, Claude).** Correction 1 is addressed in code and in `BACKEND_CONTROL_PLANE.md` Section 5: the bridge reads
+combat, zone and position only as qualified aliases (`combat.active`, `zone.name`, `position.x|y|z`), not as raw keys. The host
+still publishes none of them, so against it those facts are unknown and each cycle ends `Withheld`. Corrections 2 to 6 are
+unchanged. See the follow-up in [W101-IPC-CORE-02](W101-IPC-CORE-02.md).
