@@ -210,7 +210,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         println!("{}", md_report);
     }
 
-    // Fail quality gate if accuracy is below 95.0%
+    // Fail quality gate if accuracy is below 95.0%. This is the only gate: the report's own 99.5% badge, curvature,
+    // jerk and warnings do not affect the exit code, and exit code 1 is reserved for input and I/O errors.
     if metrics.decision_accuracy_pct < 95.0 {
         eprintln!(
             "Quality Gate FAILED: Decision accuracy {:.2}% < 95.0%",
@@ -222,6 +223,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+/// Despite the name, this truncates and overwrites an existing file without a message, creates parent directories,
+/// and is not atomic (no temporary file and rename).
 fn write_file_safely(path: &Path, content: &[u8]) -> std::io::Result<()> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;

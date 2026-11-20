@@ -784,6 +784,8 @@ impl MaelstromAutonomyBridge {
 
         if let Some(ref intent) = self.blackboard.proposal_channel {
             if intent == "PROPOSAL:StepWaypoint" || intent == "PROPOSAL:FollowWaypoints" {
+                // NOTE: the third value is the world z coordinate, passed as the heading in radians; `NativeHostState`
+                // has no heading fact. See docs/AUTONOMY_REPLAY_CLI.md section 3.2.
                 let pose = Pose2D::new(
                     self.blackboard.current_pose.0,
                     self.blackboard.current_pose.1,

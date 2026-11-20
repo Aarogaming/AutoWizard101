@@ -107,7 +107,8 @@ $\kappa = 2\sin\alpha / d$ with $d$ the distance to the lookahead point clamped 
 `position` alias), not pixels. Mouse trajectories are not included: the plan summary keeps only a point count, a duration, a dwell and the end
 point. Because $d \ge 1.0$, $|\kappa| \le 2.0$ for any input, so the 5.0 threshold cannot be exceeded and its warning cannot fire (probe: the largest
 $|\kappa|$ over 2,000,000 random poses with the bridge's controller settings was 0.08). The gate therefore supports no claim about teleportation or
-direction reversals. Only values above 0.0001 enter the mean.
+direction reversals. Only values above 0.0001 enter the mean. The heading given to the controller is the world z coordinate (`Pose2D::new(x, y, z)`, see
+[AUTONOMY_REPLAY_CLI.md](AUTONOMY_REPLAY_CLI.md) Section 3.2), so the figure does not describe a real heading.
 
 ### 3.4. Kinematic Minimum-Jerk Compliance
 Intended to verify that mouse velocity profiles adhere to minimum-jerk motor control theory:

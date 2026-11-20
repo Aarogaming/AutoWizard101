@@ -436,3 +436,72 @@ fn test_batch_cli_binary_execution() {
 
     fs::remove_dir_all(&temp_dir).ok();
 }
+
+#[test]
+fn test_cli_exits_with_code_2_when_accuracy_is_below_95() {
+    let temp_dir = env::temp_dir().join(format!("maelstrom_gate_fail_{}", uuid::Uuid::new_v4()));
+    fs::create_dir_all(&temp_dir).unwrap();
+
+    // The tree navigates on every frame, while every label says combat, so accuracy is 0%.
+    let mut session = AutonomyReplaySession::new("gate_fail_session");
+    session.initial_goal = Some("ExploreCommons".into());
+    session.initial_waypoints = Some(vec![(2000.0, 150.0, 0.0)]);
+    for i in 0..20 {
+        session.push_frame(make_test_frame(
+            i * 100,
+            true,
+            500,
+            500,
+            100,
+            100,
+            3.0,
+            false,
+            100.0 + (i as f64),
+            150.0,
+            Some("PROPOSAL:CombatTurn"),
+        ));
+    }
+    let trace_path = temp_dir.join("trace.json");
+    session.to_file(&trace_path).unwrap();
+    let md_path = temp_dir.join("report.md");
+
+    let output = Command::new(env!("CARGO_BIN_EXE_maelstrom-replay"))
+        .arg(&trace_path)
+        .arg("--markdown")
+        .arg(&md_path)
+        .output()
+        .expect("Failed to execute maelstrom-replay binary");
+
+    assert_eq!(
+        output.status.code(),
+        Some(2),
+        "CLI stderr: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(String::from_utf8_lossy(&output.stderr).contains("Quality Gate FAILED"));
+
+    // The report is written before the gate decides the exit code.
+    let md_content = fs::read_to_string(&md_path).unwrap();
+    assert!(md_content.contains("**FAIL**"));
+
+    fs::remove_dir_all(&temp_dir).ok();
+}
+
+#[test]
+fn test_cli_exits_with_code_1_on_unparsable_trace() {
+    let temp_dir = env::temp_dir().join(format!("maelstrom_bad_trace_{}", uuid::Uuid::new_v4()));
+    fs::create_dir_all(&temp_dir).unwrap();
+
+    let trace_path = temp_dir.join("corrupt.json");
+    fs::write(&trace_path, "{ not json").unwrap();
+
+    let output = Command::new(env!("CARGO_BIN_EXE_maelstrom-replay"))
+        .arg(&trace_path)
+        .output()
+        .expect("Failed to execute maelstrom-replay binary");
+
+    assert_eq!(output.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("Error:"));
+
+    fs::remove_dir_all(&temp_dir).ok();
+}

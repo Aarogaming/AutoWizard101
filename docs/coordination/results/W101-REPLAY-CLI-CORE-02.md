@@ -52,3 +52,13 @@ Checked against `bin/maelstrom-replay.rs` and `autonomy_replay.rs`; the original
 - **"Preserving 100% decision accuracy"** describes a hand-built test fixture whose labels were written alongside the trace; it is not a measurement on recorded data.
 - **"Graceful error handling"** holds for file and JSON errors (they return `Result`). Not verified here: behaviour on every corrupt-input case, since no corrupt-file test exists in `replay_cli_tests.rs`.
 - Not reproduced: the "139 passed across 5 crates" workspace count and the clippy run; counts have changed since.
+
+## Audit corrections, addendum (2026-11-20)
+Checked by running the built binary offline on synthetic fixtures and reading `bin/maelstrom-replay.rs`; nothing live. The 2026-11-19 corrections stand.
+- **Exit codes confirmed by running the binary:** a trace at 88% accuracy exits 2 with `Quality Gate FAILED` on stderr (the reports are still written), an unlabeled
+  trace exits 0, and an unparsable trace, a missing file, an unknown option and a missing option value exit 1. Before this pass no test exercised a non-zero exit;
+  `test_cli_exits_with_code_2_when_accuracy_is_below_95` and `test_cli_exits_with_code_1_on_unparsable_trace` now do, so the file holds 9 tests (the 7 counted on
+  2026-11-19 plus these 2).
+- **`--max-curvature` and `--max-jerk` only change which warnings are recorded.** The report's gate rows stay at 5.0 and 10.0, and warning text prints the threshold
+  with one decimal (`0.0` for 0.001).
+- **Output files are overwritten silently** (`File::create`); the "Robust JSON Parsing & I/O" row covers parse and I/O errors, not overwriting.
