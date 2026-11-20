@@ -1,0 +1,11 @@
+# Pins the Rust toolchain for this workspace so local builds, agents and CI compile with the same compiler.
+#
+# 1.100.0 is a stable release (2026-11-09). Nothing in the workspace uses nightly-only features. To move to
+# a newer release, change `channel`, run `cargo test --workspace --offline` plus
+# `cargo clippy --workspace --all-targets --offline -- -D warnings` and `cargo fmt --all -- --check`, and update
+# docs/RUST_TOOLCHAIN.md. `rust-version` is deliberately not set in Cargo.toml: the lowest supported compiler
+# has not been measured.
+[toolchain]
+channel = "1.100.0"
+profile = "minimal"
+components = ["rustfmt", "clippy"]

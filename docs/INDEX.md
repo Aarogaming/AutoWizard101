@@ -40,6 +40,7 @@
 - [Loading transitions and shared routines](W101_LOADING_TRANSITION_20261110.md) — six demonstrated zone loading periods, bounded CLI watch, optional shared loading conditions, offline integration and remaining live gates.
 - [Optional W101 UI tree](W101_UI_TREE_20261110.md) — bounded root-hook observer, staggered loading/UI reads, candidate screen states, restoration checks and qualification status.
 - [Headless commands](HEADLESS_CLI.md) — window discovery, saved run status and bounded opt-in checks without desktop input.
+- [Rust toolchain pin](RUST_TOOLCHAIN.md) — the pinned compiler in `rust-toolchain.toml`, what was checked under it, what it changes and how to move it.
 - [CLI agent operating procedures](CLI_AGENT_OPERATING_PROCEDURES.md) — safe invocation, exact target selection, cancellation, receipt reading and current handoff notes.
 - [Wizwalker live qualification](WIZWALKER_LIVE_20261110.md) — dependency repair, two successful idle-state reads and clean disconnect; positive loading-transition qualification remains open.
 - [W101 client-side exception](W101_CLIENT_SIDE_EXCEPTION_20261110.md) — owner-approved functional reuse of reviewed client-side hooks, injection and memory reads/writes; network manipulation excluded; source dispositions and next integration gates.
