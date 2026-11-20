@@ -1,5 +1,8 @@
 # Evidence Report: W101-ONBOARDING-CORPUS-01
 
+> **Status:** Partly supported (audited 2026-11-20 in two passes, see "Audit note"). The corpus page and the Rust draft exist and the listed tests pass, but the page cites no sources: the shortcuts, the Dance Game's five rounds and the pet stat names
+> check out, while the energy costs, the XP cap, the chest rules and the combat section are unsourced and several details are contradicted by the official guide. "Exact" and "deterministic" are not supported.
+
 ## 1. Summary
 Ingested and formalized the comprehensive Wizard101 Onboarding Context Corpus into documentation (`docs/W101_ONBOARDING_CONTEXT_CORPUS.md`, `docs/INDEX.md`) and codified deterministic operational types, zero-waste exit evaluators, puzzle policies, and the exact damage pipeline formula in Rust (`crates/maelstrom-core/src/minigame_domain.rs`, `crates/maelstrom-core/tests/minigame_domain_tests.rs`).
 
@@ -59,10 +62,23 @@ Ingested and formalized the comprehensive Wizard101 Onboarding Context Corpus in
 
 ---
 
-## Partial audit note (audit 2026-11-20, Claude)
-Only the `calculate_pipeline_damage` lines above were checked; the rest of this report (pet, chest and corpus claims) was not audited in this pass.
+## Audit note (audit 2026-11-20, Claude)
+The first pass checked the `calculate_pipeline_damage` lines; the second (below the damage bullets) checked the corpus page and the rest of the Rust draft.
 - **The printed formula is wrong.** The last factor `(1.0 - Resist + Pierce)` is not what the code computes: it uses `1 - R_eff` with `R_eff = max(Resist - Pierce, 0)` for positive resist and `R_eff = Resist` for a negative one
   (resist 0.2, pierce 0.5 gives the base damage, not +30%), floors the factor at 0 and rounds the result. The source rustdoc is corrected.
 - **"Exact" is not supported.** The pipeline has no caller outside its tests and its stage order is unverified; "27,906 damage" is the function's own arithmetic on invented fixture values (an Efreet base of 895, an enchant of 300),
   not an in-game observation. `charms_lifo` and `wards_lifo` are multiplied, so the order of each list has no effect.
 - See the audit note in [CORE-SELF-AUDIT-REPAIRS-01](CORE-SELF-AUDIT-REPAIRS-01.md) for the resistance, pierce and boost handling.
+
+**Second pass: the corpus page and the Rust draft.** Checked against the official Wizard101 player guide pages (`pet-games2`, `pet-games3`, `pet-games6`, `pet-games7`, `pet-games8`, `mini-games1`, `keyboardshortcuts`, `getting-around1`, `cantrips`, `spell-cards`,
+`magic-schools`, `pvp-help`; read-only, default client), `docs/W101_PET_SNACK_RESEARCH_20261108.md`, `docs/COMBAT_DUELING_LOOP.md`, the C# dance-entry code, and the Rust draft with its tests. The page's own "Today" notes give the detail.
+- **Confirmed:** 12 of the 14 keyboard-shortcut rows; the Dance Game's arrow keys and five rounds; the five pet statistic names; an end-of-game snack offer; and that mini-games recharge the mana globe. The Rust draft does what the summary says (the eight listed tests still pass).
+- **Contradicted:** `Q`/`E` strafing (`Q` opens the Quest Journal and no strafe key is listed) and the `N` description; the Cannon Game's "elemental shots"; the stat-to-talent lists for Agility ("Armor Piercing") and Will; the rank `Ultra` (the guide lists up to Mega); the Rust Maze
+  input string `WASD` (the guide says arrow keys and the mouse), now corrected.
+- **Unsupported:** the 2-to-14 Energy costs (the live dance code reads the displayed `txtEnergyCost` instead), the 4 / 8 Pet XP cap, "3 of 5" for a Promenade win, the 70-snack threshold and "+10s clock", the Silver and Cantrip chest rules, and every combat rule (LIFO order, initiative,
+  "Players + 1" street scaling, 30-second planning, Slot 1, flee). The page's Automation Tiers are a ranking, not a measurement.
+- **Summary claims that overstate:** "`SilverChestPolicy`: ... enforces cooldown requirement" (it counts failures and returns a bool; the coordinate cooldown table does not exist), "Exact ... energy" and "hard cap" wording, and the Promenade `xp_awarded: 2`, which is in neither the page nor the guide.
+  `evaluate_dance_game_exit` also cannot see the guide's 3-failure end. Nothing outside the module's tests calls any of this code.
+- **Changes:** doc comments on the module and the unsupported items; the Maze input string; a dead branch removed from `evaluate_gobbler_drop_exit` (a zero target already exits, and the ratio is below 1 when it continues); four tests added (inclusive thresholds and the zero target for Gobbler Drop,
+  threshold-not-equality exits for Maze and Dance, the input strings, and the Silver Chest cap as a total attempt count); the page now has a draft banner, "Today" notes and three replaced links.
+- **Not edited:** `claims.json` (coordinator-owned).

@@ -257,3 +257,91 @@ fn test_charm_and_ward_order_does_not_change_damage_today() {
         damage(vec![], vec![0.80, 0.70])
     );
 }
+
+#[test]
+fn test_gobbler_drop_exits_exactly_at_the_target_and_for_a_zero_target() {
+    // The comparison is inclusive: reaching the target exactly is enough.
+    match evaluate_gobbler_drop_exit(800, 800) {
+        PetGameExitDecision::ExitImmediately { xp_awarded, .. } => assert_eq!(xp_awarded, 4),
+        other => panic!("Expected ExitImmediately at exactly the target, got {other:?}"),
+    }
+    // One point short keeps playing, with progress strictly below 1.
+    match evaluate_gobbler_drop_exit(799, 800) {
+        PetGameExitDecision::ContinuePlaying { current_progress } => {
+            assert!(current_progress < 1.0);
+            assert!((current_progress - 799.0 / 800.0).abs() < 1e-9);
+        }
+        other => panic!("Expected ContinuePlaying one point short, got {other:?}"),
+    }
+    // A zero target is already met by any score, so the evaluator exits at once (and still claims 4 XP).
+    assert!(matches!(
+        evaluate_gobbler_drop_exit(0, 0),
+        PetGameExitDecision::ExitImmediately { xp_awarded: 4, .. }
+    ));
+}
+
+#[test]
+fn test_zero_waste_exits_are_thresholds_not_exact_matches() {
+    // Maze: 69 snacks keeps avoiding clocks; 70 and anything above exit.
+    assert!(matches!(
+        evaluate_maze_game_exit(69),
+        PetGameExitDecision::AvoidPickups { .. }
+    ));
+    assert!(matches!(
+        evaluate_maze_game_exit(71),
+        PetGameExitDecision::ExitImmediately { xp_awarded: 4, .. }
+    ));
+    // Dance: more rounds than the threshold still exit.
+    assert!(matches!(
+        evaluate_dance_game_exit(6, PetGameGoal::MaxPetXp),
+        PetGameExitDecision::ExitImmediately { xp_awarded: 4, .. }
+    ));
+    assert!(matches!(
+        evaluate_dance_game_exit(4, PetGameGoal::PromenadeWinOnly),
+        PetGameExitDecision::ExitImmediately { .. }
+    ));
+    // No rounds won yet: no progress.
+    match evaluate_dance_game_exit(0, PetGameGoal::MaxPetXp) {
+        PetGameExitDecision::ContinuePlaying { current_progress } => {
+            assert!(current_progress.abs() < 1e-12)
+        }
+        other => panic!("Expected ContinuePlaying at 0 rounds, got {other:?}"),
+    }
+}
+
+#[test]
+fn test_input_modalities_follow_the_official_guide_controls() {
+    // The official player guide lists arrow keys for the dance and drop games and arrow keys plus the mouse
+    // for the maze; no pet game is documented as using WASD.
+    for game in [
+        PetPavilionMiniGame::DanceGame,
+        PetPavilionMiniGame::GobblerDrop,
+        PetPavilionMiniGame::MazeGame,
+    ] {
+        assert!(!game.input_modality().contains("WASD"), "{game:?}");
+    }
+    assert!(PetPavilionMiniGame::MazeGame
+        .input_modality()
+        .contains("Mouse"));
+    assert!(PetPavilionMiniGame::DanceGame
+        .input_modality()
+        .contains("ArrowKeys"));
+}
+
+#[test]
+fn test_silver_chest_policy_cap_is_a_total_attempt_count() {
+    // `max_retries` is exhausted by that many failures, so the default of 2 allows two attempts in total.
+    let mut policy = SilverChestPolicy::new(3, 60);
+    assert_eq!(policy.cooldown_ttl_seconds, 60);
+    assert!(!policy.record_failure());
+    assert!(!policy.record_failure());
+    assert!(
+        policy.record_failure(),
+        "the third failure exhausts a cap of 3"
+    );
+    // Failures past the cap keep reporting exhaustion and keep counting.
+    assert!(policy.record_failure());
+    assert_eq!(policy.current_attempts, 4);
+    // A cap of 0 never allows an attempt.
+    assert!(!SilverChestPolicy::new(0, 60).can_retry());
+}

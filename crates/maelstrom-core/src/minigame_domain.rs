@@ -3,13 +3,19 @@
 //! Models Pet Pavilion mini-games, Fairegrounds recovery, Silver Chest puzzle locks,
 //! and the exact Wizard101 damage stack calculation pipeline.
 //!
+//! Status (audit 2026-11-20): a draft transcription of `docs/W101_ONBOARDING_CONTEXT_CORPUS.md`, an unsourced
+//! AI-generated specification, and nothing outside this module's tests calls it. A cross-check against the
+//! official player guide found the energy costs, the 4/8 XP cap, the 70-snack threshold and the Promenade XP
+//! value unsupported and the Maze input string contradicted (corrected below); the item docs say which.
+//!
 //! Follows `Facts ≠ Authority ≠ Actions`.
 
 use alloc::string::String;
 use alloc::vec::Vec;
 use serde::{Deserialize, Serialize};
 
-/// Pet age bracket determining energy expenditure per mini-game run.
+/// Pet age bracket determining energy expenditure per mini-game run. The official player guide lists the ranks
+/// Baby, Teen, Adult, Ancient, Epic and Mega; `Ultra` is not on that page.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum PetAgeBracket {
     Baby,
@@ -22,7 +28,9 @@ pub enum PetAgeBracket {
 }
 
 impl PetAgeBracket {
-    /// Exact energy cost per Pet Pavilion mini-game run for this pet age.
+    /// Draft energy cost per Pet Pavilion mini-game run for this pet age. The 2..14 progression comes from the
+    /// unsourced onboarding page: the official guide says only that training games need Energy, and the live
+    /// dance-entry code reads the cost the game displays (`txtEnergyCost`) instead of using a table.
     pub fn energy_cost(&self) -> u32 {
         match self {
             PetAgeBracket::Baby => 2,
@@ -35,7 +43,9 @@ impl PetAgeBracket {
         }
     }
 
-    /// Hard-capped maximum base Pet XP awarded per mini-game run (double during Double Pet XP).
+    /// Draft maximum base Pet XP per run: 4, or 8 with Double Pet XP. Both numbers are unsourced, the bracket is
+    /// ignored, and Double Pet XP is documented only as a past member event (February 2015, see
+    /// `docs/W101_PET_SNACK_RESEARCH_20261108.md`), not a standing mode.
     pub fn max_base_xp(&self, is_double_pet_xp: bool) -> u32 {
         if is_double_pet_xp {
             8
@@ -88,12 +98,14 @@ impl PetPavilionMiniGame {
         )
     }
 
-    /// Primary input mechanics descriptor.
+    /// Primary input mechanics descriptor. The official guide lists arrow keys for the dance and drop games,
+    /// arrow keys plus the mouse for the maze, and arrow keys, a power gauge and Space or Fire for the cannon
+    /// games; no pet game is documented as using WASD.
     pub fn input_modality(&self) -> &'static str {
         match self {
             PetPavilionMiniGame::DanceGame => "DirectionalArrowKeys(Up, Down, Left, Right)",
             PetPavilionMiniGame::GobblerDrop => "LateralTracking(Left, Right)",
-            PetPavilionMiniGame::MazeGame => "2DGridNavigation(WASD)",
+            PetPavilionMiniGame::MazeGame => "2DGridNavigation(ArrowKeysAndMouse)",
             PetPavilionMiniGame::CannonGame => "AimAngleAndPowerMeter",
             PetPavilionMiniGame::GrumpyGobblers => "SlingshotTrajectoryAngle",
             PetPavilionMiniGame::WayOfNinjaPig => "3DPlatformerLocomotion",
@@ -125,6 +137,10 @@ pub enum PetGameExitDecision {
 }
 
 /// Zero-waste exit evaluator for the Pet Dance Game.
+///
+/// It sees only the rounds won. The official guide says the game ends after 5 rounds or 3 failures, so
+/// `ContinuePlaying` can be returned for a game that has already ended in failure. The 3-round Promenade rule
+/// and the XP values (2 for Promenade, 4 for a full game) are unsourced; the 4 is a constant, not a reading.
 pub fn evaluate_dance_game_exit(rounds_won: u32, goal: PetGameGoal) -> PetGameExitDecision {
     match goal {
         PetGameGoal::PromenadeWinOnly => {
@@ -155,6 +171,10 @@ pub fn evaluate_dance_game_exit(rounds_won: u32, goal: PetGameGoal) -> PetGameEx
 }
 
 /// Zero-waste exit evaluator for the Pet Maze Game.
+///
+/// The 70-snack threshold, the "+10s Clock" pickup and the 4 XP are unsourced: the official guide says only to
+/// collect as much food as possible before time runs out while avoiding the ghosts. Below the threshold the
+/// result is always `AvoidPickups`, whatever the count.
 pub fn evaluate_maze_game_exit(snacks_collected: u32) -> PetGameExitDecision {
     const MAZE_MAX_SNACK_THRESHOLD: u32 = 70;
     if snacks_collected >= MAZE_MAX_SNACK_THRESHOLD {
@@ -172,7 +192,10 @@ pub fn evaluate_maze_game_exit(snacks_collected: u32) -> PetGameExitDecision {
     }
 }
 
-/// Zero-waste exit evaluator for Gobbler Drop.
+/// Zero-waste exit evaluator for Gobbler Drop (the official guide calls it the Pet Drop Game).
+///
+/// The comparison is inclusive, so a zero target is met by any score and exits at once. The 4 XP is a constant
+/// and the target score has no source.
 pub fn evaluate_gobbler_drop_exit(current_score: u32, target_score: u32) -> PetGameExitDecision {
     if current_score >= target_score {
         PetGameExitDecision::ExitImmediately {
@@ -182,17 +205,16 @@ pub fn evaluate_gobbler_drop_exit(current_score: u32, target_score: u32) -> PetG
             xp_awarded: 4,
         }
     } else {
+        // Here `current_score < target_score`, so the target is positive and the ratio is below 1.
         PetGameExitDecision::ContinuePlaying {
-            current_progress: if target_score == 0 {
-                1.0
-            } else {
-                (current_score as f64 / target_score as f64).min(1.0)
-            },
+            current_progress: current_score as f64 / target_score as f64,
         }
     }
 }
 
-/// Fairegrounds mini-games that completely refill mana wisps and potion bottles on completion.
+/// Fairegrounds mini-games listed by the onboarding page as refilling mana wisps and potion bottles. The official
+/// Mini Games page confirms that mini-games recharge the mana globe (and that gold and items stop after 20 games
+/// in 24 hours while mana keeps refilling); it says nothing about potion bottles or about these six names.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum FairegroundsMiniGame {
     PotionMotion,
@@ -204,7 +226,8 @@ pub enum FairegroundsMiniGame {
 }
 
 impl FairegroundsMiniGame {
-    /// Whether concluding this mini-game fully restores player mana and potion bottles.
+    /// Whether concluding this mini-game fully restores player mana and potion bottles (always `true`, without
+    /// per-game evidence).
     pub fn refills_mana_and_potions_on_exit(&self) -> bool {
         true
     }
@@ -220,6 +243,10 @@ pub enum SilverChestPuzzleType {
 }
 
 /// Operational policy tracker for World Silver Chests.
+///
+/// `max_retries` is exhausted by that many failures, so the default of 2 allows two attempts in total (it matches
+/// "fails twice", not one attempt plus two retries). The onboarding page's cooldown table of coordinates is not
+/// implemented: only `cooldown_ttl_seconds` is carried, and `record_failure` returns `true` at the cap.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SilverChestPolicy {
     pub max_retries: u32,
@@ -266,7 +293,8 @@ pub enum CantripChestType {
 }
 
 impl CantripChestType {
-    /// Evaluates if the chest can be safely unlocked based on nearby verified player count.
+    /// Evaluates if the chest can be safely unlocked based on nearby verified player count. Only the head count is
+    /// modelled; the page's 5-second simultaneous-cast window is not, and the chest rules have no source.
     pub fn can_attempt(&self, nearby_verified_players: usize) -> bool {
         match self {
             CantripChestType::Solo => true,
