@@ -37,7 +37,7 @@ Treat Maelstrom as an epistemic control loop rather than a set of game scripts:
 | Goal planner (4) | `goap.rs`, [GOAP_ACTION_PLANNING.md](../GOAP_ACTION_PLANNING.md) | Present. |
 | Generic quest interpreter (4) | `quest_interpreter.rs`, `quest_domain.rs`, [QUEST_INTERPRETER_ENGINE.md](../QUEST_INTERPRETER_ENGINE.md) | Present. |
 | Replay as promotion filter (5) | `maelstrom-fallback/src/autonomy_replay.rs`; [W101-REPLAY-BATCH-CORE-02](../coordination/results/W101-REPLAY-BATCH-CORE-02.md) (1,094 matrix rows pass: 74 distinct ids, 36 labelled ticks in 8,140 frames; see the [matrix banner](../coordination/results/REPLAY-BENCHMARK-MATRIX.md)) | Partly (audit 2026-11-20). The replay harness and CLI exist, but 1,085 of the 1,094 passing rows had nothing to check, and nothing in CI or the repository's scripts runs it, so it is not yet a promotion filter. |
-| Macro zone graph (4) | `ZoneTopologyService` (C#) | C# only; no Rust `Connector` type found. |
+| Macro zone graph (4) | `ZoneTopologyService` (C#) | C# routes. A Rust `Connector` type exists in `ontology.rs`, but nothing outside its tests uses it (audit 2026-11-20). |
 | Persistent empirical registry (5) | none located | **Gap candidate.** |
 | Patch-resilient re-grounding (5) | none located | **Gap candidate.** |
 
