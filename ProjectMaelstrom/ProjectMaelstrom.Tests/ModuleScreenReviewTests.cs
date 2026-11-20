@@ -62,7 +62,7 @@ public sealed class ModuleScreenReviewTests : IDisposable
     {
         var snapshot = ModuleScreenReviewSnapshot.Load(Prepare());
         var result = await ModuleScreenReview.RunAsync(snapshot, Output("actual-ocr"), CancellationToken.None);
-        Assert.True(result.Completed, result.Reason); Assert.Equal(4, result.Proposals); Assert.Equal(4, result.Receipts); Assert.Equal(11, result.Frames);
+        Assert.True(result.Completed, $"{result.Reason} ({WindowsOcrWarmup.Summary})"); Assert.Equal(4, result.Proposals); Assert.Equal(4, result.Receipts); Assert.Equal(11, result.Frames);
         using var report = JsonDocument.Parse(File.ReadAllText(result.Report));
         Assert.Equal(0, report.RootElement.GetProperty("desktop_dispatch_count").GetInt32());
         Assert.False(report.RootElement.GetProperty("live_qualified").GetBoolean());

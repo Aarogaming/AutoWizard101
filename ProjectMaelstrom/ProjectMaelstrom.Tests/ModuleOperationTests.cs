@@ -62,7 +62,7 @@ public sealed class ModuleOperationTests : IDisposable
         var ticket = ModuleOperation.SubmitOffline(scheduler, source.Snapshot);
         Assert.False(ticket.Request.WritesGame); Assert.False(ticket.Request.DelegatedInput);
         var receipt = await ticket.Completion.WaitAsync(TimeSpan.FromSeconds(15));
-        Assert.True(receipt.State == OperationState.Completed, $"{receipt.State}: {receipt.Message}");
+        Assert.True(receipt.State == OperationState.Completed, $"{receipt.State}: {receipt.Message} ({WindowsOcrWarmup.Summary})");
         Assert.Equal(2, receipt.Artifacts.Length);
         Assert.True(otherOwner.IsHeld); Assert.Null(GameInputLease.Current);
         using var admission = JsonDocument.Parse(File.ReadAllText(Artifact(ticket, "module-operation.json")));
