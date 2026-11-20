@@ -1,12 +1,12 @@
 # Dynamic 3D Spatial Indexing & Robotics Navigation
 
 > **Status: draft design note, partly aspirational (audit 2026-11-19, Claude).** In code today
-> (`crates/maelstrom-core/src/spatial_index.rs`): the box primitives, an insert-only bounding-volume tree and three queries,
-> with four unit tests. Not true today: the tree never rebalances (depth is about n/4 for entities inserted along a line),
-> the O(log n) figures are expected-case for spread-out entities and not a guarantee, the per-point cost used by the planner
-> (`evaluate_cost_3d`) still scans every mob, and nothing outside tests calls the index. Details are in the audit notes of
-> [W101-SPATIAL-INDEX-CORE-02](coordination/results/W101-SPATIAL-INDEX-CORE-02.md). The 20 Hz tick, the zone examples and the
-> cache-coherence wording below are unsourced design assumptions, not measurements.
+> (`crates/maelstrom-core/src/spatial_index.rs`): the box primitives, a height-balanced bounding-volume tree with
+> insert, remove and update, and three queries, with unit tests. Not true today: the per-point cost used by the
+> planner (`evaluate_cost_3d`) still scans every mob, stored bounds carry a fixed 3.0 s velocity projection, and
+> nothing outside tests calls the index. Details are in the audit notes of
+> [W101-SPATIAL-INDEX-CORE-02](coordination/results/W101-SPATIAL-INDEX-CORE-02.md). The 20 Hz tick, the zone examples
+> and the cache-coherence wording below are unsourced design assumptions, not measurements.
 
 ## 1. Architectural Motivation
 
@@ -78,11 +78,11 @@ There is no `elevation_z` or `vertical_tolerance` on the entity; those live on `
 
 ## 3. Query Interfaces
 
-The tree is insert-only and never rebalances: leaves split at the median of the widest axis, and an insert descends to the
-child whose box grows least. Query cost is therefore near $O(\log n + k)$ for spread-out entities (probe: 4,096 scattered
-entities, one small query tested about 28 nodes) and degrades toward $O(n)$ for entities inserted in spatial order
-(probe: 4,096 entities along a line gave depth 1,023 and about 1,000 nodes tested per query). Real entity lists in the
-repository are tens of entities, where none of this matters yet.
+Insertion splits overflowing nodes and propagates the split upward, so every leaf stays at one depth and the height
+is logarithmic in the entity count whatever the insertion order (tested with 20,000 entities inserted along a line,
+along a diagonal and at one point). Query cost is expected-case logarithmic for spread-out entities; entities that
+overlap heavily, such as many at one position, are all returned. `remove` and `update` are keyed by kind and id and
+scan the whole tree. Real entity lists in the repository are tens of entities, where none of this matters yet.
 
 ### 3.1 Range Query (`query_range`)
 Finds all entities whose bounding volumes intersect a target 3D query box. Mobs carry a fixed 3.0 s forward projection in their
@@ -112,5 +112,6 @@ In `crates/maelstrom-core/src/costmap.rs`:
   cost `evaluate_cost_3d` (used by the nav-mesh planner) loops over every entry in `dynamic_mobs` and does not use the index.
 - Elevation filtering for mob cost is in `DynamicMobActor::compute_cost_3d` and, for corridors, in `is_corridor_safe_3d`; it is
   not part of the spatial index.
-- There is no remove or update operation: entities are insert-only, `clear()` empties every kind at once, and adding a mob with
-  an existing id leaves the old index entity in place.
+- `remove(kind, id)` scans the whole tree and `update` is remove plus insert. `Nav2Costmap::update_mob` and
+  `remove_mob` keep `dynamic_mobs` and the index in step; `add_mob` still appends without looking for an existing id,
+  and `clear()` empties every kind at once.

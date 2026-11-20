@@ -179,3 +179,18 @@ several safety statements are stronger than the code.
 the C# test cases and that the planner deflects around stationary mobs on two tiny graphs; they do not show that a real
 `zone.nav` parses, that a long edge is safe, that moving mobs are handled in time, or that any routine uses the planner.
 No live qualification and no C# execution in this pass.
+
+**Follow-up on branch `maelstrom/audit-fixes` (2026-11-19, Claude; not merged into the branch the note above was written on).**
+Commit 9499ec1 changes the planner. Mobs are now checked exactly along each edge
+(`DynamicMobActor::compute_segment_cost_3d`, compared with dense sampling in `test_segment_cost_matches_dense_sampling`),
+static layers are sampled at least every `footprint.inscribed_radius` (at most 256 points, so a feature thinner than that
+can still be missed), and `find_safest_path` takes arrival time from walked length and calls `evaluate_edge_cost_moving`,
+which advances time along the edge. This addresses corrections 1 and 2 and adds moving-mob coverage
+(`test_moving_edge_cost_follows_the_walker_along_a_long_edge`,
+`test_moving_edge_cost_does_not_invent_a_conflict_after_the_walker_passed`, and the moving mob in
+`test_safest_path_arrival_time_follows_length_not_penalty_cost`). That test,
+`test_edge_cost_rejects_mob_standing_on_a_long_edge` and
+`test_edge_cost_sees_a_static_zone_between_the_old_sample_points` failed before the change and pass after.
+Corrections 4, 5, 6 and 7 are unchanged: still no caller, no zone-reset code, irreproducible quoted counts and a quadratic
+vertex selection. On that branch today: `cargo test --workspace --offline` 263 passed, 0 failed; workspace clippy with
+`-D warnings` and `cargo fmt --check` clean.

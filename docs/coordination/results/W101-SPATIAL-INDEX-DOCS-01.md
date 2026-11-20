@@ -63,3 +63,7 @@ primitives `intersects`, `contains_point` and `enclosing`, exist.
 
 **What this evidence does not prove.** A document and code review plus synthetic probes. It does not show that the index
 speeds up any real routine, that the corrected specification is complete, or anything about live zones.
+
+**Follow-up (2026-11-19, Claude).** On branch `maelstrom/audit-fixes` the depth problem in correction 1 is fixed (commit
+c075449; evidence in the CORE-02 note); there is still no SAH, rebuild or prune, and the specification now describes the
+balanced tree with remove and update.

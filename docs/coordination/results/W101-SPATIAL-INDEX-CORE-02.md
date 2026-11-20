@@ -148,3 +148,18 @@ would be about 10) and 200 small queries averaged about 28 nodes and 14 entity b
 **What this evidence does not prove.** Offline unit tests and probes on synthetic fixtures. They show the queries return the
 right entities on tiny inputs and that the tree degrades on ordered input; they do not measure query latency on real zone
 data, profile the claimed cache behaviour, or show that any routine calls the index. No live qualification.
+
+**Follow-up on branch `maelstrom/audit-fixes` (2026-11-19, Claude; not merged into the branch the note above was written on).**
+Commit c075449 changes the tree. Overflowing nodes split and the split propagates upward, so every leaf stays at one depth
+and the height is logarithmic in the entity count for any insertion order
+(`test_tree_height_stays_logarithmic_for_any_insertion_order` bounds the height at 9 for 20,000 entities inserted along a
+line, along a diagonal and at one position; `test_line_sorted_inserts_do_not_overflow_the_stack` crashed a test thread
+with a stack overflow before the change and passes after). This addresses correction 1.
+`SpatialTree3D::{height, remove, update}` (keyed by kind and id; `remove` scans the whole tree) and
+`Nav2Costmap::{update_mob, remove_mob}` address the stale-entity part of correction 2
+(`test_remove_and_update_leave_no_stale_entity`, `test_update_and_remove_mob_keep_mob_list_and_index_in_step`; `add_mob`
+still appends without looking for the same id). `test_tree_queries_match_brute_force_after_inserts_and_removals` compares
+range queries with brute force across inserts and removals. Unchanged: there is still no SAH or rebuild, `evaluate_cost_3d`
+still scans every mob and nothing outside tests calls the index (correction 3), the fixed 3.0 s projection in stored bounds
+(correction 4), and corrections 5 to 7. On that branch today: `cargo test --workspace --offline` 263 passed, 0 failed;
+workspace clippy with `-D warnings` and `cargo fmt --check` clean.
