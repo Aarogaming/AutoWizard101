@@ -379,3 +379,167 @@ fn test_detour_budget_equation_and_approval() {
         "Candidate C covered by dynamic mob aggro cylinder must be rejected"
     );
 }
+
+fn straight_mesh(points: &[(f64, f64)]) -> ZoneNavMesh {
+    let edges = (0..points.len() - 1)
+        .map(|i| NavEdge::new(i, i + 1))
+        .collect();
+    ZoneNavMesh {
+        header_count: points.len() as i16,
+        header_unknown: 0,
+        vertex_records: points.len(),
+        vertices: points
+            .iter()
+            .map(|p| NavVertex::new(p.0, p.1, 0.0))
+            .collect(),
+        edges,
+    }
+}
+
+#[test]
+fn test_edge_cost_rejects_mob_standing_on_a_long_edge() {
+    // Regression for the audit finding: five fixed samples left a mob on a 400-unit edge unseen.
+    let mesh = straight_mesh(&[(0.0, 0.0), (400.0, 0.0)]);
+    for repulsion_radius in [60.0, 10.0] {
+        let mut costmap =
+            Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+        costmap.add_mob(DynamicMobActor::new(
+            1,
+            Vec2D::new(50.0, 0.0),
+            Vec2D::new(0.0, 0.0),
+            10.0,
+            repulsion_radius,
+            3000.0,
+        ));
+        assert_eq!(
+            mesh.evaluate_edge_cost(&mesh.edges[0], &costmap, 0.0),
+            None,
+            "mob inside its aggro radius on the edge must block it (repulsion {repulsion_radius})"
+        );
+    }
+}
+
+#[test]
+fn test_edge_cost_leaves_a_clear_long_edge_at_its_length() {
+    let mesh = straight_mesh(&[(0.0, 0.0), (400.0, 0.0)]);
+    let costmap = Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    let weight = mesh.evaluate_edge_cost(&mesh.edges[0], &costmap, 0.0);
+    assert_eq!(weight, Some(400.0));
+}
+
+#[test]
+fn test_edge_cost_sees_a_static_zone_between_the_old_sample_points() {
+    // The old 5-sample rule looked at x = 0, 100, 200, 300, 400 and missed this zone entirely.
+    let mesh = straight_mesh(&[(0.0, 0.0), (400.0, 0.0)]);
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    costmap.add_zone(PolygonZone::new(
+        "narrow-penalty",
+        vec![
+            Vec2D::new(130.0, -5.0),
+            Vec2D::new(160.0, -5.0),
+            Vec2D::new(160.0, 5.0),
+            Vec2D::new(130.0, 5.0),
+        ],
+        100,
+    ));
+    let weight = mesh
+        .evaluate_edge_cost(&mesh.edges[0], &costmap, 0.0)
+        .expect("a penalty zone is costly, not blocking");
+    // 400 * (1 + 100 / 50) = 1200
+    assert!((weight - 1200.0).abs() < 1e-6, "weight was {weight}");
+}
+
+#[test]
+fn test_safest_path_arrival_time_follows_length_not_penalty_cost() {
+    // Edge 0->1 crosses a penalty-100 zone, so its weight is 150 although it is only 50 units long.
+    // The walker reaches vertex 1 at t = 5 s (10 units/s) and is on edge 1->2 during t = 5..10 s.
+    // A mob reaches (75, 0), the middle of edge 1->2, only at t = 15 s. Deriving arrival time from the
+    // weighted cost (150 / 10 = 15 s) wrongly puts the walker there at the same moment as the mob.
+    let mesh = straight_mesh(&[(0.0, 0.0), (50.0, 0.0), (100.0, 0.0)]);
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    costmap.add_zone(PolygonZone::new(
+        "penalty-on-first-edge",
+        vec![
+            Vec2D::new(-5.0, -5.0),
+            Vec2D::new(55.0, -5.0),
+            Vec2D::new(55.0, 5.0),
+            Vec2D::new(-5.0, 5.0),
+        ],
+        100,
+    ));
+    costmap.add_mob(
+        DynamicMobActor::new(
+            5,
+            Vec2D::new(75.0, 150.0),
+            Vec2D::new(0.0, -10.0),
+            10.0,
+            10.0,
+            0.0,
+        )
+        .with_lookahead(30.0),
+    );
+    assert_eq!(
+        mesh.find_safest_path(0, 2, &costmap, 0.0, 10.0),
+        Some(vec![0, 1, 2]),
+        "the mob stays more than 50 units from the walker during the real crossing"
+    );
+}
+
+#[test]
+fn test_moving_edge_cost_follows_the_walker_along_a_long_edge() {
+    // A mob reaches the far end (200, 0) at t = 20 s, exactly when a 10 units/s walker does.
+    let mesh = straight_mesh(&[(0.0, 0.0), (200.0, 0.0)]);
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    costmap.add_mob(
+        DynamicMobActor::new(
+            6,
+            Vec2D::new(200.0, 200.0),
+            Vec2D::new(0.0, -10.0),
+            10.0,
+            10.0,
+            0.0,
+        )
+        .with_lookahead(30.0),
+    );
+    assert_eq!(
+        mesh.evaluate_edge_cost_moving(&mesh.edges[0], &costmap, 0.0, 10.0),
+        None,
+        "walker and mob meet at the far end at t = 20 s"
+    );
+    // A fast walker (100 units/s) is there at t = 2 s, long before the mob arrives.
+    assert_eq!(
+        mesh.evaluate_edge_cost_moving(&mesh.edges[0], &costmap, 0.0, 100.0),
+        Some(200.0)
+    );
+    // The constant-time form evaluates everything at the departure time, where the mob is far away.
+    assert_eq!(
+        mesh.evaluate_edge_cost(&mesh.edges[0], &costmap, 0.0),
+        Some(200.0)
+    );
+}
+
+#[test]
+fn test_moving_edge_cost_does_not_invent_a_conflict_after_the_walker_passed() {
+    // The mob crosses the edge's midpoint at t = 5 s; the walker gets there at t = 10 s. Their closest
+    // approach is about 35 units, outside the 10-unit aggro radius.
+    let mesh = straight_mesh(&[(0.0, 0.0), (200.0, 0.0)]);
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    costmap.add_mob(
+        DynamicMobActor::new(
+            7,
+            Vec2D::new(100.0, 50.0),
+            Vec2D::new(0.0, -10.0),
+            10.0,
+            10.0,
+            0.0,
+        )
+        .with_lookahead(30.0),
+    );
+    assert!(mesh
+        .evaluate_edge_cost_moving(&mesh.edges[0], &costmap, 0.0, 10.0)
+        .is_some());
+}

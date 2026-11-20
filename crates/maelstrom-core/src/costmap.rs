@@ -266,8 +266,12 @@ impl DynamicMobActor {
         }
 
         let predicted = self.predicted_position(arrival_time_s);
-        let dist = point.distance(&predicted);
+        self.cost_for_distance(point.distance(&predicted))
+    }
 
+    /// Cost this mob imposes at planar distance `dist` from its (predicted) position.
+    /// Non-increasing in `dist`, so the worst cost along a path is the cost at the closest approach.
+    pub fn cost_for_distance(&self, dist: f64) -> u8 {
         if dist <= self.aggro_radius {
             COST_LETHAL_OBSTACLE
         } else if dist >= self.repulsion_radius {
@@ -278,6 +282,92 @@ impl DynamicMobActor {
             let field = self.repulsion_weight / ((clearance + 1.0) * (clearance + 1.0));
             (field.round() as u8).clamp(1, 253)
         }
+    }
+
+    /// Worst cost this mob imposes on a walker who moves in a straight line from `a` (at height `za`)
+    /// to `b` (at height `zb`), starting at `start_time_s` and taking `duration_s` to arrive
+    /// (`0.0` evaluates the whole segment at `start_time_s`).
+    ///
+    /// Unlike point sampling this is exact for the model used by `compute_cost_3d`: the mob moves
+    /// linearly and is clamped at `max_lookahead_s`, so the walker-to-mob distance is piecewise
+    /// quadratic in the position along the segment and its minimum is found analytically. The
+    /// elevation filter is applied to the part of the segment inside the vertical tolerance.
+    pub fn compute_segment_cost_3d(
+        &self,
+        a: Vec2D,
+        za: f64,
+        b: Vec2D,
+        zb: f64,
+        start_time_s: f64,
+        duration_s: f64,
+    ) -> u8 {
+        // Part of the segment (parameter s in 0..=1) that is within the vertical tolerance.
+        let (mut s_lo, mut s_hi) = (0.0_f64, 1.0_f64);
+        let dz = zb - za;
+        if dz.abs() < 1e-12 {
+            if (za - self.elevation_z).abs() > self.vertical_tolerance {
+                return COST_FREE;
+            }
+        } else {
+            let s1 = (self.elevation_z - self.vertical_tolerance - za) / dz;
+            let s2 = (self.elevation_z + self.vertical_tolerance - za) / dz;
+            s_lo = s1.min(s2).max(0.0);
+            s_hi = s1.max(s2).min(1.0);
+            if s_lo > s_hi {
+                return COST_FREE;
+            }
+        }
+
+        let lookahead = self.max_lookahead_s.max(0.0);
+        let duration = duration_s.max(0.0);
+
+        // Split at the times where the mob's clamped projection changes regime.
+        let mut cuts = [s_lo, s_hi, s_lo, s_lo];
+        let mut cut_count = 2;
+        if duration > 0.0 {
+            for boundary_time in [0.0, lookahead] {
+                let s = (boundary_time - start_time_s) / duration;
+                if s > s_lo && s < s_hi {
+                    cuts[cut_count] = s;
+                    cut_count += 1;
+                }
+            }
+        }
+        let cuts = &mut cuts[..cut_count];
+        cuts.sort_by(|x, y| x.partial_cmp(y).unwrap_or(core::cmp::Ordering::Equal));
+
+        let (dx, dy) = (b.x - a.x, b.y - a.y);
+        let mut min_dist = f64::INFINITY;
+        for piece in cuts.windows(2) {
+            let (sa, sb) = (piece[0], piece[1]);
+            let mid_time = start_time_s + 0.5 * (sa + sb) * duration;
+            // R(s) = r0 + s * w is the walker-to-mob vector while the regime holds.
+            let (r0x, r0y, wx, wy) = if mid_time <= 0.0 || mid_time >= lookahead {
+                let held = if mid_time <= 0.0 { 0.0 } else { lookahead };
+                (
+                    a.x - (self.position.x + self.velocity.x * held),
+                    a.y - (self.position.y + self.velocity.y * held),
+                    dx,
+                    dy,
+                )
+            } else {
+                (
+                    a.x - (self.position.x + self.velocity.x * start_time_s),
+                    a.y - (self.position.y + self.velocity.y * start_time_s),
+                    dx - self.velocity.x * duration,
+                    dy - self.velocity.y * duration,
+                )
+            };
+            let w_sq = wx * wx + wy * wy;
+            let s_best = if w_sq < 1e-12 {
+                sa
+            } else {
+                (-(r0x * wx + r0y * wy) / w_sq).clamp(sa, sb)
+            };
+            let (rx, ry) = (r0x + s_best * wx, r0y + s_best * wy);
+            min_dist = min_dist.min((rx * rx + ry * ry).sqrt());
+        }
+        self.cost_for_distance(min_dist)
     }
 
     /// Computes dynamic repulsive cost at a candidate point at expected arrival time (2D projection).
@@ -901,36 +991,85 @@ impl ZoneNavMesh {
         Some(v1.distance_3d(v2))
     }
 
-    /// Evaluates dynamic traversal cost of an edge against the costmap at expected arrival time.
-    /// Performs multi-point segment evaluation (start, intermediate samples, end) to guarantee
-    /// zero blindspots along long edges and across vertices.
-    /// Returns None if any point along the edge is lethal or inscribed (blocked by wall or mob).
+    /// Upper bound on samples taken along one edge for the static layers.
+    pub const MAXIMUM_EDGE_SAMPLES: usize = 256;
+
+    /// Evaluates the traversal cost of an edge with every point evaluated at `arrival_time_s`
+    /// (the time the walker is at the edge's start). Use [`Self::evaluate_edge_cost_moving`] when the
+    /// walker's progress along the edge matters.
+    ///
+    /// Static layers (zones, obstacle inflation) are sampled at least every
+    /// `footprint.inscribed_radius` units, up to [`Self::MAXIMUM_EDGE_SAMPLES`] points, so a feature
+    /// narrower than that spacing can still be missed. Dynamic mobs are checked exactly through
+    /// [`DynamicMobActor::compute_segment_cost_3d`], so a mob cannot hide between samples.
+    /// Returns None if the edge is lethal or inscribed anywhere (blocked by wall or mob).
     pub fn evaluate_edge_cost(
         &self,
         edge: &NavEdge,
         costmap: &Nav2Costmap,
         arrival_time_s: f64,
     ) -> Option<f64> {
+        self.edge_cost_over_time(edge, costmap, arrival_time_s, 0.0)
+    }
+
+    /// Like [`Self::evaluate_edge_cost`], but time advances along the edge: the walker leaves the
+    /// start vertex at `depart_time_s` and moves at `speed_units_per_s` (a non-positive or NaN speed
+    /// falls back to 10.0), so mobs are evaluated where they will be when the walker reaches each point.
+    pub fn evaluate_edge_cost_moving(
+        &self,
+        edge: &NavEdge,
+        costmap: &Nav2Costmap,
+        depart_time_s: f64,
+        speed_units_per_s: f64,
+    ) -> Option<f64> {
+        let len = self.edge_length(edge)?;
+        let speed = if speed_units_per_s > 0.0 {
+            speed_units_per_s
+        } else {
+            10.0
+        };
+        self.edge_cost_over_time(edge, costmap, depart_time_s, len / speed)
+    }
+
+    fn edge_cost_over_time(
+        &self,
+        edge: &NavEdge,
+        costmap: &Nav2Costmap,
+        start_time_s: f64,
+        duration_s: f64,
+    ) -> Option<f64> {
         let len = self.edge_length(edge)?;
         let v1 = self.vertices.get(edge.from)?;
         let v2 = self.vertices.get(edge.to)?;
 
-        // Sampling count scales with edge length to prevent skipping obstacles
-        let samples = if len > 60.0 {
-            5
-        } else if len > 20.0 {
-            3
-        } else {
-            2
-        };
+        let spacing = costmap.footprint.inscribed_radius;
+        let samples = ((len / spacing).ceil() as usize)
+            .saturating_add(1)
+            .clamp(2, Self::MAXIMUM_EDGE_SAMPLES);
 
         let mut max_cost = COST_FREE;
         for i in 0..samples {
             let frac = (i as f64) / ((samples - 1) as f64);
             let pt = Vec2D::new(v1.x + (v2.x - v1.x) * frac, v1.y + (v2.y - v1.y) * frac);
             let z = v1.z + (v2.z - v1.z) * frac;
-            let c = costmap.evaluate_cost_3d(pt, Some(z), arrival_time_s);
+            let c = costmap.evaluate_cost_3d(pt, Some(z), start_time_s + duration_s * frac);
 
+            if c >= COST_INSCRIBED_INFLATED {
+                return None;
+            }
+            max_cost = max_cost.max(c);
+        }
+
+        // Exact closest-approach check per mob, so nothing hides between the samples above.
+        for mob in &costmap.dynamic_mobs {
+            let c = mob.compute_segment_cost_3d(
+                v1.to_vec2d(),
+                v1.z,
+                v2.to_vec2d(),
+                v2.z,
+                start_time_s,
+                duration_s,
+            );
             if c >= COST_INSCRIBED_INFLATED {
                 return None;
             }
@@ -958,13 +1097,16 @@ impl ZoneNavMesh {
             return Some(alloc::vec![start]);
         }
 
-        let speed = if speed_units_per_s <= 0.0 {
-            10.0
-        } else {
+        let speed = if speed_units_per_s > 0.0 {
             speed_units_per_s
+        } else {
+            10.0
         };
         let n = self.vertices.len();
         let mut dist = alloc::vec![f64::INFINITY; n];
+        // Walking distance along the chosen route; arrival time comes from this, not from `dist`,
+        // which is the weighted cost and grows faster than the walk.
+        let mut travelled = alloc::vec![0.0_f64; n];
         let mut prev = alloc::vec![None; n];
         let mut visited = alloc::vec![false; n];
 
@@ -1000,12 +1142,15 @@ impl ZoneNavMesh {
                 if visited[v] {
                     continue;
                 }
-                let arrival_time = start_time_s + dist[u] / speed;
-                if let Some(edge_weight) = self.evaluate_edge_cost(edge, costmap, arrival_time) {
+                let depart_time = start_time_s + travelled[u] / speed;
+                if let Some(edge_weight) =
+                    self.evaluate_edge_cost_moving(edge, costmap, depart_time, speed)
+                {
                     let alt = dist[u] + edge_weight;
                     if alt < dist[v] {
                         dist[v] = alt;
                         prev[v] = Some(u);
+                        travelled[v] = travelled[u] + self.edge_length(edge).unwrap_or(0.0);
                     }
                 }
             }
@@ -1384,5 +1529,96 @@ mod tests {
         // Path is now completely blocked (no alternative branch) -> None
         let blocked_path = mesh.find_safest_path(0, 2, &costmap, 0.0, 10.0);
         assert_eq!(blocked_path, None);
+    }
+
+    struct Lcg(u64);
+
+    impl Lcg {
+        fn next(&mut self) -> f64 {
+            self.0 = self
+                .0
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
+            ((self.0 >> 33) as f64) / ((1u64 << 31) as f64)
+        }
+
+        fn range(&mut self, lo: f64, hi: f64) -> f64 {
+            lo + (hi - lo) * self.next()
+        }
+    }
+
+    #[test]
+    fn test_segment_cost_matches_dense_sampling() {
+        // The analytic closest-approach cost must never be below dense point sampling of the same
+        // model (monotone cost in distance) and must not exceed it by more than sampling resolution.
+        let mut rng = Lcg(42);
+        for case in 0..300 {
+            let mob = DynamicMobActor::new(
+                1,
+                Vec2D::new(rng.range(-100.0, 100.0), rng.range(-100.0, 100.0)),
+                Vec2D::new(rng.range(-20.0, 20.0), rng.range(-20.0, 20.0)),
+                rng.range(5.0, 20.0),
+                rng.range(25.0, 80.0),
+                rng.range(50.0, 400.0),
+            )
+            .with_elevation(rng.range(-30.0, 30.0), rng.range(5.0, 60.0))
+            .with_lookahead(rng.range(1.0, 8.0));
+            let a = Vec2D::new(rng.range(-150.0, 150.0), rng.range(-150.0, 150.0));
+            let b = Vec2D::new(rng.range(-150.0, 150.0), rng.range(-150.0, 150.0));
+            let (za, zb) = (rng.range(-40.0, 40.0), rng.range(-40.0, 40.0));
+            let t0 = rng.range(-1.0, 6.0);
+            let duration = if case % 3 == 0 {
+                0.0
+            } else {
+                rng.range(0.0, 20.0)
+            };
+
+            let exact = mob.compute_segment_cost_3d(a, za, b, zb, t0, duration);
+
+            let steps = 20_000;
+            let mut sampled = COST_FREE;
+            for i in 0..=steps {
+                let s = (i as f64) / (steps as f64);
+                let p = Vec2D::new(a.x + (b.x - a.x) * s, a.y + (b.y - a.y) * s);
+                let z = za + (zb - za) * s;
+                sampled = sampled.max(mob.compute_cost_3d(&p, Some(z), t0 + duration * s));
+            }
+            assert!(
+                (exact as i32) + 1 >= sampled as i32,
+                "case {case}: exact {exact} below dense sampling {sampled}"
+            );
+            assert!(
+                (exact as i32) - (sampled as i32) <= 8,
+                "case {case}: exact {exact} far above dense sampling {sampled}"
+            );
+        }
+    }
+
+    #[test]
+    fn test_segment_cost_respects_vertical_tolerance_window() {
+        // Mob sits on the segment's path but only at heights 0..=10; the walker climbs from 0 to 100,
+        // so only the first tenth of the segment is within tolerance and the mob is crossed there.
+        let mob =
+            DynamicMobActor::new(1, Vec2D::new(5.0, 0.0), Vec2D::new(0.0, 0.0), 3.0, 3.0, 0.0)
+                .with_elevation(5.0, 5.0);
+        let cost_through = mob.compute_segment_cost_3d(
+            Vec2D::new(0.0, 0.0),
+            0.0,
+            Vec2D::new(10.0, 0.0),
+            10.0,
+            0.0,
+            0.0,
+        );
+        assert_eq!(cost_through, COST_LETHAL_OBSTACLE);
+        // Same plan but the walker is already far above the mob's window.
+        let cost_above = mob.compute_segment_cost_3d(
+            Vec2D::new(0.0, 0.0),
+            100.0,
+            Vec2D::new(10.0, 0.0),
+            120.0,
+            0.0,
+            0.0,
+        );
+        assert_eq!(cost_above, COST_FREE);
     }
 }
