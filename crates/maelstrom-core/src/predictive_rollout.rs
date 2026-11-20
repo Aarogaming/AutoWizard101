@@ -252,8 +252,9 @@ impl PredictiveRolloutEngine {
         for step_idx in 1..=self.horizon_steps {
             let elapsed_t = (step_idx as f64) * self.step_dt_s;
 
-            // Only actuate if within action duration
-            if elapsed_t <= action_duration_s {
+            // Only actuate if within action duration. The tolerance keeps a pulse that ends exactly on a step
+            // boundary from losing that step to rounding (3 * 0.1 is 0.30000000000000004, not 0.3).
+            if elapsed_t <= action_duration_s + 1e-9 {
                 match action {
                     CandidateAction::ForwardPulse { .. } => {
                         let (fwd_x, fwd_y) = cur_pose.forward_vector_2d();
