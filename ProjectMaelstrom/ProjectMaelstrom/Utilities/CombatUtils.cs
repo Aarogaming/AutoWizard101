@@ -63,7 +63,7 @@ internal class CombatUtils : Util
 
         if (passBtn.HasValue)
         {
-            WinAPI.click(passBtn.Value);
+            _playerController.Click(passBtn.Value);
         }
     }
 

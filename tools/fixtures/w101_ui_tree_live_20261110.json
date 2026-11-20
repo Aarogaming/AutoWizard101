@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "sourceKind": "Derived structural projection for the four states from user-coordinated native UI traces; not screenshots. Only matching nodes/ancestors retained; original trace hashes/timestamps preserved.",
+  "cases": [
+    {
+      "id": "idle",
+      "sourceRun": "3d2dcf00a7a94a11ac01d5149b1b0d9c",
+      "sourceTraceSha256": "8a9b07694dae2d0be9f7ffdf893f3ea9154b88d4dd6d12585be16f2e38f433fb",
+      "observedUtcTicks": 639299644231275033,
+      "expected": {
+        "interactionPrompt": false,
+        "dialogue": false,
+        "menu": false,
+        "nativeIdle": true
+      },
+      "tree": {
+        "nodes": [
+          {
+            "index": 0,
+            "parent": null,
+            "name": "Root",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "name": "WorldView",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 4,
+            "parent": 0,
+            "name": "idleMessage",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 14,
+            "parent": 4,
+            "name": "idleBackground",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 15,
+            "parent": 14,
+            "name": "idleText",
+            "visible": true,
+            "enabled": true,
+            "text": "<center>You Are Idle</center>"
+          }
+        ],
+        "complete": true,
+        "readBytes": 2238,
+        "layout": "544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e"
+      }
+    },
+    {
+      "id": "clear",
+      "sourceRun": "3d2dcf00a7a94a11ac01d5149b1b0d9c",
+      "sourceTraceSha256": "8a9b07694dae2d0be9f7ffdf893f3ea9154b88d4dd6d12585be16f2e38f433fb",
+      "observedUtcTicks": 639299644542946642,
+      "expected": {
+        "interactionPrompt": false,
+        "dialogue": false,
+        "menu": false,
+        "nativeIdle": false
+      },
+      "tree": {
+        "nodes": [
+          {
+            "index": 0,
+            "parent": null,
+            "name": "Root",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "name": "WorldView",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          }
+        ],
+        "complete": true,
+        "readBytes": 1524,
+        "layout": "544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e"
+      }
+    },
+    {
+      "id": "settings",
+      "sourceRun": "3d2dcf00a7a94a11ac01d5149b1b0d9c",
+      "sourceTraceSha256": "8a9b07694dae2d0be9f7ffdf893f3ea9154b88d4dd6d12585be16f2e38f433fb",
+      "observedUtcTicks": 639299644472018982,
+      "expected": {
+        "interactionPrompt": false,
+        "dialogue": false,
+        "menu": true,
+        "nativeIdle": false
+      },
+      "tree": {
+        "nodes": [
+          {
+            "index": 0,
+            "parent": null,
+            "name": "Root",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "name": "WorldView",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 13,
+            "parent": 1,
+            "name": "DeckConfiguration",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 25,
+            "parent": 13,
+            "name": "SettingPage",
+            "visible": true,
+            "enabled": true,
+            "text": null,
+            "childrenSkipped": true
+          }
+        ],
+        "complete": true,
+        "readBytes": 3013,
+        "layout": "544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e"
+      }
+    },
+    {
+      "id": "prompt",
+      "sourceRun": "86a5e4201ce24132b16c6667c42dde98",
+      "sourceTraceSha256": "2dbbd9abdd24acfc6c6a898d4bfb7a5a23cf1997b0edde0784f6a98901b1630f",
+      "observedUtcTicks": 639299645581435765,
+      "expected": {
+        "interactionPrompt": true,
+        "dialogue": false,
+        "menu": false,
+        "nativeIdle": false
+      },
+      "tree": {
+        "nodes": [
+          {
+            "index": 0,
+            "parent": null,
+            "name": "Root",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "name": "WorldView",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 13,
+            "parent": 1,
+            "name": "NPCRangeWin",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          }
+        ],
+        "complete": true,
+        "readBytes": 3469,
+        "layout": "544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e"
+      }
+    },
+    {
+      "id": "vendor",
+      "sourceRun": "86a5e4201ce24132b16c6667c42dde98",
+      "sourceTraceSha256": "2dbbd9abdd24acfc6c6a898d4bfb7a5a23cf1997b0edde0784f6a98901b1630f",
+      "observedUtcTicks": 639299645831686780,
+      "expected": {
+        "interactionPrompt": false,
+        "dialogue": false,
+        "menu": true,
+        "nativeIdle": false
+      },
+      "tree": {
+        "nodes": [
+          {
+            "index": 0,
+            "parent": null,
+            "name": "Root",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "name": "WorldView",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 12,
+            "parent": 1,
+            "name": "shopGUI",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          }
+        ],
+        "complete": true,
+        "readBytes": 15326,
+        "layout": "544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e"
+      }
+    },
+    {
+      "id": "pay-to-play",
+      "sourceRun": "86a5e4201ce24132b16c6667c42dde98",
+      "sourceTraceSha256": "2dbbd9abdd24acfc6c6a898d4bfb7a5a23cf1997b0edde0784f6a98901b1630f",
+      "observedUtcTicks": 639299645701540473,
+      "expected": {
+        "interactionPrompt": false,
+        "dialogue": false,
+        "menu": true,
+        "nativeIdle": false
+      },
+      "tree": {
+        "nodes": [
+          {
+            "index": 0,
+            "parent": null,
+            "name": "Root",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "name": "WorldView",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 13,
+            "parent": 1,
+            "name": "PayToPlay",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          }
+        ],
+        "complete": true,
+        "readBytes": 6852,
+        "layout": "544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e"
+      }
+    },
+    {
+      "id": "spoken-dialogue",
+      "sourceRun": "837eeac3db89419db999d53eafd6ec0a",
+      "sourceTraceSha256": "79d6159973662da311ecf5e34d234ac9abe3bbde58e2937a73c532b87eca1b99",
+      "observedUtcTicks": 639299652172376077,
+      "expected": {
+        "interactionPrompt": false,
+        "dialogue": true,
+        "menu": false,
+        "nativeIdle": false
+      },
+      "tree": {
+        "nodes": [
+          {
+            "index": 0,
+            "parent": null,
+            "name": "Root",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 1,
+            "parent": 0,
+            "name": "WorldView",
+            "visible": true,
+            "enabled": true,
+            "text": null
+          },
+          {
+            "index": 12,
+            "parent": 1,
+            "name": "wndDialogMain",
+            "visible": true,
+            "enabled": true,
+            "text": null,
+            "childrenSkipped": true
+          }
+        ],
+        "complete": true,
+        "readBytes": 1636,
+        "layout": "544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e"
+      }
+    }
+  ]
+}

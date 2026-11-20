@@ -23,26 +23,22 @@ internal sealed class SmartPlayManager : IDisposable
     private System.Threading.Timer? _timer;
     private bool _disposing;
     private SmartTask? _activeTask;
+    private OperationTicket? _operation;
     private readonly string _taskPath;
     private readonly TemplateLibrary _templateLibrary = TemplateLibrary.Instance;
     private readonly string _tuningPath;
     private SmartTelemetry _telemetry = new();
-    private DateTime _taskStartUtc;
     private DateTime _lastHeartbeat = DateTime.UtcNow;
     private readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
     private readonly List<GameAudioCue> _recentAudioCues = new();
     private readonly TimeSpan _audioHorizon = TimeSpan.FromSeconds(20);
     private Func<string>? _designCaptureHandler;
-    private readonly ExecutionPolicySnapshot _policy;
-    private readonly IExecutor _executor;
 
     public SmartPlayManager(PlayerController controller)
     {
         _controller = controller;
         _taskPath = Path.Combine(StorageUtils.GetCacheDirectory(), "smartplay_tasks.json");
         _tuningPath = Path.Combine(StorageUtils.GetCacheDirectory(), "smartplay_tuning.json");
-        _policy = ExecutionPolicyManager.Current;
-        _executor = ExecutorFactory.FromPolicy(_policy);
         LoadTelemetry();
     }
 
@@ -61,6 +57,8 @@ internal sealed class SmartPlayManager : IDisposable
     {
         _timer?.Dispose();
         _timer = null;
+        lock (_lock) { _operation?.Cancel(); _taskQueue.Clear(); }
+        _controller.ReleaseAll();
     }
 
     public int QueueLength
@@ -125,27 +123,28 @@ internal sealed class SmartPlayManager : IDisposable
 
     public void EnqueueNavigationToBazaar()
     {
-        _taskQueue.Enqueue(SmartTask.FromPlan("Go to Bazaar", NavigationKnowledge.GetBazaarPlanFromAnywhere(), RouteScaler));
+        QueueTask(SmartTask.FromPlan("Go to Bazaar", NavigationKnowledge.GetBazaarPlanFromAnywhere(), RouteScaler));
     }
 
     public void EnqueueNavigationToMiniGames()
     {
-        _taskQueue.Enqueue(SmartTask.FromPlan("Go to Mini Games", NavigationKnowledge.GetMiniGamePlanFromAnywhere(), RouteScaler));
+        QueueTask(SmartTask.FromPlan("Go to Mini Games", NavigationKnowledge.GetMiniGamePlanFromAnywhere(), RouteScaler));
     }
 
     public void EnqueueNavigationToPetPavilion()
     {
-        _taskQueue.Enqueue(SmartTask.FromPlan("Go to Pet Pavilion", NavigationKnowledge.GetPetPavilionPlanFromAnywhere(), RouteScaler));
+        QueueTask(SmartTask.FromPlan("Go to Pet Pavilion", NavigationKnowledge.GetPetPavilionPlanFromAnywhere(), RouteScaler));
     }
 
     public void EnqueuePotionRefillRun()
     {
         var plan = NavigationKnowledge.GetMiniGamePlanFromAnywhere();
-        _taskQueue.Enqueue(SmartTask.FromPlan("Potion refill via mini-game", plan, RouteScaler, includeMiniGameLoop: true));
+        QueueTask(SmartTask.FromPlan("Potion refill via mini-game", plan, RouteScaler, includeMiniGameLoop: true));
     }
 
     public void EnqueueScriptRun(string scriptName, int repeatCount = 1)
     {
+        if (repeatCount is < 1 or > 20) throw new InvalidOperationException("Choose a finite repeat count from 1 to 20. Unlimited legacy runs are no longer accepted.");
         var script = ScriptLibraryService.Instance.Scripts
             .FirstOrDefault(s => string.Equals(s.Manifest.Name, scriptName, StringComparison.OrdinalIgnoreCase));
 
@@ -155,19 +154,27 @@ internal sealed class SmartPlayManager : IDisposable
             return;
         }
 
-        _taskQueue.Enqueue(SmartTask.FromScript(script, repeatCount));
+        QueueTask(SmartTask.FromScript(script, repeatCount));
     }
 
     public void EnqueueDesignCapture()
     {
         if (_designCaptureHandler == null) return;
-        _taskQueue.Enqueue(SmartTask.DesignCapture());
+        QueueTask(SmartTask.DesignCapture());
     }
 
     internal void EnqueueExternalTask(SmartTask task)
     {
         if (task == null) return;
-        _taskQueue.Enqueue(task);
+        QueueTask(task);
+    }
+    private void QueueTask(SmartTask task)
+    {
+        lock (_lock)
+        {
+            if (QueueLength >= OperationScheduler.Capacity) throw new InvalidOperationException("Legacy task queue is full (32 tasks).");
+            _taskQueue.Enqueue(task);
+        }
     }
 
     /// <summary>
@@ -202,9 +209,9 @@ internal sealed class SmartPlayManager : IDisposable
             Y = match.Center.Y
         };
 
-        var ctx = new ExecutionContext { Source = "SmartPlay.Template", TaskName = _activeTask?.Name, Bridge = _inputBridge };
-        _executor.Execute(new[] { clickCmd }, ctx);
-        Logger.LogBotAction("SmartPlay", $"Template '{templateKey}' matched at {match.Center} (score {match.Score:0.00}) and dispatched to executor.");
+        // A saved screenshot cannot establish fresh live target coordinates.
+        Logger.LogBotAction("SmartPlay", $"Template '{templateKey}' matched at {match.Center} (score {match.Score:0.00}). Saved-image clicks remain simulation-only.");
+        new SimulationExecutor().Execute(new[] { clickCmd }, new ExecutionContext { Source = "SmartPlay.Template", Bridge = _inputBridge });
     }
 
     public void SetDesignCaptureHandler(Func<string> captureHandler)
@@ -231,101 +238,71 @@ internal sealed class SmartPlayManager : IDisposable
 
     private void Pump()
     {
-        if (_disposing) return;
-
-        if (_policy.AllowLiveAutomation && _inputBridge != null && !_inputBridge.IsIdle)
+        lock (_lock)
         {
-            // Live path still draining; wait.
-            return;
-        }
-
-        LoadExternalTasks();
-
-        if (_activeTask == null && _taskQueue.TryDequeue(out var next))
-        {
-            _activeTask = next;
-            _taskStartUtc = DateTime.UtcNow;
-            MaybeEnqueueZoneHints();
-        }
-
-        if (DevMode.IsEnabled)
-        {
-            EmitHeartbeat();
-        }
-
-        if (_activeTask == null) return;
-
-        if (_activeTask.Kind == SmartTaskKind.ScriptRun)
-        {
-            HandleScriptTask(_activeTask);
-        }
-        else if (_activeTask.Kind == SmartTaskKind.DesignCapture)
-        {
-            HandleDesignCapture(_activeTask);
-        }
-        else
-        {
-            var commands = _activeTask.GetPendingCommands().ToList();
-            if (commands.Count == 0)
-            {
-                if (_taskStartUtc != default && _activeTask.RouteNames.Any())
-                {
-                    var duration = DateTime.UtcNow - _taskStartUtc;
-                    RecordRouteTiming(_activeTask.RouteNames, duration);
-                }
-                Logger.LogBotAction("SmartPlay", $"Completed task: {_activeTask.Name}");
-                _activeTask = null;
-                return;
-            }
-
-            var ctx = new ExecutionContext { Source = "SmartPlay.Task", TaskName = _activeTask.Name, Bridge = _inputBridge };
-            _executor.Execute(commands, ctx);
-        }
-    }
-
-    private void HandleScriptTask(SmartTask task)
-    {
-        var scriptService = ScriptLibraryService.Instance;
-
-        if (!task.Started)
-        {
-            if (scriptService.CurrentSession != null)
-            {
-                return; // wait until free
-            }
-
+            if (_disposing) return;
             try
             {
-                scriptService.StartScript(task.Script!);
-                task.Started = true;
-                Logger.LogBotAction("SmartPlay", $"Started smart script: {task.Script!.Manifest.Name}");
+                if (_operation != null)
+                {
+                    if (!_operation.Completion.IsCompleted) return;
+                    var receipt = _operation.Completion.GetAwaiter().GetResult();
+                    Logger.LogBotAction("SmartPlay", $"{receipt.State}: {receipt.Message}");
+                    _operation = null; _activeTask = null;
+                    if (receipt.State != OperationState.Completed) _taskQueue.Clear();
+                }
+                LoadExternalTasks();
+                if (!_taskQueue.TryDequeue(out var next)) return;
+                _activeTask = next;
+                var policy = ExecutionPolicyManager.Current;
+                bool live = policy.AllowLiveAutomation && next.Kind != SmartTaskKind.DesignCapture && !ScriptLibraryService.Instance.DryRun;
+                var target = live ? GameWindows.List().SingleOrDefault(w => HomeMovementGate.IsWizard101(w) && w.Handle == WinAPI.GetForegroundWindow()) : null;
+                if (live && target == null) throw new InvalidOperationException("Live legacy task paused: Wizard101 must already be foreground.");
+                var pins = new Dictionary<string, string>();
+                if (next.Script != null)
+                {
+                    var path = Path.GetFullPath(Path.Combine(next.Script.RootPath, next.Script.Manifest.EntryPoint)); pins[path] = GameExperiments.Digest(path);
+                }
+                var request = new OperationRequest(Guid.NewGuid().ToString("N"), "legacy." + next.Kind, "legacy-bounded-v1", 600, live,
+                    target == null ? "simulation" : $"{target.ProcessId}:{target.StartedUtcTicks}:{target.Handle}", pins);
+                _operation = ApplicationOperations.For(WorkshopHost.DataRoot(AppContext.BaseDirectory)).Submit(request, async (_, token) =>
+                {
+                    try
+                    {
+                        if (next.Kind == SmartTaskKind.DesignCapture)
+                        {
+                            if (_designCaptureHandler == null) return new(OperationState.Failed, "No capture handler is registered.", []);
+                            return OperationOutcome.Completed("Design capture saved.", _designCaptureHandler());
+                        }
+                        if (next.Kind == SmartTaskKind.ScriptRun)
+                        {
+                            for (int repeat = 0; repeat < next.RemainingRuns; repeat++)
+                            {
+                                token.ThrowIfCancellationRequested();
+                                if (!live) return new(OperationState.Completed, "Script simulation: no executable launched.", []);
+                                if (!GameWindows.IsCurrent(target!)) throw new InvalidOperationException("Selected target changed.");
+                                var session = ScriptLibraryService.Instance.StartScript(next.Script!);
+                                try { await session.Process.WaitForExitAsync(token).ConfigureAwait(false); }
+                                finally { if (ScriptLibraryService.Instance.CurrentSession == session) ScriptLibraryService.Instance.StopCurrentScript(); }
+                                if (session.Process.ExitCode != 0) return new(OperationState.Failed, "Legacy script exited with an error; gameplay result is unverified.", []);
+                            }
+                            return new(OperationState.Unknown, "Legacy process exited; game outcome remains unverified. Dependent legacy work paused.", []);
+                        }
+                        var executor = live ? ExecutorFactory.FromPolicy(ExecutionPolicyManager.Current) : new SimulationExecutor();
+                        foreach (var command in next.GetPendingCommands())
+                        {
+                            token.ThrowIfCancellationRequested();
+                            if (live && (!ExecutionPolicyManager.Current.AllowLiveAutomation || !GameWindows.IsCurrent(target!) || WinAPI.GetForegroundWindow() != target!.Handle))
+                                throw new InvalidOperationException("Game controls paused: policy, target or foreground changed.");
+                            executor.Execute([command], new ExecutionContext { Source = "SmartPlay.Operation", TaskName = next.Name, Bridge = _inputBridge });
+                        }
+                        return new(live ? OperationState.Unknown : OperationState.Completed, live ? "Commands finished; arrival/game outcome unverified. Dependent legacy work paused." : "Simulation finished; no game inputs sent.", []);
+                    }
+                    finally { _controller.ReleaseAll(); }
+                });
             }
-            catch (Exception ex)
-            {
-                Logger.LogError("[SmartPlay] Failed to start script", ex);
-                _activeTask = null;
-            }
-            return;
+            catch (Exception error) { Logger.LogError("[SmartPlay] Operation paused", error); _operation = null; _activeTask = null; _taskQueue.Clear(); }
         }
-
-        // Started; wait until script finishes.
-        if (scriptService.CurrentSession != null)
-        {
-            return;
-        }
-
-        // Script done
-        if (task.RemainingRuns == 0)
-        {
-            _taskQueue.Enqueue(task.CloneForNextRun());
-        }
-        else if (task.RemainingRuns > 1)
-        {
-            _taskQueue.Enqueue(task.CloneForNextRun(task.RemainingRuns - 1));
-        }
-
-        Logger.LogBotAction("SmartPlay", $"Completed smart script: {task.Script!.Manifest.Name}");
-        _activeTask = null;
     }
 
     private void EmitHeartbeat()
@@ -369,14 +346,20 @@ internal sealed class SmartPlayManager : IDisposable
     private void LoadExternalTasks()
     {
         if (!File.Exists(_taskPath)) return;
-
+        var history = Path.Combine(Path.GetDirectoryName(_taskPath)!, "legacy-task-inbox");
+        Directory.CreateDirectory(history);
+        var claimed = Path.Combine(history, Guid.NewGuid().ToString("N") + ".received.json");
         try
         {
-            var json = File.ReadAllText(_taskPath);
+            File.Move(_taskPath, claimed);
+            if (new FileInfo(claimed).Length > 1048576) throw new InvalidDataException("Legacy task request exceeds 1 MiB.");
+            var json = File.ReadAllText(claimed);
             var defs = JsonSerializer.Deserialize<List<SmartPlayTaskDefinition>>(json, _jsonOptions);
-            if (defs == null) return;
+            ValidateInbox(defs, OperationScheduler.Capacity - QueueLength);
+            if (defs!.Any(d => string.Equals(d.Type?.Trim(), "script_run", StringComparison.OrdinalIgnoreCase) && !ScriptLibraryService.Instance.Scripts.Any(s => s.Manifest.Name.Equals(d.ScriptName, StringComparison.OrdinalIgnoreCase))))
+                throw new InvalidDataException("A requested script is not installed.");
 
-            foreach (var def in defs)
+            foreach (var def in defs!)
             {
                 if (def == null || string.IsNullOrWhiteSpace(def.Type)) continue;
                 switch (def.Type.Trim().ToLowerInvariant())
@@ -404,10 +387,21 @@ internal sealed class SmartPlayManager : IDisposable
         catch (Exception ex)
         {
             Logger.LogError("[SmartPlay] Failed to load smartplay_tasks.json", ex);
+            if (File.Exists(claimed)) File.WriteAllText(claimed + ".error.txt", ex.Message);
         }
-        finally
+        // Preserve even invalid input for inspection; never delete it or retry it implicitly.
+    }
+    internal static void ValidateInbox(List<SmartPlayTaskDefinition>? definitions, int available)
+    {
+        if (definitions == null || definitions.Count is < 1 or > 32 || definitions.Count > available) throw new InvalidDataException("Legacy task batch must fit within the bounded queue.");
+        foreach (var definition in definitions)
         {
-            try { File.Delete(_taskPath); } catch { /* ignore */ }
+            if (definition == null) throw new InvalidDataException("Missing legacy task.");
+            var type = definition.Type?.Trim().ToLowerInvariant();
+            if (type == "script_run" && !string.IsNullOrWhiteSpace(definition.ScriptName) && (definition.RepeatCount ?? 1) is >= 1 and <= 20) continue;
+            if (type == "nav" && definition.Target?.ToLowerInvariant() is "bazaar" or "minigames" or "pet") continue;
+            if (type == "potion_refill") continue;
+            throw new InvalidDataException("Unknown task or unbounded script repetition; no part of the batch was admitted.");
         }
     }
 

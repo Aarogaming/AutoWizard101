@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "dodge-movement-draft",
+  "game_id": "dodge-the-creeps",
+  "start_node": "playing",
+  "timeout_ms": 120000,
+  "max_actions": 1000,
+  "pause_scenes": [
+    "Loading",
+    "Unknown"
+  ],
+  "nodes": [
+    {
+      "id": "playing",
+      "complete_scene": "game-over",
+      "edges": [
+        {
+          "id": "left",
+          "scene": "threat-right",
+          "action_id": "move-left",
+          "expected_scenes": [
+            "movement-observed",
+            "game-over"
+          ],
+          "next_node": "playing",
+          "timeout_ms": 2000,
+          "requires_control": false
+        },
+        {
+          "id": "right",
+          "scene": "threat-left",
+          "action_id": "move-right",
+          "expected_scenes": [
+            "movement-observed",
+            "game-over"
+          ],
+          "next_node": "playing",
+          "timeout_ms": 2000,
+          "requires_control": false
+        }
+      ]
+    }
+  ]
+}

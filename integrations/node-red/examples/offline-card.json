@@ -1,0 +1,182 @@
+[
+  {
+    "id": "offline-card",
+    "type": "tab",
+    "label": "Maelstrom \u00b7 offline control card",
+    "disabled": false,
+    "info": "Manual state \u2192 configurable status condition \u2192 existing Stop action. No game connection. Use isolated data root."
+  },
+  {
+    "id": "run",
+    "type": "inject",
+    "z": "offline-card",
+    "name": "Test card once",
+    "props": [
+      {
+        "p": "topic",
+        "vt": "str"
+      },
+      {
+        "p": "payload"
+      },
+      {
+        "p": "requestId",
+        "v": "64978bca37de49c29c9d488b71dca129",
+        "vt": "str"
+      }
+    ],
+    "topic": "state",
+    "payload": "{}",
+    "payloadType": "json",
+    "repeat": "",
+    "once": false,
+    "x": 130,
+    "y": 160,
+    "wires": [
+      [
+        "read"
+      ]
+    ]
+  },
+  {
+    "id": "read",
+    "type": "maelstrom-local",
+    "z": "offline-card",
+    "name": "Read Maelstrom state",
+    "dataRoot": "${MAELSTROM_TEST_DATA_ROOT}",
+    "channel": "state",
+    "interval": 1000,
+    "allowActions": false,
+    "x": 340,
+    "y": 160,
+    "wires": [
+      [
+        "ok"
+      ]
+    ]
+  },
+  {
+    "id": "ok",
+    "type": "switch",
+    "z": "offline-card",
+    "name": "Reply confirmed?",
+    "property": "payload.ok",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "true"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 550,
+    "y": 160,
+    "wires": [
+      [
+        "condition"
+      ]
+    ]
+  },
+  {
+    "id": "condition",
+    "type": "switch",
+    "z": "offline-card",
+    "name": "Card condition: owner is Stopped",
+    "property": "payload.result.state.status",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "Stopped",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 1,
+    "x": 800,
+    "y": 160,
+    "wires": [
+      [
+        "action"
+      ]
+    ]
+  },
+  {
+    "id": "action",
+    "type": "change",
+    "z": "offline-card",
+    "name": "Action: Stop (no game input)",
+    "rules": [
+      {
+        "t": "set",
+        "p": "topic",
+        "pt": "msg",
+        "to": "stop",
+        "tot": "str"
+      },
+      {
+        "t": "set",
+        "p": "payload",
+        "pt": "msg",
+        "to": "{}",
+        "tot": "json"
+      }
+    ],
+    "x": 350,
+    "y": 260,
+    "wires": [
+      [
+        "execute"
+      ]
+    ]
+  },
+  {
+    "id": "execute",
+    "type": "maelstrom-local",
+    "z": "offline-card",
+    "name": "Call existing owner action",
+    "dataRoot": "${MAELSTROM_TEST_DATA_ROOT}",
+    "channel": "state",
+    "interval": 1000,
+    "allowActions": true,
+    "x": 620,
+    "y": 260,
+    "wires": [
+      [
+        "result"
+      ]
+    ]
+  },
+  {
+    "id": "result",
+    "type": "debug",
+    "z": "offline-card",
+    "name": "Verified API reply (not game outcome)",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 920,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "errors",
+    "type": "catch",
+    "z": "offline-card",
+    "name": "Show errors",
+    "scope": null,
+    "uncaught": false,
+    "x": 130,
+    "y": 340,
+    "wires": [
+      [
+        "result"
+      ]
+    ]
+  }
+]

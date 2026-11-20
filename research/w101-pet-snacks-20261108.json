@@ -1,0 +1,439 @@
+{
+  "schema_version": 1,
+  "kind": "game-research-ledger",
+  "game_id": "wizard101",
+  "subsystem": "pet-snacks",
+  "research_date": "2026-11-08",
+  "research_timezone": "America/New_York",
+  "executable": false,
+  "automatic_runtime_import": false,
+  "runtime_feeding_enabled": false,
+  "live_qualified": false,
+  "report": "docs/W101_PET_SNACK_RESEARCH_20261108.md",
+  "scope": "Optional training snacks, independent Happiness routine, inventory planning and scheduler interfaces. Ordinary inventory-item feeding is excluded.",
+  "evidence_policy": [
+    "Source publication/update timestamps, feature effective dates, region, platform, Live/Test Realm and observed client build are independent.",
+    "Search crawl dates and retrieval dates do not establish feature release dates.",
+    "Official undated guide pages can contain historical details; secondary numeric claims remain calibration hypotheses.",
+    "No snack screen, inventory or feeding outcome was observed during this workstream.",
+    "Research is not permission to consume items, buy currency or dispatch inputs."
+  ],
+  "sources": [
+    {
+      "id": "official-training-feed",
+      "kind": "official-guide",
+      "url": "https://www.wizard101.com/w101playersguide/pet-games6",
+      "published_on": null,
+      "modified_on": null,
+      "retrieved_on": "2026-11-08",
+      "retrieved_timezone": "America/New_York",
+      "http_status": 200,
+      "resolved_url": "https://www.wizard101.com/w101playersguide/pet-games6",
+      "region": "not-established",
+      "platform": "PC guide context; active client not verified",
+      "release_scope": "historical or undated game documentation",
+      "limitation": "Undated legacy guide; no current UI or exact bonus qualification."
+    },
+    {
+      "id": "official-energy",
+      "kind": "official-guide",
+      "url": "https://www.wizard101.com/w101playersguide/pet-games7",
+      "published_on": null,
+      "modified_on": null,
+      "retrieved_on": "2026-11-08",
+      "retrieved_timezone": "America/New_York",
+      "http_status": 200,
+      "resolved_url": "https://www.wizard101.com/w101playersguide/pet-games7",
+      "region": "not-established",
+      "platform": "PC guide context; active client not verified",
+      "release_scope": "historical or undated game documentation",
+      "limitation": "Broad Energy/training baseline; current costs and regeneration unmeasured."
+    },
+    {
+      "id": "official-stats",
+      "kind": "official-guide",
+      "url": "https://www.wizard101.com/w101playersguide/pet-games3",
+      "published_on": null,
+      "modified_on": null,
+      "retrieved_on": "2026-11-08",
+      "retrieved_timezone": "America/New_York",
+      "http_status": 200,
+      "resolved_url": "https://www.wizard101.com/w101playersguide/pet-games3",
+      "region": "not-established",
+      "platform": "PC guide context; active client not verified",
+      "release_scope": "historical or undated game documentation",
+      "limitation": "Legacy progression/talent details; not a current exhaustive formula."
+    },
+    {
+      "id": "inventory-item-feed",
+      "kind": "publisher-administrator-announcement",
+      "url": "https://www.wizard101.com/forum/pets-mounts/pet-feeding-43209",
+      "published_on": "2011-11-18",
+      "modified_on": null,
+      "retrieved_on": "2026-11-08",
+      "retrieved_timezone": "America/New_York",
+      "http_status": 200,
+      "resolved_url": "https://www.wizard101.com/forum/pets-mounts/pet-feeding-43209",
+      "region": "not-established",
+      "platform": "PC guide context; active client not verified",
+      "release_scope": "historical or undated game documentation",
+      "limitation": "Historical administrator post; ignore player replies as authoritative. Current eligibility not established."
+    },
+    {
+      "id": "double-pet-xp-history",
+      "kind": "publisher-administrator-announcement",
+      "url": "https://www.wizard101.com/forum/ravenwood-commons/double-pet-experience-for-members-8ad6a4184bc02a57014bc1744b2d05f8",
+      "published_on": "2015-02-25",
+      "modified_on": null,
+      "retrieved_on": "2026-11-08",
+      "retrieved_timezone": "America/New_York",
+      "http_status": 200,
+      "resolved_url": "https://www.wizard101.com/forum/ravenwood-commons/double-pet-experience-for-members-8ad6a4184bc02a57014bc1744b2d05f8",
+      "region": "not-established",
+      "platform": "PC guide context; active client not verified",
+      "release_scope": "historical or undated game documentation",
+      "limitation": "Expired historical event; not evidence of an active bonus, eligibility or stacking."
+    },
+    {
+      "id": "preference-guide",
+      "kind": "secondary-guide",
+      "url": "https://finalbastion.com/wizard101-guides/w101-pet-guides/beginners-guide-wizard101-pets/",
+      "published_on": "2020-04-22",
+      "modified_on": "2020-08-16",
+      "retrieved_on": "2026-11-08",
+      "retrieved_timezone": "America/New_York",
+      "http_status": 200,
+      "resolved_url": "https://finalbastion.com/wizard101-guides/w101-pet-guides/beginners-guide-wizard101-pets/",
+      "region": "not-established",
+      "platform": "PC guide context; active client not verified",
+      "release_scope": "historical or undated game documentation",
+      "limitation": "Historical numeric preference expectations require current-client verification."
+    },
+    {
+      "id": "happiness-guide",
+      "kind": "secondary-guide",
+      "url": "https://finalbastion.com/wizard101-guides/pet-happiness-talent-tokens/",
+      "published_on": "2020-04-20",
+      "modified_on": "2020-05-07",
+      "retrieved_on": "2026-11-08",
+      "retrieved_timezone": "America/New_York",
+      "http_status": 200,
+      "resolved_url": "https://finalbastion.com/wizard101-guides/pet-happiness-talent-tokens/",
+      "region": "not-established",
+      "platform": "PC guide context; active client not verified",
+      "release_scope": "2020 Test Realm discussed; subsequent Live applicability not independently established",
+      "limitation": "Introduction explicitly references Spring 2020 Test Realm; current conversions/costs not qualified."
+    },
+    {
+      "id": "community-training",
+      "kind": "secondary-guide",
+      "url": "https://ravenwoodacademy.com/wizard101-pet-training-guide/",
+      "published_on": "2025-02-01",
+      "modified_on": "2025-04-02",
+      "retrieved_on": "2026-11-08",
+      "retrieved_timezone": "America/New_York",
+      "http_status": 200,
+      "resolved_url": "https://ravenwoodacademy.com/wizard101-pet-training-guide/",
+      "region": "not-established",
+      "platform": "PC guide context; active client not verified",
+      "release_scope": "historical or undated game documentation",
+      "limitation": "Publication metadata is newer than retained 2020 content. Energy examples internally inconsistent. Fan domain, not publisher Ravenwood Academy game domain."
+    }
+  ],
+  "claims": [
+    {
+      "id": "training-context",
+      "statement": "A training game can be followed by snack feeding; this is a whole-game boundary, not each arrow sequence.",
+      "evidence": [
+        "documented"
+      ],
+      "sources": [
+        "official-training-feed"
+      ],
+      "runtime_qualified": false
+    },
+    {
+      "id": "resources-distinct",
+      "statement": "Track pet training Energy separately from pet statistics, age XP and Happiness.",
+      "evidence": [
+        "documented"
+      ],
+      "sources": [
+        "official-energy",
+        "official-stats",
+        "happiness-guide"
+      ],
+      "runtime_qualified": false
+    },
+    {
+      "id": "preference-model",
+      "statement": "Historical guide: category and school preferences yield liked (+1 XP/Power) or loved (+2 XP/Power) outcomes. Treat exact numbers as unqualified expectations.",
+      "evidence": [
+        "documented"
+      ],
+      "sources": [
+        "preference-guide"
+      ],
+      "runtime_qualified": false
+    },
+    {
+      "id": "preference-observation",
+      "statement": "The official guide distinguishes neutral, liked and loved feedback and associates preferences with Power gain.",
+      "evidence": [
+        "documented"
+      ],
+      "sources": [
+        "official-training-feed"
+      ],
+      "runtime_qualified": false
+    },
+    {
+      "id": "happiness-context",
+      "statement": "Historical separate Pet HUD snack operation restores Happiness; cap derives from trained stats in this source. Do not assume training XP from consumption.",
+      "evidence": [
+        "documented"
+      ],
+      "sources": [
+        "happiness-guide"
+      ],
+      "runtime_qualified": false
+    },
+    {
+      "id": "ordinary-item-consumption",
+      "statement": "Backpack feeding consumes ordinary items and can yield rewards; this is excluded from snack training.",
+      "evidence": [
+        "documented"
+      ],
+      "sources": [
+        "inventory-item-feed"
+      ],
+      "runtime_qualified": false
+    },
+    {
+      "id": "mastery-skip",
+      "statement": "Community guide describes mastery skipping at an Energy cost without game XP. Availability and exact current costs require local qualification.",
+      "evidence": [
+        "documented"
+      ],
+      "sources": [
+        "community-training"
+      ],
+      "runtime_qualified": false
+    },
+    {
+      "id": "event-modifiers",
+      "statement": "A historical event increased game/snack XP. Active modifiers and account eligibility are currently unknown.",
+      "evidence": [
+        "documented"
+      ],
+      "sources": [
+        "double-pet-xp-history"
+      ],
+      "runtime_qualified": false
+    },
+    {
+      "id": "stock-channels",
+      "statement": "Documented channels include shops and crafting; secondary gardening/drop leads require inventory and route verification.",
+      "evidence": [
+        "documented"
+      ],
+      "sources": [
+        "official-training-feed",
+        "community-training"
+      ],
+      "runtime_qualified": false
+    }
+  ],
+  "retrieval_failures": [
+    {
+      "url": "https://www.wizard101.com/game/community/update-notes/april2020",
+      "http_status": 200,
+      "resolved_url": "https://www.play.wizard101.com/",
+      "result": "Registration landing page instead of requested update notes",
+      "used_as_mechanics_evidence": false
+    }
+  ],
+  "current_client": {
+    "observed_by_this_workstream": false,
+    "build": null,
+    "region": null,
+    "platform": "Windows, from project context",
+    "locale": null,
+    "ui_size": "Tiny, from existing project observation; snack layout unqualified",
+    "equipped_pet": null,
+    "inventory_snapshot": null,
+    "mastery_status": null,
+    "active_reward_modifiers": null
+  },
+  "proposed_configuration": {
+    "status": "design-only; not an implemented application schema",
+    "default_mode": "observe-only",
+    "training_snacks": {
+      "enabled": false,
+      "goal": null,
+      "permitted_item_ids": [],
+      "minimum_remaining_by_item": {},
+      "maximum_feeds": 0,
+      "energy_reserve": null,
+      "allow_mastery_skip": false
+    },
+    "happiness": {
+      "enabled": false,
+      "low_threshold": null,
+      "target": null,
+      "permitted_item_ids": [],
+      "maximum_feeds": 0
+    },
+    "inventory_planning": {
+      "read_only": true,
+      "protected_item_ids": [],
+      "reserved_for_other_pets": [],
+      "replenishment_execution": false
+    },
+    "inventory_item_feed_enabled": false,
+    "purchases_enabled": false,
+    "energy_elixirs_enabled": false,
+    "token_spending_enabled": false,
+    "unknown_items_eligible": false,
+    "retry_uncertain_consumption": false
+  },
+  "proposed_contract": {
+    "status": "not-registered",
+    "operations": [
+      "w101.snacks.observe",
+      "w101.snacks.plan",
+      "w101.snacks.feed-training",
+      "w101.snacks.feed-happiness",
+      "w101.snacks.verify"
+    ],
+    "input_records": [
+      "PetSnapshot",
+      "SnackEntry",
+      "RewardObservation",
+      "FeedProposal"
+    ],
+    "output_records": [
+      "FeedReceipt"
+    ],
+    "mandatory_context": [
+      "process/session identity",
+      "pet identity evidence",
+      "feeding context",
+      "fresh screen and inventory snapshot",
+      "routine/request identity",
+      "pack version",
+      "resource budget",
+      "input lease"
+    ],
+    "dance_boundary": "Verified whole-game result; release keys and lease before an optional feed task. Do not feed once per round.",
+    "independent_happiness_boundary": "Independent request identity and a verified Happiness feeding screen; no synthetic Dance result.",
+    "transaction_states": [
+      "observed",
+      "planned",
+      "dispatched",
+      "verified",
+      "uncertain",
+      "rejected"
+    ],
+    "transaction_rules": [
+      "Persist request identity and dispatch intent before consuming an item.",
+      "Reobserve pet, screen, selected item, quantity and budget after acquiring the shared input lease.",
+      "Use one snack per dispatch; verify quantity and expected resource deltas.",
+      "Duplicate completion events and restarts must reconcile before dispatching.",
+      "An ambiguous consumption result requires reconciliation; no automatic retry.",
+      "User activity pauses input; resume invalidates stale screen proposals.",
+      "Navigation, Auto-Idle, Dance and feeding cannot dispatch input simultaneously.",
+      "Finish brief live tests by returning W101 to native Idle through its menu."
+    ],
+    "selection_order": [
+      "hard constraints and user reserves",
+      "context eligibility and confidence",
+      "goal-specific reward estimate",
+      "overshoot and stock cost",
+      "preview with reasons"
+    ],
+    "runtime_resource_policy": "Deterministic rules, cached catalog and bounded visual/OCR crops; no model in the default live decision path."
+  },
+  "milestones": [
+    {
+      "id": "SNACK-01",
+      "task": "Sourced mechanics and subsystem boundaries",
+      "status": "complete-research",
+      "evidence": [
+        "docs/W101_PET_SNACK_RESEARCH_20261108.md",
+        "research/w101-pet-snacks-20261108.json"
+      ]
+    },
+    {
+      "id": "SNACK-02",
+      "task": "Read-only context and inventory capture",
+      "status": "planned",
+      "depends_on": [
+        "SNACK-01"
+      ]
+    },
+    {
+      "id": "SNACK-03",
+      "task": "Configurable dry-run planner",
+      "status": "planned",
+      "depends_on": [
+        "SNACK-02"
+      ]
+    },
+    {
+      "id": "SNACK-04",
+      "task": "Scheduler ownership and consumption transaction",
+      "status": "planned",
+      "depends_on": [
+        "SNACK-03"
+      ]
+    },
+    {
+      "id": "SNACK-05",
+      "task": "Opt-in expendable single-snack qualification",
+      "status": "not-enabled",
+      "depends_on": [
+        "SNACK-04"
+      ]
+    },
+    {
+      "id": "SNACK-06",
+      "task": "Independent routine and replenishment planning",
+      "status": "planned",
+      "depends_on": [
+        "SNACK-05"
+      ]
+    }
+  ],
+  "offline_qualification_cases": [
+    "wrong equipped pet",
+    "ordinary-item Feed screen misclassified as snack training",
+    "Happiness screen misclassified as training",
+    "empty inventory",
+    "last item protected by reserve",
+    "duplicate item names",
+    "incorrect OCR quantity",
+    "stale capture",
+    "changed sort/scroll position",
+    "Tiny UI versus other scales",
+    "hover tooltip occlusion",
+    "stat caps versus XP reward",
+    "age/goal overshoot",
+    "unknown active bonus",
+    "duplicate game result",
+    "restart after dispatch intent",
+    "ambiguous consumption",
+    "user activity during dispatch",
+    "separate game and snack reward attribution"
+  ],
+  "unresolved": [
+    "Current exact preference bonuses, base snack effects and reward multiplier behavior.",
+    "Current Happiness conversion, cap/cost rules and whether a specific feeding context grants any training XP.",
+    "Energy costs by age/context, regeneration, mastery eligibility and skip cost.",
+    "Stable visible inventory identifiers, active pet identity and current snack reserves.",
+    "Tiny UI/DPI snack-panel anchors, scrolling, sort changes and post-feed transitions.",
+    "Current region/build, Live/Test Realm status, account eligibility and active events.",
+    "Observed effects at stat caps, age transitions and after talent manifestation.",
+    "Verified garden/recipe ownership, ingredients, shops and drop routes before supply automation."
+  ]
+}

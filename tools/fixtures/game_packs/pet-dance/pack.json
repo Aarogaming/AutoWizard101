@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "pack_id": "pet-dance",
+  "title": "Pet Dance (sample)",
+  "game_id": "wizard101",
+  "version": "0.1.0",
+  "status": "draft",
+  "capabilities": ["keyboard"],
+  "skills": [
+    {"id": "repeat-right", "when": {"state": "arrow-right"}, "propose": {"type": "key", "parameters": {"key": "RIGHT"}}}
+  ],
+  "fixtures": [],
+  "dependencies": []
+}

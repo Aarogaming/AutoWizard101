@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "pack_id": "potion-motion",
+  "title": "Potion Motion (sample)",
+  "game_id": "wizard101",
+  "version": "0.1.0",
+  "status": "draft",
+  "capabilities": ["pointer"],
+  "skills": [
+    {"id": "select-column", "when": {"state": "match-column"}, "propose": {"type": "click", "parameters": {"x": 0.5, "y": 0.4}}}
+  ],
+  "fixtures": [],
+  "dependencies": []
+}

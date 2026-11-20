@@ -47,6 +47,7 @@ public partial class Main : Form
     private bool _smartPaused;
     private readonly WizWikiDataService _wikiData = WizWikiDataService.Instance;
     private BridgeCoordinator? _bridge;
+    private ClientCalibrationReport? _calibrationReport;
     private string _lastBanner = string.Empty;
     private string _scriptSearchTerm = string.Empty;
     private string _statusFilter = "All";
@@ -59,6 +60,7 @@ public partial class Main : Form
     public Main()
     {
         InitializeComponent();
+        AddToolsNavigation();
         EnableDoubleBuffer(this);
         EnableDoubleBuffer(navPanel);
         EnableDoubleBuffer(trainerListView);
@@ -155,6 +157,12 @@ public partial class Main : Form
         _inputBridge.Start(TimeSpan.FromSeconds(1));
         _smartPlayManager?.AttachInputBridge(_inputBridge);
         _smartPlayManager?.SetDesignCaptureHandler(CaptureDesignSamples);
+        // Run client calibration and store the report
+        _calibrationReport = ClientOperationsCalibrator.CalibrateWindowGeometry(this.ClientSize);
+        if (!_calibrationReport.IsReadyForOperations)
+        {
+            ShowBanner($"Calibration warnings:\n{string.Join("\n", _calibrationReport.Checks.Where(c=>c.Status!=CalibrationStatus.Passed).Select(c=>c.Details))}");
+        }
         UpdateSmartPlayHeader(_smartPlayManager?.DescribeState() ?? "Idle");
 
         if (SettingsSafe.GetBool("ENABLE_AUDIO_RECOGNIZER", false))
@@ -162,15 +170,15 @@ public partial class Main : Form
             _audioRecognizer = new AudioRecognizer(SettingsSafe.GetDouble("AUDIO_TRANSIENT_DELTA", 0.12));
             _audioRecognizer.CueDetected += cue =>
             {
-            try
-            {
-                _smartPlayManager?.AddAudioCue(cue);
-                UpdateAudioHeader("On (cue)");
-            }
-            catch
-            {
-                // non-fatal; ignore
-            }
+                try
+                {
+                    _smartPlayManager?.AddAudioCue(cue);
+                    UpdateAudioHeader("On (cue)");
+                }
+                catch
+                {
+                    // non-fatal; ignore
+                }
             };
             _audioRecognizer.Start();
             UpdateAudioHeader("On");
@@ -599,7 +607,7 @@ public partial class Main : Form
 
     private void runPetDanceScriptBtn_Click(object sender, EventArgs e)
     {
-        ShowChildForm(new PetDanceBot());
+        OpenToolsCenter();
     }
 
     private void runTestsBtn_Click(object sender, EventArgs e)

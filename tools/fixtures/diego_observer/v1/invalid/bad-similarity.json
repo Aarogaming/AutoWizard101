@@ -1,0 +1,68 @@
+{
+  "mode": "offline-observer",
+  "inputSent": false,
+  "sourceSize": [
+    760,
+    420
+  ],
+  "playArea": [
+    20,
+    60,
+    720,
+    300
+  ],
+  "exampleCount": 2,
+  "similarityThreshold": 0.94,
+  "detections": [
+    {
+      "label": "Diego",
+      "box": [
+        120,
+        230,
+        55,
+        76
+      ],
+      "similarity": 1.5
+    },
+    {
+      "label": "Barrel",
+      "box": [
+        550,
+        261,
+        45,
+        45
+      ],
+      "similarity": 1.0
+    }
+  ],
+  "tracks": [
+    {
+      "label": "Diego",
+      "box": [
+        120,
+        230,
+        55,
+        76
+      ],
+      "consecutiveFrames": 1,
+      "relativeMotion": "unknown"
+    },
+    {
+      "label": "Barrel",
+      "box": [
+        550,
+        261,
+        45,
+        45
+      ],
+      "consecutiveFrames": 1,
+      "relativeMotion": "unknown"
+    }
+  ],
+  "suggestions": [
+    "Acquire Diego in a second consecutive frame before suggesting responses."
+  ],
+  "spawnSequenceAssumed": false,
+  "limitations": "Example similarity is not probability. No motion or input timing is inferred from one frame.",
+  "syntheticDemo": true
+}

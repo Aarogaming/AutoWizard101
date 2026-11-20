@@ -1,0 +1,513 @@
+{
+  "schemaVersion": 1,
+  "reviewedUtc": "2026-11-09T00:26:18.469279+00:00",
+  "scope": "25 supplied root archives. Recursive inventory also lists generated releases, dependency fixtures and prior reference downloads separately.",
+  "entries": [
+    {
+      "id": "afk-visual",
+      "archive": "afk-wizard-main.zip",
+      "sha256": "73eb31ecf475b775b2450fed22e72d4523f524671214dbca44808f5f23f1f1a8",
+      "capabilities": [
+        "Auto-Idle",
+        "Combat"
+      ],
+      "destination": "Conditional battle cues and motion proposals",
+      "qualification": "Offline components tested",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Missing book is treated as battle; obscured frames can trigger false decisions. Unbounded loops and global input need replacement.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 1; parse failures: 0",
+        "Image assets decode: Passed — 3 images opened; recognition accuracy not measured",
+        "Battle state truth table: Passed — Logic only; an obscured/missing book still falsely implies battle"
+      ]
+    },
+    {
+      "id": "aurorium-assets",
+      "archive": "Aurorium-main.zip",
+      "sha256": "588d8669b43954f80a3478bf0d3dd36e2f084379b14b6c54daeda0c00c3022f7",
+      "capabilities": [
+        "Assets",
+        "Versioning"
+      ],
+      "destination": "Client asset/version provenance",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Downloader/server, not a game player. Offline build lacks roxmltree and potentially further dependencies.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 2; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Aurorium offline build: Build blocked"
+      ]
+    },
+    {
+      "id": "automatus-v2",
+      "archive": "Automatus-v2-master.zip",
+      "sha256": "e87cca6a6b0237ed56cb18c00c5acc1b7652435ad37f77a8c236ccd12e4bbb97",
+      "capabilities": [
+        "Navigation",
+        "Experiments"
+      ],
+      "destination": "Waypoint route adapter and typed run statistics",
+      "qualification": "Offline components tested",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Project marked discontinued. Route following is not enemy avoidance. append_point/remove_point reference os without importing it.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 12; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Typed statistics: Passed — Counter accumulates; invalid category rejected"
+      ]
+    },
+    {
+      "id": "cheat-engine-reference",
+      "archive": "cheat-engine-master.zip",
+      "sha256": "58515a31b4f14fac8a92481180cfe69aa6d5ab4ea00e8a348ad4cb3b519af9ff",
+      "capabilities": [
+        "Developer tools"
+      ],
+      "destination": "Inspection UX and diagnostic plugin patterns",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Lazarus/FPC build unavailable; drivers and invasive components are not part of Maelstrom's gameplay loop.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 7; parse failures: 0",
+        "Image assets decode: Passed — 166 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified — Lazarus/FPC toolchain unavailable; Pascal application and drivers not built or launched."
+      ]
+    },
+    {
+      "id": "deimos-main",
+      "archive": "Deimos-Wizard101-main.zip",
+      "sha256": "0e4ce956b878a97c109dc950b6218f444584e7b0ff4d8e85cb418cf77ef73a89",
+      "capabilities": [
+        "Pets",
+        "Quests",
+        "Combat",
+        "Navigation",
+        "Routine language"
+      ],
+      "destination": "Branching routine compiler and optional privileged teacher adapter",
+      "qualification": "Repair required",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Memory-backed dance labels must be tagged separately from pixel observations. Coordinate proximity and malformed deck handling have reproducible defects; client hooks unqualified.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 35; parse failures: 0",
+        "Image assets decode: Passed — 1 images opened; recognition accuracy not measured",
+        "Deck roundtrip: Passed — Two decks preserve names, sections and counts",
+        "Deck malformed section count: Failed — IndexError: list index out of range",
+        "Routine language compile: Passed — 3 programs compiled; no gameplay instructions executed",
+        "Navigation geometry: Passed — Distance and a two-vertex graph fixture",
+        "Navigation opposite coordinates: Failed — AssertionError: Opposite coordinates incorrectly treated as nearby"
+      ]
+    },
+    {
+      "id": "deimos-master",
+      "archive": "Deimos-Wizard101-master.zip",
+      "sha256": "47db55d7249edf3aa6f6a3cc31452503acfab8eef99aff045e4cdd3ff35365c6",
+      "capabilities": [
+        "Pets",
+        "Quests",
+        "Combat",
+        "Navigation"
+      ],
+      "destination": "Independent older workflow/navigation comparison",
+      "qualification": "Repair required",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Keep separate from main: dependencies, code and behavior differ. Coordinate proximity defect reproduced. Current-client hooks unqualified.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 27; parse failures: 0",
+        "Image assets decode: Passed — 1 images opened; recognition accuracy not measured",
+        "Navigation geometry: Passed — Distance and a two-vertex graph fixture",
+        "Navigation opposite coordinates: Failed — AssertionError: Opposite coordinates incorrectly treated as nearby"
+      ]
+    },
+    {
+      "id": "gardening-visual",
+      "archive": "gardening-bot-main.zip",
+      "sha256": "ff395a786a86419614ac2c8f34ee322eefd6b4cdae9483a8bca2544cd904937a",
+      "capabilities": [
+        "Farming",
+        "Navigation",
+        "Routine language"
+      ],
+      "destination": "Plant states, visual waits and home movement chains",
+      "qualification": "Repair required",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Use Maelstrom's action owner for execution: interrupted legacy key presses can remain held. Energy, planting and harvesting outcomes need separate qualification.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 14; parse failures: 0",
+        "Image assets decode: Passed — 23 images opened; recognition accuracy not measured",
+        "Movement order: Passed",
+        "Interrupted key release: Failed — AssertionError: Interrupted legacy action left a key held",
+        "Visibility and timeout: Passed"
+      ]
+    },
+    {
+      "id": "grubninja-reference",
+      "archive": "GrubNinja-master.zip",
+      "sha256": "1d4e5e7017e6a1ba79c3b11927476efb5a8a182bd422b057283993eccc2bc542",
+      "capabilities": [
+        "Pets",
+        "Game context"
+      ],
+      "destination": "Grub Guardian maps and UI/state vocabulary",
+      "qualification": "Repair required",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "validateSession.js contains a syntax error (stray closing bracket). Reviewed reward path generates scores and submits service calls; it is not a visual gameplay demonstration. Do not use reward responses as training outcomes.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 3; parse failures: 0",
+        "Image assets decode: Passed — 27 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified — Electron/React dependencies absent; lifecycle includes a global npm link. Reward endpoint calls are not gameplay evidence.",
+        "Javascript parse: Failed"
+      ]
+    },
+    {
+      "id": "libkiwad-reader",
+      "archive": "libkiwad-master.zip",
+      "sha256": "e18f0dca7318f801ecf327d72b5645964422be0a363480af3078eeafd6442756",
+      "capabilities": [
+        "Assets"
+      ],
+      "destination": "Alternative native asset reader",
+      "qualification": "Offline components tested",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Plain-entry read tested; compressed reads explicitly unimplemented. Initializer compares a non-terminated magic buffer and requires repair before use.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Kiwad compile: Passed",
+        "Kiwad probe: Passed"
+      ]
+    },
+    {
+      "id": "on-wiz-reference",
+      "archive": "On-Wiz-master.zip",
+      "sha256": "06a1d5bd9cac380ee22cdec14ee2dfd1122b9c8f7a60ad29033ae69c27bc3802",
+      "capabilities": [
+        "Developer tools",
+        "Game context"
+      ],
+      "destination": "Client/protocol research notes",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Documentation only. Historical command-line/service notes are not current compatibility evidence.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Application readiness: Not applicable — Documentation project; no application entry point to test."
+      ]
+    },
+    {
+      "id": "petdance-visual",
+      "archive": "petdance.zip",
+      "sha256": "f705a4330b8a2cb0f862b48847d9c0db8a00781441f40dd29d1f5f84668b0911",
+      "capabilities": [
+        "Pets",
+        "Visual recognition"
+      ],
+      "destination": "Calibrated visual Pet Dance teacher and draft action pack",
+      "qualification": "Offline components tested",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Pet Dance teacher is available under Observe & teach: imports eight pinned images, calibrates scale and reviews recordings into proposal packs. Archive is TAR despite its name. Current W101 Watch/Go/results and live input remain unqualified.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed — 8 images opened; recognition accuracy not measured",
+        "Reviewed source synthetic sequences: Passed — 100/100 with cue deduplication; earlier source rehearsal, no live frames or bundled EXE execution",
+        "Native app teacher pipeline: Passed — 40/40 synthetic scaled cues; 3 exact varied round proposals; 0 proposals on sparse footage; no inputs, model, or live-game accuracy claim",
+        "Application readiness: Not qualified — Binary teacher not launched; source-equivalent images and reviewed source components tested separately."
+      ]
+    },
+    {
+      "id": "maelstrom-historical",
+      "archive": "ProjectMaelstrom_win-x64_portable.zip",
+      "sha256": "04849b55f98bf79d9187ecd21f33e27070307c25ec1a139ae7bb09cd85e5b02d",
+      "capabilities": [
+        "Application UX"
+      ],
+      "destination": "Historical portable application comparison",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Preserved binary distribution; not executed or substituted for the current app.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified — Historical binary preserved; current app is tested separately. Historical application not launched."
+      ]
+    },
+    {
+      "id": "raid-specialists",
+      "archive": "raid-utility-tools-main.zip",
+      "sha256": "b51e892c611f193048a171e36282338bf1ce8424cc72dccca2c0923afde56d0d",
+      "capabilities": [
+        "Quests",
+        "Navigation",
+        "Game context"
+      ],
+      "destination": "Raid activity vocabulary, location context and themes",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Four specialist variants retained. Qt/memobj/fork dependencies and client hooks not qualified; no raid operation or teleport tested.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 16; parse failures: 0",
+        "Image assets decode: Passed — 4 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified — Matching Qt, memobj and forked wizwalker environment and live client compatibility unqualified.",
+        "Literal theme data: Passed — 4 dictionaries; no raid gameplay tested"
+      ]
+    },
+    {
+      "id": "protocol-go",
+      "archive": "w101-proto-go-master.zip",
+      "sha256": "8e73e6990cb8025ae1afce8edef9013ad2730900c2cec89e97b7888d85605c86",
+      "capabilities": [
+        "Developer tools",
+        "Game context"
+      ],
+      "destination": "Typed protocol vocabulary, including minigame messages",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Build requires unavailable w101-client-go module. No traffic replay, login or reward calls run; schemas are not visual players.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Protocol go offline build: Build blocked"
+      ]
+    },
+    {
+      "id": "packet-map-reference",
+      "archive": "wiz-packet-map-main.zip",
+      "sha256": "686a277ccb2307527aaca37cb5655cd83204e4e1cc545baf23b89ccfed6546fb",
+      "capabilities": [
+        "Developer tools"
+      ],
+      "destination": "Historical packet schema research",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Legacy x86 injection and client-specific offsets; MSVC/Crypto++ setup unavailable. No interception or game attachment performed.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified — Legacy x86 injection project requires its MSVC/Crypto++ build setup and client offsets; not attached to W101."
+      ]
+    },
+    {
+      "id": "wizapi-visual",
+      "archive": "wizAPI-master.zip",
+      "sha256": "b2853c3b4197a334177c01277fbaba7204162173a2ef79e74f2083ad0c5d65fe",
+      "capabilities": [
+        "Combat",
+        "Farming",
+        "Navigation",
+        "Visual recognition"
+      ],
+      "destination": "Visual spell and UI action alternative",
+      "qualification": "Repair required",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Non-square template center is wrong. Fixed 800x600/Regular UI/DPI assumptions, global activation and unbounded waits require adaptation.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 3; parse failures: 0",
+        "Image assets decode: Passed — 14 images opened; recognition accuracy not measured",
+        "Nonsquare match center: Failed — AssertionError: Template center swaps width and height",
+        "Absent template: Passed"
+      ]
+    },
+    {
+      "id": "bazaar-visual",
+      "archive": "Wizard101-Bazaar-Tc-Farming-master.zip",
+      "sha256": "7115291770885b73be4c192516553e1ca24c118a8eb95ed4990a639edab92a22",
+      "capabilities": [
+        "Farming",
+        "Visual recognition"
+      ],
+      "destination": "Item/menu templates and conditional page-search proposals",
+      "qualification": "Offline components tested",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Image matching tested on fixtures only. Purchase loops are not enabled; missing-image coordinates and RGB/BGR conversion need adapter checks.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 2; parse failures: 0",
+        "Image assets decode: Passed — 78 images opened; recognition accuracy not measured",
+        "Image match and absent: Passed"
+      ]
+    },
+    {
+      "id": "damage-evaluator",
+      "archive": "Wizard101-Damage-Calculator-master.zip",
+      "sha256": "d0bea30c9d88bb3548c1fbd81b4931543a1f1b1361b75686260ef4081ab7d02e",
+      "capabilities": [
+        "Combat",
+        "Game context"
+      ],
+      "destination": "Candidate consequence evaluator",
+      "qualification": "Repair required",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Pure library compiles under net9, but repeated calculations mutate damage; enchant/resistance/boost checks fail. Do not use it as decision truth yet.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 8; parse failures: 0",
+        "Image assets decode: Passed — 1 images opened; recognition accuracy not measured",
+        "Damage library probe: Passed",
+        "Base damage: Passed",
+        "Blade and shield: Passed",
+        "Repeatability: Failed",
+        "Flat spell enchant applies: Failed",
+        "Zero pierce still applies resist: Failed",
+        "Boost does not erase wizard damage: Failed"
+      ]
+    },
+    {
+      "id": "farming-opencv",
+      "archive": "Wizard101-Farming-main.zip",
+      "sha256": "71848d31dc7e0fa1730ec824f1e3bdd4a440e7500ede86085c80e7e561302415",
+      "capabilities": [
+        "Farming",
+        "Combat",
+        "Visual recognition"
+      ],
+      "destination": "Card matcher and enchant/attack proposal sequence",
+      "qualification": "Offline components tested",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Basic visual fixtures pass. Matching returns window-relative coordinates while input expects screen coordinates; fixed deck/order and indefinite loops remain.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 1; parse failures: 0",
+        "Image assets decode: Passed — 6 images opened; recognition accuracy not measured",
+        "Card match and absent: Passed — Fake activation/capture/output; no real window touched"
+      ]
+    },
+    {
+      "id": "utilities-context",
+      "archive": "Wizard101-Utilities-master.zip",
+      "sha256": "7fa75c58dc216f180dd40a7b17a81d4273a8b3d84303b6aa76910281343a77af",
+      "capabilities": [
+        "Game context",
+        "Pets",
+        "Combat"
+      ],
+      "destination": "Gear/pet data and research schema helpers",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Historical data requires freshness checks. Scrapers and database population scripts not run against external services.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 19; parse failures: 0",
+        "Image assets decode: Passed — 42 images opened; recognition accuracy not measured",
+        "Javascript parse: Passed"
+      ]
+    },
+    {
+      "id": "gallery-context",
+      "archive": "WizGallery-dev.zip",
+      "sha256": "ffb7a6fe245ce640f24b38d01d2a742c9ee7f91e205608743181be93d8b53ba9",
+      "capabilities": [
+        "Observations",
+        "Game context"
+      ],
+      "destination": "Screenshot library and location metadata patterns",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Database-backed web app. Dependencies/services absent; import-time database connections and migration scripts not executed.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 7; parse failures: 0",
+        "Image assets decode: Passed — 4 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified — Next.js dependencies and database credentials/services absent; server/migration scripts not started.",
+        "Javascript parse: Passed"
+      ]
+    },
+    {
+      "id": "wizsdk-visual",
+      "archive": "wizSDK-master.zip",
+      "sha256": "f88867bc0962b895099a0183b3c594265709c7abe2a99b4a8ebbaa5d6a4fa783",
+      "capabilities": [
+        "Visual recognition",
+        "Combat",
+        "Navigation"
+      ],
+      "destination": "Visual utility alternative and client control vocabulary",
+      "qualification": "Offline components tested",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Non-square visual match and blank fixture pass. Capture/input integration, resolution assumptions and client dependencies remain unqualified.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 13; parse failures: 0",
+        "Image assets decode: Passed — 5 images opened; recognition accuracy not measured",
+        "Nonsquare match and absent: Passed"
+      ]
+    },
+    {
+      "id": "wizwad-reader",
+      "archive": "wizwad-main.zip",
+      "sha256": "f4e9103b9e68421c581f9d1b3bc0bd1704e7b6849339d3eedc9735c275e79c8e",
+      "capabilities": [
+        "Assets"
+      ],
+      "destination": "Python asset indexing alternative",
+      "qualification": "Repair required",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "V1/V2 plain/compressed reads pass independent fixtures. Invalid magic is accepted; add strict header/size checks. Writer dependency absent; writer not tested.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 6; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Read v1 v2 plain compressed: Passed — Four independent format fixtures, both versions and compression modes; writer not tested",
+        "Invalid signature rejected: Failed — AssertionError: Non-KIWAD signature accepted"
+      ]
+    },
+    {
+      "id": "wizwalker-client",
+      "archive": "wizwalker-master.zip",
+      "sha256": "265c50b940b937dc165aeeeb14f329a8eaba799cd006a000473900c0fea70568",
+      "capabilities": [
+        "Navigation",
+        "Combat",
+        "Pets",
+        "Assets"
+      ],
+      "destination": "Optional client adapter and WAD metadata reader",
+      "qualification": "Offline components tested",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "V1/V2 journals tested. Client memory offsets and live hooks are a separate compatibility gate; no attachment performed.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 58; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Wad journal v1 v2: Passed — Journal parsing only; client-memory hooks and async extraction not exercised"
+      ]
+    },
+    {
+      "id": "wiki-context",
+      "archive": "WizWikiAPI-main.zip",
+      "sha256": "5d4635312eea86c4d30e1a48c19d9a0e8c2a85fbe35019edbb6b1253d7df7464",
+      "capabilities": [
+        "Game research",
+        "Game context"
+      ],
+      "destination": "Game categories, world context and guide schema",
+      "qualification": "Reference reviewed",
+      "integration": "Catalogue only",
+      "liveQualified": false,
+      "limitations": "Historical world data parsed; README says API no longer works. TypeScript/compiler dependencies absent. No access-control workarounds attempted.",
+      "evidence": [
+        "Archive integrity: passed; parsed files: 4; parse failures: 0",
+        "Image assets decode: Passed — 0 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified — TypeScript dependencies absent; bundled README reports upstream API no longer works. Current service not queried.",
+        "World context schema: Passed — 16 historical world records; freshness not established"
+      ]
+    }
+  ]
+}

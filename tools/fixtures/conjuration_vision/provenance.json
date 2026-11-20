@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "kind": "synthetic-fixture-provenance",
+  "profile": "synthetic-profile.json",
+  "pixel_generator": "tools/tests/test_conjuration_vision.py",
+  "origin": "Procedural colored patterns created for tests; no Wizard101 card art or board geometry is represented.",
+  "runtime_enabled": false,
+  "current_client_qualified": false,
+  "phase_source": "Supplied synthetic test labels; not detected from pixels.",
+  "group_size_source": "Explicit test choice; not inferred from images or current-client rules.",
+  "real_negative_candidate": {
+    "path": ".local/conjuration-samples/recordings/20261108-175042-fd787863/frame-0000.png",
+    "sha256": "c738f117bf34363a32e1652164796ed13397b1e6c658d99e4e54a3813768175d",
+    "size": [1282, 759],
+    "raw_alpha_range": [7, 255],
+    "raw_load_result": "Rejected: partially transparent capture is unsupported by the strict image loader.",
+    "diagnostic_rgb_pixel_sha256": "ac8aaef315d4f78f1c51223d92c163d7466c24f26a019a1569dc774e3e8116a9",
+    "diagnostic_transform": "In-memory PIL convert('RGB') only for the negative test, deliberately discarding alpha. No source file is changed; this is not the normal loader path.",
+    "observed_content": "Conjuration instructions page 1 of 2, not a playable board. Its decorative card strip is not a recognition gallery.",
+    "usage": "Optional saved-frame negative test only. No live card labels, slot positions, group size or outcome are qualified."
+  }
+}

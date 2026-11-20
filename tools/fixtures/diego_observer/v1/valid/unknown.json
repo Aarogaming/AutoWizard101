@@ -1,0 +1,24 @@
+{
+  "mode": "offline-observer",
+  "inputSent": false,
+  "sourceSize": [
+    760,
+    420
+  ],
+  "playArea": [
+    20,
+    60,
+    720,
+    300
+  ],
+  "exampleCount": 2,
+  "similarityThreshold": 0.94,
+  "detections": [],
+  "tracks": [],
+  "suggestions": [
+    "Unknown: identify exactly one Diego before suggesting responses."
+  ],
+  "spawnSequenceAssumed": false,
+  "limitations": "Example similarity is not probability. No motion or input timing is inferred from one frame.",
+  "syntheticDemo": true
+}

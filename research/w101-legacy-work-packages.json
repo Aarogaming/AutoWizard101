@@ -1,0 +1,2107 @@
+{
+  "schema_version": 1,
+  "kind": "non-executable-work-plan",
+  "generated_utc": "2026-11-09T05:03:26.225287+00:00",
+  "executable": false,
+  "scope": "25 supplied root archives; 88 recursive items include releases/dependencies, not 88 teachers. Companion/moonlight/wiztype/wizdiff remain existing connected dependencies, not additional supplied archive rows.",
+  "anchors": {
+    "catalog": "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101LegacyCatalog.cs",
+    "scheduler": "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs",
+    "input": "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputLease.cs",
+    "policy": "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101InteractionPolicy.cs",
+    "bridge": "ProjectMaelstrom/ProjectMaelstrom/Utilities/ToolIntegrationService.cs",
+    "routine": "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101Routine.cs",
+    "vision": "ProjectMaelstrom/ProjectMaelstrom/Utilities/VisualStateRecognizer.cs",
+    "dance": "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceOperation.cs",
+    "dance_vision": "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDancePanelVision.cs",
+    "dance_live": "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs",
+    "snacks": "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetSnackPlanner.cs",
+    "recording": "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingRecording.cs",
+    "input_recording": "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameplayInputRecorder.cs",
+    "research": "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameResearch.cs",
+    "wiki": "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizWikiDataService.cs",
+    "wad": "ProjectMaelstrom/ProjectMaelstrom/Utilities/WadIndexService.cs",
+    "experiments": "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameExperiments.cs",
+    "home": "ProjectMaelstrom/ProjectMaelstrom/Utilities/HomeMovementRun.cs",
+    "hub": "tools/wizard101_hub.py",
+    "hub_policy": "tools/w101_interaction_policy.py",
+    "pack": "tools/game_packs.py",
+    "activities": "tools/activity_runtime.py",
+    "knowledge": "research/game_knowledge_schema.sql",
+    "navigation": "docs/W101_DESTINATION_NAVIGATION.md",
+    "comparator": "tools/compare_pet_dance_replay.py",
+    "patch": "tools/wizdiff_adapter.py",
+    "packets": "tools/moonlight_adapter.py"
+  },
+  "work_packages": [
+    {
+      "id": "LP01",
+      "title": "Extend contracts and evidence; retain shared owner",
+      "wave": 0,
+      "depends_on": [],
+      "prior_map_packages": [
+        "w01",
+        "w02",
+        "w03"
+      ],
+      "status": "Partial: scheduler and common owner implemented",
+      "complete": false,
+      "bounded_tasks": [
+        "Expose pinned implementation/method/evidence coverage using existing operation choices. Keep observations, proposals, dispatch, outcome and cleanup separate."
+      ],
+      "acceptance_tests": [
+        "Duplicate/cancel/crash regressions retain ownership; imported manifest cannot self-authorize a capability."
+      ]
+    },
+    {
+      "id": "LP03",
+      "title": "Knowledge records and pet context",
+      "wave": 1,
+      "depends_on": [
+        "LP01"
+      ],
+      "prior_map_packages": [
+        "w05"
+      ],
+      "status": "Partial: schema/cache/pure snack planner; importer and UI incomplete",
+      "complete": false,
+      "bounded_tasks": [
+        "Import one small saved pet/gear/world batch with conflicts and unknowns preserved; dry-run snack facts without feeding."
+      ],
+      "acceptance_tests": [
+        "Idempotent duplicate import; contradictory dated claims retained; unknown benefits/stock cannot authorize feeding."
+      ]
+    },
+    {
+      "id": "LP04",
+      "title": "Bounded asset and version import",
+      "wave": 1,
+      "depends_on": [
+        "LP01"
+      ],
+      "prior_map_packages": [
+        "w05"
+      ],
+      "status": "Partial: installed index inventory; hardened payload importer pending",
+      "complete": false,
+      "bounded_tasks": [
+        "Repair one read-only WAD path; keep other readers as differential references; allowlist a few bounded entries."
+      ],
+      "acceptance_tests": [
+        "V1/V2 plain/compressed and malformed/oversized/changing sources checked; index hash is not full-archive or server-version proof."
+      ]
+    },
+    {
+      "id": "LP05",
+      "title": "Shared visual detectors and waits",
+      "wave": 1,
+      "depends_on": [
+        "LP01"
+      ],
+      "prior_map_packages": [
+        "w02",
+        "w06"
+      ],
+      "status": "Partial: native vision; legacy comparison incomplete",
+      "complete": false,
+      "bounded_tasks": [
+        "Compare repaired functions on the same up-to-20 saved crops using common coordinates, confidence, unknown, freshness and timeout semantics."
+      ],
+      "acceptance_tests": [
+        "Nonsquare, RGB/BGR, absent/occluded, scale and stale cases reject unsafe proposals; no test dispatches input."
+      ]
+    },
+    {
+      "id": "LP02",
+      "title": "Complete Pet Dance teacher and comparison",
+      "wave": 2,
+      "depends_on": [
+        "LP01",
+        "LP05"
+      ],
+      "prior_map_packages": [
+        "w04"
+      ],
+      "status": "Partial: recorded review and CLI live trial; fresh qualification/product delivery incomplete",
+      "complete": false,
+      "bounded_tasks": [
+        "Freeze calibration; compare held-out variable rounds including fades/repeats/loading; then bind profile/Start/Stop/report controls to existing scheduler."
+      ],
+      "acceptance_tests": [
+        "Failure stays negative evidence; accepted/released inputs, round results and native Idle are separate; unknown scenes never silently become loading."
+      ]
+    },
+    {
+      "id": "LP06",
+      "title": "Compile reusable conditions and routines",
+      "wave": 2,
+      "depends_on": [
+        "LP01",
+        "LP05"
+      ],
+      "prior_map_packages": [
+        "w01",
+        "w02",
+        "w06"
+      ],
+      "status": "Partial: motion primitives/action packs; branching import pending",
+      "complete": false,
+      "bounded_tasks": [
+        "Adapt wait-for-state, branch, bounded repeat and verified action into typed declarative routines; preserve alternative teachers."
+      ],
+      "acceptance_tests": [
+        "Three varied fixture programs branch on events; caps/cancel stop dependent actions; arbitrary code/internal instructions rejected."
+      ]
+    },
+    {
+      "id": "LP07",
+      "title": "Home gardening and Bazaar search",
+      "wave": 3,
+      "depends_on": [
+        "LP03",
+        "LP05",
+        "LP06"
+      ],
+      "prior_map_packages": [
+        "w06"
+      ],
+      "status": "Planned: components reviewed; workflows unqualified",
+      "complete": false,
+      "bounded_tasks": [
+        "One-plant care dry run plus finite item/page search; spending requires a separate later intent/receipt/reconciliation operation."
+      ],
+      "acceptance_tests": [
+        "Interruption releases keys; page/time/resource caps enforced; search does not buy; uncertain consumption cannot auto-retry."
+      ]
+    },
+    {
+      "id": "LP08",
+      "title": "Pure consequences then combat turn",
+      "wave": 3,
+      "depends_on": [
+        "LP03",
+        "LP05",
+        "LP06"
+      ],
+      "prior_map_packages": [
+        "w07"
+      ],
+      "status": "Planned: damage defects reproduced; native turn binding unqualified",
+      "complete": false,
+      "bounded_tasks": [
+        "Repair pure damage evaluator first; compare visual proposals on shuffled hands before one verified event-driven turn."
+      ],
+      "acceptance_tests": [
+        "Repeatability/enchant/resist/boost fixtures pass; changed decks and unknown outcomes stop farming chains; estimates stay separate from observed damage."
+      ]
+    },
+    {
+      "id": "LP09",
+      "title": "Arrival-driven routes, quests and farming",
+      "wave": 4,
+      "depends_on": [
+        "LP03",
+        "LP06",
+        "LP08"
+      ],
+      "prior_map_packages": [
+        "w08"
+      ],
+      "status": "Partial research/demonstration; composed player unqualified",
+      "complete": false,
+      "bounded_tasks": [
+        "Use Commons landmarks and recorded segments with arrival checks/stuck recovery; compose quest/farm only after route and combat qualify."
+      ],
+      "acceptance_tests": [
+        "Wrong heading/obstruction/time elapsed cannot prove arrival; signed coordinates retained; no map-click teleport assumption; takeover releases input."
+      ]
+    },
+    {
+      "id": "LP10",
+      "title": "Optional diagnostic/reference lane",
+      "wave": 1,
+      "depends_on": [
+        "LP01"
+      ],
+      "prior_map_packages": [
+        "w05"
+      ],
+      "status": "Reference/offline only; process memory and live traffic not enabled",
+      "complete": false,
+      "bounded_tasks": [
+        "Normalize dated type/protocol notes and saved-file diagnostics; separately document any proposed process-memory-read capability."
+      ],
+      "acceptance_tests": [
+        "No process open, traffic interception or reward/account calls; version mismatch invalidates linked qualifications without guessing offsets."
+      ]
+    },
+    {
+      "id": "LP11",
+      "title": "Workspace methods and vertical release",
+      "wave": 3,
+      "depends_on": [
+        "LP01",
+        "LP02",
+        "LP03"
+      ],
+      "prior_map_packages": [
+        "w09"
+      ],
+      "status": "Partial workspace/catalog/history; new workflow release pending",
+      "complete": false,
+      "bounded_tasks": [
+        "Expose qualified methods beside alternatives and missing gates; package one completed vertical workflow, preserving packs/reports."
+      ],
+      "acceptance_tests": [
+        "Unqualified method is not shown as playable; installed workflow keeps failed/interrupted evidence and old reports; no nested legacy app."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "afk-visual",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Alternative HUD/battle detector; existing Auto-Idle supplies movement",
+      "proposed_actions": [
+        "observe-battle-hud",
+        "wait-for-positive-state"
+      ],
+      "recommended_runtime": [
+        "native C# detector",
+        "Python offline comparison"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/VisualStateRecognizer.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/HomeMovementRun.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101Routine.cs"
+      ],
+      "binding_gaps": [
+        "No qualified afk detector binding; existing bounded HomeMovementRun replaces the random/global-input loop."
+      ],
+      "bounded_tasks": [
+        "Extract the truth table into saved-frame proposals; require positive battle evidence and unknown on obstruction."
+      ],
+      "work_packages": [
+        "LP05"
+      ],
+      "acceptance_tests": [
+        "Absent book, obscured UI and actual battle are distinct; missing-only evidence yields unknown."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "afk-wizard-main.zip",
+      "archive_format": "zip",
+      "source_sha256": "73eb31ecf475b775b2450fed22e72d4523f524671214dbca44808f5f23f1f1a8",
+      "source_copy": ".local/legacy-validation/sources/afk-wizard-main-73eb31ecf4",
+      "catalog_qualification": "Offline components tested",
+      "catalog_limitations": "Missing book is treated as battle; obscured frames can trigger false decisions. Unbounded loops and global input need replacement.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 1; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 3 images opened; recognition accuracy not measured",
+        "Battle state truth table: Passed \u00e2\u20ac\u201d Logic only; an obscured/missing book still falsely implies battle"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/afk-wizard-main-73eb31ecf4/afk-wizard-main/main.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/afk-wizard-main-73eb31ecf4/afk-wizard-main/main.py"
+      ],
+      "build_manifests": [],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "vision",
+        "combat"
+      ]
+    },
+    {
+      "id": "aurorium-assets",
+      "source_languages": [
+        "Rust"
+      ],
+      "role": "Manifest/version provenance reference",
+      "proposed_actions": [
+        "compare-local-manifest",
+        "invalidate-stale-source"
+      ],
+      "recommended_runtime": [
+        "reference",
+        "Python offline parser only if needed"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WadIndexService.cs",
+        "tools/wizdiff_adapter.py",
+        "research/game_knowledge_schema.sql"
+      ],
+      "binding_gaps": [
+        "WadIndexService file metadata is not an Aurorium manifest parser or source-change-to-pack invalidation binding."
+      ],
+      "bounded_tasks": [
+        "Document saved manifest fields; implement a bounded parser only for gaps in the existing patch adapter."
+      ],
+      "work_packages": [
+        "LP04",
+        "LP10"
+      ],
+      "acceptance_tests": [
+        "Missing version remains unknown; file date is not release order; saved-manifest comparison starts no server."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "Aurorium-main.zip",
+      "archive_format": "zip",
+      "source_sha256": "588d8669b43954f80a3478bf0d3dd36e2f084379b14b6c54daeda0c00c3022f7",
+      "source_copy": ".local/legacy-validation/sources/Aurorium-main-588d8669b4",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Downloader/server, not a game player. Offline build lacks roxmltree and potentially further dependencies.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 2; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Aurorium offline build: Build blocked"
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/Aurorium-main-588d8669b4/Aurorium-main/Cargo.toml",
+        ".local/legacy-validation/sources/Aurorium-main-588d8669b4/Aurorium-main/rustfmt.toml"
+      ],
+      "build_manifests": [
+        "Aurorium-main/Cargo.toml"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "assets-version"
+      ]
+    },
+    {
+      "id": "automatus-v2",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Route records, map editing and typed run statistics",
+      "proposed_actions": [
+        "propose-route-segment",
+        "verify-arrival",
+        "record-run-statistic"
+      ],
+      "recommended_runtime": [
+        "Python offline teacher",
+        "native C# route consumer"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101Routine.cs",
+        "docs/W101_DESTINATION_NAVIGATION.md",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameExperiments.cs"
+      ],
+      "binding_gaps": [
+        "W101Routine has movement primitives, not imported Automatus routes, arrival proof or enemy avoidance."
+      ],
+      "bounded_tasks": [
+        "Repair missing os references in isolated helpers; import one route as landmarks/segments with explicit arrival predicates."
+      ],
+      "work_packages": [
+        "LP06",
+        "LP09"
+      ],
+      "acceptance_tests": [
+        "Route edit roundtrip and invalid statistic category checks pass; obstruction or wrong heading cannot count as arrival."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "Automatus-v2-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "e87cca6a6b0237ed56cb18c00c5acc1b7652435ad37f77a8c236ccd12e4bbb97",
+      "source_copy": ".local/legacy-validation/sources/Automatus-v2-master-e87cca6a6b",
+      "catalog_qualification": "Offline components tested",
+      "catalog_limitations": "Project marked discontinued. Route following is not enemy avoidance. append_point/remove_point reference os without importing it.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 12; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Typed statistics: Passed \u00e2\u20ac\u201d Counter accumulates; invalid category rejected"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/Automatus-v2-master-e87cca6a6b/Automatus-v2-master/lib/statistic.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/Automatus-v2-master-e87cca6a6b/Automatus-v2-master/automatus.py",
+        ".local/legacy-validation/sources/Automatus-v2-master-e87cca6a6b/Automatus-v2-master/bots/debug.py",
+        ".local/legacy-validation/sources/Automatus-v2-master-e87cca6a6b/Automatus-v2-master/bots/mapping.py"
+      ],
+      "build_manifests": [],
+      "initial_priority_wave": 2,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "routines-navigation"
+      ]
+    },
+    {
+      "id": "cheat-engine-reference",
+      "source_languages": [
+        "Object Pascal",
+        "C/C++",
+        "Lua",
+        "C# components"
+      ],
+      "role": "Target inspection and watch-value UX reference",
+      "proposed_actions": [
+        "display-target-identity",
+        "display-observation-provenance"
+      ],
+      "recommended_runtime": [
+        "reference only; native C# UX concepts"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101LegacyCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101InteractionPolicy.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputLease.cs"
+      ],
+      "binding_gaps": [
+        "Catalog is not a Cheat Engine runtime binding; no driver/injector/process-memory observer is required for the screen player."
+      ],
+      "bounded_tasks": [
+        "Extract a small target-identity/freshness/value-origin UX checklist; retain source without building its application."
+      ],
+      "work_packages": [
+        "LP10",
+        "LP11"
+      ],
+      "acceptance_tests": [
+        "UI separates screen, installed-file and disabled process-memory observations; target selection cannot enable an internal adapter."
+      ],
+      "observation_method": "reference; process-memory observation not enabled",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "cheat-engine-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "58515a31b4f14fac8a92481180cfe69aa6d5ab4ea00e8a348ad4cb3b519af9ff",
+      "source_copy": ".local/legacy-validation/sources/cheat-engine-master-58515a31b4",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Lazarus/FPC build unavailable; drivers and invasive components are not part of Maelstrom's gameplay loop.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 7; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 166 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified \u00e2\u20ac\u201d Lazarus/FPC toolchain unavailable; Pascal application and drivers not built or launched."
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/cheat-engine-master-58515a31b4/cheat-engine-master/Cheat Engine/DotNetCompiler/CSCompiler/CSCompiler/CSCompiler.csproj",
+        ".local/legacy-validation/sources/cheat-engine-master-58515a31b4/cheat-engine-master/Cheat Engine/DotNetInvasiveDataCollector/DotNetInterface2/DotNetInterface2.csproj",
+        ".local/legacy-validation/sources/cheat-engine-master-58515a31b4/cheat-engine-master/Cheat Engine/DotNetInvasiveDataCollector/DotNetInvasiveDataCollector/DotNetInterface.csproj"
+      ],
+      "build_manifests": [
+        "cheat-engine-master/Cheat Engine/DotNetCompiler/CSCompiler/CSCompiler/CSCompiler.csproj",
+        "cheat-engine-master/Cheat Engine/DotNetInvasiveDataCollector/DotNetInterface2/DotNetInterface2.csproj",
+        "cheat-engine-master/Cheat Engine/DotNetInvasiveDataCollector/DotNetInvasiveDataCollector/DotNetInterface.csproj",
+        "cheat-engine-master/Cheat Engine/Tutorial/graphical/project1.lpi",
+        "cheat-engine-master/Cheat Engine/Tutorial/graphical/project1.lpr",
+        "cheat-engine-master/Cheat Engine/Tutorial/tutorial.lpi",
+        "cheat-engine-master/Cheat Engine/Tutorial/tutorial.lpr",
+        "cheat-engine-master/Cheat Engine/VEHDebug/vehdebug.lpi",
+        "cheat-engine-master/Cheat Engine/VEHDebug/vehdebug.lpr",
+        "cheat-engine-master/Cheat Engine/allochook/allochook.lpi",
+        "cheat-engine-master/Cheat Engine/allochook/allochook.lpr",
+        "cheat-engine-master/Cheat Engine/cecore.lpi",
+        "cheat-engine-master/Cheat Engine/cecore.lpr",
+        "cheat-engine-master/Cheat Engine/cepack/cepack.lpi",
+        "cheat-engine-master/Cheat Engine/cepack/cepack.lpr",
+        "cheat-engine-master/Cheat Engine/ceregreset/ceregreset.lpi",
+        "cheat-engine-master/Cheat Engine/ceserver/Debug-linux/makefile",
+        "cheat-engine-master/Cheat Engine/ceserver/Release-android/makefile",
+        "cheat-engine-master/Cheat Engine/ceserver/extension/gcc/makefile",
+        "cheat-engine-master/Cheat Engine/ceserver/gcc/makefile",
+        "cheat-engine-master/Cheat Engine/cheatengine.lpi",
+        "cheat-engine-master/Cheat Engine/cheatengine.lpr",
+        "cheat-engine-master/Cheat Engine/dbk32/Kernelmodule unloader/Kernelmoduleunloader.lpi",
+        "cheat-engine-master/Cheat Engine/dbk32/Kernelmodule unloader/Kernelmoduleunloader.lpr",
+        "cheat-engine-master/Cheat Engine/debuggertest/debuggertest.lpi",
+        "cheat-engine-master/Cheat Engine/debuggertest/debuggertest.lpr",
+        "cheat-engine-master/Cheat Engine/launcher/cheatengine.lpi",
+        "cheat-engine-master/Cheat Engine/launcher/cheatengine.lpr",
+        "cheat-engine-master/Cheat Engine/lua53/lua53/Makefile",
+        "cheat-engine-master/Cheat Engine/lua53/lua53/src/Makefile",
+        "cheat-engine-master/Cheat Engine/luaclient/luaclient.lpi",
+        "cheat-engine-master/Cheat Engine/luaclient/luaclient.lpr",
+        "cheat-engine-master/Cheat Engine/luaclient/testapp/luaclienttest.lpi",
+        "cheat-engine-master/Cheat Engine/luaclient/testapp/luaclienttest.lpr",
+        "cheat-engine-master/Cheat Engine/plugin/DebugEventLog/src/DebugEventLog.lpi",
+        "cheat-engine-master/Cheat Engine/plugin/DebugEventLog/src/DebugEventLog.lpr",
+        "cheat-engine-master/Cheat Engine/plugin/c# template/CEPluginLibrary/CEPluginLibrary.csproj",
+        "cheat-engine-master/Cheat Engine/plugin/example/exampleplugin.lpi",
+        "cheat-engine-master/Cheat Engine/plugin/example/exampleplugin.lpr",
+        "cheat-engine-master/Cheat Engine/plugin/forcedinjection/forcedinjection.lpi",
+        "cheat-engine-master/Cheat Engine/sfx/level2/standalonephase2.lpi",
+        "cheat-engine-master/Cheat Engine/sfx/level2/standalonephase2.lpr",
+        "cheat-engine-master/Cheat Engine/speedhack/speedhack.lpi",
+        "cheat-engine-master/Cheat Engine/speedhack/speedhack.lpr",
+        "cheat-engine-master/Cheat Engine/speedhack/speedhacktest/speedhacktest.lpi",
+        "cheat-engine-master/Cheat Engine/speedhack/speedhacktest/speedhacktest.lpr",
+        "cheat-engine-master/Cheat Engine/tcclib/Makefile",
+        "cheat-engine-master/Cheat Engine/tcclib/lib/Makefile",
+        "cheat-engine-master/Cheat Engine/tcclib/tests/Makefile",
+        "cheat-engine-master/Cheat Engine/tcclib/tests/pp/Makefile",
+        "cheat-engine-master/Cheat Engine/tcclib/tests/tests2/Makefile",
+        "cheat-engine-master/Cheat Engine/windowsrepair/windowsrepair.lpi",
+        "cheat-engine-master/Cheat Engine/windowsrepair/windowsrepair.lpr",
+        "cheat-engine-master/Cheat Engine/winhook/winhook.lpi",
+        "cheat-engine-master/Cheat Engine/winhook/winhook.lpr",
+        "cheat-engine-master/Cheat Engine/xmplayer/xmplayer.lpi",
+        "cheat-engine-master/Cheat Engine/xmplayer/xmplayer.lpr",
+        "cheat-engine-master/DBKKernel/MAKEFILE",
+        "cheat-engine-master/dbvm/Makefile",
+        "cheat-engine-master/dbvm/bootsector/Makefile",
+        "cheat-engine-master/dbvm/common/Makefile",
+        "cheat-engine-master/dbvm/imagemaker/Makefile",
+        "cheat-engine-master/dbvm/parsevmloadermap/Makefile",
+        "cheat-engine-master/dbvm/parsevmmmap/Makefile",
+        "cheat-engine-master/dbvm/vmloader/Makefile",
+        "cheat-engine-master/dbvm/vmm/Makefile",
+        "cheat-engine-master/dbvm/vmm/distorm64/Makefile",
+        "cheat-engine-master/dbvm/vmm/lua/src/Makefile",
+        "cheat-engine-master/lua/etc/Makefile",
+        "cheat-engine-master/lua/src/Makefile"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "diagnostics",
+        "application-ux"
+      ]
+    },
+    {
+      "id": "deimos-main",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Routine compiler and independent workflow teacher reference",
+      "proposed_actions": [
+        "compile-bounded-routine",
+        "propose-quest-subgoal",
+        "propose-pet-or-combat-step"
+      ],
+      "recommended_runtime": [
+        "Python offline compiler/fixtures",
+        "native C# declarative execution; internal launch disabled"
+      ],
+      "existing_binding_paths": [
+        "tools/activity_runtime.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ToolIntegrationService.cs",
+        "tools/wizard101_hub.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101InteractionPolicy.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101Routine.cs",
+        "tools/game_packs.py"
+      ],
+      "binding_gaps": [
+        "legacy.deimos/shared-owner launcher exists but UI-only policy blocks client internals. Compiler is not bound to native conditions; memory-derived Dance labels are not pixel evidence."
+      ],
+      "bounded_tasks": [
+        "Repair signed proximity and malformed deck parsing; translate three bounded programs into supported action/condition IR without upstream startup."
+      ],
+      "work_packages": [
+        "LP06",
+        "LP08",
+        "LP09"
+      ],
+      "acceptance_tests": [
+        "Opposite coordinates retain sign; malformed sections give typed errors; capped loops and unknown internal instructions reject before execution."
+      ],
+      "observation_method": "offline teacher; client internals disabled",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "Deimos-Wizard101-main.zip",
+      "archive_format": "zip",
+      "source_sha256": "0e4ce956b878a97c109dc950b6218f444584e7b0ff4d8e85cb418cf77ef73a89",
+      "source_copy": ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8",
+      "catalog_qualification": "Repair required",
+      "catalog_limitations": "Memory-backed dance labels must be tagged separately from pixel observations. Coordinate proximity and malformed deck handling have reproducible defects; client hooks unqualified.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 35; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 1 images opened; recognition accuracy not measured",
+        "Deck roundtrip: Passed \u00e2\u20ac\u201d Two decks preserve names, sections and counts",
+        "Deck malformed section count: Failed \u00e2\u20ac\u201d IndexError: list index out of range",
+        "Routine language compile: Passed \u00e2\u20ac\u201d 3 programs compiled; no gameplay instructions executed",
+        "Navigation geometry: Passed \u00e2\u20ac\u201d Distance and a two-vertex graph fixture",
+        "Navigation opposite coordinates: Failed \u00e2\u20ac\u201d AssertionError: Opposite coordinates incorrectly treated as nearby"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deck_encoder.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/teleport_math.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/ir.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/parser.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/sem.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/tokenizer.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/types.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/__init__.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/Deimos.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/__init__.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/auto_pet.py"
+      ],
+      "build_manifests": [
+        "Deimos-Wizard101-main/requirements.txt"
+      ],
+      "initial_priority_wave": 2,
+      "current_integration": "Managed launcher/shared owner exists but client-internal execution blocked by current UI-only policy; offline components separate",
+      "overlap_groups": [
+        "routines-navigation",
+        "combat",
+        "pets"
+      ]
+    },
+    {
+      "id": "deimos-master",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Separately versioned older workflow/navigation baseline",
+      "proposed_actions": [
+        "compare-route-decisions",
+        "compare-pet-or-combat-workflow"
+      ],
+      "recommended_runtime": [
+        "Python offline alternative",
+        "native C# after measured feature selection"
+      ],
+      "existing_binding_paths": [
+        "tools/activity_runtime.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101InteractionPolicy.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101Routine.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameExperiments.cs"
+      ],
+      "binding_gaps": [
+        "No independently qualified master provider/pack is selected; main/master are not interchangeable revisions."
+      ],
+      "bounded_tasks": [
+        "Repair sign defect independently; compare identical observations to main and retain separate implementation IDs."
+      ],
+      "work_packages": [
+        "LP06",
+        "LP08",
+        "LP09"
+      ],
+      "acceptance_tests": [
+        "Both variants preserve signed coordinates; disagreements are recorded by version, never silently overwritten."
+      ],
+      "observation_method": "offline teacher; client internals disabled",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "Deimos-Wizard101-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "47db55d7249edf3aa6f6a3cc31452503acfab8eef99aff045e4cdd3ff35365c6",
+      "source_copy": ".local/legacy-validation/sources/Deimos-Wizard101-master-47db55d724",
+      "catalog_qualification": "Repair required",
+      "catalog_limitations": "Keep separate from main: dependencies, code and behavior differ. Coordinate proximity defect reproduced. Current-client hooks unqualified.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 27; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 1 images opened; recognition accuracy not measured",
+        "Navigation geometry: Passed \u00e2\u20ac\u201d Distance and a two-vertex graph fixture",
+        "Navigation opposite coordinates: Failed \u00e2\u20ac\u201d AssertionError: Opposite coordinates incorrectly treated as nearby"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/Deimos-Wizard101-master-47db55d724/Deimos-Wizard101-master/src/teleport_math.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/Deimos-Wizard101-master-47db55d724/Deimos-Wizard101-master/Deimos.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-master-47db55d724/Deimos-Wizard101-master/DeimosUpdater.py",
+        ".local/legacy-validation/sources/Deimos-Wizard101-master-47db55d724/Deimos-Wizard101-master/src/auto_pet.py"
+      ],
+      "build_manifests": [
+        "Deimos-Wizard101-master/requirements.txt"
+      ],
+      "initial_priority_wave": 2,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "routines-navigation",
+        "combat",
+        "pets"
+      ]
+    },
+    {
+      "id": "gardening-visual",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Plant-state checks, visual waits and home movement ordering",
+      "proposed_actions": [
+        "observe-plant-need",
+        "wait-for-menu",
+        "propose-care-step"
+      ],
+      "recommended_runtime": [
+        "native C# states/actions",
+        "Python offline teacher"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/VisualStateRecognizer.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101Routine.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/HomeMovementRun.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs"
+      ],
+      "binding_gaps": [
+        "Farming is a category, not a bound gardening operation; no current plant/energy outcome binding. Old key path must use existing owner/release checks."
+      ],
+      "bounded_tasks": [
+        "Repair interrupted release in isolated helper; model one configured plant need as a bounded dry-run step with resource preconditions."
+      ],
+      "work_packages": [
+        "LP05",
+        "LP06",
+        "LP07"
+      ],
+      "acceptance_tests": [
+        "Cancel at each press/wait releases keys; missing need/energy or stale plant evidence yields no care proposal."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "gardening-bot-main.zip",
+      "archive_format": "zip",
+      "source_sha256": "ff395a786a86419614ac2c8f34ee322eefd6b4cdae9483a8bca2544cd904937a",
+      "source_copy": ".local/legacy-validation/sources/gardening-bot-main-ff395a786a",
+      "catalog_qualification": "Repair required",
+      "catalog_limitations": "Use Maelstrom's action owner for execution: interrupted legacy key presses can remain held. Energy, planting and harvesting outcomes need separate qualification.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 14; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 23 images opened; recognition accuracy not measured",
+        "Movement order: Passed",
+        "Interrupted key release: Failed \u00e2\u20ac\u201d AssertionError: Interrupted legacy action left a key held",
+        "Visibility and timeout: Passed"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/gardening-bot-main-ff395a786a/gardening-bot-main/utils/actions.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/gardening-bot-main-ff395a786a/gardening-bot-main/config/images.json",
+        ".local/legacy-validation/sources/gardening-bot-main-ff395a786a/gardening-bot-main/config/movements.json",
+        ".local/legacy-validation/sources/gardening-bot-main-ff395a786a/gardening-bot-main/config/orderings.json"
+      ],
+      "build_manifests": [
+        "gardening-bot-main/requirements.txt"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "vision",
+        "routines-navigation"
+      ]
+    },
+    {
+      "id": "grubninja-reference",
+      "source_languages": [
+        "JavaScript",
+        "JSX/React",
+        "Electron"
+      ],
+      "role": "Grub Guardian map/UI vocabulary, not a gameplay teacher",
+      "proposed_actions": [
+        "import-map-reference",
+        "describe-screen-state"
+      ],
+      "recommended_runtime": [
+        "reference data",
+        "Python offline import; native C# context"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameResearch.cs",
+        "research/game_knowledge_schema.sql",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101LegacyCatalog.cs"
+      ],
+      "binding_gaps": [
+        "No visual controller binding. Generated-score/reward responses are excluded from gameplay outcomes."
+      ],
+      "bounded_tasks": [
+        "Extract map/state metadata only; repair syntax only if a reviewed pure importer needs it; no lifecycle or endpoint execution."
+      ],
+      "work_packages": [
+        "LP03",
+        "LP10"
+      ],
+      "acceptance_tests": [
+        "Record cites archive/revision; generated score is never observed survival or successful play."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "GrubNinja-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "1d4e5e7017e6a1ba79c3b11927476efb5a8a182bd422b057283993eccc2bc542",
+      "source_copy": ".local/legacy-validation/sources/GrubNinja-master-1d4e5e7017",
+      "catalog_qualification": "Repair required",
+      "catalog_limitations": "validateSession.js contains a syntax error (stray closing bracket). Reviewed reward path generates scores and submits service calls; it is not a visual gameplay demonstration. Do not use reward responses as training outcomes.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 3; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 27 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified \u00e2\u20ac\u201d Electron/React dependencies absent; lifecycle includes a global npm link. Reward endpoint calls are not gameplay evidence.",
+        "Javascript parse: Failed"
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/GrubNinja-master-1d4e5e7017/GrubNinja-master/package-lock.json",
+        ".local/legacy-validation/sources/GrubNinja-master-1d4e5e7017/GrubNinja-master/package.json",
+        ".local/legacy-validation/sources/GrubNinja-master-1d4e5e7017/GrubNinja-master/public/manifest.json"
+      ],
+      "build_manifests": [
+        "GrubNinja-master/package.json"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "pets",
+        "knowledge"
+      ]
+    },
+    {
+      "id": "libkiwad-reader",
+      "source_languages": [
+        "C"
+      ],
+      "role": "Independent WAD reader baseline",
+      "proposed_actions": [
+        "index-asset-entries",
+        "read-allowlisted-entry"
+      ],
+      "recommended_runtime": [
+        "reference C reader",
+        "Python offline differential fixtures; C# importer if justified"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WadIndexService.cs",
+        "research/game_knowledge_schema.sql"
+      ],
+      "binding_gaps": [
+        "WadIndexService does not use a repaired C reader; compressed reads unimplemented and initializer unsafe."
+      ],
+      "bounded_tasks": [
+        "Repair magic termination and bounds in fixtures; add bounded compression only if it improves selected importer."
+      ],
+      "work_packages": [
+        "LP04"
+      ],
+      "acceptance_tests": [
+        "Bad magic/truncation/expansion reject; plain and compressed fixtures agree with second reader before current-asset use."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "libkiwad-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "e18f0dca7318f801ecf327d72b5645964422be0a363480af3078eeafd6442756",
+      "source_copy": ".local/legacy-validation/sources/libkiwad-master-e18f0dca73",
+      "catalog_qualification": "Offline components tested",
+      "catalog_limitations": "Plain-entry read tested; compressed reads explicitly unimplemented. Initializer compares a non-terminated magic buffer and requires repair before use.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Kiwad compile: Passed",
+        "Kiwad probe: Passed"
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [],
+      "build_manifests": [],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "assets-version"
+      ]
+    },
+    {
+      "id": "on-wiz-reference",
+      "source_languages": [
+        "Markdown/documentation"
+      ],
+      "role": "Dated client/protocol hypotheses",
+      "proposed_actions": [
+        "import-cited-note",
+        "link-version-claim"
+      ],
+      "recommended_runtime": [
+        "reference only"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameResearch.cs",
+        "research/game_knowledge_schema.sql"
+      ],
+      "binding_gaps": [
+        "Notes are not normalized claims and do not establish current client compatibility."
+      ],
+      "bounded_tasks": [
+        "Import a small dated claim batch; separate service/command notes from observed UI behavior."
+      ],
+      "work_packages": [
+        "LP03",
+        "LP10"
+      ],
+      "acceptance_tests": [
+        "Contradictory historical notes remain separate; missing revision/date is not fabricated as current."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "On-Wiz-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "06a1d5bd9cac380ee22cdec14ee2dfd1122b9c8f7a60ad29033ae69c27bc3802",
+      "source_copy": ".local/legacy-validation/sources/On-Wiz-master-06a1d5bd9c",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Documentation only. Historical command-line/service notes are not current compatibility evidence.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Application readiness: Not applicable \u00e2\u20ac\u201d Documentation project; no application entry point to test."
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [],
+      "build_manifests": [],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "knowledge",
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "petdance-visual",
+      "source_languages": [
+        "Bundled Windows binary/assets",
+        "Python source-equivalent teacher"
+      ],
+      "role": "First native visual teacher/student comparison",
+      "proposed_actions": [
+        "review-pet-dance",
+        "propose-direction-sequence",
+        "run-bounded-live-trial"
+      ],
+      "recommended_runtime": [
+        "native C# runtime",
+        "Python offline calibration/comparison",
+        "preserve original assets"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceOperation.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDancePanelVision.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs",
+        "tools/compare_pet_dance_replay.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetSnackPlanner.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs"
+      ],
+      "binding_gaps": [
+        "w101.pet-dance-review is bound; live-trial exists as bounded CLI, not a qualified user workflow. Tiny UI/fade/loading work needs fresh evidence; snack planner has no feeding binding."
+      ],
+      "bounded_tasks": [
+        "Freeze calibration; compare held-out varied/repeated/fading/loading rounds; add profile/Start/Stop/report UX after verified trial."
+      ],
+      "work_packages": [
+        "LP02",
+        "LP11"
+      ],
+      "acceptance_tests": [
+        "Failed human round stays failed; sequence agreement is not autonomous success. Fresh accepted/released keys, actual result and Idle cleanup are separate."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "petdance.zip",
+      "archive_format": "tar",
+      "source_sha256": "f705a4330b8a2cb0f862b48847d9c0db8a00781441f40dd29d1f5f84668b0911",
+      "source_copy": ".local/legacy-validation/sources/petdance-f705a4330b",
+      "catalog_qualification": "Offline components tested",
+      "catalog_limitations": "Pet Dance teacher is available under Observe & teach: imports eight pinned images, calibrates scale and reviews recordings into proposal packs. Archive is TAR despite its name. Current W101 Watch/Go/results and live input remain unqualified.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 8 images opened; recognition accuracy not measured",
+        "Reviewed source synthetic sequences: Passed \u00e2\u20ac\u201d 100/100 with cue deduplication; earlier source rehearsal, no live frames or bundled EXE execution",
+        "Native app teacher pipeline: Passed \u00e2\u20ac\u201d 40/40 synthetic scaled cues; 3 exact varied round proposals; 0 proposals on sparse footage; no inputs, model, or live-game accuracy claim",
+        "Application readiness: Not qualified \u00e2\u20ac\u201d Binary teacher not launched; source-equivalent images and reviewed source components tested separately."
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [],
+      "build_manifests": [],
+      "initial_priority_wave": 2,
+      "current_integration": "Recorded native operation connected; bounded CLI trial present; fresh live qualification and product integration incomplete",
+      "overlap_groups": [
+        "vision",
+        "pets"
+      ]
+    },
+    {
+      "id": "maelstrom-historical",
+      "source_languages": [
+        "Compiled Windows distribution"
+      ],
+      "role": "Historical behavior and UX comparison",
+      "proposed_actions": [
+        "compare-screen-flow",
+        "compare-export-contract"
+      ],
+      "recommended_runtime": [
+        "reference only; current C# app remains sole runtime"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101LegacyCatalog.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101Routine.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs"
+      ],
+      "binding_gaps": [
+        "Preserved archive is neither current runtime nor nested provider."
+      ],
+      "bounded_tasks": [
+        "Compare documented UI/contracts; adopt individual patterns without launching or swapping historical binaries."
+      ],
+      "work_packages": [
+        "LP11"
+      ],
+      "acceptance_tests": [
+        "Current ownership/evidence rules persist; packaging does not import old executable state or delete reports."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "ProjectMaelstrom_win-x64_portable.zip",
+      "archive_format": "zip",
+      "source_sha256": "04849b55f98bf79d9187ecd21f33e27070307c25ec1a139ae7bb09cd85e5b02d",
+      "source_copy": ".local/legacy-validation/sources/ProjectMaelstrom_win-x64_portable-04849b55f9",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Preserved binary distribution; not executed or substituted for the current app.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified \u00e2\u20ac\u201d Historical binary preserved; current app is tested separately. Historical application not launched."
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [],
+      "build_manifests": [],
+      "initial_priority_wave": 3,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "application-ux"
+      ]
+    },
+    {
+      "id": "raid-specialists",
+      "source_languages": [
+        "Python",
+        "Qt UI"
+      ],
+      "role": "Four distinct raid role/location/workflow vocabularies",
+      "proposed_actions": [
+        "import-specialist-role",
+        "propose-later-subgoal"
+      ],
+      "recommended_runtime": [
+        "reference/Python offline alternatives",
+        "native C# composition later"
+      ],
+      "existing_binding_paths": [
+        "research/game_knowledge_schema.sql",
+        "docs/W101_DESTINATION_NAVIGATION.md",
+        "tools/activity_runtime.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101InteractionPolicy.cs"
+      ],
+      "binding_gaps": [
+        "No qualified az/ds/lm/pl providers or arrival/outcome bindings; Qt/memobj/fork dependencies unqualified and live hooks disabled."
+      ],
+      "bounded_tasks": [
+        "Normalize four role/location descriptions separately; defer multi-character execution until solo route/combat contracts qualify."
+      ],
+      "work_packages": [
+        "LP03",
+        "LP09"
+      ],
+      "acceptance_tests": [
+        "Four variants keep IDs/pins; role metadata is not a proven teleport or raid completion."
+      ],
+      "observation_method": "offline context; client internals disabled",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "raid-utility-tools-main.zip",
+      "archive_format": "zip",
+      "source_sha256": "b51e892c611f193048a171e36282338bf1ce8424cc72dccca2c0923afde56d0d",
+      "source_copy": ".local/legacy-validation/sources/raid-utility-tools-main-b51e892c61",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Four specialist variants retained. Qt/memobj/fork dependencies and client hooks not qualified; no raid operation or teleport tested.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 16; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 4 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified \u00e2\u20ac\u201d Matching Qt, memobj and forked wizwalker environment and live client compatibility unqualified.",
+        "Literal theme data: Passed \u00e2\u20ac\u201d 4 dictionaries; no raid gameplay tested"
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/raid-utility-tools-main-b51e892c61/raid-utility-tools-main/az-tool/main.py",
+        ".local/legacy-validation/sources/raid-utility-tools-main-b51e892c61/raid-utility-tools-main/az-tool/themes.py",
+        ".local/legacy-validation/sources/raid-utility-tools-main-b51e892c61/raid-utility-tools-main/az-tool/utils.py"
+      ],
+      "build_manifests": [
+        "raid-utility-tools-main/az-tool/requirements.txt",
+        "raid-utility-tools-main/ds-tool/requirements.txt",
+        "raid-utility-tools-main/lm-tool/requirements.txt",
+        "raid-utility-tools-main/pl-tool/requirements.txt"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "routines-navigation",
+        "knowledge"
+      ]
+    },
+    {
+      "id": "protocol-go",
+      "source_languages": [
+        "Go"
+      ],
+      "role": "Typed message/minigame vocabulary",
+      "proposed_actions": [
+        "import-schema-name",
+        "compare-saved-schema-revision"
+      ],
+      "recommended_runtime": [
+        "reference",
+        "Python offline schema normalization"
+      ],
+      "existing_binding_paths": [
+        "tools/moonlight_adapter.py",
+        "research/game_knowledge_schema.sql",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101InteractionPolicy.cs"
+      ],
+      "binding_gaps": [
+        "Missing w101-client-go blocks build; saved-file diagnostics are not a live protocol player."
+      ],
+      "bounded_tasks": [
+        "Normalize reviewed type names as dated references; no need to reproduce Go runtime for vocabulary."
+      ],
+      "work_packages": [
+        "LP10"
+      ],
+      "acceptance_tests": [
+        "Data roundtrip invokes no login/reward/traffic calls; schema names cannot establish game state."
+      ],
+      "observation_method": "saved-file/schema reference only",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "w101-proto-go-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "8e73e6990cb8025ae1afce8edef9013ad2730900c2cec89e97b7888d85605c86",
+      "source_copy": ".local/legacy-validation/sources/w101-proto-go-master-8e73e6990c",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Build requires unavailable w101-client-go module. No traffic replay, login or reward calls run; schemas are not visual players.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Protocol go offline build: Build blocked"
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [],
+      "build_manifests": [
+        "w101-proto-go-master/go.mod"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "packet-map-reference",
+      "source_languages": [
+        "C++"
+      ],
+      "role": "Historical packet schemas and asset-tool concepts",
+      "proposed_actions": [
+        "describe-saved-packet-field",
+        "compare-schema"
+      ],
+      "recommended_runtime": [
+        "reference only; existing offline decoder"
+      ],
+      "existing_binding_paths": [
+        "tools/moonlight_adapter.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WadIndexService.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101InteractionPolicy.cs"
+      ],
+      "binding_gaps": [
+        "Old x86 injection/offset machinery is unqualified and outside the UI gameplay loop."
+      ],
+      "bounded_tasks": [
+        "Separate schema/WAD utilities from injection source; retain documented data for saved-input comparisons only."
+      ],
+      "work_packages": [
+        "LP04",
+        "LP10"
+      ],
+      "acceptance_tests": [
+        "No process attachment; unresolved revisions do not produce guessed offsets."
+      ],
+      "observation_method": "saved-file reference; live traffic/injection disabled",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "wiz-packet-map-main.zip",
+      "archive_format": "zip",
+      "source_sha256": "686a277ccb2307527aaca37cb5655cd83204e4e1cc545baf23b89ccfed6546fb",
+      "source_copy": ".local/legacy-validation/sources/wiz-packet-map-main-686a277ccb",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Legacy x86 injection and client-specific offsets; MSVC/Crypto++ setup unavailable. No interception or game attachment performed.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 0; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified \u00e2\u20ac\u201d Legacy x86 injection project requires its MSVC/Crypto++ build setup and client offsets; not attached to W101."
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [],
+      "build_manifests": [],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "assets-version",
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "wizapi-visual",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Alternative visual card/menu matcher and proposals",
+      "proposed_actions": [
+        "locate-menu-template",
+        "propose-spell-selection"
+      ],
+      "recommended_runtime": [
+        "native C# visual primitive",
+        "Python offline comparison"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/VisualStateRecognizer.cs",
+        "tools/game_packs.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputLease.cs",
+        "tools/activity_runtime.py"
+      ],
+      "binding_gaps": [
+        "No native wizAPI provider; fixed 800x600/Regular UI and global activation violate target-bound coordinates/admission."
+      ],
+      "bounded_tasks": [
+        "Fix nonsquare center; return local evidence with timeout/unknown; compare same crops against wizSDK."
+      ],
+      "work_packages": [
+        "LP05",
+        "LP08"
+      ],
+      "acceptance_tests": [
+        "Nonsquare/absent/scaled templates return correct local center or unknown; mismatch cannot trigger click."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "wizAPI-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "b2853c3b4197a334177c01277fbaba7204162173a2ef79e74f2083ad0c5d65fe",
+      "source_copy": ".local/legacy-validation/sources/wizAPI-master-b2853c3b41",
+      "catalog_qualification": "Repair required",
+      "catalog_limitations": "Non-square template center is wrong. Fixed 800x600/Regular UI/DPI assumptions, global activation and unbounded waits require adaptation.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 3; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 14 images opened; recognition accuracy not measured",
+        "Nonsquare match center: Failed \u00e2\u20ac\u201d AssertionError: Template center swaps width and height",
+        "Absent template: Passed"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/wizAPI-master-b2853c3b41/wizAPI-master/wizAPI.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/wizAPI-master-b2853c3b41/wizAPI-master/farm_loremaster.py",
+        ".local/legacy-validation/sources/wizAPI-master-b2853c3b41/wizAPI-master/potatoFarmer.py",
+        ".local/legacy-validation/sources/wizAPI-master-b2853c3b41/wizAPI-master/wizAPI.py"
+      ],
+      "build_manifests": [
+        "wizAPI-master/requirements.txt"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "vision",
+        "combat"
+      ]
+    },
+    {
+      "id": "bazaar-visual",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Item/page search and price evidence",
+      "proposed_actions": [
+        "locate-item",
+        "search-next-page",
+        "report-price"
+      ],
+      "recommended_runtime": [
+        "native C# bounded search",
+        "Python offline matcher"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/VisualStateRecognizer.cs",
+        "tools/game_packs.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs",
+        "research/game_knowledge_schema.sql"
+      ],
+      "binding_gaps": [
+        "Standalone purchase start is not a qualified shared search/transaction operation; no-match/RGB-BGR adapters unverified."
+      ],
+      "bounded_tasks": [
+        "Build finite page-search dry run; normalize colors/no-match; purchasing remains separate future operation."
+      ],
+      "work_packages": [
+        "LP05",
+        "LP07"
+      ],
+      "acceptance_tests": [
+        "Blank page yields no coordinates; page/time caps stop; search never spends or retries uncertain purchase."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "Wizard101-Bazaar-Tc-Farming-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "7115291770885b73be4c192516553e1ca24c118a8eb95ed4990a639edab92a22",
+      "source_copy": ".local/legacy-validation/sources/Wizard101-Bazaar-Tc-Farming-master-7115291770",
+      "catalog_qualification": "Offline components tested",
+      "catalog_limitations": "Image matching tested on fixtures only. Purchase loops are not enabled; missing-image coordinates and RGB/BGR conversion need adapter checks.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 2; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 78 images opened; recognition accuracy not measured",
+        "Image match and absent: Passed"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/Wizard101-Bazaar-Tc-Farming-master-7115291770/Wizard101-Bazaar-Tc-Farming-master/imagesearch.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/Wizard101-Bazaar-Tc-Farming-master-7115291770/Wizard101-Bazaar-Tc-Farming-master/Farming_Bazaar.py",
+        ".local/legacy-validation/sources/Wizard101-Bazaar-Tc-Farming-master-7115291770/Wizard101-Bazaar-Tc-Farming-master/imagesearch.py"
+      ],
+      "build_manifests": [
+        "Wizard101-Bazaar-Tc-Farming-master/requirements.txt"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "vision"
+      ]
+    },
+    {
+      "id": "damage-evaluator",
+      "source_languages": [
+        "C#/.NET library and older UI"
+      ],
+      "role": "Pure combat consequence estimate",
+      "proposed_actions": [
+        "estimate-damage",
+        "compare-turn-options"
+      ],
+      "recommended_runtime": [
+        "native C# pure library after repair",
+        "preserve legacy baseline"
+      ],
+      "existing_binding_paths": [
+        "tools/activity_runtime.py",
+        "research/game_knowledge_schema.sql",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameExperiments.cs"
+      ],
+      "binding_gaps": [
+        "No repaired evaluator wired into verified combat; legacy mutation/enchant/resist/boost defects remain."
+      ],
+      "bounded_tasks": [
+        "Repair pure input mutation, flat enchant, zero-pierce resist and boost composition without old UI port."
+      ],
+      "work_packages": [
+        "LP08"
+      ],
+      "acceptance_tests": [
+        "Repeated/reordered calls stable; independent modifier fixtures pass; estimate never becomes observed damage."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "Wizard101-Damage-Calculator-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "d0bea30c9d88bb3548c1fbd81b4931543a1f1b1361b75686260ef4081ab7d02e",
+      "source_copy": ".local/legacy-validation/sources/Wizard101-Damage-Calculator-master-d0bea30c9d",
+      "catalog_qualification": "Repair required",
+      "catalog_limitations": "Pure library compiles under net9, but repeated calculations mutate damage; enchant/resistance/boost checks fail. Do not use it as decision truth yet.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 8; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 1 images opened; recognition accuracy not measured",
+        "Damage library probe: Passed",
+        "Base damage: Passed",
+        "Blade and shield: Passed",
+        "Repeatability: Failed",
+        "Flat spell enchant applies: Failed",
+        "Zero pierce still applies resist: Failed",
+        "Boost does not erase wizard damage: Failed"
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/Wizard101-Damage-Calculator-master-d0bea30c9d/Wizard101-Damage-Calculator-master/KursovaLibrary/KursovaLibrary.csproj",
+        ".local/legacy-validation/sources/Wizard101-Damage-Calculator-master-d0bea30c9d/Wizard101-Damage-Calculator-master/KursovaRabota/Forms/CustomCharacterCreation.resx",
+        ".local/legacy-validation/sources/Wizard101-Damage-Calculator-master-d0bea30c9d/Wizard101-Damage-Calculator-master/KursovaRabota/Forms/CustomDamageModificators/FormCustomDamageModificator.resx"
+      ],
+      "build_manifests": [
+        "Wizard101-Damage-Calculator-master/KursovaLibrary/KursovaLibrary.csproj",
+        "Wizard101-Damage-Calculator-master/KursovaRabota/KursovaRabota.csproj"
+      ],
+      "initial_priority_wave": 3,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "combat"
+      ]
+    },
+    {
+      "id": "farming-opencv",
+      "source_languages": [
+        "Python",
+        "OpenCV-based logic"
+      ],
+      "role": "Card/enchant/attack proposal alternative",
+      "proposed_actions": [
+        "recognize-hand",
+        "propose-enchant",
+        "propose-attack"
+      ],
+      "recommended_runtime": [
+        "native C# turn/observation contract",
+        "Python offline teacher"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/VisualStateRecognizer.cs",
+        "tools/activity_runtime.py",
+        "tools/game_packs.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputLease.cs"
+      ],
+      "binding_gaps": [
+        "Window-relative matches meet screen-coordinate input; fixed deck/order and endless loop lack verified native turn binding."
+      ],
+      "bounded_tasks": [
+        "Separate recognition/input; test shuffled hands; convert coordinates only at common input boundary."
+      ],
+      "work_packages": [
+        "LP05",
+        "LP08"
+      ],
+      "acceptance_tests": [
+        "Missing card/deck changes never reuse coordinates; one proposal per fresh turn; unknown outcome stops chain."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "Wizard101-Farming-main.zip",
+      "archive_format": "zip",
+      "source_sha256": "71848d31dc7e0fa1730ec824f1e3bdd4a440e7500ede86085c80e7e561302415",
+      "source_copy": ".local/legacy-validation/sources/Wizard101-Farming-main-71848d31dc",
+      "catalog_qualification": "Offline components tested",
+      "catalog_limitations": "Basic visual fixtures pass. Matching returns window-relative coordinates while input expects screen coordinates; fixed deck/order and indefinite loops remain.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 1; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 6 images opened; recognition accuracy not measured",
+        "Card match and absent: Passed \u00e2\u20ac\u201d Fake activation/capture/output; no real window touched"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/Wizard101-Farming-main-71848d31dc/Wizard101-Farming-main/Play.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/Wizard101-Farming-main-71848d31dc/Wizard101-Farming-main/Play.py"
+      ],
+      "build_manifests": [],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "vision",
+        "combat"
+      ]
+    },
+    {
+      "id": "utilities-context",
+      "source_languages": [
+        "Python",
+        "JavaScript",
+        "JSON/data"
+      ],
+      "role": "Gear/pet/research schema and cached data",
+      "proposed_actions": [
+        "import-item-claim",
+        "import-pet-claim",
+        "compare-gear-facts"
+      ],
+      "recommended_runtime": [
+        "Python offline importer",
+        "native C# knowledge/snack consumer"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizWikiDataService.cs",
+        "research/game_knowledge_schema.sql",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetSnackPlanner.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameResearch.cs"
+      ],
+      "binding_gaps": [
+        "Cache/snack planner do not import these datasets or establish current ownership, stock or benefits."
+      ],
+      "bounded_tasks": [
+        "Import one small saved dataset with record IDs/revision; keep conflicts and expected benefits separate from observations."
+      ],
+      "work_packages": [
+        "LP03"
+      ],
+      "acceptance_tests": [
+        "Duplicate stable; unknown stock/date/benefit remains unknown; import runs no scraper/database population script."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "Wizard101-Utilities-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "7fa75c58dc216f180dd40a7b17a81d4273a8b3d84303b6aa76910281343a77af",
+      "source_copy": ".local/legacy-validation/sources/Wizard101-Utilities-master-7fa75c58dc",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Historical data requires freshness checks. Scrapers and database population scripts not run against external services.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 19; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 42 images opened; recognition accuracy not measured",
+        "Javascript parse: Passed"
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/Wizard101-Utilities-master-7fa75c58dc/Wizard101-Utilities-master/python/GearCalcUtilities.py",
+        ".local/legacy-validation/sources/Wizard101-Utilities-master-7fa75c58dc/Wizard101-Utilities-master/python/bundle.py",
+        ".local/legacy-validation/sources/Wizard101-Utilities-master-7fa75c58dc/Wizard101-Utilities-master/python/gear.py"
+      ],
+      "build_manifests": [],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "pets",
+        "knowledge"
+      ]
+    },
+    {
+      "id": "gallery-context",
+      "source_languages": [
+        "TypeScript/JavaScript",
+        "Next.js UI",
+        "Python API"
+      ],
+      "role": "Screenshot/location indexing and provenance",
+      "proposed_actions": [
+        "index-recording-frame",
+        "link-landmark-evidence"
+      ],
+      "recommended_runtime": [
+        "reference schema",
+        "native C# recording library"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/TeachingRecording.cs",
+        "research/game_knowledge_schema.sql",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameResearch.cs"
+      ],
+      "binding_gaps": [
+        "No gallery-to-TeachingRecording source/frame/location importer; separate website/database unnecessary."
+      ],
+      "bounded_tasks": [
+        "Map one saved annotation set to frame IDs/regions/zone claims; omit server and migration startup."
+      ],
+      "work_packages": [
+        "LP03",
+        "LP11"
+      ],
+      "acceptance_tests": [
+        "Missing image/location explicit; hashes/timestamps survive export; no service credentials needed."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "WizGallery-dev.zip",
+      "archive_format": "zip",
+      "source_sha256": "ffb7a6fe245ce640f24b38d01d2a742c9ee7f91e205608743181be93d8b53ba9",
+      "source_copy": ".local/legacy-validation/sources/WizGallery-dev-ffb7a6fe24",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Database-backed web app. Dependencies/services absent; import-time database connections and migration scripts not executed.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 7; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 4 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified \u00e2\u20ac\u201d Next.js dependencies and database credentials/services absent; server/migration scripts not started.",
+        "Javascript parse: Passed"
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/WizGallery-dev-ffb7a6fe24/WizGallery-dev/client/.eslintrc.json",
+        ".local/legacy-validation/sources/WizGallery-dev-ffb7a6fe24/WizGallery-dev/client/package.json",
+        ".local/legacy-validation/sources/WizGallery-dev-ffb7a6fe24/WizGallery-dev/client/public/data/nav-items.json"
+      ],
+      "build_manifests": [
+        "WizGallery-dev/client/package.json",
+        "WizGallery-dev/server/requirements.txt"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "knowledge",
+        "application-ux"
+      ]
+    },
+    {
+      "id": "wizsdk-visual",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Alternative visual matches/waits and control vocabulary",
+      "proposed_actions": [
+        "match-template",
+        "wait-for-visible-state",
+        "describe-control"
+      ],
+      "recommended_runtime": [
+        "Python offline functions",
+        "native C# helpers; internal launch disabled"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/VisualStateRecognizer.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ToolIntegrationService.cs",
+        "tools/wizard101_hub.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101InteractionPolicy.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputLease.cs"
+      ],
+      "binding_gaps": [
+        "Managed wizsdk launcher is blocked by UI-only policy; isolated matcher success does not qualify client capture/input."
+      ],
+      "bounded_tasks": [
+        "Preserve tested nonsquare matcher as baseline; adapt pure waits/matching to common frame/coordinate semantics."
+      ],
+      "work_packages": [
+        "LP05",
+        "LP06"
+      ],
+      "acceptance_tests": [
+        "Identical crops agree or retain discrepancies with wizAPI/native; timeout/focus loss ends wait with no global input."
+      ],
+      "observation_method": "offline functions; client internals disabled",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "wizSDK-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "f88867bc0962b895099a0183b3c594265709c7abe2a99b4a8ebbaa5d6a4fa783",
+      "source_copy": ".local/legacy-validation/sources/wizSDK-master-f88867bc09",
+      "catalog_qualification": "Offline components tested",
+      "catalog_limitations": "Non-square visual match and blank fixture pass. Capture/input integration, resolution assumptions and client dependencies remain unqualified.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 13; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 5 images opened; recognition accuracy not measured",
+        "Nonsquare match and absent: Passed"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/wizSDK-master-f88867bc09/wizSDK-master/wizsdk/pixels.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/wizSDK-master-f88867bc09/wizSDK-master/docs/conf.py",
+        ".local/legacy-validation/sources/wizSDK-master-f88867bc09/wizSDK-master/pyproject.toml",
+        ".local/legacy-validation/sources/wizSDK-master-f88867bc09/wizSDK-master/wizsdk/__init__.py"
+      ],
+      "build_manifests": [
+        "wizSDK-master/docs/Makefile",
+        "wizSDK-master/pyproject.toml"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Managed launcher/shared owner exists but client-internal execution blocked by current UI-only policy; offline components separate",
+      "overlap_groups": [
+        "vision",
+        "routines-navigation",
+        "combat"
+      ]
+    },
+    {
+      "id": "wizwad-reader",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Read-only WAD index/payload parser candidate",
+      "proposed_actions": [
+        "index-local-archive",
+        "read-allowlisted-asset"
+      ],
+      "recommended_runtime": [
+        "Python offline importer first",
+        "C# only for measured runtime need"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WadIndexService.cs",
+        "research/game_knowledge_schema.sql"
+      ],
+      "binding_gaps": [
+        "Existing WAD bridge is not hardened wizwad; magic/size/decompression and bounded process-output/exit checks remain."
+      ],
+      "bounded_tasks": [
+        "Repair signatures/names/offset/count; cap reads/decompression and worker output/deadline; defer writer."
+      ],
+      "work_packages": [
+        "LP04"
+      ],
+      "acceptance_tests": [
+        "V1/V2 compressed/plain differential fixtures pass; bad signature/traversal/truncation/hung worker explicitly fail."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "wizwad-main.zip",
+      "archive_format": "zip",
+      "source_sha256": "f4e9103b9e68421c581f9d1b3bc0bd1704e7b6849339d3eedc9735c275e79c8e",
+      "source_copy": ".local/legacy-validation/sources/wizwad-main-f4e9103b9e",
+      "catalog_qualification": "Repair required",
+      "catalog_limitations": "V1/V2 plain/compressed reads pass independent fixtures. Invalid magic is accepted; add strict header/size checks. Writer dependency absent; writer not tested.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 6; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Read v1 v2 plain compressed: Passed \u00e2\u20ac\u201d Four independent format fixtures, both versions and compression modes; writer not tested",
+        "Invalid signature rejected: Failed \u00e2\u20ac\u201d AssertionError: Non-KIWAD signature accepted"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/wizwad-main-f4e9103b9e/wizwad-main/wizwad/wad.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/wizwad-main-f4e9103b9e/wizwad-main/pyproject.toml",
+        ".local/legacy-validation/sources/wizwad-main-f4e9103b9e/wizwad-main/tests/test_wad.py",
+        ".local/legacy-validation/sources/wizwad-main-f4e9103b9e/wizwad-main/tools/benchmark.py"
+      ],
+      "build_manifests": [
+        "wizwad-main/pyproject.toml"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "assets-version"
+      ]
+    },
+    {
+      "id": "wizwalker-client",
+      "source_languages": [
+        "Python"
+      ],
+      "role": "Asset journal and optional observation vocabulary",
+      "proposed_actions": [
+        "read-wad-journal",
+        "describe-state-field"
+      ],
+      "recommended_runtime": [
+        "Python offline journal helper",
+        "reference for separately scoped observation adapter"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WadIndexService.cs",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/ToolIntegrationService.cs",
+        "tools/wizard101_hub.py",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101InteractionPolicy.cs",
+        "research/game_knowledge_schema.sql"
+      ],
+      "binding_gaps": [
+        "Managed internal launcher blocked; journal fixtures do not qualify process-memory observations, offsets, hooks or actions."
+      ],
+      "bounded_tasks": [
+        "Isolate journals from client startup; compare wizwad; document process-memory-read fields separately without enabling hooks/writes."
+      ],
+      "work_packages": [
+        "LP04",
+        "LP10"
+      ],
+      "acceptance_tests": [
+        "Journal checks open no process; memory-derived labels retain method/version and cannot become visual student inputs."
+      ],
+      "observation_method": "files now; process-memory observation not enabled; hooks/writes disabled",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "wizwalker-master.zip",
+      "archive_format": "zip",
+      "source_sha256": "265c50b940b937dc165aeeeb14f329a8eaba799cd006a000473900c0fea70568",
+      "source_copy": ".local/legacy-validation/sources/wizwalker-master-265c50b940",
+      "catalog_qualification": "Offline components tested",
+      "catalog_limitations": "V1/V2 journals tested. Client memory offsets and live hooks are a separate compatibility gate; no attachment performed.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 58; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Wad journal v1 v2: Passed \u00e2\u20ac\u201d Journal parsing only; client-memory hooks and async extraction not exercised"
+      ],
+      "reviewed_component_files": [
+        ".local/legacy-validation/sources/wizwalker-master-265c50b940/wizwalker-master/wizwalker/file_readers/wad.py"
+      ],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/wizwalker-master-265c50b940/wizwalker-master/examples/fight_lost_soul.py",
+        ".local/legacy-validation/sources/wizwalker-master-265c50b940/wizwalker-master/examples/quest_teleporter.py",
+        ".local/legacy-validation/sources/wizwalker-master-265c50b940/wizwalker-master/examples/read_fish_basket_space.py"
+      ],
+      "build_manifests": [
+        "wizwalker-master/pyproject.toml"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Managed launcher/shared owner exists but client-internal execution blocked by current UI-only policy; offline components separate",
+      "overlap_groups": [
+        "routines-navigation",
+        "pets",
+        "assets-version",
+        "diagnostics"
+      ]
+    },
+    {
+      "id": "wiki-context",
+      "source_languages": [
+        "TypeScript",
+        "JSON/data"
+      ],
+      "role": "Historical world/quest categories and schema",
+      "proposed_actions": [
+        "import-world-context",
+        "link-quest-reference"
+      ],
+      "recommended_runtime": [
+        "Python offline cache importer",
+        "native C# WizWiki consumer"
+      ],
+      "existing_binding_paths": [
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizWikiDataService.cs",
+        "research/game_knowledge_schema.sql",
+        "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameResearch.cs",
+        "docs/W101_DESTINATION_NAVIGATION.md"
+      ],
+      "binding_gaps": [
+        "Cache loader exists; archived API reportedly nonfunctional and historical worlds are not current route/quest truth."
+      ],
+      "bounded_tasks": [
+        "Map 16 parsed historical worlds into sourced claims; detect stale/conflicting names; connect existing cache schema."
+      ],
+      "work_packages": [
+        "LP03",
+        "LP09"
+      ],
+      "acceptance_tests": [
+        "Saved-data import needs no service; dates/conflicts retained; neighbor metadata never implies map teleportation."
+      ],
+      "observation_method": "offline file/fixture",
+      "complete": false,
+      "live_enabled_by_this_plan": false,
+      "archive": "WizWikiAPI-main.zip",
+      "archive_format": "zip",
+      "source_sha256": "5d4635312eea86c4d30e1a48c19d9a0e8c2a85fbe35019edbb6b1253d7df7464",
+      "source_copy": ".local/legacy-validation/sources/WizWikiAPI-main-5d4635312e",
+      "catalog_qualification": "Reference reviewed",
+      "catalog_limitations": "Historical world data parsed; README says API no longer works. TypeScript/compiler dependencies absent. No access-control workarounds attempted.",
+      "catalog_live_qualified": false,
+      "source_evidence": [
+        "Archive integrity: passed; parsed files: 4; parse failures: 0",
+        "Image assets decode: Passed \u00e2\u20ac\u201d 0 images opened; recognition accuracy not measured",
+        "Application readiness: Not qualified \u00e2\u20ac\u201d TypeScript dependencies absent; bundled README reports upstream API no longer works. Current service not queried.",
+        "World context schema: Passed \u00e2\u20ac\u201d 16 historical world records; freshness not established"
+      ],
+      "reviewed_component_files": [],
+      "reviewed_source_examples": [
+        ".local/legacy-validation/sources/WizWikiAPI-main-5d4635312e/WizWikiAPI-main/app/src/Data/Worlds.json",
+        ".local/legacy-validation/sources/WizWikiAPI-main-5d4635312e/WizWikiAPI-main/package-lock.json",
+        ".local/legacy-validation/sources/WizWikiAPI-main-5d4635312e/WizWikiAPI-main/package.json"
+      ],
+      "build_manifests": [
+        "WizWikiAPI-main/package.json"
+      ],
+      "initial_priority_wave": 1,
+      "current_integration": "Catalogued/reviewed; proposed native integration not complete",
+      "overlap_groups": [
+        "knowledge"
+      ]
+    }
+  ],
+  "status_rule": "Reviewed source and passing isolated components are not integrated gameplay. Each target work package remains incomplete; this plan enables no runtime.",
+  "execution_defaults": {
+    "live": "Visible UI observations and ordinary player input through existing owner only",
+    "offline": "Saved files and bounded pure fixture functions; no upstream startup",
+    "process_memory_observation": "Not enabled; separate evidence and scope decision needed. Distinct from installed files, screen capture, memory writes or injection.",
+    "client_hooks_injection_memory_writes": "Not enabled by this work",
+    "live_game_traffic": "Not enabled; saved-file decoding is separate",
+    "resources": "One capture/input owner; one analysis worker; bounded queues; models off by default",
+    "admission": "Trusted W101InteractionPolicy and Python policy classify methods; source ownership or manifest claims cannot self-authorize execution"
+  },
+  "language_strategy": {
+    "native_csharp": "Existing Windows UI, scheduler, ownership, hot-path visual rules, routine interpretation and small deterministic evaluators. Reuse existing code instead of translating every repository.",
+    "python_offline": "Imports, repaired teacher functions, bounded asset/knowledge parsers and comparisons via versioned JSON/artifact contracts; no model required.",
+    "other_languages": "Preserve Rust/C/Go/Pascal/JS/TS sources as references or isolated comparisons; add a runtime only for a measured missing capability.",
+    "contracts": "Share operation/action/result schemas while retaining distinct implementation/source/version identities."
+  },
+  "overlap_groups": [
+    {
+      "id": "vision",
+      "members": [
+        "afk-visual",
+        "petdance-visual",
+        "wizapi-visual",
+        "bazaar-visual",
+        "farming-opencv",
+        "wizsdk-visual",
+        "gardening-visual"
+      ],
+      "consolidation_rule": "One observation/coordinate/unknown contract, separate frozen detector baselines."
+    },
+    {
+      "id": "routines-navigation",
+      "members": [
+        "automatus-v2",
+        "deimos-main",
+        "deimos-master",
+        "gardening-visual",
+        "raid-specialists",
+        "wizwalker-client",
+        "wizsdk-visual"
+      ],
+      "consolidation_rule": "Share condition/action/result types, not global loops; retain route variants and signed geometry fixtures."
+    },
+    {
+      "id": "combat",
+      "members": [
+        "deimos-main",
+        "deimos-master",
+        "wizapi-visual",
+        "farming-opencv",
+        "damage-evaluator",
+        "afk-visual",
+        "wizsdk-visual"
+      ],
+      "consolidation_rule": "Shared hand/turn context; pure consequence evaluator; alternatives compared on identical recorded states."
+    },
+    {
+      "id": "pets",
+      "members": [
+        "petdance-visual",
+        "deimos-main",
+        "deimos-master",
+        "utilities-context",
+        "grubninja-reference",
+        "wizwalker-client"
+      ],
+      "consolidation_rule": "Dance, training feed, Happiness and inventory disposal remain separate; data is not permission to consume."
+    },
+    {
+      "id": "assets-version",
+      "members": [
+        "wizwad-reader",
+        "libkiwad-reader",
+        "wizwalker-client",
+        "aurorium-assets",
+        "packet-map-reference"
+      ],
+      "consolidation_rule": "One bounded importer contract; differential parsers, no requirement to retain every runtime."
+    },
+    {
+      "id": "knowledge",
+      "members": [
+        "wiki-context",
+        "utilities-context",
+        "gallery-context",
+        "on-wiz-reference",
+        "raid-specialists",
+        "grubninja-reference"
+      ],
+      "consolidation_rule": "One local sourced-claim/evidence store; preserve conflicts and chronology, no required web/database server."
+    },
+    {
+      "id": "diagnostics",
+      "members": [
+        "cheat-engine-reference",
+        "protocol-go",
+        "packet-map-reference",
+        "on-wiz-reference",
+        "wizwalker-client"
+      ],
+      "consolidation_rule": "Outside reaction loop; saved files, process-memory observations and state-changing methods are separate."
+    },
+    {
+      "id": "application-ux",
+      "members": [
+        "maelstrom-historical",
+        "gallery-context",
+        "cheat-engine-reference"
+      ],
+      "consolidation_rule": "Borrow useful UI pieces into current app, not nested legacy applications."
+    }
+  ],
+  "coverage": {
+    "root_inventory_count": 25,
+    "catalog_count": 25,
+    "mapped_count": 25,
+    "recursive_compressed_items": 88,
+    "mismatch": false
+  },
+  "evidence_sources": [
+    "ProjectMaelstrom/ProjectMaelstrom/Resources/LegacyW101Catalog.json",
+    ".local/legacy-teachers/inventory.json",
+    ".local/legacy-validation/audit.json",
+    "research/w101-legacy-reviewed-files.json",
+    "research/w101-integration-map.json",
+    "docs/W101_LEGACY_QUALIFICATION.md",
+    "docs/W101_CAPABILITY_INTEGRATION_MAP.md",
+    "docs/SHARED_OPERATIONS.md",
+    "docs/PET_DANCE_DELIVERY_TRACKER_20261108.md",
+    "docs/PET_SNACK_PLANNER.md",
+    "docs/W101_LOCAL_INSTALLATION_SOURCES.md"
+  ],
+  "preservation_rules": [
+    "Original archives/main/master/four raid variants retain separate source IDs and hashes.",
+    "Keep failures and disagreement reports; teacher outputs are hypotheses until independently checked.",
+    "Default selection needs identical held-out evidence/resource comparison; retain prior baseline and rollback.",
+    "Check licenses/asset rights before bundling; local availability is not redistribution permission.",
+    "Packs are declarative; input/capability admission stays in trusted application code."
+  ],
+  "parallel_work": {
+    "independent_now": [
+      "LP03 saved knowledge mapping",
+      "LP04 parser fixture repairs",
+      "LP05 saved-crop comparisons",
+      "LP08 pure damage repair before dependent combat integration",
+      "LP10 dated reference mapping"
+    ],
+    "serialized": [
+      "All game/desktop input and native Idle cleanup",
+      "Any separately scoped current-client observations",
+      "Shared builds/packaging/install",
+      "Edits to the same contracts/policy/source files"
+    ],
+    "task_return_contract": [
+      "Owned files and dependencies",
+      "Bounded inputs/source pins",
+      "Tests/report including failures",
+      "Remaining gates; no unsupported qualification claims"
+    ],
+    "promotion_order": [
+      "repair pure functions/contracts",
+      "compare variants on saved fixtures",
+      "freeze and test held-out states",
+      "qualify bounded current-game operation if applicable",
+      "expose complete workflow and release"
+    ]
+  }
+}

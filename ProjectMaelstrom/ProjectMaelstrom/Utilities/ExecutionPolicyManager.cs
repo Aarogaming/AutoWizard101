@@ -68,6 +68,17 @@ internal static class ExecutionPolicyManager
         PluginHost.LoadAllowedPlugins();
     }
 
+    public static void SetExternalAutomationEnabled(bool enabled)
+    {
+        var path = Path.Combine(StorageUtils.GetCacheDirectory(), PolicyFileName);
+        File.WriteAllLines(path, new[]
+        {
+            $"{AllowLiveKey}={enabled.ToString().ToLowerInvariant()}",
+            $"{ProfileKey}={(enabled ? ExecutionProfile.ExperimentalSimulation : ExecutionProfile.AcademicSimulation)}"
+        });
+        Reload();
+    }
+
     private static ExecutionPolicySnapshot LoadPolicy()
     {
         var path = Path.Combine(StorageUtils.GetCacheDirectory(), PolicyFileName);

@@ -1,0 +1,208 @@
+{
+  "schema_version": 2,
+  "pack_id": "dodge-context",
+  "title": "Dodge the Creeps - extra visual uncertainty buffer",
+  "game_id": "godot-dodge-the-creeps",
+  "version": "0.1.8-buffer",
+  "status": "draft",
+  "capabilities": [
+    "keyboard"
+  ],
+  "actions": [
+    {
+      "id": "move-left",
+      "title": "Move left",
+      "key": "LEFT",
+      "duration_ms": 60
+    },
+    {
+      "id": "move-right",
+      "title": "Move right",
+      "key": "RIGHT",
+      "duration_ms": 60
+    },
+    {
+      "id": "move-up",
+      "title": "Move up",
+      "key": "UP",
+      "duration_ms": 60
+    },
+    {
+      "id": "move-down",
+      "title": "Move down",
+      "key": "DOWN",
+      "duration_ms": 60
+    },
+    {
+      "id": "move-up-left",
+      "title": "Move up-left",
+      "key": "UP_LEFT",
+      "duration_ms": 60
+    },
+    {
+      "id": "move-up-right",
+      "title": "Move up-right",
+      "key": "UP_RIGHT",
+      "duration_ms": 60
+    },
+    {
+      "id": "move-down-left",
+      "title": "Move down-left",
+      "key": "DOWN_LEFT",
+      "duration_ms": 60
+    },
+    {
+      "id": "move-down-right",
+      "title": "Move down-right",
+      "key": "DOWN_RIGHT",
+      "duration_ms": 60
+    }
+  ],
+  "skills": [
+    {
+      "id": "avoid-left",
+      "when": {
+        "state": "dodge-advice-left"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-left"
+        }
+      }
+    },
+    {
+      "id": "avoid-right",
+      "when": {
+        "state": "dodge-advice-right"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-right"
+        }
+      }
+    },
+    {
+      "id": "avoid-up",
+      "when": {
+        "state": "dodge-advice-up"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-up"
+        }
+      }
+    },
+    {
+      "id": "avoid-down",
+      "when": {
+        "state": "dodge-advice-down"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-down"
+        }
+      }
+    },
+    {
+      "id": "avoid-up-left",
+      "when": {
+        "state": "dodge-advice-up-left"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-up-left"
+        }
+      }
+    },
+    {
+      "id": "avoid-up-right",
+      "when": {
+        "state": "dodge-advice-up-right"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-up-right"
+        }
+      }
+    },
+    {
+      "id": "avoid-down-left",
+      "when": {
+        "state": "dodge-advice-down-left"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-down-left"
+        }
+      }
+    },
+    {
+      "id": "avoid-down-right",
+      "when": {
+        "state": "dodge-advice-down-right"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-down-right"
+        }
+      }
+    }
+  ],
+  "fixtures": [],
+  "dependencies": [],
+  "context": {
+    "version": 1,
+    "goal": "Survive by avoiding moving enemies",
+    "states": [
+      "menu",
+      "ready",
+      "playing",
+      "game_over",
+      "unknown"
+    ],
+    "action_states": [
+      "playing"
+    ],
+    "identity": {
+      "minimum_score": 5,
+      "signals": {
+        "owned_session": 2,
+        "viewport": 1,
+        "visual_state": 2
+      }
+    },
+    "constraints": {
+      "viewport_width": 480,
+      "viewport_height": 720,
+      "player_speed_px_s": 400,
+      "player_radius_px": 34,
+      "threat_radius_px": 70,
+      "edge_margin_px": 25,
+      "prediction_horizon_ms": 700,
+      "max_tracking_age_ms": 1000,
+      "max_observation_age_ms": 600,
+      "max_threat_speed_px_s": 350,
+      "max_action_duration_ms": 200
+    },
+    "state_masks": {
+      "x": 15,
+      "y": 96,
+      "width": 130,
+      "height": 49,
+      "data": {
+        "menu": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/wAAABgAAAAA4GAAAAAAAP/gAAAGAAAAADgYAAAAAAA4HAAAAYAAAAAOBgAAAAAADgOAAABgAAAAA4GAAAAAAAOA4f4P+H/D/AD8f8H+AAAA4DjBxwY4MMGAOBg44cAAADgOMDGBjAxwYA4GBjAwAAAOA4wMYGMDHBgDgYGMDAAAA4DjAxgYwMf+AOBgY/8AAADgOMDGBjAx/4A4GBj/wAAAOA4wMYGMDHAADgYGMAAAAA4HDAxgYwMcAAOBgYwAAAAD/4MHHBjgwwAAYGBjgAAAAP/Af4P+H/D/gB8YGH/AAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAA/8AAAAAAAAAAAAAAAAAAAD/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAD/8AAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAADAAPB8B+D/AfgAAAAAAAAAMAD8f8f+P/H+AAAAAAAAAAwAMDgxgYwMYAAAAAAAAAADAAwODGBjAxgAAAAAAAAAAMADA4MYGMDHAAAAAAAAAAAwAMD/x/4wMP8AAAAAAAAADAAwOAGADAwAwAAAAAAAAAMADA4AYAMDADAAAAAAAAAAwAMDgBgAwMAMAAAAAAAAAD/8wH/D/j/x/wAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAA=",
+        "ready": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/4AAMAB/8AAAAAAwAAAAAP/gAAwAH/4AAAAADAAAAABwAAADAAcBgAAAAAMAAAAAHAAAAMABwGAAAAAAwAAAAAcAA/w/AHAYf4P8H/MBgAABwAHDjAAcBjhwA4wM4GAAAHD8YGMAB/+MDADjAxgwAAAcBxgYwAH/wwMAOMDHDAAABwHH/jAAcOD/w/4wMMcAAAHAcf+MABw4P/H/jAw5gAAAcBxgAwAHBwwAYOMDBuAAABwHGADAAcHDABg4wMHwAAAH/8cAMABwOOAHDjAwPAAAAP/w/4fAHAcf8P+H/A4AAAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+        "game_over": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/AAAAAAAAAP/gAAAAAAAB/8AAAAAAAAB//AAAAAAAAOAAAAAAAAAAHAcAAABwAAA4AAAAAAAAAAcBwAAAHAAADgAH+H//D/ABwHOBx/h8AAOAAAcYcOMGAHAcYGMHGAAA4fgBxgw5wYAcBxw4wc4AADgOAHGDDnBgBwHDDDBzgAAOA4f8YMOf+AHAcOcP/OAAA4Dj/xgw5/4AcBwZw/84AADgOMHGDDnAABwHBmDADgAAOA4wcYMOcAAHAcD4MAOAAA//jhxgw4wAAf/wPAwA4AAB/+H/GDDj/gA/+AcB/jgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      }
+    },
+    "avoidance_policy": "diagonal-v8"
+  }
+}

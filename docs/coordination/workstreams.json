@@ -1,0 +1,2745 @@
+{
+  "schema_version": 1,
+  "kind": "maelstrom-project-workstreams",
+  "executable": false,
+  "snapshot_at": "2026-11-11T15:26:16.8749911-05:00",
+  "snapshot_timezone": "America/New_York",
+  "summary_document": "docs/GAME_WORKSTREAMS.md",
+  "purpose": "Advisory project coordination and evidence tracking. No scheduling, capability grant or runtime execution.",
+  "status_vocabulary": [
+    "backlog",
+    "in_progress",
+    "integration_pending",
+    "blocked",
+    "complete",
+    "deferred"
+  ],
+  "status_rules": {
+    "backlog": "A bounded next task is defined; no current claim.",
+    "in_progress": "An assigned owner is actively implementing the named slice.",
+    "integration_pending": "A component or offline slice exists; named integration or qualification gates remain.",
+    "blocked": "The named task cannot proceed without a concrete external prerequisite recorded in next_task.",
+    "complete": "The stated slice's acceptance criteria are evidenced; this does not promote component evidence to live gameplay.",
+    "deferred": "Explicitly outside the current finite priorities."
+  },
+  "evidence_rules": {
+    "source_review": "Existing source or documentation review.",
+    "code": "Implementation exists; not proof of a passing test.",
+    "test_source": "Test code exists; a result needs a dated report or explicit scoped note.",
+    "offline_report": "Documented or agent-reported offline result, scoped to the named component.",
+    "live": "Only actual game observations qualify a live behavior; prior builds and human demonstrations remain distinct.",
+    "path_status": "existing evidence paths must resolve inside this repository; planned files belong only in planned_outputs."
+  },
+  "coordination": {
+    "manual_only": true,
+    "automatic_dispatch": false,
+    "max_agent_slots": 4,
+    "claim_registry": "docs/coordination/claims.json",
+    "claims": "Coordinator reserves exact owned paths in claim_registry. Optional planned_outputs are candidate future files, not authoritative claims. External task briefs are proposed and unclaimed until explicitly assigned.",
+    "serialized": [
+      "shared contract edits",
+      "combined validation",
+      "builds",
+      "packaging",
+      "live desktop input",
+      "database publication"
+    ],
+    "review_cadence": "Update when a task starts, reports results or changes scope; review the queue manually at milestones or a weekly planning session. No recurring automation is created.",
+    "dependency_semantics": "depends_on gates the next offline task; runtime_requires gates later runtime composition. Both are acyclic references. Pure offline work may proceed before runtime prerequisites finish."
+  },
+  "source_lineage": [
+    "research/w101-legacy-work-packages.json",
+    "docs/W101_LEGACY_WORK_PACKAGES.md",
+    "docs/W101_LEGACY_QUALIFICATION.md",
+    "docs/MINIGAME_RESEARCH.md",
+    "docs/W101_GAME_RESEARCH_20261108.md"
+  ],
+  "archive_inventory": {
+    "scope": "Fresh filenames only; earlier catalog supplies source review and component evidence. Generated release count is a snapshot.",
+    "extensions": [
+      ".zip",
+      ".7z",
+      ".rar",
+      ".tar",
+      ".tgz",
+      ".tar.gz"
+    ],
+    "total_compressed_count": 101,
+    "root_archive_count": 25,
+    "non_release_root_candidate_count": 24,
+    "non_release_root_family_count": 23,
+    "historical_distribution": "ProjectMaelstrom_win-x64_portable.zip",
+    "archive_root": "../Archive/imported-projects",
+    "generated_release_directory": ".local/releases",
+    "generated_release_count": 57,
+    "nested_non_release_count": 19,
+    "root_archives": [
+      {
+        "project_id": "afk-visual",
+        "archive": "afk-wizard-main.zip",
+        "family_id": "afk-visual",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Offline components tested",
+        "lineage": [
+          "LP05"
+        ],
+        "workstream_ids": [
+          "CORE-VISION"
+        ]
+      },
+      {
+        "project_id": "aurorium-assets",
+        "archive": "Aurorium-main.zip",
+        "family_id": "aurorium-assets",
+        "source_languages": [
+          "Rust"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP04",
+          "LP10"
+        ],
+        "workstream_ids": [
+          "CORE-ASSETS",
+          "CORE-REFERENCES"
+        ]
+      },
+      {
+        "project_id": "automatus-v2",
+        "archive": "Automatus-v2-master.zip",
+        "family_id": "automatus-v2",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Offline components tested",
+        "lineage": [
+          "LP06",
+          "LP09"
+        ],
+        "workstream_ids": [
+          "W101-NAVIGATION"
+        ]
+      },
+      {
+        "project_id": "cheat-engine-reference",
+        "archive": "cheat-engine-master.zip",
+        "family_id": "cheat-engine-reference",
+        "source_languages": [
+          "Object Pascal",
+          "C/C++",
+          "Lua",
+          "C# components"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP10",
+          "LP11"
+        ],
+        "workstream_ids": [
+          "CORE-REFERENCES",
+          "CORE-DELIVERY"
+        ]
+      },
+      {
+        "project_id": "deimos-main",
+        "archive": "Deimos-Wizard101-main.zip",
+        "family_id": "deimos",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Repair required",
+        "lineage": [
+          "LP06",
+          "LP08",
+          "LP09"
+        ],
+        "workstream_ids": [
+          "CORE-TRANSITIONS",
+          "W101-NAVIGATION",
+          "W101-COMBAT",
+          "W101-QUESTS"
+        ]
+      },
+      {
+        "project_id": "deimos-master",
+        "archive": "Deimos-Wizard101-master.zip",
+        "family_id": "deimos",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Repair required",
+        "lineage": [
+          "LP06",
+          "LP08",
+          "LP09"
+        ],
+        "workstream_ids": [
+          "CORE-TRANSITIONS",
+          "W101-NAVIGATION",
+          "W101-COMBAT",
+          "W101-QUESTS"
+        ]
+      },
+      {
+        "project_id": "gardening-visual",
+        "archive": "gardening-bot-main.zip",
+        "family_id": "gardening-visual",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Repair required",
+        "lineage": [
+          "LP05",
+          "LP06",
+          "LP07"
+        ],
+        "workstream_ids": [
+          "W101-GARDENING"
+        ]
+      },
+      {
+        "project_id": "grubninja-reference",
+        "archive": "GrubNinja-master.zip",
+        "family_id": "grubninja-reference",
+        "source_languages": [
+          "JavaScript",
+          "JSX/React",
+          "Electron"
+        ],
+        "catalog_qualification": "Repair required",
+        "lineage": [
+          "LP03",
+          "LP10"
+        ],
+        "workstream_ids": [
+          "CORE-KNOWLEDGE",
+          "CORE-REFERENCES"
+        ]
+      },
+      {
+        "project_id": "libkiwad-reader",
+        "archive": "libkiwad-master.zip",
+        "family_id": "libkiwad-reader",
+        "source_languages": [
+          "C"
+        ],
+        "catalog_qualification": "Offline components tested",
+        "lineage": [
+          "LP04"
+        ],
+        "workstream_ids": [
+          "CORE-ASSETS"
+        ]
+      },
+      {
+        "project_id": "on-wiz-reference",
+        "archive": "On-Wiz-master.zip",
+        "family_id": "on-wiz-reference",
+        "source_languages": [
+          "Markdown/documentation"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP03",
+          "LP10"
+        ],
+        "workstream_ids": [
+          "CORE-REFERENCES"
+        ]
+      },
+      {
+        "project_id": "petdance-visual",
+        "archive": "petdance.zip",
+        "family_id": "petdance-visual",
+        "source_languages": [
+          "Bundled Windows binary/assets",
+          "Python source-equivalent teacher"
+        ],
+        "catalog_qualification": "Offline components tested",
+        "lineage": [
+          "LP02",
+          "LP11"
+        ],
+        "workstream_ids": [
+          "W101-DANCE"
+        ]
+      },
+      {
+        "project_id": "maelstrom-historical",
+        "archive": "ProjectMaelstrom_win-x64_portable.zip",
+        "family_id": "maelstrom-historical",
+        "source_languages": [
+          "Compiled Windows distribution"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP11"
+        ],
+        "workstream_ids": [
+          "CORE-DELIVERY"
+        ]
+      },
+      {
+        "project_id": "raid-specialists",
+        "archive": "raid-utility-tools-main.zip",
+        "family_id": "raid-specialists",
+        "source_languages": [
+          "Python",
+          "Qt UI"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP03",
+          "LP09"
+        ],
+        "workstream_ids": [
+          "CORE-KNOWLEDGE",
+          "W101-NAVIGATION"
+        ]
+      },
+      {
+        "project_id": "protocol-go",
+        "archive": "w101-proto-go-master.zip",
+        "family_id": "protocol-go",
+        "source_languages": [
+          "Go"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP10"
+        ],
+        "workstream_ids": [
+          "CORE-REFERENCES"
+        ]
+      },
+      {
+        "project_id": "packet-map-reference",
+        "archive": "wiz-packet-map-main.zip",
+        "family_id": "packet-map-reference",
+        "source_languages": [
+          "C++"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP04",
+          "LP10"
+        ],
+        "workstream_ids": [
+          "CORE-ASSETS",
+          "CORE-REFERENCES"
+        ]
+      },
+      {
+        "project_id": "wizapi-visual",
+        "archive": "wizAPI-master.zip",
+        "family_id": "wizapi-visual",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Repair required",
+        "lineage": [
+          "LP05",
+          "LP08"
+        ],
+        "workstream_ids": [
+          "CORE-VISION",
+          "W101-COMBAT"
+        ]
+      },
+      {
+        "project_id": "bazaar-visual",
+        "archive": "Wizard101-Bazaar-Tc-Farming-master.zip",
+        "family_id": "bazaar-visual",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Offline components tested",
+        "lineage": [
+          "LP05",
+          "LP07"
+        ],
+        "workstream_ids": [
+          "W101-BAZAAR"
+        ]
+      },
+      {
+        "project_id": "damage-evaluator",
+        "archive": "Wizard101-Damage-Calculator-master.zip",
+        "family_id": "damage-evaluator",
+        "source_languages": [
+          "C#/.NET library and older UI"
+        ],
+        "catalog_qualification": "Repair required",
+        "lineage": [
+          "LP08"
+        ],
+        "workstream_ids": [
+          "W101-COMBAT"
+        ]
+      },
+      {
+        "project_id": "farming-opencv",
+        "archive": "Wizard101-Farming-main.zip",
+        "family_id": "farming-opencv",
+        "source_languages": [
+          "Python",
+          "OpenCV-based logic"
+        ],
+        "catalog_qualification": "Offline components tested",
+        "lineage": [
+          "LP05",
+          "LP08"
+        ],
+        "workstream_ids": [
+          "W101-COMBAT"
+        ]
+      },
+      {
+        "project_id": "utilities-context",
+        "archive": "Wizard101-Utilities-master.zip",
+        "family_id": "utilities-context",
+        "source_languages": [
+          "Python",
+          "JavaScript",
+          "JSON/data"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP03"
+        ],
+        "workstream_ids": [
+          "CORE-KNOWLEDGE",
+          "W101-SNACKS"
+        ]
+      },
+      {
+        "project_id": "gallery-context",
+        "archive": "WizGallery-dev.zip",
+        "family_id": "gallery-context",
+        "source_languages": [
+          "TypeScript/JavaScript",
+          "Next.js UI",
+          "Python API"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP03",
+          "LP11"
+        ],
+        "workstream_ids": [
+          "CORE-KNOWLEDGE",
+          "CORE-DELIVERY"
+        ]
+      },
+      {
+        "project_id": "wizsdk-visual",
+        "archive": "wizSDK-master.zip",
+        "family_id": "wizsdk-visual",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Offline components tested",
+        "lineage": [
+          "LP05",
+          "LP06"
+        ],
+        "workstream_ids": [
+          "CORE-VISION",
+          "CORE-TRANSITIONS"
+        ]
+      },
+      {
+        "project_id": "wizwad-reader",
+        "archive": "wizwad-main.zip",
+        "family_id": "wizwad-reader",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Repair required",
+        "lineage": [
+          "LP04"
+        ],
+        "workstream_ids": [
+          "CORE-ASSETS"
+        ]
+      },
+      {
+        "project_id": "wizwalker-client",
+        "archive": "wizwalker-master.zip",
+        "family_id": "wizwalker-client",
+        "source_languages": [
+          "Python"
+        ],
+        "catalog_qualification": "Offline components tested",
+        "lineage": [
+          "LP04",
+          "LP10"
+        ],
+        "workstream_ids": [
+          "CORE-ASSETS",
+          "CORE-REFERENCES"
+        ]
+      },
+      {
+        "project_id": "wiki-context",
+        "archive": "WizWikiAPI-main.zip",
+        "family_id": "wiki-context",
+        "source_languages": [
+          "TypeScript",
+          "JSON/data"
+        ],
+        "catalog_qualification": "Reference reviewed",
+        "lineage": [
+          "LP03",
+          "LP09"
+        ],
+        "workstream_ids": [
+          "CORE-KNOWLEDGE",
+          "W101-QUESTS",
+          "W101-NAVIGATION"
+        ]
+      }
+    ],
+    "nested_archives": [
+      {
+        "path": ".local/coordination/source-snapshot-001/working-tree-files.zip",
+        "classification": "local_backup",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/model-research/env/Lib/site-packages/pkg_resources/tests/data/my-test-package-zip/my-test-package.zip",
+        "classification": "dependency_fixture",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-games/dueling-diego-flashmuseum/dueling-diego.zip",
+        "classification": "blocked_reference_game",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/Guild/.venv_precommit/lib/python3.12/site-packages/pre_commit/resources/rbenv.tar.gz",
+        "classification": "dependency_fixture",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/Guild/.venv_precommit/lib/python3.12/site-packages/pre_commit/resources/ruby-build.tar.gz",
+        "classification": "dependency_fixture",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/Guild/.venv_precommit/lib/python3.12/site-packages/pre_commit/resources/ruby-download.tar.gz",
+        "classification": "dependency_fixture",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/Guild/_tmp/webfirst-test-2242/Circuit-Simulator-Portable/tools/circuitjs-offline-web-release.zip",
+        "classification": "unrelated_project_output",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/Guild/workspace/Circuit-Simulator-Portable-WebFirst-CompatibilityHardening-20260227-1506.zip",
+        "classification": "unrelated_project_output",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/Guild/workspace/Circuit-Simulator-Portable-WebFirst-StabilityFixes-20260227-1349.zip",
+        "classification": "unrelated_project_output",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/Guild/workspace/csim_path_stability_eval/portable.zip",
+        "classification": "unrelated_project_output",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/Maelstrom/Client/Meshroom-2023.3.0-win64.zip",
+        "classification": "unrelated_runtime",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/aaroneous-devtools/governance/archive/prototypes/output-lifecycle/v4/source-v4-canonical.tar",
+        "classification": "lifecycle_reference",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/aaroneous-devtools/governance/archive/prototypes/output-lifecycle/v4/source-v4.tar",
+        "classification": "lifecycle_reference",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/opencode/packages/console/app/public/opencode-brand-assets.zip",
+        "classification": "branding_reference",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/reference-repos/opencode/packages/console/app/src/asset/brand/opencode-brand-assets.zip",
+        "classification": "branding_reference",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/test-games/godot-4.7.2/godot.zip",
+        "classification": "test_game_runtime",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/test-games/godot-dodge-the-creeps-4.7-6ad6167/2d_dodge_the_creeps.zip",
+        "classification": "test_game_source",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/test-games/reflex-679450da.zip",
+        "classification": "test_game_source",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      },
+      {
+        "path": ".local/wsl-dodge-tools/downloads-current/Godot_v4.7.2-stable_linux.x86_64.zip",
+        "classification": "test_game_runtime",
+        "review": "filename_inventory_only_unless_separate_evidence_linked"
+      }
+    ]
+  },
+  "game_inventory": {
+    "scope": "Previously discussed W101 in-client fairground and pet games; not all historical event games.",
+    "count": 14,
+    "fairground_count": 8,
+    "pet_count": 6,
+    "workstream_ids": [
+      "W101-CONJURATION",
+      "W101-POTION-MOTION",
+      "W101-SORCERY-STONES",
+      "W101-CHOO-CHOO-ZOO",
+      "W101-DOODLE-DOUG",
+      "W101-DUELING-DIEGO",
+      "W101-SKULL-RIDERS",
+      "W101-HOT-SHOTS",
+      "W101-DANCE",
+      "W101-PET-CANNON",
+      "W101-PET-MAZE",
+      "W101-PET-DROP",
+      "W101-GRUMPY-GOBBLERS",
+      "W101-NINJA-PIG"
+    ],
+    "external_reference": "Grub Guardian is represented by the GrubNinja reference only; not included in 14.",
+    "test_workstream_ids": [
+      "TEST-DODGE",
+      "TEST-REFLEX"
+    ],
+    "future_out_of_scope": [
+      "Chess",
+      "Minecraft",
+      "The Isle: Evrima"
+    ]
+  },
+  "workstreams": [
+    {
+      "id": "CORE-TRANSITIONS",
+      "title": "Reusable transition graphs and offline replay",
+      "track": "shared-runtime",
+      "status": "integration_pending",
+      "owner": "root",
+      "verification": {
+        "review": "coordinator_reviewed_archived_and_current_Deimos_root_hook_scratch_restoration_current_text_layout_and_quest_dialogue_consequence_boundary",
+        "code": "shared_Idle_finalizer_integrated_quest_modules_Dance_and_home_movement_original_owner_and_activity_baseline",
+        "offline": "2366_native_tests_pass_scoped_format_analyzers_warnings_as_errors_20261111",
+        "live": "one_owner_CLI_wake_D150_Idle_and_wake_A150_Idle_completed_user_visually_confirmed_both_no_assistant_desktop_control; intervening_foreground_rejection_sent_no_input"
+      },
+      "lineage": [
+        "LP01",
+        "LP06"
+      ],
+      "next_task": "Flag user before bounded live home-session Idle qualification and quiet-recovery test. No live checks or install authorized in the current offline task.",
+      "acceptance_criteria": [
+        "Keep proposal, dispatch receipt and observed outcome distinct.",
+        "Reject receipts from another run; use deterministic fake-clock replays.",
+        "Bound loading pauses, retry counts and wall time; release inputs on stop.",
+        "Demonstrate Pet Dance plus a second game without a new scheduler.",
+        "Failed recovery-notice persistence must block updated native/Python and same-owner dispatch while preserving offline review and release-only cleanup.",
+        "Recovery clears the guard only after actual worker drain, fresh application-owned release checks under exclusive ownership, and preservation of original evidence; no automatic replay or settings escalation."
+      ],
+      "evidence": [
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineGraph.cs",
+          "scope": "Initial data-only graph implementation integrated and offline validated; no blanket live qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineReplay.cs",
+          "scope": "Integrated offline replay emits proposal, receipt and observed-outcome traces without desktop dispatch.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "test_source",
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/RoutineGraphTests.cs",
+          "scope": "Included in the 1017-passing-test native suite, including cross-run receipt identity repair.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/ROUTINE_FOUNDATION_VALIDATION_20261109.md",
+          "path_status": "existing",
+          "scope": "Coordinator reports 1017/1017 native tests passed, zero skipped; synthetic Dance/Dodge replays complete with zero desktop dispatch. No new live qualification."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/PARALLEL_RECOGNITION_VALIDATION_20261109.md",
+          "scope": "Integrated source: 1063 native tests and 60 Conjuration Python tests pass; zero-input CLI rehearsals. No new live evidence.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/W101_OFFLINE_QUALIFICATION_20261110.md",
+          "scope": "Optional shared requires_outcome_binding guard; all navigation/idle motion opts in. Existing receipt/outcome, target and takeover behavior preserved;1127 native tests pass.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/ROUTINE_GRAPHS.md",
+          "scope": "Optional shared requires_outcome_binding guard; all navigation/idle motion opts in. Existing receipt/outcome, target and takeover behavior preserved;1127 native tests pass.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/MODULE_STANDARDIZATION_20261110.md",
+          "scope": "Four reusable versioned modules integrated;1230 native tests pass. W101 adapter consumes common catalog/runner; saved four-module replay has7 proposals/receipts,zero desktop dispatch. Independent offline-lab profile passes. No new live or installed qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleRunner.cs",
+          "scope": "Named facts and controls, exact released receipts and proposal-bound newer outcomes, shared bundle action/deadline limits. W101 supplies data only.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/MODULE_SCREEN_INTEGRATION_20261110.md",
+          "scope": "1316 native tests pass. Actual saved PNGs through local OCR/modules/existing scheduler:2 completed modules,4 proposals/4 supplied rehearsal receipts,11 frames,zero desktop dispatch. Existing Dance cleanup source migrated; no installation/live test.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/GUILD_STEWARD_SCHEDULER_REUSE_20261110.md",
+          "scope": "Pinned older local snapshots reviewed offline. Shared owning-job receipt boundary repaired;18 recovery regressions pass in full suite. No Rust service or second queue/input owner.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/SCHEDULER_REUSE_INTEGRATION_20261110.md",
+          "path_status": "existing",
+          "scope": "Devtools refreshed 41 commits to 7e7a3d3; immutable admitted inputs, bounded lifecycle journal, two-pass recovery and cancellation barrier integrated. 1379 native tests plus 22 board tests pass; compiled saved-pixel workflow completes 2 modules / 11 frames in 1.097 s with zero desktop inputs and a verified 9464-byte journal. No installation or live qualification."
+        },
+        {
+          "kind": "research",
+          "path": "docs/GUILD_STEWARD_LATEST_REUSE_20261110.md",
+          "path_status": "existing",
+          "scope": "Pinned current Guild/Steward review distinguishes implemented upstream code from proposed contracts, records selective native reuse and deferred recovery-marker storage failure/dependency work."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/INPUT_RECOVERY_GUARD_20261110.md",
+          "path_status": "existing",
+          "scope": "Pre-armed shared dirty guard, recovery latch, same-owner checks and truthful CleanupFailed integrated. 1410 native tests and 62 Python/board tests pass, including 8 input-free interoperability tests. Failed warning with absent notice blocks fresh native/Python owners; offline jobs continue. No game, desktop input or installation. Verified recovery UI and ownership-lifetime limits remain explicit."
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameInputRecovery.cs",
+          "path_status": "existing",
+          "scope": "Exclusive non-dispatching recovery reservation; current challenge-bound quiet samples; original guard/warning evidence before commit; epoch checks, rollback and no writes after successful unlock."
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/InputRecoveryOperation.cs",
+          "path_status": "existing",
+          "scope": "Explicit Stop/Check/Restore lifecycle, shared scheduler drain and read-only Windows verifier. Fakes qualify logic; real desktop adapter has not run."
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/InputRecoveryForm.cs",
+          "path_status": "existing",
+          "scope": "User-facing recovery from Settings/Routine runs; explicit actions, cancellation-aware close, no auto-resume. Hidden fake-state panel composites inspected."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/INPUT_RECOVERY_FLOW_20261110.md",
+          "path_status": "existing",
+          "scope": "1507 native tests (97 new) and 62 Python/board checks pass;14-file format/analyzers pass. Generation-bound drain avoids cancelling a fresh job; recovery preserves evidence and verifies before commit. No real input, capture, game, model, install or user lock access. Real Windows verification/installed UI remain separate."
+        },
+        {
+          "kind": "installation_report",
+          "path": "docs/INPUT_RECOVERY_INSTALL_20261110.md",
+          "path_status": "existing",
+          "scope": "Two-core package and installer built;14 installer tests and isolated embedded-payload lifecycle pass. Installed EXE/DLL match.972 original data files retained with unchanged metadata;104 small text files have identical hashes. User stopped desktop control before recovery dialog; actual verifier remains pending. No gameplay."
+        },
+        {
+          "kind": "code_review",
+          "path": "docs/W101_TELEMETRY_REVIEW_20261110.md",
+          "path_status": "existing",
+          "scope": "Owner explicitly approved future default-off read-only W101 telemetry exception.14 native/8 Python mock tests independently pass. No live reader/consumer exists; stale-data, exception, bounded sampling, revocation and value-validation gaps recorded. Separate from installed recovery build."
+        },
+        {
+          "kind": "live_report",
+          "path": "docs/INPUT_RECOVERY_LIVE_20261110.md",
+          "path_status": "existing",
+          "scope": "Installed Maelstrom only: Stop/Check/Restore reached Restored; actual Windows release samples 1,016 ms apart; original legacy-clean guard preserved, final guard clean under OS lock. No routines/settings changed; no game input; app closed. Fifteen saved-evidence checks pass. Live failure/game outcomes not qualified."
+        },
+        {
+          "kind": "policy_decision",
+          "path": "docs/W101_CLIENT_SIDE_EXCEPTION_20261110.md",
+          "path_status": "existing",
+          "scope": "Owner expanded W101 exception to reviewed client-side hooks, injection and memory reads/writes; network manipulation excluded. General UI-only default, optional mode, shared ownership and qualification remain. Documentation/plan update only; executable guards and installed binary unchanged, no live access."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/WIZWALKER_ADAPTER_20261110.md",
+          "path_status": "existing",
+          "scope": "First narrow client adapter in source: selected-client loading snapshot, explicit opt-in, pinned worker/53-file source tree, existing native control lease and scheduler, bounded Python child and cleanup/result validation. Offline fake clients only, including actual transport and cancellation; no game access, packaging or installation."
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/MaelstromCli.cs",
+          "scope": "Headless read commands and bounded opt-in observation reuse existing services; no GUI automation or arbitrary command executor.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "documentation",
+          "path": "docs/HEADLESS_CLI.md",
+          "scope": "Initial headless command contract and limitations.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "documentation",
+          "path": "docs/WIZWALKER_LIVE_20261110.md",
+          "scope": "Real idle-state observations and disconnect; positive loading-transition qualification remains pending.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/W101_LOADING_TRANSITION_20261110.md",
+          "scope": "Positive loading observation and six user-demonstrated zone transitions with clean disconnect; source optional shared-module gate verified offline, not combined-live-qualified or installed.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/W101_UI_TREE_20261110.md",
+          "path_status": "existing",
+          "scope": "Optional UI tree/source repair, exact-build hook restoration, staggered reads, bounded live Idle/settings/prompt/Quinn evidence, seven derived replay cases and quest-dialogue cleanup boundary; source-only, no gameplay inputs."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-CARD-AUDIT-01.md",
+          "scope": "Existing reusable modules and no generic production owned-call site; independent action schemas require explicit transforms.",
+          "path_status": "existing"
+        },
+        {
+          "scope": "Four offline module cards,one scheduler,frozen input pins,cancellation,old-collection Addcard;2097native tests. No gameplay/install.",
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-MODULE-INTEGRATION-03.md",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path_status": "existing",
+          "scope": "W101sigil/menu/nativeIdle semanticbindings andtrustedcardruntime;2127native tests. No game access/install; productiontransport unqualified.",
+          "path": "docs/coordination/results/W101-MODULE-INTEGRATION-04.md"
+        },
+        {
+          "kind": "offline_report",
+          "path_status": "existing",
+          "path": "docs/coordination/results/W101-MODULE-INTEGRATION-05.md",
+          "scope": "2173 native and50Python tests; second real CLI probe corroborated nativeIdle via tree/OCR, clean disconnect,zeroinputs; no installation or gameplay qualification."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-CYCLE-INTEGRATION-06.md",
+          "path_status": "existing",
+          "scope": "2302 native/59 focused Python pass; automatic Idle cycle, wake and ensureIdle observed; no qualified route or installation."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-IDLE-RETRY-10.md",
+          "scope": "Source/offline verification only; quiet recovery live test deferred by user; no new route qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-IDLE-INTEGRATION-11.md",
+          "scope": "Offline integration and coverage map;2349tests; no live or install.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-HOME-IDLE-12.md",
+          "scope": "Home movement bridge and original-baseline Idle finalizer;2366offline native tests; no live or installation.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": []
+    },
+    {
+      "id": "CORE-CLEANUP",
+      "title": "Capture cadence and reliable native Idle cleanup",
+      "track": "shared-runtime",
+      "status": "integration_pending",
+      "owner": "/root",
+      "verification": {
+        "review": "available",
+        "code": "integrated_offline",
+        "offline": "32_focused_tests_and_1017_native_suite_passed",
+        "live": "new_build_pending"
+      },
+      "lineage": [
+        "LP01",
+        "LP02",
+        "LP05"
+      ],
+      "next_task": "Qualify bounded capture/disposal and native Idle cleanup through a fresh complete visit on the frozen integrated build.",
+      "acceptance_criteria": [
+        "Cancellation interrupts the final Idle confirmation.",
+        "A stalled read is not retried; late images are disposed.",
+        "Unconfirmed cleanup reports failure and preserves recovery requirements.",
+        "Fresh full-visit evidence confirms native Idle without supervisor completion."
+      ],
+      "evidence": [
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/VisualTransitionCadence.cs",
+          "scope": "Reusable observation cadence.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "test_source",
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/BoundedWindowCaptureTests.cs",
+          "scope": "Agent reported 32 focused tests across BoundedWindowCapture, PetDanceObservationRead, PetDanceIdleConfirmation and VisualTransitionCadence. The integrated native suite now passes 1017 tests.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "test_source",
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceObservationReadTests.cs",
+          "scope": "Part of the reported 32-test focused cleanup/cadence pass.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "test_source",
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceIdleConfirmationTests.cs",
+          "scope": "Part of the reported 32-test focused cleanup/cadence pass.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "test_source",
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/VisualTransitionCadenceTests.cs",
+          "scope": "Part of the reported 32-test focused cleanup/cadence pass.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/ROUTINE_FOUNDATION_VALIDATION_20261109.md",
+          "path_status": "existing",
+          "scope": "Coordinator reports 1017/1017 native tests passed, zero skipped; synthetic Dance/Dodge replays complete with zero desktop dispatch. No new live qualification."
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS"
+      ]
+    },
+    {
+      "id": "CORE-VISION",
+      "title": "Compare shared visual matching primitives",
+      "track": "vision",
+      "status": "integration_pending",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "screen_modules_and_existing_scheduler_integrated_source",
+        "offline": "1316_native_tests_and_saved_pixel_scheduled_review_passed_20261110",
+        "live": "new_source_not_installed_or_live_qualified"
+      },
+      "lineage": [
+        "LP05"
+      ],
+      "next_task": "Collect independent-layout/session evidence for menu controls and native Idle; qualify navigation landmarks/motion and initial sigil identity separately. Current6-screenshot menu corpus is same-layout evidence, not live navigation.",
+      "acceptance_criteria": [
+        "Use one coordinate conversion and normalized regions.",
+        "Cover absent, stale, occluded, faded, nonsquare and scaled samples.",
+        "Retain independent implementation IDs and disagreements.",
+        "Offline matching never dispatches inputs."
+      ],
+      "evidence": [
+        {
+          "kind": "source_review",
+          "path": "docs/W101_LEGACY_QUALIFICATION.md",
+          "scope": "Reviewed matcher defects and prior component evidence.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/MODULE_SCREEN_INTEGRATION_20261110.md",
+          "scope": "1316 native tests pass. Actual saved PNGs through local OCR/modules/existing scheduler:2 completed modules,4 proposals/4 supplied rehearsal receipts,11 frames,zero desktop dispatch. Existing Dance cleanup source migrated; no installation/live test.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/MODULE_SCREEN_EVIDENCE_20261110.md",
+          "scope": "Six original1282x760 PNGs and unchanged saved OCR pinned by hashes. Fresh OCR exercised through scheduled review; original capture/command alignment unknown.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": []
+    },
+    {
+      "id": "CORE-KNOWLEDGE",
+      "title": "Shared knowledge export and additional imports",
+      "track": "knowledge",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "representative_primary_source_accuracy_audit_20261111",
+        "code": "first_importer_present",
+        "offline": "existing_bundle_integrity_and_hash_checked_8_sources_9_claims_zero_runtime_qualifications",
+        "live": "not_applicable"
+      },
+      "lineage": [
+        "LP03"
+      ],
+      "next_task": "Add bounded read-only claim export and explicit navigation/shortcut/context-ledger mapping. Preserve source date/build/region and contradictions; link typed facts to producers. Current working guide corrected, numeric/formula claims still need independent qualification.",
+      "acceptance_criteria": [
+        "Preserve stable identities, source revisions and contradictions.",
+        "Keep dates, scope and actual content hashes distinct.",
+        "Do not create runtime qualification from successful import.",
+        "New bundles preserve prior data; app integration is separately reviewed."
+      ],
+      "evidence": [
+        {
+          "kind": "design",
+          "path": "docs/GAME_KNOWLEDGE_DATABASE.md",
+          "scope": "Shared schema and pending native service.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/W101_KNOWLEDGE_IMPORT.md",
+          "scope": "Eight-source, nine-claim initial import; no live qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-KNOWLEDGE-AUDIT-01.md",
+          "scope": "Representative official-source checks; read-only SQLite integrity/hash,8sources/9claims/zero qualifications; native knowledge consumption still pending.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": []
+    },
+    {
+      "id": "CORE-ASSETS",
+      "title": "Read-only asset and version comparisons",
+      "track": "assets",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "legacy_candidates",
+        "offline": "partial_with_known_defects",
+        "live": "not_applicable"
+      },
+      "lineage": [
+        "LP04"
+      ],
+      "next_task": "Repair one bounded WAD reader and compare identical plain/compressed fixtures against an independent baseline.",
+      "acceptance_criteria": [
+        "Reject malformed bounds, signatures and excessive expansion.",
+        "Bound worker time and preserve original files.",
+        "Report version impact on qualification rather than patch offsets.",
+        "No process attachment or client startup."
+      ],
+      "evidence": [
+        {
+          "kind": "source_review",
+          "path": "docs/W101_LEGACY_QUALIFICATION.md",
+          "scope": "wizwad/libkiwad/wizwalker/Aurorium findings.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "reference",
+          "path": "docs/W101_LOCAL_INSTALLATION_SOURCES.md",
+          "scope": "Read-only installed-file inventory and scope.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": []
+    },
+    {
+      "id": "CORE-REFERENCES",
+      "title": "Normalize legacy schema and UX references",
+      "track": "reference",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "not_required",
+        "offline": "review_only",
+        "live": "not_applicable"
+      },
+      "lineage": [
+        "LP10"
+      ],
+      "next_task": "Reconcile legacy disposition snapshots with the reviewed W101 exception and current source/live evidence; retain per-feature teacher/native/reference roles. Map adapters to typed contracts rather than import whole runtimes.",
+      "acceptance_criteria": [
+        "Distinguish historical hypotheses from current observations.",
+        "Do not execute protocol, score-submission, injection or memory operations.",
+        "Preserve source identity, dates and limitations."
+      ],
+      "evidence": [
+        {
+          "kind": "source_review",
+          "path": "docs/W101_LEGACY_WORK_PACKAGES.md",
+          "scope": "LP10 and the reference-only candidates.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-REUSE-AUDIT-01.md",
+          "scope": "Reuse review distinguishes25archive coverage from integrated functions and records exact local source revisions.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [
+        "CORE-KNOWLEDGE"
+      ],
+      "runtime_requires": []
+    },
+    {
+      "id": "CORE-DELIVERY",
+      "title": "Workspace integration and installed workflow",
+      "track": "delivery",
+      "status": "integration_pending",
+      "owner": "/root",
+      "verification": {
+        "review": "architecture_cards_reuse_and_knowledge_audited_20261111",
+        "code": "Replay detailed summary exposed IDs, hashes, stop reason, counts and live qualification boundary to existing editor review surfaces; bool replay API preserved.",
+        "offline": "15 focused RoutineReplayTests pass; scoped whitespace/analyzers pass; warnings-as-errors build pass. No install; CLI remains exit-code-only.",
+        "live": "stats54probe4:12 UI-correlated resource facts/aliases; exact-build globe maxima and PotionButton agreement; cleanup verified/no inputs/no install"
+      },
+      "lineage": [
+        "LP11"
+      ],
+      "next_task": "After active DANCE-CAPTURE-82 releases its JobDeckHost reservation, add bounded native observation-operation receipts keyed by operation ID, then expose the same progress/terminal-result contract through the local API, CLI, and MCP. Do not infer completion from observer disappearance or global facts. Next, move teaching capture/review behind the same headless owner and qualify teach → pack → replay → bounded-run.",
+      "acceptance_criteria": [
+        "Show the actual method and qualification scope.",
+        "Provide clear Start/Stop and resource/cleanup outcomes.",
+        "Preserve user packs and reports through update/uninstall.",
+        "Do not label a menu entry as a complete player.",
+        "Every user-visible operation has one backend contract and is callable through supported headless surfaces before the UI presents it as operational.",
+        "CLI, local API, MCP and UI share operation IDs, typed arguments, scheduler ownership, cancellation, and truthful outcome receipts."
+      ],
+      "evidence": [
+        {
+          "kind": "architecture",
+          "path": "docs/BACKEND_CONTROL_PLANE.md",
+          "scope": "Backend-first operation contract, current CLI/API/MCP/UI coverage audit, and staged parity plan; audit only, no implementation or live qualification claimed.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-MCP-WINDOWS-153.md",
+          "scope": "Read-only target-window discovery added to MCP through the existing native owner; 16 Python tests pass. No process attachment, live window query, or input qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-MCP-SESSION-154.md",
+          "scope": "Explicitly confirmed MCP connect/observe/disconnect workflow through the native owner; exact target identity and opt-ins, forced-off quest/travel/resource operations, strict argument checks; 20 MCP Python tests pass. Mocked only; no host, client, desktop, or live observation call.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-OBSERVATION-STATUS-155.md",
+          "scope": "Source trace finds queued observer ID and transient active state but no durable terminal receipt correlated by request ID; defines bounded native receipt as next parity contract. Static audit only, no build/tests/live calls.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-MCP-PROGRESS-156.md",
+          "scope": "MCP adds exact-operation active check via existing owner state and returns outcome_unknown after the request clears; 22 focused Python tests pass. Mocked only; durable terminal receipt still missing.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/BACKEND-MCP-ID-CASE-157.md",
+          "scope": "Progress polling now compares hexadecimal UUID text case-insensitively to match its accepted schema; same 22 focused MCP tests pass. Mocked only; terminal receipt remains missing.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CARD-WORKSHOP-FIT-81.md",
+          "scope": "Offscreen source audit found fixed 790px window exceeds a 720p working area; sizing helper and pure regression case added. Focused .NET test/build and updated render stalled before output, so repair is pending verification; no install/live use.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "reference",
+          "path": "docs/SHARED_OPERATIONS.md",
+          "scope": "Current ownership/scheduler foundation.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "reference",
+          "path": "docs/DODGE_GAME_WORKSPACE.md",
+          "scope": "Dedicated grouped workflow; no fake timeline.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/BUILD_ARTIFACT_RETENTION.md",
+          "scope": "Read-only inventory: about 1.68 GiB native outputs, 11.15 GiB release ZIPs, 26 release folders containing Data; no cleanup, installed-current/rollback identity not established.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "documentation",
+          "path": "docs/W101_WORKFLOW_STATUS_20261110.md",
+          "scope": "Historical readiness map with November 11 source checkpoint: generic cards, deck, editor and real owner API are implemented; navigation/combat remain unqualified.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-DECK-01.md",
+          "scope": "Source checkpoint: native card fronts/settings, finite shared-scheduler deck, generic objective context and real API/MCP. Actual built-app offline replay completed once with duplicate suppression and orderly host exit; no game inputs or installation.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "documentation",
+          "path": "docs/JOB_DECK.md",
+          "scope": "Public contracts, CLI/API/MCP usage, preparation-only capabilities, replay/selected-conversation adapters and generic game-pack boundaries.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/CORE-DECK-RELEASE-02.md",
+          "scope": "Final matching deck/combat-foundation update installed; installed API/MCP replay and bundled synthetic planner verified, task workers exited.17110 non-lock data files unchanged; authorized observer refreshed clean input-lock timestamp.1905 native,94 Python and14 installer tests pass; no gameplay.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-SIGNIN-01.md",
+          "scope": "Optional Windows Credential Manager settings in source, tested with synthetic buffers. Launcher submission is not connected; no credentials read or saved in this session.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/ARCHITECTURE_AUDIT_20261111.md",
+          "scope": "Current architecture audit:19 cards/two dispatch adapters;26-family advisory map; native validation repair and ordered integration gaps. Source-only; no new gameplay/install.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-CARD-AUDIT-01.md",
+          "scope": "Static entry-point/constraint audit; typed facts, refresh and module-to-card gaps; initial MCP schema drift.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-REUSE-AUDIT-01.md",
+          "scope": "Pinned local Aaroneous/Devtools/Guild source review; useful typed contracts, imported dispositions and stale legacy status claims.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-CONTRACT-REPAIR-01.md",
+          "scope": "MCP delegates to native routine validator;31combinedPython/2059native tests and actual headless bridge verified by coordinator; no gameplay/new install.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "design",
+          "path": "docs/ROUTINE_EXECUTION_MODEL.md",
+          "scope": "Owner-provided architecture normalized to Action Cards,Routine Cards and Routine Deck; verified outcomes,controlled interruption,measured resources and existing owner.",
+          "path_status": "existing"
+        },
+        {
+          "path_status": "existing",
+          "scope": "2075native/15MCP passing; typed standard/scoped catalog,discovery,bounded refresh and synthetic wait/resume/stop. No gameplay/install.",
+          "path": "docs/coordination/results/CORE-CATALOG-INTEGRATION-02.md",
+          "kind": "offline_report"
+        },
+        {
+          "scope": "Four offline module cards,one scheduler,frozen input pins,cancellation,old-collection Addcard;2097native tests. No gameplay/install.",
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-MODULE-INTEGRATION-03.md",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path_status": "existing",
+          "scope": "W101sigil/menu/nativeIdle semanticbindings andtrustedcardruntime;2127native tests. No game access/install; productiontransport unqualified.",
+          "path": "docs/coordination/results/W101-MODULE-INTEGRATION-04.md"
+        },
+        {
+          "kind": "reference",
+          "path": "docs/coordination/results/RUST-PORT-AUDIT-30.md",
+          "scope": "Source-only Rust inventory and prioritized parity/bridge plan; no Rust build or runtime qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/PROJECT-STATUS-20261112.md",
+          "scope": "All-front evidence and gaps; owner-reported port cooldown distinguished from qualified Home timer.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-PARITY-31.md",
+          "scope": "11 core/8 Dance tests; scoped format passes; Clippy unowned warnings remain. No live or host substitution.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-CONFORMANCE-32.md",
+          "path_status": "existing",
+          "scope": "Same 56-case corpus passes native and Rust; scoped checks pass. No bridge/live integration; external core unit-test dependency issue remains."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-DANCE-CONFORMANCE-33.md",
+          "path_status": "existing",
+          "scope": "Native/Rust same390 observation Dance corpus passes; synthetic decisions only, no live substitution."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-WAYPOINT-CONFORMANCE-34.md",
+          "path_status": "existing",
+          "scope": "27scenarios/59observations agree native/standalone Rust; Cargo locked blocked by concurrent mismatch, port inactive."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-RUNNING-CAPTION-34.md",
+          "path_status": "existing",
+          "scope": "Optional bottom-center caption integrated in scope; pure tests pass, no independent physical visibility confirmation."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHING-WORKSHOP-36.md",
+          "scope": "Recoverable chunk recording and manual timeline/card/replay source increment; not hour-long capture qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHING-STATE-37.md",
+          "scope": "Saved telemetry to timeline; deterministic editable card proposals and headless CLI. No continuous live telemetry qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/TEACHING-CONTINUOUS-38.md",
+          "scope": "Short CLI video plus two observer batches; cleanup verified, native Idle observed. Offline annotation/export/replay correctly remains incomplete without action receipts; not gameplay qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/TEACHING-ACTION-39.md",
+          "scope": "Recorded two-action Idle/menu/Idle teacher cycle; accepted/released input receipts and independent states. Derived first action card passed same-session offline replay. Not held-out reliability.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHING-RELEASE-40.md",
+          "path_status": "existing",
+          "scope": "Installed frozen-card replay / offline logic reuse and overlay source; see report for exact qualification limits."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-LOGIC-REUSE-41.md",
+          "path_status": "existing",
+          "scope": "Installed frozen-card replay / offline logic reuse and overlay source; see report for exact qualification limits."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-NODERED-42.md",
+          "path_status": "existing",
+          "scope": "Optional direct named-pipe Node-RED client, bounded pull subscriptions, four JS tests and real isolated native-host snapshot; 2550 native tests. Node-RED UI deployment unverified."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-NODERED-43.md",
+          "path_status": "existing",
+          "scope": "Actual Node-RED editor edit/deploy/manual action; false/true condition integration test against isolated disconnected owner. Not native graph round-trip or gameplay."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-CARD-AUTHOR-44.md",
+          "path_status": "existing",
+          "scope": "Catalog-backed native card save/load/deal, front/back view data and real isolated scheduler replay. Structured settings UI; no arbitrary flow compiler or polished flip UI."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-CARD-EDITOR-45.md",
+          "path_status": "existing",
+          "scope": "Graphical front/back catalog editor; browser save/load/version and actual recorded replay passed. Conditional replay explicitly unsupported; optional Node-RED surface, not native app package."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-NATIVE-CARDS-46.md",
+          "path_status": "existing",
+          "scope": "Native app card-back editor and recorded requirements with live evaluator;2557 tests and offscreen render. Separate action replay, no automatic confirmation; source not installed."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-CARD-RELEASE-47.md",
+          "path_status": "existing",
+          "scope": "Native editor installed; unified requirement gates+receipt/outcome replay passes8synthetic scenarios;2565native/14installer tests. Installed unconditional holdout replay passes. No client interaction."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-RECORDING-FACTS-48.md",
+          "path_status": "existing",
+          "scope": "Canonical recorded facts and timestamp-bound teacher envelopes;2570 tests; saved export replay; no game access or install."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-ALIASES-49.md",
+          "path_status": "existing",
+          "scope": "Typed canonical aliases, API snapshot/MCP forwarding, shared card/replay condition resolution;2581native/30Python; no game access/install."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-RESOURCES-50.md",
+          "path_status": "existing",
+          "scope": "Resource mapping and bounded mock collector;2587native/3Python; stats hook not qualified."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/W101_DATA_SUPPLY.md",
+          "path_status": "existing",
+          "scope": "975source declarations and current3second UI observation; hook restored; demand-driven scan design not yet implemented."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-SCAN-52.md",
+          "path_status": "existing",
+          "scope": "Shared demand/context scans, bounded learning profile;2594native tests; stats signature only, live stats not qualified; not installed."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-STATS-53.md",
+          "scope": "Read-only installed-file property/HUD layout review; bounded current-value live qualification; optional shared scan integration; maxima unqualified.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-STATS-54.md",
+          "scope": "Globe-based max and PotionButton qualification,live registry projection,optional offline visual profile comparison; no gameplay/install.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/W101-STATS-55.md",
+          "scope": "Restart-bound Death character-sheet capture/OCR;8 independent numeric matches;Idle verified;2602native tests. Gold/level not yet executable aliases; no install.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/W101-IDENTITY-56.md",
+          "scope": "3clean current-wizard ownership probes;fresh gold/level aliases;2616native/107Python;school-aware identity and guarded character Idle failure finalization. No installed update or full gameplay qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/GIT-CHECKPOINT-56.md",
+          "scope": "Authorized local checkpoints9d6f596/308f71f; no push; concurrent Rust changes preserved.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/GEMINI-CHANNEL-58.md",
+          "scope": "Local Gemini liaison channel adopted through GEM-0005; bounded source/build ownership coordination; no persistent watcher.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-BRIDGE-REPAIR-59.md",
+          "scope": "Read-only Rust/native bridge repair and actual IDE polling;70 offline Rust tests, scoped format and Clippy passed. No live host or installed update. Local checkpoint0d25009.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-BRIDGE-RELEASE-60.md",
+          "scope": "Installed optional Rust tools; actual disconnected native-host protocol passes4commands/26unknownaliases;2616native/71Rust/14installer+lifecycle pass. No W101 gameplay or GUI startup qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/RUST-BUSY-TELEMETRY-61.md",
+          "scope": "Source-host passive W101 telemetry through Rust;bounded busy recovery;2627native/76Rust;hook cleanup,expiry,disconnect verified;no inputs/focus/install.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "live",
+          "path": "docs/coordination/results/RUST-LIVE-RELEASE-62.md",
+          "path_status": "existing",
+          "scope": "Installed busy-recovery/passive telemetry repair; real Rust projection expiry/cleanup/disconnect verified; preservation lifecycle passed; no gameplay."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-DISCONNECT-63.md",
+          "path_status": "existing",
+          "scope": "Disconnected Rust context/freshness regression repaired;56 affected tests and Clippy pass;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/RUST-PATH-64.md",
+          "path_status": "existing",
+          "scope": "Blank-host-root validation correction;45 Rust fallback tests/Clippy;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHER-BASELINE-65.md",
+          "path_status": "existing",
+          "scope": "Teacher linking rejects ambiguous/loading baseline;14 focused replay tests pass;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHER-TAKEOVER-66.md",
+          "path_status": "existing",
+          "scope": "Teacher attribution stops across takeover/cancellation;16 focused tests;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHER-CONTEXT-67.md",
+          "path_status": "existing",
+          "scope": "Teacher attribution rejects intervening target/context/ownership losses;20 focused tests;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHER-RECOVERY-68.md",
+          "path_status": "existing",
+          "scope": "Six later independent-action recovery cases;26 focused replay tests;offline test-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/INPUT-FOCUS-69.md",
+          "path_status": "existing",
+          "scope": "Input accuracy matching and injected exclusions isolated by focus interval;3tests,Black,compileall;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/INPUT-BUDGET-70.md",
+          "path_status": "existing",
+          "scope": "Bounded input/prediction JSON ingestion;4tests/Black/compileall;source-only."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/TEACHER-PROTOTYPE-92.md",
+          "scope": "Native undealt prototype exported from verified single teacher trace;27 focused checks;not independent validation or live learning.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/REPLAY-DIAGNOSTICS-145.md",
+          "scope": "Detailed replay status and user-facing session/routine provenance; synthetic replay is not live qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "review",
+          "path": "docs/coordination/results/GEM-REPLAY-DIAGNOSTICS-146.md",
+          "scope": "Accepted static review: UI scope is explicit; CLI remains terse and blocked by active Program.cs ownership. No gameplay qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "documentation",
+          "path": "docs/CLI_AGENT_OPERATING_PROCEDURES.md",
+          "scope": "Source-backed CLI quick-start and agent handoff, statically audited against MaelstromCli.cs, Program.cs, and HEADLESS_CLI.md with no material discrepancies (GEM-0106/LIA-0120). Existing detailed HEADLESS_CLI options remain the command reference; no installed-build or runtime qualification claimed.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [
+        "CORE-TRANSITIONS",
+        "CORE-CLEANUP"
+      ],
+      "runtime_requires": [
+        "W101-DANCE"
+      ]
+    },
+    {
+      "id": "W101-CONJURATION",
+      "title": "Conjuration Concentration",
+      "track": "fairground",
+      "status": "integration_pending",
+      "owner": "/root",
+      "verification": {
+        "review": "available",
+        "code": "integrated_offline_candidate",
+        "offline": "integrated_checkpoint_20261110_passed",
+        "live": "not_newly_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Use the prepared collection plan for actual board/preview/flip/outcome images when authorized; then curate calibration/held-out episodes and export to the existing recognition replay. Current17frames remain one instructions image.",
+      "acceptance_criteria": [
+        "Preview, hidden-card and removal/new-board transitions are distinct.",
+        "Shuffled boards produce different actions; no fixed click script.",
+        "Unknown card identity withholds unsupported matches.",
+        "A rejected receipt cannot erase a permanent observation conflict.",
+        "Removed card slots remain terminal until an explicit reset or new board."
+      ],
+      "evidence": [
+        {
+          "kind": "code",
+          "path": "tools/conjuration_memory.py",
+          "path_status": "existing",
+          "scope": "Pure card-group memory solver; no capture or input."
+        },
+        {
+          "kind": "test_source",
+          "path": "tools/tests/test_conjuration_memory.py",
+          "path_status": "existing",
+          "scope": "Agent reports 21 passing tests, including 60 seeded shuffled pairs/triples and permanent-conflict/removed-card regressions."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/CONJURATION_OFFLINE.md",
+          "path_status": "existing",
+          "scope": "Offline solver scope; current-client perception and live qualification remain pending."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CONJ-PERCEPTION-01.md",
+          "scope": "60 offline tests across memory, image recognition, fixtures and image-to-decision replay. Existing 17 real PNGs are one duplicated instructions screen, not positive card evidence.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/W101_OFFLINE_QUALIFICATION_20261110.md",
+          "scope": "Bounded original-byte collection draft prepared; board reset and duplicate card-label consistency validated;80 combined Conjuration tests pass. No actual card gallery yet.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/CONJURATION_CARD_COLLECTION.md",
+          "scope": "Bounded original-byte collection draft prepared; board reset and duplicate card-label consistency validated;80 combined Conjuration tests pass. No actual card gallery yet.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-POTION-MOTION",
+      "title": "Potion Motion",
+      "track": "fairground",
+      "status": "integration_pending",
+      "owner": "unassigned",
+      "verification": {
+        "review": "research_and_sample_fixtures",
+        "code": "offline_planner_implemented",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Use the existing offline planner; qualify current board/animation recognition, wrapping/rule behavior and shared-owner moves before claiming an autonomous game player.",
+      "acceptance_criteria": [
+        "Bent connected groups work.",
+        "Candidate moves are simulated from the observed board.",
+        "No unverified refill threshold or reward formula."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/MINIGAME_RESEARCH.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-SORCERY-STONES",
+      "title": "Sorcery Stones",
+      "track": "fairground",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "research_only",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Label grid, special stones and settling states, then evaluate bounded swap/cascade fixtures.",
+      "acceptance_criteria": [
+        "Animating boards do not produce new swap actions.",
+        "Special-state unknowns stay explicit.",
+        "Replay rising-board and blocked-move cases."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/MINIGAME_RESEARCH.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-CHOO-CHOO-ZOO",
+      "title": "Choo-Choo Zoo",
+      "track": "fairground",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "research_only",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Build tile connectivity and train/animal/castle fixtures with legal rotation proposals.",
+      "acceptance_criteria": [
+        "Occupied-tile constraints are represented.",
+        "Replan from changed observed tiles.",
+        "No assumed train speed is stored as fact."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/MINIGAME_RESEARCH.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-DOODLE-DOUG",
+      "title": "Doodle Doug",
+      "track": "fairground",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "research_only",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Create maze/player/gem/enemy/bomb labels and bounded hazard-route simulations.",
+      "acceptance_criteria": [
+        "Moving enemies alter the route.",
+        "Bomb timing is measured or remains unknown.",
+        "Avoidance and collection outcomes are independently observed."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/MINIGAME_RESEARCH.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-DUELING-DIEGO",
+      "title": "Dueling Diego",
+      "track": "fairground",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "offline_observer_and_reference",
+        "code": "observer_partial",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Reuse cue/action/outcome episodes and test randomized enemy order without depending on the blocked Flash player.",
+      "acceptance_criteria": [
+        "No full-game linear action sequence.",
+        "Separate opponent type, pose, distance and uncertainty.",
+        "Held-out episodes preserve original action provenance."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/MINIGAME_RESEARCH.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-SKULL-RIDERS",
+      "title": "Skull Riders",
+      "track": "fairground",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "research_only",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Create altitude/player/enemy/ground labels and a bounded collision-risk policy fixture set.",
+      "acceptance_criteria": [
+        "Player/ground visibility uncertainty is explicit.",
+        "Policy compares changing threats, not elapsed-time commands.",
+        "No gameplay qualification without actual result evidence."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/MINIGAME_RESEARCH.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-HOT-SHOTS",
+      "title": "Hot Shots",
+      "track": "fairground",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "research_only",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Create target/projectile/aim/charge fixtures and a bounded calibration specification.",
+      "acceptance_criteria": [
+        "Do not invent charge-to-velocity values.",
+        "Aim and charge decisions are distinct from receipt/outcome.",
+        "Threat changes trigger new proposals."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/MINIGAME_RESEARCH.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-DANCE",
+      "title": "Pet Dance",
+      "track": "pet",
+      "status": "integration_pending",
+      "owner": "/root",
+      "verification": {
+        "review": "native_player_with_partial_live_evidence",
+        "code": "screen_modules_and_existing_scheduler_integrated_source",
+        "offline": "2837 full native tests passed before seven additional scheduler regressions;28 focused scheduled-visit tests now pass. Scoped whitespace/analyzers clean. Source only, full live visit unqualified.",
+        "live": "Commons and approach motions verified separately; Pavilion crossing released movement but client stuck loading. Arrival/Idle and Dance energy cost unverified."
+      },
+      "lineage": [
+        "LP02",
+        "LP11"
+      ],
+      "next_task": "Finish production entry runtime and native selection geometry; await usable client for energy and full visit qualification. Primed capture/first-Watch binding remains offline tested; no automatic card promotion. See CODEX_WORK.md.",
+      "acceptance_criteria": [
+        "Verify presented and sent sequences, feedback and complete-game result.",
+        "Return native Idle only after verified valid completion, not user stop.",
+        "Five arenas and Tiny/Large/Huge retain separate evidence.",
+        "NeverFeed remains default; other snack modes plan only."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/PET_TRAINING_LEVELS_AND_SNACKS.md",
+          "scope": "Dated arena/size evidence; current batch remains with coordinator.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/PET_DANCE_ENTRY_TRANSITIONS.md",
+          "scope": "Saved OCR and actual enabled/disabled Play crops; receipt-aware full visit with independent specialist/result gates. Selection detection and live full visit remain unqualified.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/PARALLEL-TRANSITIONS-RECOGNITION-20261109.md",
+          "scope": "Independent review and eight bounded saved-video extracts: persistent first-arena highlight after tooltip disappears is candidate selection evidence. Input/video alignment and current-client selection recognition remain unqualified.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/W101_OFFLINE_QUALIFICATION_20261110.md",
+          "scope": "First Wizard City saved layout: actual cropped references, conditional lower-menu OCR, image-bound entry gate. Four saved frames pass; same recording and pointer/control annotations remain explicit.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/PET_DANCE_SELECTION_QUALIFICATION.md",
+          "scope": "First Wizard City saved layout: actual cropped references, conditional lower-menu OCR, image-bound entry gate. Four saved frames pass; same recording and pointer/control annotations remain explicit.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/MODULE_SCREEN_INTEGRATION_20261110.md",
+          "scope": "1316 native tests pass. Actual saved PNGs through local OCR/modules/existing scheduler:2 completed modules,4 proposals/4 supplied rehearsal receipts,11 frames,zero desktop dispatch. Existing Dance cleanup source migrated; no installation/live test.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/DANCE-COURSE-74.md",
+          "path_status": "existing",
+          "scope": "Roadmap/queues reconciled,69Dance tests pass;current passive live readiness check only,no gameplay."
+        },
+        {
+          "kind": "review",
+          "path": "docs/coordination/results/GEM-ROUTE-PROVENANCE-83.md",
+          "path_status": "existing",
+          "scope": "Accepted historical artifact-provenance audit; does not qualify current navigation, route clearance, or a live Dance visit."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/CODEX_WORK.md",
+          "path_status": "existing",
+          "scope": "Task99 primed-handoff evidence rejection checks28pass; live approach/loading failure separately recorded; no full Dance qualification."
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-CLEANUP"
+      ]
+    },
+    {
+      "id": "W101-PET-CANNON",
+      "title": "Pet Cannon",
+      "track": "pet",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "inventory_and_research_baseline",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Produce one rules/control card and instructions/active/result fixtures, identifying aim and power state.",
+      "acceptance_criteria": [
+        "Document actual current controls or leave unknown.",
+        "Share aim/outcome contracts with other projectile games.",
+        "No solver qualification from a rules card."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/W101_GAME_RESEARCH_20261108.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-PET-MAZE",
+      "title": "Pet Maze",
+      "track": "pet",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "inventory_and_research_baseline",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Produce one rules/control card and a small maze/player/goal fixture set.",
+      "acceptance_criteria": [
+        "Use a route representation with observed arrival.",
+        "Do not assume overworld movement behavior.",
+        "Preserve source date and fixture scope."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/W101_GAME_RESEARCH_20261108.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-PET-DROP",
+      "title": "Pet Drop",
+      "track": "pet",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "inventory_and_research_baseline",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Produce one rules/control card and board/selection/result labels before choosing a solver.",
+      "acceptance_criteria": [
+        "Unknown controls remain unknown.",
+        "Recognize board/result transitions separately.",
+        "No fabricated current-client observations."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/W101_GAME_RESEARCH_20261108.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-GRUMPY-GOBBLERS",
+      "title": "Grumpy Gobblers",
+      "track": "pet",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "inventory_and_research_baseline",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Produce one rules/control card and aim/projectile/target/outcome labels.",
+      "acceptance_criteria": [
+        "Share reusable aiming primitives only after controls are established.",
+        "Observe actual hit/result separately from dispatch.",
+        "No assumed reward formula."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/W101_GAME_RESEARCH_20261108.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-NINJA-PIG",
+      "title": "Way of the Ninja Pig",
+      "track": "pet",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "inventory_and_research_baseline",
+        "code": "player_not_qualified",
+        "offline": "fixtures_pending_or_partial",
+        "live": "not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06"
+      ],
+      "next_task": "Produce one rules/control card and player/obstacle/phase fixtures.",
+      "acceptance_criteria": [
+        "React to observed obstacles and phase changes.",
+        "Do not implement fixed full-run input order.",
+        "Record timing uncertainty rather than guess."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/W101_GAME_RESEARCH_20261108.md",
+          "scope": "Existing research baseline, not a current complete-player qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-NAVIGATION",
+      "title": "Commons-to-Pavilion navigation",
+      "track": "navigation",
+      "status": "integration_pending",
+      "owner": "root",
+      "verification": {
+        "review": "available",
+        "code": "Bounded candidate continuous pose stream, canonical heading conversion, typed coordinate/prompt/portal arrival gates and scheduler handoff; persistent qualified live follower binding still pending.",
+        "offline": "2912 native tests and18 moving-pose Python tests passed. Installed readonly graphs contain candidate paths89->209 Commons and50->5 Pavilion; no connector/clearance/arrival proof. Final scheduler pause/stall correction6focused tests passed; scoped whitespace/analyzers and board validation passed.",
+        "live": "141: one bounded39-unit step toward candidate113, Idle verified. 147: after restart, explicit windows enumeration/rebind to new PID/start ticks; two read-only observations found stable nativeIdle and candidate Commons pose/owner. Feedback waypoint moved ~96.2 planar units and returned Idle; coordinate-arrival only, arrivalVerified=false, routeQualified=false. Source review supports full-dimension BCD box construction as a candidate; collision role and player-body clearance remain unqualified. 148: desktop observer found W101 at Ravenwood/Golem Court with Idle banner and quest progress2/3. Maelstrom GUI selector found PID120576, but Observe failed out-of-bounds and repo-shell CLI returned no windows. A later screenshot showed Monstrology Tome open; cause and current Idle state unknown. No navigation input dispatched.",
+        "tests": "2941 native tests passed;83 UI reader,28 pure moving-reader and10 stream-owner Python checks tracked in task112; scoped formatting/analyzers verified."
+      },
+      "lineage": [
+        "LP06",
+        "LP09"
+      ],
+      "next_task": "Resolve Maelstrom's desktop focus/target routing and qualify Observe without any game input; confirm native Idle through the shared owner before resuming experiments. Then continue fresh-pose empirical connector qualification using bounded feedback and verified Idle. Corroborate sourced BCD full-dimension construction, classify collider roles, and resolve player-body clearance. Do not claim graph vertex or portal arrival from local coordinate-arrival.",
+      "acceptance_criteria": [
+        "Wrong-world, obstruction, loading and arrival replays.",
+        "Map labels are not teleport controls.",
+        "Human demonstrations are not autonomous-route qualifications."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/W101_DESTINATION_NAVIGATION.md",
+          "scope": "Existing foundation; next integration gate remains open.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/W101_OFFLINE_QUALIFICATION_20261110.md",
+          "scope": "Offline compiler for navigation, sigil/menu steps and all existing idle options uses RoutineRunner. Motion outcomes require exact proposal binding; synthetic19-event replay and held-progress regressions pass.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/W101_SHARED_OPERATIONS.md",
+          "scope": "Offline compiler for navigation, sigil/menu steps and all existing idle options uses RoutineRunner. Motion outcomes require exact proposal binding; synthetic19-event replay and held-progress regressions pass.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/MODULE_STANDARDIZATION_20261110.md",
+          "scope": "Four reusable versioned modules integrated;1230 native tests pass. W101 adapter consumes common catalog/runner; saved four-module replay has7 proposals/receipts,zero desktop dispatch. Independent offline-lab profile passes. No new live or installed qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101SharedOperations.cs",
+          "scope": "Named facts and controls, exact released receipts and proposal-bound newer outcomes, shared bundle action/deadline limits. W101 supplies data only.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-DESTINATION-PREFLIGHT-01.md",
+          "scope": "Source audit: no admitted live pose/road/threat feed, legacy steering bypasses owner, missing waypoint handler and inconsistent yaw conventions. Generic quest parser supplies context only; no movement ran.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-ROUTE-PROVENANCE-06.md",
+          "path_status": "existing",
+          "scope": "Quarantined five unmeasured coordinate route sketches; real demonstration remains evidence, not autonomous qualification."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-CYCLE-INTEGRATION-06.md",
+          "path_status": "existing",
+          "scope": "Bounded teaching input/evidence added; live movement blocked by stale pixels then absent client. No arrival claim."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-NAV-FEEDBACK-09.md",
+          "scope": "Source/offline verification only; quiet recovery live test deferred by user; no new route qualification.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-ROUTE-LANDMARKS-13.md",
+          "scope": "Seven references,84saved frames,4unit tests; current Commons frame unknown. Two notified observations, zero inputs.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-ROUTE-GEOMETRY-14.md",
+          "path_status": "existing",
+          "scope": "Nine tests;84 saved frames yield27 place candidates and22 broad alignment candidates. Previous Commons live frames fail spatial alignment support; no new live input."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-POSE-CONNECT-15.md",
+          "path_status": "existing",
+          "scope": "Optional pose CLI/live read and measured deflected forward movement; dorm waypoint trial rejected before input because not foreground. No waypoint qualification."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-FOREGROUND-16.md",
+          "path_status": "existing",
+          "scope": "Opt-in five-second quiet foreground admission, offline checked; restarted client not yet running, live dorm qualification pending."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-PROFILE-RECOVERY-17.md",
+          "path_status": "existing",
+          "scope": "2386 native/56 UI tests pass; explicit CLI recovery blocked by desktop verification, W101 absent. New profile live qualification and Idle pending."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-LIVE-RECOVERY-18.md",
+          "path_status": "existing",
+          "scope": "Confirmed W101 present; CLI recovery foreground rejected; no game inputs; warning retained."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/CONTROL-COUNTDOWN-19.md",
+          "path_status": "existing",
+          "scope": "Source countdown and sound settings; bounded clickable foreground recovery fallback. Live UI and movement unqualified."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/RELEASE-COUNTDOWN-20.md",
+          "path_status": "existing",
+          "scope": "Update installed; installed recovery foreground denied; no countdown or gameplay live qualification."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/RECOVERY-DESKTOP-21.md",
+          "path_status": "existing",
+          "scope": "Live windowless recovery and new-profile UI/pose restoration pass; Idle text unresolved; no movement."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-IDLE-PROFILE-22.md",
+          "path_status": "existing",
+          "scope": "Typed Idle source repair and architecture review;58Python/2394native checks. Live awake read passes, activation rejected before countdown/input."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-WAKE-IDEMPOTENT-23.md",
+          "path_status": "existing",
+          "scope": "2395tests; live movement measured and native Idle restored. Waypoint overshot; monitor/audio confirmation pending."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-FEEDBACK-24.md",
+          "path_status": "existing",
+          "scope": "2405native tests;2varied coordinate-feedback arrivals with Idle;1fixed integration failure and1takeover preserved; finalIdle-only cleanup passed."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-CHARACTER-25.md",
+          "path_status": "existing",
+          "scope": "Preparation-only character card;2412 tests; live identity, selection, profiles and CLI binding pending."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-CHARACTER-26.md",
+          "path_status": "existing",
+          "scope": "Live selection and loaded Fire106 evidence; home/Idle user-assisted then Idle read verified. Source profiles/loading gate; unattended deck integration remains pending."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-CHARACTER-27.md",
+          "scope": "Guided house motion, Idle activation, loading-walk incident and repair; live qualification in progress.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "reference",
+          "path": "docs/coordination/results/W101-TRAVEL-30.md",
+          "scope": "Configured Travel card implementation, 2478 native/64 reader checks and one live Zafaria/Home/Idle success; explicit remaining page/cooldown qualification limits.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-TRAVEL-32.md",
+          "path_status": "existing",
+          "scope": "Second configured Zafaria/Home/Idle pass; post-Home timer active observed, later inactive. Exact duration/wait branch unqualified; waypoint admission stopped on focus/takeover, no movement."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-COOLDOWN-33.md",
+          "path_status": "existing",
+          "scope": "Home blocked-to-ready captured under same owner after verified Idle; waypoint reached within2.88 units but final Idle lost foreground. Not a qualified full route."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-CONTROL-34.md",
+          "path_status": "existing",
+          "scope": "Focused keyboard policy and released-checkpoint pause, live waypoint/Idle success, center-path house entry/loading/Idle success. Reverse edge rejected beforeinput; full repeatable route pending."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-NAV-AUDIT-103.md",
+          "path_status": "existing",
+          "scope": "Full runtime/legacy/map/data audit; two installed navigation graphs structurally parsed; prototype direction counterexample despite11passingtests. Proposed integration roadmap, no autonomous route qualification."
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/DESTINATION_NAVIGATION.md",
+          "scope": "Tasks104\u2013108: actual candidate binding results, pure follower and scheduler tests; live navigation still pending.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-NAV-STREAM-112.md",
+          "path_status": "existing",
+          "scope": "Live24-sample observation and moving-window trial with Idle; typed arrival tests; no autonomous graph-route qualification."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-CONNECTOR-TRIAL-141.md",
+          "path_status": "existing",
+          "scope": "Bounded connector heading/translation receipts and variable actor height; full route unqualified."
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-REATTACH-147.md",
+          "scope": "Fresh identity enumeration/rebind after client restart, read-only pose/Idle observation, bounded local waypoint motion and cleanup. Full route remains unqualified.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/coordination/results/W101-LIVE-DISCOVERY-148.md",
+          "scope": "Current W101 desktop observation and mismatch with repository-shell CLI window enumeration; no input dispatched.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/AutomatusWaypointMapImporter.cs",
+          "scope": "Bounded Automatus v2 waypoint-file import to candidate-only data; legacy markers remain opaque and no controller is imported.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/LEGACY-AUTOMATUS-WAYPOINT-01.md",
+          "scope": "Source crosswalk and unqualified navigation gates; no build or tests run in this slice.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "test_source",
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/AutomatusWaypointMapImporterTests.cs",
+          "scope": "Conformance cases authored; filtered runner compiled assemblies but stalled after test discovery, so no case result is available.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-QUESTS",
+      "title": "Quest context and progress",
+      "track": "knowledge",
+      "status": "integration_pending",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "generic_intent_parser_and_configurable_conversation_card",
+        "offline": "generic_parser_host_scope_and_conversation_card_checks_passed",
+        "live": "quinn_turnin_and_followup_offer_observed_not_full_autoquest"
+      },
+      "lineage": [
+        "LP03",
+        "LP09"
+      ],
+      "next_task": "Qualify the installed configurable Quest card against fresh dialogue and before/after objectives. Integrate typed intent with the pending observation bridge, owned combat runtime and navigation; the Fire Elf quest is not yet autonomous.",
+      "acceptance_criteria": [
+        "Branching and optional steps preserved.",
+        "Historical guide claims keep scope/date.",
+        "No whole-world autoquest claim."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/GAME_KNOWLEDGE_DATABASE.md",
+          "scope": "Existing foundation; next integration gate remains open.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "report",
+          "path": "docs/W101_QUEST_STEP_20261110.md",
+          "scope": "One partial turn-in followed by a completed offer:13 seconds,three advances,Fireglobe Theatre objective,clean disconnect/release. Source-only; no full-chain claim.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/CORE-DECK-01.md",
+          "scope": "Fresh objective auto-fill, explicit selected-conversation alternative, per-input scope filters and persisted card limits; parser supports destination/talk/defeat/collect without quest-name branches. New card integration remains offline-only.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestIntent.cs",
+          "scope": "Pure bounded parser with explicit unknowns; objective destination is not proof of the current zone.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "W101-NAVIGATION",
+        "W101-COMBAT"
+      ]
+    },
+    {
+      "id": "W101-COMBAT",
+      "title": "Spell knowledge and damage consequences",
+      "track": "algorithms",
+      "status": "integration_pending",
+      "owner": "coordinator + Gemini",
+      "verification": {
+        "review": "available",
+        "code": "rooted_field_and_duel_candidates_bounded_battle_and_addressed_input_source",
+        "offline": "2047_native_pass_43_observer_15_fields_14_duel_python_pass",
+        "live": "three_second_idle_observation_clean_restore_no_combat_inputs"
+      },
+      "lineage": [
+        "LP08"
+      ],
+      "next_task": "Qualify real battle metadata, selected-card identity, client-pixel geometry and addressed-input response, then connect qualified facts/planner to the bounded battle and generic Quest card. Gemini OBS-02 bridge reservation remains active; no Fire Elf defeated in CONNECT-06.",
+      "acceptance_criteria": [
+        "Repeated calls do not mutate results.",
+        "Enchant, resistance, pierce and boost tests use independent expected values.",
+        "Observed hand/turn outcomes required before combat dispatch.",
+        "Experimental legacy damage curves and fixed geometry are not authoritative game facts or victory evidence; qualify independent current mode/school/layout fixtures."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/W101_LEGACY_QUALIFICATION.md",
+          "scope": "Existing foundation; next integration gate remains open.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "reference",
+          "path": "docs/coordination/tasks/W101-COMBAT-OBS-02.md",
+          "scope": "Assigned bounded Gemini contribution; saved/synthetic data only, no new scheduler, dependencies, live process access or game inputs. A task assignment is not a test result.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-COMBAT-PLAN-03.md",
+          "scope": "Bounded component implementation, reviewed and integrated offline; see combined release report for tests and explicit live limitations.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-COMBAT-LOOP-04.md",
+          "scope": "Bounded component implementation, reviewed and integrated offline; see combined release report for tests and explicit live limitations.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-COMBAT-SOURCE-05.md",
+          "scope": "Bounded component implementation, reviewed and integrated offline; see combined release report for tests and explicit live limitations.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-COMBAT-CONNECT-06.md",
+          "scope": "Integrated source-only candidate observation and bounded input/battle components; 2047 native tests and clean live Idle observer. Full combat/Quest execution remains unqualified.",
+          "path_status": "existing"
+        },
+        {
+          "kind": "offline_report",
+          "path": "docs/coordination/results/W101-KNOWLEDGE-AUDIT-01.md",
+          "scope": "Calculator/formula and fixed geometry review; historical primary-source discrepancy requires current scope verification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION",
+        "CORE-KNOWLEDGE"
+      ]
+    },
+    {
+      "id": "W101-SNACKS",
+      "title": "Context-aware optional snack recommendations",
+      "track": "pets",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "pure_component_present",
+        "offline": "see_linked_component_scope",
+        "live": "full_workflow_not_qualified"
+      },
+      "lineage": [
+        "LP03",
+        "LP07"
+      ],
+      "next_task": "Bind read-only pet/inventory observations to the existing preferences and recommendation functions.",
+      "acceptance_criteria": [
+        "NeverFeed default; suggestions do not feed.",
+        "Honor protected/allowed items, quantities, reserves and goals.",
+        "School alone does not establish liked/loved preference.",
+        "Unknown benefits withheld; XP age rollover reconciled."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/PET_TRAINING_LEVELS_AND_SNACKS.md",
+          "scope": "Existing foundation; next integration gate remains open.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-KNOWLEDGE",
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-ENERGY",
+      "title": "Verified energy reserves and one-attempt gate",
+      "track": "pets",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "pure_component_present",
+        "offline": "see_linked_component_scope",
+        "live": "full_workflow_not_qualified"
+      },
+      "lineage": [
+        "LP01",
+        "LP07"
+      ],
+      "next_task": "Reuse qualified current/max energy aliases;connect verified entry cost to existing pure gate for Dance. A live energy reading alone does not qualify cost or scheduling.",
+      "acceptance_criteria": [
+        "Unknown energy permits observation only.",
+        "Insufficient reserve stops; sufficient permits one attempt only.",
+        "Saved settings alone are not live enforcement.",
+        "Crown Shop always locked; no purchase path."
+      ],
+      "evidence": [
+        {
+          "kind": "code",
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetSnackRecommendations.cs",
+          "scope": "Existing foundation; next integration gate remains open.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-VISION"
+      ]
+    },
+    {
+      "id": "W101-GARDENING",
+      "title": "One-plant gardening workflow",
+      "track": "home",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "existing_reference_or_partial",
+        "offline": "see_linked_component_scope",
+        "live": "full_workflow_not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP06",
+        "LP07"
+      ],
+      "next_task": "Repair interrupted key release and build one need/action/outcome dry run.",
+      "acceptance_criteria": [
+        "Verified plant need and resource cost.",
+        "Cancellation releases inputs.",
+        "No blind whole-garden script."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/W101_LEGACY_WORK_PACKAGES.md",
+          "scope": "Existing foundation; next integration gate remains open.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION",
+        "W101-ENERGY"
+      ]
+    },
+    {
+      "id": "W101-BAZAAR",
+      "title": "Bounded Bazaar item and price search",
+      "track": "search",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "existing_reference_or_partial",
+        "offline": "see_linked_component_scope",
+        "live": "full_workflow_not_qualified"
+      },
+      "lineage": [
+        "LP05",
+        "LP07"
+      ],
+      "next_task": "Fix no-match/color handling and produce item/price observations under page/time limits.",
+      "acceptance_criteria": [
+        "Search has no purchase side effect.",
+        "Unknown identity/price remains unknown.",
+        "Budgeted cancellation and stale-page fixtures."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/W101_LEGACY_WORK_PACKAGES.md",
+          "scope": "Existing foundation; next integration gate remains open.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS",
+        "CORE-VISION",
+        "CORE-KNOWLEDGE"
+      ]
+    },
+    {
+      "id": "TEST-DODGE",
+      "title": "Dodge isolated outcome-based learning",
+      "track": "test-game",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "existing_workspace_and_learning_loop",
+        "offline": "existing_experiment_evidence",
+        "live": "target_average_not_established_by_this_board"
+      },
+      "lineage": [],
+      "next_task": "Reuse existing isolated experiments and controlled varied games; evaluate the current avoidance policy on held-out full games.",
+      "acceptance_criteria": [
+        "Track complete-game score distributions, failures and seeds.",
+        "Target repeatable mean 50 before advancing to real-time difficulty.",
+        "Keep desktop isolated and resource use bounded.",
+        "Use shared proposal/receipt/outcome contracts."
+      ],
+      "evidence": [
+        {
+          "kind": "reference",
+          "path": "docs/DODGE_GAME_WORKSPACE.md",
+          "scope": "Existing workspace and experiment routes; not an average-50 claim.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": [
+        "CORE-TRANSITIONS"
+      ]
+    },
+    {
+      "id": "TEST-REFLEX",
+      "title": "Reflex local timing baseline",
+      "track": "test-game",
+      "status": "backlog",
+      "owner": "unassigned",
+      "verification": {
+        "review": "available",
+        "code": "existing_adapter",
+        "offline": "reusable_fixtures",
+        "live": "not_requalified"
+      },
+      "lineage": [],
+      "next_task": "Reuse saved timing fixtures as a small regression baseline without making browser use a default requirement.",
+      "acceptance_criteria": [
+        "Keep capture/decision/dispatch/outcome timestamps distinct.",
+        "No foreground window started by the inventory or tests.",
+        "Report the measured environment and limitations."
+      ],
+      "evidence": [
+        {
+          "kind": "source_archive",
+          "path": ".local/test-games/reflex-679450da.zip",
+          "scope": "Local test-game source; archive identity is not fresh runtime qualification.",
+          "path_status": "existing"
+        }
+      ],
+      "depends_on": [],
+      "runtime_requires": []
+    }
+  ],
+  "latest_integration_checkpoint": "docs/coordination/results/CORE-DECK-RELEASE-02.md",
+  "last_updated_at": "2026-11-11T02:22:29.5908914-05:00"
+}

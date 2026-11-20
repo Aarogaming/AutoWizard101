@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "kind": "proposed-pet-snack-settings-example",
+  "status": "design-only",
+  "game_id": "wizard101",
+  "executable": false,
+  "automatic_runtime_import": false,
+  "runtime_implementation_available": false,
+  "enabled": false,
+  "mode": "observe-only",
+  "active_pet_profile_key": null,
+  "catalog": {
+    "identifier_namespace": "Maelstrom-local profile keys; examples are not Wizard101 item or pet IDs",
+    "unknown_item_policy": "exclude",
+    "unverified_identity_policy": "exclude",
+    "snack_profiles": [
+      {
+        "profile_key": "example.snack.protected",
+        "identity": {
+          "verified": false,
+          "in_game_id": null,
+          "display_name": null,
+          "locale": null,
+          "school": null,
+          "category": null,
+          "rank": null,
+          "icon_asset": null,
+          "evidence_refs": []
+        },
+        "protected": true,
+        "minimum_remaining": 1,
+        "stock_count": null,
+        "base_xp": null,
+        "stat_gains": null,
+        "happiness_gain": null
+      },
+      {
+        "profile_key": "example.snack.reserved",
+        "identity": {
+          "verified": false,
+          "in_game_id": null,
+          "display_name": null,
+          "locale": null,
+          "school": null,
+          "category": null,
+          "rank": null,
+          "icon_asset": null,
+          "evidence_refs": []
+        },
+        "protected": false,
+        "minimum_remaining": 5,
+        "stock_count": null,
+        "base_xp": null,
+        "stat_gains": null,
+        "happiness_gain": null
+      }
+    ]
+  },
+  "pet_profiles": [
+    {
+      "profile_key": "example.pet.review-only",
+      "identity": {
+        "verified": false,
+        "in_game_id": null,
+        "display_name": null,
+        "species": null,
+        "evidence_refs": []
+      },
+      "training": {
+        "enabled": false,
+        "allowed_snack_profile_keys": [],
+        "goal": {
+          "kind": "age-or-xp",
+          "target_age_label": null,
+          "target_xp_within_age": null,
+          "target_stats": {
+            "strength": null,
+            "intellect": null,
+            "agility": null,
+            "will": null,
+            "power": null
+          }
+        },
+        "selection_priority": [
+          "hard-constraints",
+          "goal-progress",
+          "minimum-overshoot",
+          "preserve-stock"
+        ],
+        "preference_evidence_refs": [],
+        "allow_mastery_skip": false,
+        "stop_on_new_talent": true
+      },
+      "happiness": {
+        "enabled": false,
+        "allowed_snack_profile_keys": [],
+        "goal": {
+          "trigger_below": null,
+          "target_value": null,
+          "target_fraction": null
+        },
+        "selection_priority": [
+          "hard-constraints",
+          "sufficient-refill",
+          "preserve-stock"
+        ],
+        "require_observed_happiness_costs": true
+      },
+      "budgets": {
+        "maximum_feeds_per_run": 0,
+        "maximum_feeds_per_day": 0,
+        "daily_budget_timezone": "America/New_York",
+        "maximum_training_energy_spend": 0,
+        "minimum_energy_remaining": null,
+        "maximum_elapsed_seconds": 60,
+        "per_snack_run_limits": {},
+        "per_snack_day_limits": {}
+      }
+    }
+  ],
+  "enablement": {
+    "require_verified_pet_identity": true,
+    "require_verified_snack_identity": true,
+    "require_qualified_context": true,
+    "require_explicit_mode_enablement": true,
+    "require_explicit_run_start": true,
+    "require_fresh_budget_and_stock_snapshot": true,
+    "restart_behavior": "interrupted-no-resume"
+  },
+  "interaction": {
+    "single_item_per_dispatch": true,
+    "allow_user_skip": true,
+    "user_override": "select-another-qualified-item-and-replan",
+    "user_activity": "pause-release-owned-input-invalidate-proposal",
+    "focus_loss": "pause-release-owned-input-invalidate-proposal",
+    "automatic_focus_reacquisition": false,
+    "stop_behavior": "cancel-queued-work-release-input-preserve-uncertain-receipt",
+    "test_cleanup": "request-native-idle-only-when-foreground-and-input-idle",
+    "automatic_post_feed_replay": false
+  },
+  "verification": {
+    "unknown_outcome": "reconcile-without-consuming-again",
+    "automatic_retry_after_dispatch": false,
+    "duplicate_handoff": "reuse-request-record-no-new-consumption",
+    "identity_matching": "qualified-pack-recognizer-with-evidence",
+    "freshness_max_ms": null,
+    "confidence_thresholds": null,
+    "quantity_delta_required": 1,
+    "reward_observation_required": true,
+    "separate_game_and_snack_reward_baselines": true,
+    "required_evidence": [
+      "request-and-parent-result-identity",
+      "pet-and-snack-identity",
+      "feed-screen-context",
+      "before-frame",
+      "before-stock-and-resources",
+      "dispatch-record",
+      "after-frame",
+      "after-stock-and-resources",
+      "user-activity-and-focus-state"
+    ]
+  },
+  "scheduler": {
+    "actions_status": "proposed-not-registered",
+    "observe_operation": "w101.snacks.observe",
+    "plan_operation": "w101.snacks.plan",
+    "training_operation": "w101.snacks.feed-training",
+    "happiness_operation": "w101.snacks.feed-happiness",
+    "verify_operation": "w101.snacks.verify",
+    "shared_input_owner_required": true,
+    "parent_identity_required_for_training": true,
+    "parent_identity_required_for_happiness": false,
+    "one_outstanding_consumption_per_pet": true,
+    "finite_timeout_required": true
+  },
+  "excluded_operations": {
+    "ordinary_inventory_item_feeding": true,
+    "purchases": true,
+    "energy_elixir_use": true,
+    "talent_token_spending": true,
+    "crafting": true,
+    "harvesting": true,
+    "farming": true,
+    "automatic_travel": true,
+    "pet_disposal": true
+  }
+}

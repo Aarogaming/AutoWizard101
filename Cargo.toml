@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "crates/maelstrom-core",
+    "crates/maelstrom-platform",
+    "crates/maelstrom-fallback",
+    "crates/maelstrom-reflex",
+    "crates/maelstrom-ide",
+]
+resolver = "2"

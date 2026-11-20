@@ -311,6 +311,10 @@ paket-files/
 .cr/personal
 
 # Python Tools for Visual Studio (PTVS)
+.local/
+wizwiki_companion.json
+# Imported-project archives live outside the repository (../Archive/imported-projects)
+/*.zip
 __pycache__/
 *.pyc
 
@@ -356,3 +360,16 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+/target/
+
+# Rust executable source directories are not .NET build output.
+!crates/maelstrom-fallback/src/bin/
+!crates/maelstrom-fallback/src/bin/*.rs
+!crates/maelstrom-ide/src/bin/
+!crates/maelstrom-ide/src/bin/*.rs
+
+# Private inbox: unofficial drop folder for transcripts, notes and scratch files; never committed
+/private/
+# Runtime log that Logger.cs writes to the working directory
+/bot_log.txt

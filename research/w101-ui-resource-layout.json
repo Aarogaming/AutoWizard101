@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "scope": "Exact-build local instruction/registration evidence; runtime acceptance also requires type/path/visibility/value/freshness/cleanup gates.",
+  "globes": {
+    "scope": "static local executable review only; no runtime qualification",
+    "image_sha256": "d410a2463e7ff0e221d6d11ca10fa53de265abd17cacfba211f9eeca8ec8511a",
+    "class": "StatGlobe",
+    "derived_classes": [
+      "HealthGlobe",
+      "ManaGlobe",
+      "EnergyGlobe"
+    ],
+    "read_offset": 928,
+    "read_length": 8,
+    "fields": [
+      {
+        "name": "current",
+        "offset": "0x3a0",
+        "width": 4,
+        "getter": "0x140cd0110",
+        "binding_function_pointer": "0x140ccfa32",
+        "binding_name": "0x140ccfa9f"
+      },
+      {
+        "name": "maximum",
+        "offset": "0x3a4",
+        "width": 4,
+        "getter": "0x140cd0140",
+        "binding_function_pointer": "0x140ccfb4a",
+        "binding_name": "0x140ccfbb0"
+      }
+    ],
+    "type": "32-bit integer storage; signedness not independently resolved",
+    "requirements": [
+      "Identify actual StatGlobe-derived object, not its enclosing rectangle or text node",
+      "Validate image hash and runtime object class/base pointer",
+      "Treat loading/destroyed/hidden UI objects as unavailable; do not retain pointer across tree generations",
+      "Verify values against observed HUD and reject negative/nonphysical ranges",
+      "No calls to getters or setters required"
+    ],
+    "uncertainty": [
+      "HUD values could lag gameplay; acquisition time is not producer update time",
+      "No independent health base-plus-bonus formula proved",
+      "2867+2053=4920 is arithmetic consistency only; alternating baseHP values require pointer/object identity and transient mutation investigation"
+    ]
+  },
+  "potions": {
+    "runtime_qualified": false,
+    "type": "PotionButton",
+    "offset": 1088,
+    "length": 8,
+    "fields": [
+      {
+        "name": "maximum",
+        "offset": "0x440",
+        "storage": "float32",
+        "named_stats_offset": "0xa8",
+        "copy_instruction": "0x14207d029",
+        "ui_assignment": "0x1408c648d"
+      },
+      {
+        "name": "charge",
+        "offset": "0x444",
+        "storage": "float32",
+        "named_stats_offset": "0xac",
+        "copy_instruction": "0x14207d020",
+        "ui_assignment": "0x1408c6495"
+      }
+    ],
+    "dataflow": [
+      "1408c63f2: RCX=&stack58;1408c63fc:RDX=&stack50",
+      "14207cfe0 writes first output from stats+ac and second from stats+a8",
+      "1408c6406:xmm6=stack50;1408c640c:xmm7=stack58",
+      "1408c648d:button+440=xmm6;1408c6495:button+444=xmm7"
+    ],
+    "constraints": [
+      "Exact typed PotionButton object and reviewed executable only",
+      "Finite floats,0<=charge<=maximum; maximum positive and integer-valued",
+      "Retain fractional charge separately from floor(charge) usable whole potions",
+      "Values are UI copies, so comparison may lag producer updates"
+    ]
+  }
+}

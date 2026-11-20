@@ -2,7 +2,7 @@
 # Usage:
 # 1) Edit the $pages list below to include full URLs to the wiki pages you want (zones, resources, NPCs, quests, crafting, etc.).
 # 2) Run: powershell -ExecutionPolicy Bypass -File tools/wiki_fetch_template.ps1
-# 3) Outputs land in Scripts/Library/WizWikiAPI-main/wiki_fetch_raw
+# 3) Outputs land in .local/wiki/wiki_fetch_raw (git-ignored)
 
 $pages = @(
     # Example (replace with the specific pages you need):
@@ -16,7 +16,7 @@ if ($pages.Count -eq 0) {
     exit 1
 }
 
-$outDir = Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath "ProjectMaelstrom\Scripts\Library\WizWikiAPI-main\wiki_fetch_raw"
+$outDir = Join-Path -Path (Split-Path -Parent $PSScriptRoot) -ChildPath ".local\wiki\wiki_fetch_raw"
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
 $session = New-Object Microsoft.PowerShell.Commands.WebRequestSession

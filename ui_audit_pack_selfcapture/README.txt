@@ -7,8 +7,8 @@ UI Audit Pack (self-capture)
    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
    at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
    at System.Reflection.ConstructorInfo.Invoke(Object[] parameters)
-   at UiAuditSelfCapture.Program.CreateManageScriptsForm() in C:\Users\aarog\Documents\GitHub\AutoWizard101\DevTools\UiAuditSelfCapture\Program.cs:line 225
-   at UiAuditSelfCapture.Program.CaptureForm(Func`1 factory, CaptureTarget target, String outputDir, Double scale, String label) in C:\Users\aarog\Documents\GitHub\AutoWizard101\DevTools\UiAuditSelfCapture\Program.cs:line 148
+   at UiAuditSelfCapture.Program.CreateManageScriptsForm() in <repo>\DevTools\UiAuditSelfCapture\Program.cs:line 225
+   at UiAuditSelfCapture.Program.CaptureForm(Func`1 factory, CaptureTarget target, String outputDir, Double scale, String label) in <repo>\DevTools\UiAuditSelfCapture\Program.cs:line 148
 06_github_install_100.png -> GitHubInstall @100% | Captured | 
 01_main_125.png -> Main @125% | Captured | 
 02_plugins_125.png -> Plugins @125% | Captured | 
@@ -18,8 +18,8 @@ UI Audit Pack (self-capture)
    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
    at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
    at System.Reflection.ConstructorInfo.Invoke(Object[] parameters)
-   at UiAuditSelfCapture.Program.CreateManageScriptsForm() in C:\Users\aarog\Documents\GitHub\AutoWizard101\DevTools\UiAuditSelfCapture\Program.cs:line 225
-   at UiAuditSelfCapture.Program.CaptureForm(Func`1 factory, CaptureTarget target, String outputDir, Double scale, String label) in C:\Users\aarog\Documents\GitHub\AutoWizard101\DevTools\UiAuditSelfCapture\Program.cs:line 148
+   at UiAuditSelfCapture.Program.CreateManageScriptsForm() in <repo>\DevTools\UiAuditSelfCapture\Program.cs:line 225
+   at UiAuditSelfCapture.Program.CaptureForm(Func`1 factory, CaptureTarget target, String outputDir, Double scale, String label) in <repo>\DevTools\UiAuditSelfCapture\Program.cs:line 148
 06_github_install_125.png -> GitHubInstall @125% | Captured | 
 01_main_150.png -> Main @150% | Captured | 
 02_plugins_150.png -> Plugins @150% | Captured | 
@@ -29,8 +29,8 @@ UI Audit Pack (self-capture)
    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
    at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
    at System.Reflection.ConstructorInfo.Invoke(Object[] parameters)
-   at UiAuditSelfCapture.Program.CreateManageScriptsForm() in C:\Users\aarog\Documents\GitHub\AutoWizard101\DevTools\UiAuditSelfCapture\Program.cs:line 225
-   at UiAuditSelfCapture.Program.CaptureForm(Func`1 factory, CaptureTarget target, String outputDir, Double scale, String label) in C:\Users\aarog\Documents\GitHub\AutoWizard101\DevTools\UiAuditSelfCapture\Program.cs:line 148
+   at UiAuditSelfCapture.Program.CreateManageScriptsForm() in <repo>\DevTools\UiAuditSelfCapture\Program.cs:line 225
+   at UiAuditSelfCapture.Program.CaptureForm(Func`1 factory, CaptureTarget target, String outputDir, Double scale, String label) in <repo>\DevTools\UiAuditSelfCapture\Program.cs:line 148
 06_github_install_150.png -> GitHubInstall @150% | Captured | 
 01_main_175.png -> Main @175% | Captured | 
 02_plugins_175.png -> Plugins @175% | Captured | 
@@ -39,6 +39,6 @@ UI Audit Pack (self-capture)
 <missing> -> ManageScripts @175% | Missing | System.Reflection.TargetInvocationException: Exception has been thrown by the target of an invocation. |    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
    at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
    at System.Reflection.ConstructorInfo.Invoke(Object[] parameters)
-   at UiAuditSelfCapture.Program.CreateManageScriptsForm() in C:\Users\aarog\Documents\GitHub\AutoWizard101\DevTools\UiAuditSelfCapture\Program.cs:line 225
-   at UiAuditSelfCapture.Program.CaptureForm(Func`1 factory, CaptureTarget target, String outputDir, Double scale, String label) in C:\Users\aarog\Documents\GitHub\AutoWizard101\DevTools\UiAuditSelfCapture\Program.cs:line 148
+   at UiAuditSelfCapture.Program.CreateManageScriptsForm() in <repo>\DevTools\UiAuditSelfCapture\Program.cs:line 225
+   at UiAuditSelfCapture.Program.CaptureForm(Func`1 factory, CaptureTarget target, String outputDir, Double scale, String label) in <repo>\DevTools\UiAuditSelfCapture\Program.cs:line 148
 06_github_install_175.png -> GitHubInstall @175% | Captured | 

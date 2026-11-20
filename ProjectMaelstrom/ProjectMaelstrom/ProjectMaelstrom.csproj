@@ -21,6 +21,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
+    <InternalsVisibleTo Include="ProjectMaelstrom.Tests" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,7 +43,16 @@
 
   <ItemGroup>
     <None Include="Resources\AppIcon.ico" />
+    <None Update="Resources\PetDance\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+    <EmbeddedResource Include="Resources\LegacyW101Catalog.json" LogicalName="Maelstrom.LegacyW101Catalog.json" />
+    <EmbeddedResource Include="Resources\Routines\*.json" LogicalName="Maelstrom.Routines.%(Filename)%(Extension)" />
     <Compile Remove="Scripts\**" />
+    <!-- Unintegrated peer scan-cycle experiment is retained and tested offline,
+         but must not ship as a second execution/controller path. -->
+    <Compile Remove="Utilities\GenericMacroDeck.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -239,26 +249,9 @@
     <None Update="Resources\2256x1504\Halfang\bristlecrown.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="Scripts\Wizard101_DanceBot\dist\petdance\**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="C:\Users\jwilliamson\.nuget\packages\tesseract\5.2.0\build\\..\x64\leptonica-1.82.0.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="C:\Users\jwilliamson\.nuget\packages\tesseract\5.2.0\build\\..\x64\tesseract50.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="C:\Users\jwilliamson\.nuget\packages\tesseract\5.2.0\build\\..\x86\leptonica-1.82.0.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="C:\Users\jwilliamson\.nuget\packages\tesseract\5.2.0\build\\..\x86\tesseract50.dll" />
     <None Remove="LICENSE" />
     <None Remove="README.md" />
   </ItemGroup>
@@ -277,4 +270,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(OfflineWorkshopPackage)' == 'true'">
+    <Content Remove="Scripts\**" />
+    <None Remove="Scripts\**" />
+  </ItemGroup>
 </Project>

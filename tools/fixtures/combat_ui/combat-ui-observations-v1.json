@@ -1,0 +1,886 @@
+{
+  "schemaVersion": 1,
+  "kind": "maelstrom-combat-ui-vocabulary-v1",
+  "treeSamples": 75,
+  "sources": [
+    {
+      "file": "ui-observations.jsonl",
+      "sha256": "c280f667c06e4a5bb6b9537267c8f7059b9166b33c3f8d34fef977b340395113",
+      "bytes": 291922,
+      "lines": 127
+    },
+    {
+      "file": "ui-observations.jsonl",
+      "sha256": "6ddf8b4090c69db05fb0856efa64ddd89e88dc193a6976270c17beb81c1872f8",
+      "bytes": 289344,
+      "lines": 127
+    },
+    {
+      "file": "ui-observations.jsonl",
+      "sha256": "b5a9866df5fb7df8b36babb0fa0e9f61c6cf47607e1107f71c18f6602a1aa3fd",
+      "bytes": 785899,
+      "lines": 126
+    }
+  ],
+  "nodes": [
+    {
+      "name": "[excluded]",
+      "observations": 325,
+      "visible": 225,
+      "hidden": 100
+    },
+    {
+      "name": "Background",
+      "observations": 288,
+      "visible": 36,
+      "hidden": 252
+    },
+    {
+      "name": "Button",
+      "observations": 288,
+      "visible": 36,
+      "hidden": 252
+    },
+    {
+      "name": "StatusClock",
+      "observations": 215,
+      "visible": 215,
+      "hidden": 0
+    },
+    {
+      "name": "Aura",
+      "observations": 179,
+      "visible": 40,
+      "hidden": 139
+    },
+    {
+      "name": "BackFrame",
+      "observations": 179,
+      "visible": 179,
+      "hidden": 0
+    },
+    {
+      "name": "CombatantControl",
+      "observations": 179,
+      "visible": 179,
+      "hidden": 0
+    },
+    {
+      "name": "CritFrame",
+      "observations": 179,
+      "visible": 65,
+      "hidden": 114
+    },
+    {
+      "name": "HealFrame",
+      "observations": 179,
+      "visible": 4,
+      "hidden": 175
+    },
+    {
+      "name": "Health",
+      "observations": 179,
+      "visible": 179,
+      "hidden": 0
+    },
+    {
+      "name": "MinionRemovalBlackBar",
+      "observations": 179,
+      "visible": 0,
+      "hidden": 179
+    },
+    {
+      "name": "MinionRemovalCount",
+      "observations": 179,
+      "visible": 0,
+      "hidden": 179
+    },
+    {
+      "name": "MinionRemovalGreyBar",
+      "observations": 179,
+      "visible": 0,
+      "hidden": 179
+    },
+    {
+      "name": "MinionRemovalRedBar",
+      "observations": 179,
+      "visible": 0,
+      "hidden": 179
+    },
+    {
+      "name": "Name",
+      "observations": 179,
+      "visible": 179,
+      "hidden": 0
+    },
+    {
+      "name": "Pips",
+      "observations": 179,
+      "visible": 179,
+      "hidden": 0
+    },
+    {
+      "name": "Polymorph",
+      "observations": 179,
+      "visible": 0,
+      "hidden": 179
+    },
+    {
+      "name": "School",
+      "observations": 179,
+      "visible": 179,
+      "hidden": 0
+    },
+    {
+      "name": "ShadowIcon",
+      "observations": 179,
+      "visible": 75,
+      "hidden": 104
+    },
+    {
+      "name": "ShadowPipBackground",
+      "observations": 179,
+      "visible": 75,
+      "hidden": 104
+    },
+    {
+      "name": "ShadowPips",
+      "observations": 179,
+      "visible": 158,
+      "hidden": 21
+    },
+    {
+      "name": "ShadowTextPercent",
+      "observations": 179,
+      "visible": 179,
+      "hidden": 0
+    },
+    {
+      "name": "Source",
+      "observations": 179,
+      "visible": 179,
+      "hidden": 0
+    },
+    {
+      "name": "SpellCast",
+      "observations": 179,
+      "visible": 33,
+      "hidden": 146
+    },
+    {
+      "name": "SubCircle",
+      "observations": 179,
+      "visible": 0,
+      "hidden": 179
+    },
+    {
+      "name": "MonsterEssenceContainer",
+      "observations": 103,
+      "visible": 103,
+      "hidden": 0
+    },
+    {
+      "name": "MonsterEssenceSprite",
+      "observations": 103,
+      "visible": 0,
+      "hidden": 103
+    },
+    {
+      "name": "MonsterExcludeEssenceSprite",
+      "observations": 103,
+      "visible": 0,
+      "hidden": 103
+    },
+    {
+      "name": "Target",
+      "observations": 103,
+      "visible": 103,
+      "hidden": 0
+    },
+    {
+      "name": "DismissSummon",
+      "observations": 76,
+      "visible": 0,
+      "hidden": 76
+    },
+    {
+      "name": "SchoolPipPanel",
+      "observations": 76,
+      "visible": 36,
+      "hidden": 40
+    },
+    {
+      "name": "Target_0",
+      "observations": 76,
+      "visible": 76,
+      "hidden": 0
+    },
+    {
+      "name": "Target_1",
+      "observations": 76,
+      "visible": 76,
+      "hidden": 0
+    },
+    {
+      "name": "Target_2",
+      "observations": 76,
+      "visible": 76,
+      "hidden": 0
+    },
+    {
+      "name": "Target_3",
+      "observations": 76,
+      "visible": 76,
+      "hidden": 0
+    },
+    {
+      "name": "AddToFavoriteButton",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "BallonLayer",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "ClassEventGlow",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "CloseFishingButton",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "CloseGardening",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "CloseObjectPlacement",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "CompassWindow",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "CrownShopButtonsWindow",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "DecoratorBuddyButton",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "DiegoMeter",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "DuelTimerWindow",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "ElementWindow",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "GardeningGlow",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "GroupGlow",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "GroupSystemButton",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "Left",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "Middle",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "NotificationWindow",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "OpenCameraButton",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "OpenCastleRatingWindow",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "OpenFishingButton",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "OpenGardening",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "OpenItemIdentification",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "OpenItemIdentification2",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "OpenObjectPlacement",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "PetSystemButton",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "PlanningPhase",
+      "observations": 75,
+      "visible": 36,
+      "hidden": 39
+    },
+    {
+      "name": "QuestHelperHud",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "Right",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "Root",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "ShadowText",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "SocialSystemsContainer",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "SpectatorUIButtons",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "TeleportToStartButton",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "TipWindow",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "ToolTipContainer",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "TradeRequestWindow",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "VisitAnotherCastleButton",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "WizardPatchingWindow",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "WorldView",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "XPBar",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "btnEarnCrowns",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "btnPotions",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "btnSpellbook",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "btnSubscribe",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "compassAndTeleporterButtons",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "spriteEnergyBkg",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "spriteHealthBkg",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "spriteManaBkg",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "spriteNetworkLinkBad",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "spriteNetworkLinkBroken",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "spriteNetworkLinkSlow",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "txtTestRealmText",
+      "observations": 75,
+      "visible": 0,
+      "hidden": 75
+    },
+    {
+      "name": "windowForBtns",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "windowForTopRowButtons",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "windowHUD",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "wndElixirContainer",
+      "observations": 75,
+      "visible": 75,
+      "hidden": 0
+    },
+    {
+      "name": "CritIcon",
+      "observations": 69,
+      "visible": 69,
+      "hidden": 0
+    },
+    {
+      "name": "CritText",
+      "observations": 69,
+      "visible": 69,
+      "hidden": 0
+    },
+    {
+      "name": "DamageIcon",
+      "observations": 69,
+      "visible": 69,
+      "hidden": 0
+    },
+    {
+      "name": "DamageText",
+      "observations": 69,
+      "visible": 69,
+      "hidden": 0
+    },
+    {
+      "name": "BlockIcon",
+      "observations": 65,
+      "visible": 65,
+      "hidden": 0
+    },
+    {
+      "name": "BlockText",
+      "observations": 65,
+      "visible": 65,
+      "hidden": 0
+    },
+    {
+      "name": "PopupWindow",
+      "observations": 50,
+      "visible": 0,
+      "hidden": 50
+    },
+    {
+      "name": "AuraFrame",
+      "observations": 40,
+      "visible": 40,
+      "hidden": 0
+    },
+    {
+      "name": "AuraIcon",
+      "observations": 40,
+      "visible": 40,
+      "hidden": 0
+    },
+    {
+      "name": "AuraText",
+      "observations": 40,
+      "visible": 40,
+      "hidden": 0
+    },
+    {
+      "name": "Alignment",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "ConfirmTargetsWindow",
+      "observations": 36,
+      "visible": 0,
+      "hidden": 36
+    },
+    {
+      "name": "DoneWindow",
+      "observations": 36,
+      "visible": 0,
+      "hidden": 36
+    },
+    {
+      "name": "Guage",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "PassWindow",
+      "observations": 36,
+      "visible": 0,
+      "hidden": 36
+    },
+    {
+      "name": "PlanningPhaseSubWindow",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "PlanningTimer",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "SC_Balance",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "SC_Death",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "SC_Fire",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "SC_Ice",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "SC_Life",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "SC_Myth",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "SC_Storm",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "SpellSelection",
+      "observations": 36,
+      "visible": 35,
+      "hidden": 1
+    },
+    {
+      "name": "Text",
+      "observations": 36,
+      "visible": 36,
+      "hidden": 0
+    },
+    {
+      "name": "WaitingForOthers",
+      "observations": 36,
+      "visible": 1,
+      "hidden": 35
+    },
+    {
+      "name": "ActionButtons",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Card1",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Card2",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Card3",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Card4",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Card5",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Card6",
+      "observations": 35,
+      "visible": 29,
+      "hidden": 6
+    },
+    {
+      "name": "Card7",
+      "observations": 35,
+      "visible": 29,
+      "hidden": 6
+    },
+    {
+      "name": "CountText",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "DeckCounter",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Draw",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Flee",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Focus",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "Hand",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "HelpText",
+      "observations": 35,
+      "visible": 35,
+      "hidden": 0
+    },
+    {
+      "name": "MonsterMagicSprite",
+      "observations": 35,
+      "visible": 0,
+      "hidden": 35
+    },
+    {
+      "name": "MonsterMagicText",
+      "observations": 35,
+      "visible": 0,
+      "hidden": 35
+    },
+    {
+      "name": "PetCard",
+      "observations": 35,
+      "visible": 0,
+      "hidden": 35
+    },
+    {
+      "name": "ControlSprite",
+      "observations": 33,
+      "visible": 33,
+      "hidden": 0
+    },
+    {
+      "name": "NotSymbolSprite",
+      "observations": 33,
+      "visible": 0,
+      "hidden": 33
+    },
+    {
+      "name": "textText",
+      "observations": 4,
+      "visible": 4,
+      "hidden": 0
+    },
+    {
+      "name": "wndWizardPopupText",
+      "observations": 4,
+      "visible": 4,
+      "hidden": 0
+    },
+    {
+      "name": "Change",
+      "observations": 1,
+      "visible": 1,
+      "hidden": 0
+    },
+    {
+      "name": "ControlText",
+      "observations": 1,
+      "visible": 1,
+      "hidden": 0
+    }
+  ],
+  "note": "Candidate UI names/visibility from saved local observations. Not screen coordinates, not combat facts, not an action authority."
+}

@@ -17,6 +17,10 @@ internal class ScriptLibraryService
     private static readonly HttpClient _httpClient = new();
     private const string PackageMetaFileName = ".package.json";
     public bool DryRun { get; set; }
+    private GameInputLease? _inputOwner;
+    private bool _ownsInput;
+    private OwnedProcessJob? _processJob;
+    private System.Threading.Timer? _runLimit;
 
     private ScriptLibraryService()
     {
@@ -36,7 +40,32 @@ internal class ScriptLibraryService
     }
 
     public ScriptRunSession? CurrentSession { get; private set; }
+    public OperationTicket? ScheduledRun { get; private set; }
     public Func<ScriptDefinition, PreflightResult>? PreflightCheck { get; set; }
+
+    public OperationTicket ScheduleScript(ScriptDefinition script)
+    {
+        if (!DryRun) W101InteractionPolicy.Require(W101InteractionMethod.UnreviewedCode);
+        lock (_lock)
+        {
+            if (CurrentSession != null || ScheduledRun is { Completion.IsCompleted: false }) throw new InvalidOperationException("Stop the queued or running script first.");
+            var path = Path.GetFullPath(Path.Combine(script.RootPath, script.Manifest.EntryPoint));
+            bool live = !DryRun;
+            var request = new OperationRequest(Guid.NewGuid().ToString("N"), "legacy.script", "bounded-script-v1", 1800, live,
+                "Wizard101 legacy script", new Dictionary<string, string> { [path] = GameExperiments.Digest(path) });
+            var ticket = ApplicationOperations.For(WorkshopHost.DataRoot(AppContext.BaseDirectory)).Submit(request, async (_, token) =>
+            {
+                if (!live) return OperationOutcome.Completed("Script simulation; no process started.");
+                var session = StartScript(script);
+                using var registration = token.Register(StopCurrentScript);
+                await session.Process.WaitForExitAsync().ConfigureAwait(false);
+                token.ThrowIfCancellationRequested();
+                return new(session.Process.ExitCode == 0 ? OperationState.Unknown : OperationState.Failed, "Legacy process exited; gameplay outcome is unverified.", []);
+            });
+            ScheduledRun = ticket;
+            return ticket;
+        }
+    }
 
     public void SetLatestSnapshot(string key, GameStateSnapshot snapshot)
     {
@@ -291,6 +320,7 @@ internal class ScriptLibraryService
 
     public ScriptRunSession StartScript(ScriptDefinition script)
     {
+        if (!DryRun) W101InteractionPolicy.Require(W101InteractionMethod.UnreviewedCode);
         lock (_lock)
         {
             if (CurrentSession != null)
@@ -324,7 +354,20 @@ internal class ScriptLibraryService
                 return drySession;
             }
 
-            var process = LaunchProcess(entryFullPath, script.Manifest.Arguments ?? string.Empty, script.RootPath);
+            var policy = ExecutionPolicyManager.Current;
+            if (!policy.AllowLiveAutomation || policy.Profile != ExecutionProfile.ExperimentalSimulation)
+                throw new InvalidOperationException("Enable game controls before launching an executable legacy script.");
+            _inputOwner = GameInputLease.Current; _ownsInput = _inputOwner == null;
+            _inputOwner ??= GameInputLease.Acquire("legacy-script:" + script.Manifest.Name);
+            Process process;
+            try
+            {
+                process = LaunchProcess(entryFullPath, script.Manifest.Arguments ?? string.Empty, script.RootPath);
+                _processJob = new OwnedProcessJob();
+                try { _processJob.Attach(process); }
+                catch { if (!process.HasExited) process.Kill(entireProcessTree: true); process.Dispose(); throw; }
+            }
+            catch { ReleaseScriptOwnership(); throw; }
             var session = new ScriptRunSession(script, process, DateTime.UtcNow);
             CurrentSession = session;
             var src = script.PackageInfo?.SourceUrl;
@@ -338,15 +381,17 @@ internal class ScriptLibraryService
             }
             DevTelemetry.Log("Scripts", $"Started {script.Manifest.Name} (source={src ?? "unknown"})");
 
-            process.EnableRaisingEvents = true;
             process.Exited += (sender, args) =>
             {
                 lock (_lock)
                 {
                     Logger.LogScriptEvent(script.Manifest.Name, $"Exited with code {process.ExitCode}");
-                    CurrentSession = null;
+                    if (CurrentSession == session) { CurrentSession = null; ReleaseScriptOwnership(); }
                 }
             };
+            process.EnableRaisingEvents = true;
+            if (CurrentSession == session)
+                _runLimit = new System.Threading.Timer(_ => StopCurrentScript(), null, TimeSpan.FromMinutes(30), Timeout.InfiniteTimeSpan);
 
             return session;
         }
@@ -354,6 +399,7 @@ internal class ScriptLibraryService
 
     public void StopCurrentScript()
     {
+        ScheduledRun?.Cancel();
         lock (_lock)
         {
             var session = CurrentSession;
@@ -364,9 +410,11 @@ internal class ScriptLibraryService
 
             try
             {
+                if (session.Process.Id == Environment.ProcessId) { CurrentSession = null; return; }
+                _processJob?.Dispose();
                 if (!session.Process.HasExited)
                 {
-                    session.Process.Kill();
+                    session.Process.Kill(entireProcessTree: true);
                     session.Process.WaitForExit(2000);
                 }
 
@@ -380,13 +428,23 @@ internal class ScriptLibraryService
             }
             finally
             {
-                CurrentSession = null;
+                if (session.Process.Id == Environment.ProcessId || session.Process.HasExited)
+                { CurrentSession = null; ReleaseScriptOwnership(); }
             }
         }
     }
 
+    private void ReleaseScriptOwnership()
+    {
+        _runLimit?.Dispose(); _runLimit = null;
+        _processJob?.Dispose(); _processJob = null;
+        if (_ownsInput) _inputOwner?.Dispose();
+        _inputOwner = null; _ownsInput = false;
+    }
+
     private static Process LaunchProcess(string entryFullPath, string arguments, string workingDirectory)
     {
+        W101InteractionPolicy.Require(W101InteractionMethod.UnreviewedCode);
         var extension = Path.GetExtension(entryFullPath);
         ProcessStartInfo startInfo;
 

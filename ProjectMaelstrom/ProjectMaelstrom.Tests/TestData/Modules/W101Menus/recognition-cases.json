@@ -1,0 +1,975 @@
+{
+  "schema_version": 1,
+  "kind": "saved-game-ocr-recognition-cases",
+  "capture_times_available": false,
+  "actual_input_alignment_verified": false,
+  "live_qualified": false,
+  "cases": [
+    {
+      "id": "reward",
+      "image": "reward.png",
+      "source_image_sha256": "47d3e9eb90ed759caed626d01a1538b7e9bf93c51f214f15b61c18b59b003e61",
+      "expected_scene": "GameResult",
+      "expected_control_ids": [
+        "pet-dance.next"
+      ],
+      "captured_ms": null,
+      "text": {
+        "image_size": {
+          "width": 1282,
+          "height": 760
+        },
+        "words": [
+          {
+            "text": "Wizard101",
+            "bounds": {
+              "x": 37,
+              "y": 14,
+              "width": 68,
+              "height": 11
+            }
+          },
+          {
+            "text": "YOUR",
+            "bounds": {
+              "x": 582,
+              "y": 212,
+              "width": 44,
+              "height": 15
+            }
+          },
+          {
+            "text": "REWARD",
+            "bounds": {
+              "x": 631,
+              "y": 212,
+              "width": 67,
+              "height": 15
+            }
+          },
+          {
+            "text": "s,'205",
+            "bounds": {
+              "x": 791,
+              "y": 253,
+              "width": 40,
+              "height": 14
+            }
+          },
+          {
+            "text": "TRENGTH",
+            "bounds": {
+              "x": 676,
+              "y": 258,
+              "width": 49,
+              "height": 11
+            }
+          },
+          {
+            "text": "10/220",
+            "bounds": {
+              "x": 782,
+              "y": 290,
+              "width": 47,
+              "height": 12
+            }
+          },
+          {
+            "text": "OOD-JOB!",
+            "bounds": {
+              "x": 482,
+              "y": 379,
+              "width": 105,
+              "height": 22
+            }
+          },
+          {
+            "text": "GAÅES",
+            "bounds": {
+              "x": 486,
+              "y": 527,
+              "width": 34,
+              "height": 9
+            }
+          },
+          {
+            "text": "WOK",
+            "bounds": {
+              "x": 524,
+              "y": 527,
+              "width": 23,
+              "height": 9
+            }
+          },
+          {
+            "text": "2/2S",
+            "bounds": {
+              "x": 622,
+              "y": 526,
+              "width": 28,
+              "height": 10
+            }
+          },
+          {
+            "text": "26/230",
+            "bounds": {
+              "x": 779,
+              "y": 325,
+              "width": 50,
+              "height": 14
+            }
+          },
+          {
+            "text": "57/245",
+            "bounds": {
+              "x": 783,
+              "y": 359,
+              "width": 48,
+              "height": 13
+            }
+          },
+          {
+            "text": "47/30",
+            "bounds": {
+              "x": 782,
+              "y": 394,
+              "width": 47,
+              "height": 13
+            }
+          },
+          {
+            "text": "GS/143",
+            "bounds": {
+              "x": 784,
+              "y": 429,
+              "width": 45,
+              "height": 13
+            }
+          },
+          {
+            "text": "NEXT",
+            "bounds": {
+              "x": 776,
+              "y": 574,
+              "width": 49,
+              "height": 11
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "snack",
+      "image": "snack.png",
+      "source_image_sha256": "ab687d77b17c20540c95a761bebfebde7f721c6b986fb98a19580fd63e5c2291",
+      "expected_scene": "SnackOffer",
+      "expected_control_ids": [
+        "pet-dance.finish-without-snack"
+      ],
+      "captured_ms": null,
+      "text": {
+        "image_size": {
+          "width": 1282,
+          "height": 760
+        },
+        "words": [
+          {
+            "text": "Wizard101",
+            "bounds": {
+              "x": 37,
+              "y": 14,
+              "width": 68,
+              "height": 11
+            }
+          },
+          {
+            "text": "FEED",
+            "bounds": {
+              "x": 581,
+              "y": 212,
+              "width": 35,
+              "height": 15
+            }
+          },
+          {
+            "text": "yotn",
+            "bounds": {
+              "x": 621,
+              "y": 212,
+              "width": 44,
+              "height": 15
+            }
+          },
+          {
+            "text": "PET",
+            "bounds": {
+              "x": 670,
+              "y": 212,
+              "width": 31,
+              "height": 15
+            }
+          },
+          {
+            "text": "s,'205",
+            "bounds": {
+              "x": 791,
+              "y": 253,
+              "width": 40,
+              "height": 14
+            }
+          },
+          {
+            "text": "TRENGTH",
+            "bounds": {
+              "x": 676,
+              "y": 258,
+              "width": 49,
+              "height": 11
+            }
+          },
+          {
+            "text": "10/220",
+            "bounds": {
+              "x": 782,
+              "y": 290,
+              "width": 47,
+              "height": 12
+            }
+          },
+          {
+            "text": "26/230",
+            "bounds": {
+              "x": 779,
+              "y": 325,
+              "width": 50,
+              "height": 14
+            }
+          },
+          {
+            "text": "57/245",
+            "bounds": {
+              "x": 783,
+              "y": 359,
+              "width": 48,
+              "height": 13
+            }
+          },
+          {
+            "text": "47/250",
+            "bounds": {
+              "x": 782,
+              "y": 394,
+              "width": 47,
+              "height": 13
+            }
+          },
+          {
+            "text": "GS/143",
+            "bounds": {
+              "x": 784,
+              "y": 429,
+              "width": 45,
+              "height": 13
+            }
+          },
+          {
+            "text": "FINISH",
+            "bounds": {
+              "x": 465,
+              "y": 574,
+              "width": 43,
+              "height": 12
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "loading",
+      "image": "loading.png",
+      "source_image_sha256": "cb93efd6ca5e373370e3d6195d3e1dda243c14d35993936ae4e5714ddd98dc49",
+      "expected_scene": "Unknown",
+      "expected_control_ids": [],
+      "captured_ms": null,
+      "text": {
+        "image_size": {
+          "width": 1282,
+          "height": 760
+        },
+        "words": [
+          {
+            "text": "Wizard101",
+            "bounds": {
+              "x": 37,
+              "y": 14,
+              "width": 68,
+              "height": 11
+            }
+          },
+          {
+            "text": "ezard",
+            "bounds": {
+              "x": 218,
+              "y": 607,
+              "width": 215,
+              "height": 67
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "outside",
+      "image": "outside.png",
+      "source_image_sha256": "8ef206ba0b97ea454ae26c1ae5979bc8d14464bcc74696ab0d2150f63a196f93",
+      "expected_scene": "OutsideCandidate",
+      "expected_control_ids": [],
+      "captured_ms": null,
+      "text": {
+        "image_size": {
+          "width": 1282,
+          "height": 760
+        },
+        "words": [
+          {
+            "text": "Wizard101",
+            "bounds": {
+              "x": 37,
+              "y": 14,
+              "width": 68,
+              "height": 11
+            }
+          },
+          {
+            "text": "MADAME",
+            "bounds": {
+              "x": 451,
+              "y": 522,
+              "width": 111,
+              "height": 23
+            }
+          },
+          {
+            "text": "XE",
+            "bounds": {
+              "x": 568,
+              "y": 523,
+              "width": 34,
+              "height": 22
+            }
+          },
+          {
+            "text": "A",
+            "bounds": {
+              "x": 619,
+              "y": 525,
+              "width": 20,
+              "height": 20
+            }
+          },
+          {
+            "text": "TEEN",
+            "bounds": {
+              "x": 483,
+              "y": 553,
+              "width": 38,
+              "height": 15
+            }
+          },
+          {
+            "text": "53",
+            "bounds": {
+              "x": 577,
+              "y": 553,
+              "width": 22,
+              "height": 15
+            }
+          },
+          {
+            "text": "Ime",
+            "bounds": {
+              "x": 582,
+              "y": 617,
+              "width": 16,
+              "height": 8
+            }
+          },
+          {
+            "text": "bark",
+            "bounds": {
+              "x": 603,
+              "y": 617,
+              "width": 19,
+              "height": 7
+            }
+          },
+          {
+            "text": "in",
+            "bounds": {
+              "x": 651,
+              "y": 617,
+              "width": 6,
+              "height": 8
+            }
+          },
+          {
+            "text": "Wizard",
+            "bounds": {
+              "x": 663,
+              "y": 617,
+              "width": 29,
+              "height": 8
+            }
+          },
+          {
+            "text": "City",
+            "bounds": {
+              "x": 697,
+              "y": 617,
+              "width": 17,
+              "height": 9
+            }
+          },
+          {
+            "text": "e.)",
+            "bounds": {
+              "x": 612,
+              "y": 671,
+              "width": 22,
+              "height": 21
+            }
+          },
+          {
+            "text": "or",
+            "bounds": {
+              "x": 640,
+              "y": 679,
+              "width": 14,
+              "height": 8
+            }
+          },
+          {
+            "text": "to",
+            "bounds": {
+              "x": 689,
+              "y": 676,
+              "width": 15,
+              "height": 11
+            }
+          },
+          {
+            "text": "Play",
+            "bounds": {
+              "x": 711,
+              "y": 675,
+              "width": 27,
+              "height": 16
+            }
+          },
+          {
+            "text": "Press",
+            "bounds": {
+              "x": 568,
+              "y": 675,
+              "width": 36,
+              "height": 12
+            }
+          },
+          {
+            "text": "102",
+            "bounds": {
+              "x": 21,
+              "y": 685,
+              "width": 30,
+              "height": 14
+            }
+          },
+          {
+            "text": "Ö",
+            "bounds": {
+              "x": 504.3333,
+              "y": 671.3333,
+              "width": 16.666666,
+              "height": 11.666667
+            }
+          },
+          {
+            "text": "lore",
+            "bounds": {
+              "x": 581.3334,
+              "y": 616.3333,
+              "width": 16.666666,
+              "height": 7.6666665
+            }
+          },
+          {
+            "text": "Caw",
+            "bounds": {
+              "x": 625.6666,
+              "y": 616,
+              "width": 20.333334,
+              "height": 8.333333
+            }
+          },
+          {
+            "text": "E)",
+            "bounds": {
+              "x": 611.3334,
+              "y": 670,
+              "width": 22.666666,
+              "height": 22
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "graphics-menu",
+      "image": "graphics-menu.png",
+      "source_image_sha256": "bc665c42c816e2204405634de2b1bf590e441f79eba9c92d74f0a8c1f02bb4e4",
+      "expected_scene": "MenuObserved",
+      "expected_control_ids": [
+        "game-menu.idle"
+      ],
+      "captured_ms": null,
+      "text": {
+        "image_size": {
+          "width": 1282,
+          "height": 760
+        },
+        "words": [
+          {
+            "text": "Wizard101",
+            "bounds": {
+              "x": 37,
+              "y": 14,
+              "width": 68,
+              "height": 11
+            }
+          },
+          {
+            "text": "GRAPHICS",
+            "bounds": {
+              "x": 600,
+              "y": 190,
+              "width": 66,
+              "height": 13
+            }
+          },
+          {
+            "text": "RESOLUTIO",
+            "bounds": {
+              "x": 456,
+              "y": 287,
+              "width": 81,
+              "height": 16
+            }
+          },
+          {
+            "text": "TEXT(RE",
+            "bounds": {
+              "x": 456,
+              "y": 386,
+              "width": 67,
+              "height": 16
+            }
+          },
+          {
+            "text": "DETAIL",
+            "bounds": {
+              "x": 528,
+              "y": 386,
+              "width": 54,
+              "height": 16
+            }
+          },
+          {
+            "text": "CURS",
+            "bounds": {
+              "x": 549,
+              "y": 418,
+              "width": 38,
+              "height": 16
+            }
+          },
+          {
+            "text": "OFF",
+            "bounds": {
+              "x": 739,
+              "y": 321,
+              "width": 25,
+              "height": 14
+            }
+          },
+          {
+            "text": "HIGH",
+            "bounds": {
+              "x": 735,
+              "y": 388,
+              "width": 33,
+              "height": 13
+            }
+          },
+          {
+            "text": "0K",
+            "bounds": {
+              "x": 770,
+              "y": 550,
+              "width": 21,
+              "height": 13
+            }
+          },
+          {
+            "text": "atJIT",
+            "bounds": {
+              "x": 471,
+              "y": 550,
+              "width": 33,
+              "height": 12
+            }
+          },
+          {
+            "text": "102",
+            "bounds": {
+              "x": 21,
+              "y": 685,
+              "width": 30,
+              "height": 14
+            }
+          },
+          {
+            "text": "IDLE",
+            "bounds": {
+              "x": 572,
+              "y": 550,
+              "width": 28,
+              "height": 12
+            }
+          },
+          {
+            "text": "Expl",
+            "bounds": {
+              "x": 566,
+              "y": 711,
+              "width": 17,
+              "height": 10
+            }
+          },
+          {
+            "text": "HELP",
+            "bounds": {
+              "x": 666,
+              "y": 550,
+              "width": 34,
+              "height": 12
+            }
+          },
+          {
+            "text": "D",
+            "bounds": {
+              "x": 603,
+              "y": 711,
+              "width": 5,
+              "height": 8
+            }
+          },
+          {
+            "text": "k",
+            "bounds": {
+              "x": 618,
+              "y": 711,
+              "width": 4,
+              "height": 7
+            }
+          },
+          {
+            "text": "c",
+            "bounds": {
+              "x": 626,
+              "y": 711,
+              "width": 5,
+              "height": 7
+            }
+          },
+          {
+            "text": "City",
+            "bounds": {
+              "x": 697,
+              "y": 711,
+              "width": 17,
+              "height": 10
+            }
+          },
+          {
+            "text": "Expl#e",
+            "bounds": {
+              "x": 565,
+              "y": 710,
+              "width": 32.666668,
+              "height": 10.333333
+            }
+          },
+          {
+            "text": "bork",
+            "bounds": {
+              "x": 602.3334,
+              "y": 710.3333,
+              "width": 19.666666,
+              "height": 8.666667
+            }
+          },
+          {
+            "text": "Cave",
+            "bounds": {
+              "x": 625.3334,
+              "y": 710.3333,
+              "width": 20.666666,
+              "height": 7.6666665
+            }
+          },
+          {
+            "text": "In",
+            "bounds": {
+              "x": 650,
+              "y": 711.6667,
+              "width": 7,
+              "height": 6.3333335
+            }
+          },
+          {
+            "text": "Wijzard",
+            "bounds": {
+              "x": 662.3334,
+              "y": 710.3333,
+              "width": 29.666666,
+              "height": 8.666667
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "native-idle",
+      "image": "native-idle.png",
+      "source_image_sha256": "21cc5af30ff62e37ff8c2326539e692a48858e444603c34505f636f81fab6160",
+      "expected_scene": "NativeIdle",
+      "expected_control_ids": [],
+      "captured_ms": null,
+      "text": {
+        "image_size": {
+          "width": 1282,
+          "height": 760
+        },
+        "words": [
+          {
+            "text": "Wizard101",
+            "bounds": {
+              "x": 37,
+              "y": 14,
+              "width": 68,
+              "height": 11
+            }
+          },
+          {
+            "text": "102",
+            "bounds": {
+              "x": 21,
+              "y": 685,
+              "width": 30,
+              "height": 14
+            }
+          },
+          {
+            "text": "76",
+            "bounds": {
+              "x": 71,
+              "y": 707,
+              "width": 20,
+              "height": 14
+            }
+          },
+          {
+            "text": "YOU",
+            "bounds": {
+              "x": 589,
+              "y": 55,
+              "width": 32,
+              "height": 13
+            }
+          },
+          {
+            "text": "ARE",
+            "bounds": {
+              "x": 625,
+              "y": 55,
+              "width": 32,
+              "height": 13
+            }
+          },
+          {
+            "text": "IDLE",
+            "bounds": {
+              "x": 660,
+              "y": 55,
+              "width": 30,
+              "height": 13
+            }
+          },
+          {
+            "text": "TEEN",
+            "bounds": {
+              "x": 483,
+              "y": 553,
+              "width": 38,
+              "height": 15
+            }
+          },
+          {
+            "text": "PEJ53)",
+            "bounds": {
+              "x": 533,
+              "y": 551,
+              "width": 74,
+              "height": 23
+            }
+          },
+          {
+            "text": "'Éxplcre",
+            "bounds": {
+              "x": 563,
+              "y": 615,
+              "width": 35,
+              "height": 11
+            }
+          },
+          {
+            "text": "bork",
+            "bounds": {
+              "x": 603,
+              "y": 616,
+              "width": 19,
+              "height": 9
+            }
+          },
+          {
+            "text": "Cove",
+            "bounds": {
+              "x": 626,
+              "y": 617,
+              "width": 20,
+              "height": 8
+            }
+          },
+          {
+            "text": "in",
+            "bounds": {
+              "x": 651,
+              "y": 616,
+              "width": 6,
+              "height": 9
+            }
+          },
+          {
+            "text": "Wizard",
+            "bounds": {
+              "x": 663,
+              "y": 617,
+              "width": 29,
+              "height": 8
+            }
+          },
+          {
+            "text": "City",
+            "bounds": {
+              "x": 697,
+              "y": 617,
+              "width": 17,
+              "height": 9
+            }
+          },
+          {
+            "text": "e.)",
+            "bounds": {
+              "x": 612,
+              "y": 671,
+              "width": 22,
+              "height": 21
+            }
+          },
+          {
+            "text": "or",
+            "bounds": {
+              "x": 640,
+              "y": 679,
+              "width": 14,
+              "height": 8
+            }
+          },
+          {
+            "text": "to",
+            "bounds": {
+              "x": 689,
+              "y": 676,
+              "width": 15,
+              "height": 11
+            }
+          },
+          {
+            "text": "Play",
+            "bounds": {
+              "x": 711,
+              "y": 675,
+              "width": 27,
+              "height": 15
+            }
+          },
+          {
+            "text": "Press",
+            "bounds": {
+              "x": 568,
+              "y": 675,
+              "width": 36,
+              "height": 13
+            }
+          },
+          {
+            "text": "IDLE'",
+            "bounds": {
+              "x": 659.6667,
+              "y": 52.666664,
+              "width": 35.333332,
+              "height": 15.333333
+            }
+          },
+          {
+            "text": "•Éxplcee",
+            "bounds": {
+              "x": 563,
+              "y": 615,
+              "width": 35,
+              "height": 11
+            }
+          },
+          {
+            "text": "bark",
+            "bounds": {
+              "x": 602.3334,
+              "y": 616.3333,
+              "width": 19.666666,
+              "height": 8
+            }
+          },
+          {
+            "text": "Cave",
+            "bounds": {
+              "x": 625.3334,
+              "y": 616.3333,
+              "width": 20.666666,
+              "height": 7.6666665
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

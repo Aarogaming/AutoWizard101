@@ -1,5 +1,6 @@
 using System;
-using System.Linq;
+using System.Buffers.Binary;
+using System.Diagnostics;
 using NAudio.Wave;
 using ProjectMaelstrom.Models;
 
@@ -13,12 +14,14 @@ internal sealed class AudioRecognizer : IDisposable
 {
     public event Action<GameAudioCue>? CueDetected;
 
-    private WasapiLoopbackCapture? _loopback;
-    private WaveInEvent? _waveIn;
+    private readonly Func<IWaveIn> _createLoopback;
+    private readonly Stopwatch _clock = Stopwatch.StartNew();
+    private IWaveIn? _loopback;
+    private WaveFormat? _captureFormat;
     private readonly object _lock = new();
-    private bool _started;
-    private bool _disposing;
-    private DateTime _lastCueUtc = DateTime.MinValue;
+    private volatile bool _started;
+    private volatile bool _disposing;
+    private double? _lastCueMs;
 
     // Tunables
     // Baseline/filters to ignore background music hum.
@@ -28,10 +31,15 @@ internal sealed class AudioRecognizer : IDisposable
     private static readonly TimeSpan CueCooldown = TimeSpan.FromSeconds(2);
     private double _baseline = 0;
 
-    public AudioRecognizer(double? transientDelta = null)
+    internal bool IsRunning => _started;
+
+    public AudioRecognizer(double? transientDelta = null) : this(() => new WasapiLoopbackCapture(), transientDelta) { }
+
+    internal AudioRecognizer(Func<IWaveIn> createLoopback, double? transientDelta = null)
     {
+        _createLoopback = createLoopback ?? throw new ArgumentNullException(nameof(createLoopback));
         _transientDelta = transientDelta.HasValue
-            ? Math.Clamp(transientDelta.Value, 0.05, 0.5)
+            && double.IsFinite(transientDelta.Value) ? Math.Clamp(transientDelta.Value, 0.05, 0.5)
             : 0.12;
     }
 
@@ -39,38 +47,28 @@ internal sealed class AudioRecognizer : IDisposable
     {
         lock (_lock)
         {
-            if (_started) return;
-            _started = true;
+            if (_started || _disposing) return;
 
             try
             {
-                _loopback = new WasapiLoopbackCapture();
+                _loopback?.Dispose();
+                _loopback = _createLoopback();
+                _captureFormat = _loopback.WaveFormat;
                 _loopback.DataAvailable += OnDataAvailable;
                 _loopback.RecordingStopped += OnStopped;
+                _baseline = 0;
+                _lastCueMs = null;
+                _started = true;
                 _loopback.StartRecording();
                 Logger.Log("[AudioRecognizer] Started WASAPI loopback capture.");
-                return;
             }
             catch (Exception ex)
             {
-                Logger.LogError("[AudioRecognizer] Loopback capture unavailable, falling back to WaveIn", ex);
-            }
-
-            try
-            {
-                _waveIn = new WaveInEvent
-                {
-                    WaveFormat = new WaveFormat(44100, 16, 1)
-                };
-                _waveIn.DataAvailable += OnDataAvailable;
-                _waveIn.RecordingStopped += OnStopped;
-                _waveIn.StartRecording();
-                Logger.Log("[AudioRecognizer] Started microphone capture (WaveIn).");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("[AudioRecognizer] Unable to start any audio capture device", ex);
                 _started = false;
+                try { _loopback?.Dispose(); } catch { }
+                _loopback = null;
+                _captureFormat = null;
+                Logger.LogError("[AudioRecognizer] Loopback capture unavailable; audio remains off. No microphone fallback.", ex);
             }
         }
     }
@@ -82,23 +80,14 @@ internal sealed class AudioRecognizer : IDisposable
             if (!_started) return;
             _started = false;
             try { _loopback?.StopRecording(); } catch { }
-            try { _waveIn?.StopRecording(); } catch { }
         }
     }
 
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {
-        if (_disposing) return;
-        if (e?.Buffer == null || e.BytesRecorded == 0) return;
-
-        // Convert 16-bit PCM samples to normalized amplitude
-        double max = 0;
-        for (int i = 0; i < e.BytesRecorded; i += 2)
-        {
-            short sample = (short)(e.Buffer[i] | (e.Buffer[i + 1] << 8));
-            double norm = Math.Abs(sample / 32768.0);
-            if (norm > max) max = norm;
-        }
+        if (_disposing || !_started || !ReferenceEquals(sender, _loopback)) return;
+        if (e?.Buffer == null || e.BytesRecorded <= 0 || e.BytesRecorded > e.Buffer.Length) return;
+        if (!TryReadPeak(e.Buffer.AsSpan(0, e.BytesRecorded), _captureFormat, out var max)) return;
 
         // Update baseline (exponential moving average) to model background music bed.
         _baseline = (_baseline * BaselineDecay) + (max * (1 - BaselineDecay));
@@ -107,15 +96,15 @@ internal sealed class AudioRecognizer : IDisposable
 
         if (max >= dynamicThreshold)
         {
-            var now = DateTime.UtcNow;
-            if (now - _lastCueUtc < CueCooldown) return;
-            _lastCueUtc = now;
+            var nowMs = _clock.Elapsed.TotalMilliseconds;
+            if (!CooldownReady(nowMs, _lastCueMs)) return;
+            _lastCueMs = nowMs;
 
             CueDetected?.Invoke(new GameAudioCue
             {
                 Type = "audio_peak",
                 Confidence = Math.Min(1.0, max),
-                CapturedUtc = now,
+                CapturedUtc = DateTime.UtcNow,
                 Metadata = $"peak={max:0.000};baseline={_baseline:0.000};threshold={dynamicThreshold:0.000}"
             });
         }
@@ -123,7 +112,8 @@ internal sealed class AudioRecognizer : IDisposable
 
     private void OnStopped(object? sender, StoppedEventArgs e)
     {
-        if (_disposing) return;
+        if (_disposing || !ReferenceEquals(sender, _loopback)) return;
+        _started = false;
         if (e.Exception != null)
         {
             Logger.LogError("[AudioRecognizer] Capture stopped with error", e.Exception);
@@ -135,8 +125,45 @@ internal sealed class AudioRecognizer : IDisposable
         _disposing = true;
         Stop();
         _loopback?.Dispose();
-        _waveIn?.Dispose();
         _loopback = null;
-        _waveIn = null;
+        _captureFormat = null;
     }
+
+    /// <summary>Decode supported negotiated sample formats; never interpret unknown bytes as PCM16.</summary>
+    internal static bool TryReadPeak(ReadOnlySpan<byte> samples, WaveFormat? format, out double peak)
+    {
+        peak = 0;
+        if (format is WaveFormatExtensible extensible) format = extensible.ToStandardWaveFormat();
+        if (format == null || format.Channels <= 0 || format.SampleRate <= 0 || samples.Length is 0 or > 1_048_576)
+            return false;
+        var floating = format.Encoding == WaveFormatEncoding.IeeeFloat && format.BitsPerSample == 32;
+        var pcm = format.Encoding == WaveFormatEncoding.Pcm && format.BitsPerSample is 8 or 16 or 24 or 32;
+        if (!floating && !pcm) return false;
+        var bytesPerSample = format.BitsPerSample / 8;
+        if (format.BlockAlign != (long)bytesPerSample * format.Channels || format.BlockAlign <= 0 || samples.Length % format.BlockAlign != 0)
+            return false;
+        double maximum = 0;
+        for (var offset = 0; offset < samples.Length; offset += bytesPerSample)
+        {
+            double value;
+            if (floating) value = BitConverter.Int32BitsToSingle(BinaryPrimitives.ReadInt32LittleEndian(samples[offset..]));
+            else if (bytesPerSample == 1) value = (samples[offset] - 128) / 128.0;
+            else if (bytesPerSample == 2) value = BinaryPrimitives.ReadInt16LittleEndian(samples[offset..]) / 32768.0;
+            else if (bytesPerSample == 3)
+            {
+                var sample = samples[offset] | (samples[offset + 1] << 8) | (samples[offset + 2] << 16);
+                value = ((sample << 8) >> 8) / 8388608.0;
+            }
+            else value = BinaryPrimitives.ReadInt32LittleEndian(samples[offset..]) / 2147483648.0;
+            if (!double.IsFinite(value)) return false;
+            maximum = Math.Max(maximum, Math.Abs(value));
+        }
+        peak = Math.Min(1.0, maximum);
+        return true;
+    }
+
+    internal static bool CooldownReady(double monotonicMs, double? previousMs) =>
+        double.IsFinite(monotonicMs) && monotonicMs >= 0 &&
+        (!previousMs.HasValue || (double.IsFinite(previousMs.Value) && previousMs.Value >= 0 &&
+            monotonicMs - previousMs.Value >= CueCooldown.TotalMilliseconds));
 }

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "asset_collection": "W101 Card Artwork & Vector Icons",
+  "generated_utc": "2026-11-10T23:45:00Z",
+  "purpose": "Provenance catalog for native card drawing helper and font resolution",
+  "provenance_records": [
+    {
+      "element": "Vector Silhouettes (quest, paw, dance, cards, potion, sword, skull, stones, shovel, fire, train, idle, replay, default)",
+      "origin": "Original geometric vector paths authored in W101CardArtwork.cs",
+      "license_status": "Repository-owned original code; no external assets or proprietary binary art imported",
+      "resolution": "Resolution-independent scalable vector coordinates (0..100) rendered at runtime via System.Drawing.Drawing2D"
+    },
+    {
+      "element": "Title Font Resolution",
+      "origin": "Dynamic host inspection (FontFamily.Families)",
+      "preferred_candidates": [
+        "Sherwood",
+        "Palatino Linotype",
+        "Georgia",
+        "Garamond",
+        "Bookman Old Style"
+      ],
+      "license_status": "Uses Windows system-provided installed font families; does not bundle or distribute proprietary KingsIsle typeface files",
+      "fallback": "Georgia (standard across Windows installations)"
+    }
+  ],
+  "unresolved_questions": [
+    "The exact Wizard101 UI typeface has not been verified from local source assets. Installed candidate fonts are aesthetic preferences, not an authenticity or reuse-rights claim."
+  ]
+}

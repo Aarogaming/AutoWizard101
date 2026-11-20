@@ -1,0 +1,16 @@
+<script type="text/javascript">
+RED.nodes.registerType('maelstrom-card',{category:'function',color:'#b5a2d0',defaults:{name:{value:''},dataRoot:{value:'',required:true},libraryRoot:{value:'',required:true},cardId:{value:''},cardJson:{value:'{}',required:true}},inputs:1,outputs:1,icon:'font-awesome/fa-id-card-o',label:function(){return this.name||'Maelstrom card';}});
+</script>
+<script type="text/html" data-template-name="maelstrom-card">
+<p><b>Card back · configuration</b></p>
+<div class="form-row"><label for="node-input-name">Name</label><input id="node-input-name"></div>
+<div class="form-row"><label for="node-input-dataRoot">Owner folder</label><input id="node-input-dataRoot"></div>
+<div class="form-row"><label for="node-input-libraryRoot">Card library</label><input id="node-input-libraryRoot"></div>
+<div class="form-row"><label for="node-input-cardId">Load card ID</label><input id="node-input-cardId"></div>
+<div class="form-row"><label for="node-input-cardJson">Native card</label><textarea id="node-input-cardJson" rows="16" style="width:100%;font-family:monospace"></textarea></div>
+<p>The native catalog validates routine, settings and conditions. Preview outputs the front (description, requirements, qualification and limits) and back (options/settings). Saving never overwrites another card.</p>
+</script>
+<script type="text/html" data-help-name="maelstrom-card">
+<p>Topics: card/preview, card/save, card/load, card/deal. The configured native card JSON is used for preview/save/deal; Load uses the saved ID. Output is a card view with native card, front and back. Deal updates the native deck without starting it. Execution/replay is a separate explicit step through the existing owner.</p>
+<p>No arbitrary scripts or new action bindings. Unknown facts are rejected; unavailable producers remain visible requirements and cannot become invented readings. Catalog validation is preliminary; native deal remains authoritative. The current back uses JSON configuration; a graphical flip-card editor is future work.</p>
+</script>

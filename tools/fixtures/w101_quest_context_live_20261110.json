@@ -1,0 +1,637 @@
+{
+  "schemaVersion": 1,
+  "scope": "Derived live opening-dialogue observation; no game input or outcome",
+  "sourceRunId": "21112e2c0f874b69959f8499afb94aa2",
+  "sourceTraceSha256": "2d9646d3b0ee5d22c227d249f8f6aa9d22714f20c198b865d4267ac7468630e2",
+  "sourceWorkerSha256": "2d94fa263db106448afdd658ffd485d9fc958999d9b9855cdf6c4054008691e1",
+  "observedUtcTicks": 639299666227509396,
+  "tree": {
+    "nodes": [
+      {
+        "index": 0,
+        "parent": null,
+        "name": "Root",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 1,
+        "parent": 0,
+        "name": "WorldView",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 2,
+        "parent": 0,
+        "name": "[excluded]",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 3,
+        "parent": 0,
+        "name": "ToolTipContainer",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 4,
+        "parent": 1,
+        "name": "BallonLayer",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 5,
+        "parent": 1,
+        "name": "CompassWindow",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 6,
+        "parent": 1,
+        "name": "windowHUD",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 7,
+        "parent": 1,
+        "name": "PlanningPhase",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 8,
+        "parent": 1,
+        "name": "[excluded]",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 9,
+        "parent": 1,
+        "name": "DiegoMeter",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 10,
+        "parent": 1,
+        "name": "[excluded]",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 11,
+        "parent": 1,
+        "name": "DuelTimerWindow",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 12,
+        "parent": 1,
+        "name": "wndDialogMain",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 13,
+        "parent": 1,
+        "name": "WizardPatchingWindow",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 14,
+        "parent": 6,
+        "name": "btnEarnCrowns",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 15,
+        "parent": 6,
+        "name": "btnSpellbook",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 16,
+        "parent": 6,
+        "name": "spriteHealthBkg",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 17,
+        "parent": 6,
+        "name": "spriteManaBkg",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 18,
+        "parent": 6,
+        "name": "btnPotions",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 19,
+        "parent": 6,
+        "name": "TipWindow",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 20,
+        "parent": 6,
+        "name": "XPBar",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 21,
+        "parent": 6,
+        "name": "spriteNetworkLinkBroken",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 22,
+        "parent": 6,
+        "name": "TradeRequestWindow",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 23,
+        "parent": 6,
+        "name": "btnSubscribe",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 24,
+        "parent": 6,
+        "name": "spriteNetworkLinkSlow",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 25,
+        "parent": 6,
+        "name": "spriteNetworkLinkBad",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 26,
+        "parent": 6,
+        "name": "compassAndTeleporterButtons",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 27,
+        "parent": 6,
+        "name": "OpenObjectPlacement",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 28,
+        "parent": 6,
+        "name": "CloseObjectPlacement",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 29,
+        "parent": 6,
+        "name": "CrownShopButtonsWindow",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 30,
+        "parent": 6,
+        "name": "spriteEnergyBkg",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 31,
+        "parent": 6,
+        "name": "NotificationWindow",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 32,
+        "parent": 6,
+        "name": "windowForBtns",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 33,
+        "parent": 6,
+        "name": "OpenCastleRatingWindow",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 34,
+        "parent": 6,
+        "name": "OpenItemIdentification",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 35,
+        "parent": 6,
+        "name": "VisitAnotherCastleButton",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 36,
+        "parent": 6,
+        "name": "SpectatorUIButtons",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 37,
+        "parent": 6,
+        "name": "OpenFishingButton",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 38,
+        "parent": 6,
+        "name": "CloseFishingButton",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 39,
+        "parent": 6,
+        "name": "[excluded]",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 40,
+        "parent": 6,
+        "name": "GardeningGlow",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 41,
+        "parent": 6,
+        "name": "OpenGardening",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 42,
+        "parent": 6,
+        "name": "CloseGardening",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 43,
+        "parent": 6,
+        "name": "ClassEventGlow",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 44,
+        "parent": 6,
+        "name": "windowForTopRowButtons",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 45,
+        "parent": 6,
+        "name": "wndElixirContainer",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 46,
+        "parent": 6,
+        "name": "PetSystemButton",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 47,
+        "parent": 6,
+        "name": "AddToFavoriteButton",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 48,
+        "parent": 6,
+        "name": "TeleportToStartButton",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 49,
+        "parent": 6,
+        "name": "SocialSystemsContainer",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 50,
+        "parent": 6,
+        "name": "OpenItemIdentification2",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 51,
+        "parent": 6,
+        "name": "txtTestRealmText",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 52,
+        "parent": 6,
+        "name": "GroupGlow",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 53,
+        "parent": 6,
+        "name": "GroupSystemButton",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 54,
+        "parent": 6,
+        "name": "OpenCameraButton",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 55,
+        "parent": 6,
+        "name": "DecoratorBuddyButton",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 56,
+        "parent": 6,
+        "name": "QuestHelperHud",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 57,
+        "parent": 12,
+        "name": "imgBackground",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 58,
+        "parent": 12,
+        "name": "txtArea",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 59,
+        "parent": 12,
+        "name": "imgPortrait",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 60,
+        "parent": 12,
+        "name": "wndTitleBackground",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 61,
+        "parent": 12,
+        "name": "btnRight",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 62,
+        "parent": 12,
+        "name": "btnLeft",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 63,
+        "parent": 12,
+        "name": "btnBack",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 64,
+        "parent": 12,
+        "name": "btnExit",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 65,
+        "parent": 12,
+        "name": "btnNo",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 66,
+        "parent": 12,
+        "name": "btnYes",
+        "visible": false,
+        "enabled": false,
+        "text": null
+      },
+      {
+        "index": 67,
+        "parent": 12,
+        "name": "MarkButton",
+        "visible": false,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 68,
+        "parent": 56,
+        "name": "ElementWindow",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 69,
+        "parent": 58,
+        "name": "txtMessage",
+        "visible": true,
+        "enabled": true,
+        "text": "Hey, you there. Can you give an old soldier a hand?  I'm Private Quinn."
+      },
+      {
+        "index": 70,
+        "parent": 68,
+        "name": "ArrowWindow",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 71,
+        "parent": 68,
+        "name": "",
+        "visible": true,
+        "enabled": true,
+        "text": null
+      },
+      {
+        "index": 72,
+        "parent": 68,
+        "name": "btnQuestHelper",
+        "visible": true,
+        "enabled": true,
+        "text": null,
+        "childrenSkipped": true
+      },
+      {
+        "index": 73,
+        "parent": 71,
+        "name": "txtGoalName",
+        "visible": true,
+        "enabled": true,
+        "text": "<center>Talk To Private Quinn in Firecat Alley</center>"
+      }
+    ],
+    "complete": true,
+    "readBytes": 9473,
+    "layout": "544ab726ef7b920a5ccb67aa3d06b245db7e0012317d2fe7856d58c17c31cf7e",
+    "questContextIncluded": true
+  },
+  "expected": {
+    "objectiveText": "Talk To Private Quinn in Firecat Alley",
+    "dialogueText": "Hey, you there. Can you give an old soldier a hand? I'm Private Quinn.",
+    "advanceEnabled": true
+  }
+}

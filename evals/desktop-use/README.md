@@ -1,0 +1,9 @@
+# Desktop-use companion evaluation
+
+This is a lightweight starting point for evaluating the reusable companion skill. `prompts.json` lists scenarios and what an evaluator should look for in the agent's actual actions and report. It is a manual evaluation catalog: it does not run an agent, create evidence, or establish that the skill works in a real desktop session.
+
+`tools/tests/test_desktop_use_trace.py` separately tests the companion's trace checker with synthetic traces. Run `python -m unittest tools.tests.test_desktop_use_trace` after the skill is installed in `.agents/skills/desktop-use-evidence`. These tests check the checker, not computer-use behavior. The checker examines only the consistency of user-supplied records; it cannot prove that an observation, receipt, focus event, artifact, or outcome is authentic.
+
+For a future behavioral evaluation, run each applicable prompt with and without the companion in comparable, isolated conditions. Record actual actions, target identity, timestamps, receipts, outcomes, resource use and supporting artifacts; assess each expected behavior. Do not count a model's own unverified narrative as evidence. Use a disposable local test application and explicitly authorized, bounded inputs; Observe scenarios must remain read-only. Stop on lost focus or uncertainty and clean up held input. Do not terminate unrelated processes.
+
+For another repository, copy `.agents/skills/desktop-use-evidence` into that repository's `.agents/skills/` directory and adapt or omit the Maelstrom-only reference. The core instructions and checker use no Maelstrom imports. This does not install or enable a skill across other repositories automatically. A new Codex session may be needed for discovery; project-specific instructions and the active computer-use tool's rules still apply.

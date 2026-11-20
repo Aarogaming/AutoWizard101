@@ -1,0 +1,1070 @@
+{
+  "schema_version": 1,
+  "kind": "maelstrom-capability-audit",
+  "executable": false,
+  "audit_date": "2026-11-11",
+  "coverage": "selected-workflow-families-not-exhaustive",
+  "verification_boundary": "Static partial audit of selected workflow families, not a runtime registry or exhaustive list of public methods. Source anchors prove location only. Evidence paths point to tests, documentation or scoped historical reports; this checker neither runs them nor certifies installation/live qualification. Audit IDs are not callable runtime action IDs.",
+  "capabilities": [
+    {
+      "id": "audit.capture",
+      "title": "Selected-window Observe capture",
+      "scope": "Shared desktop framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/WindowObserver.cs",
+          "anchor": "internal sealed class WindowObserver"
+        }
+      ],
+      "callable_surfaces": [
+        "WindowObserver; selected game workspace Observe"
+      ],
+      "limits": [
+        "Captures the selected target; valid target identity, capture availability, dimensions and frame age remain necessary."
+      ],
+      "deck_binding": {
+        "status": "not-applicable",
+        "detail": "Capture supplies observations; it is not an executable deck card."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "docs/GAME_WORKSPACES.md",
+          "scope": "Workspace and capture workflow documentation."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/BoundedWindowCaptureTests.cs",
+          "scope": "Offline bounded-capture test source; not run by this inventory."
+        }
+      ],
+      "next_gap": "Link installed capture metrics and target-specific qualification to the same capability view.",
+      "related": [
+        "audit.video",
+        "audit.sampler"
+      ]
+    },
+    {
+      "id": "audit.video",
+      "title": "Video and process-audio recording",
+      "scope": "Shared desktop framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/GpuVideoRecording.cs",
+          "anchor": "internal static class GpuVideoRecording"
+        }
+      ],
+      "callable_surfaces": [
+        "GpuVideoRecording.RunAsync; workspace recording"
+      ],
+      "limits": [
+        "Encoder/capture throughput and audio availability depend on the selected target and local resources; configured FPS is not delivered FPS."
+      ],
+      "deck_binding": {
+        "status": "not-applicable",
+        "detail": "Recording is a workspace service, not a play card."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/GpuVideoRecordingTests.cs",
+          "scope": "Recording test source."
+        },
+        {
+          "path": "docs/PROCESS_AUDIO_CAPTURE.md",
+          "scope": "Selected-process audio scope and limitations."
+        }
+      ],
+      "next_gap": "Keep achieved FPS, source timestamps, dropped frames and finalized outputs visible together.",
+      "related": [
+        "audit.capture",
+        "audit.input-recording"
+      ]
+    },
+    {
+      "id": "audit.input-recording",
+      "title": "Opt-in synchronized game inputs",
+      "scope": "Shared desktop framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameplayInputRecorder.cs",
+          "anchor": "class GameplayInputRecorder"
+        }
+      ],
+      "callable_surfaces": [
+        "GameplayInputRecorder; workspace opt-in input recording"
+      ],
+      "limits": [
+        "User opt-in, selected game focus and allowed input scope are required; absent recorded input does not prove no player action."
+      ],
+      "deck_binding": {
+        "status": "not-applicable",
+        "detail": "Records demonstrations; does not independently dispatch deck actions."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/GameplayInputTimelineTests.cs",
+          "scope": "Timeline normalization/association test source."
+        }
+      ],
+      "next_gap": "Expose focus gaps and timing quality beside action-label comparisons.",
+      "related": [
+        "audit.video"
+      ]
+    },
+    {
+      "id": "audit.sampler",
+      "title": "Gameplay sampling and teaching sessions",
+      "scope": "Shared desktop framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/PassiveTeachingSampler.cs",
+          "anchor": "internal static class PassiveTeachingSampler"
+        }
+      ],
+      "callable_surfaces": [
+        "PassiveTeachingSampler.RunAsync; recording/teaching workflow"
+      ],
+      "limits": [
+        "Passive still sampler is bounded to 1–60 seconds and 1–5 samples per second; it is distinct from video recording."
+      ],
+      "deck_binding": {
+        "status": "not-applicable",
+        "detail": "Sampling produces training evidence."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/TeachingRecordingTests.cs",
+          "scope": "Saved-recording test source."
+        },
+        {
+          "path": "docs/GAME_WORKSPACES.md",
+          "scope": "User workspace entry points."
+        }
+      ],
+      "next_gap": "Unify sample purpose, completion and artifact status across still/video workflows.",
+      "related": [
+        "audit.capture",
+        "audit.labels"
+      ]
+    },
+    {
+      "id": "audit.labels",
+      "title": "Example-based visual label suggestions",
+      "scope": "Shared desktop framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/LabelSuggestions.cs",
+          "anchor": "internal static class LabelSuggestions"
+        }
+      ],
+      "callable_surfaces": [
+        "LabelSuggestions.Suggest"
+      ],
+      "limits": [
+        "Requires a completed recording; independent check recordings reject suggestions; proposals are not ground truth."
+      ],
+      "deck_binding": {
+        "status": "not-applicable",
+        "detail": "Review-time labels feed packs rather than dispatch game input."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/LabelSuggestionsTests.cs",
+          "scope": "Suggestion and independent-check guards."
+        }
+      ],
+      "next_gap": "Present confidence/ambiguity and reviewed-vs-inferred provenance consistently.",
+      "related": [
+        "audit.sampler",
+        "audit.packs"
+      ]
+    },
+    {
+      "id": "audit.packs",
+      "title": "Game-pack authoring and validation",
+      "scope": "Shared desktop framework",
+      "source_refs": [
+        {
+          "path": "tools/game_packs.py",
+          "anchor": "def validate_pack("
+        }
+      ],
+      "callable_surfaces": [
+        "Game Pack Workshop; game_packs.validate_pack/load_pack; create_game_pack.py"
+      ],
+      "limits": [
+        "Pack validation and draft replay do not establish live qualification or arbitrary executable extension support."
+      ],
+      "deck_binding": {
+        "status": "not-applicable",
+        "detail": "Packs describe rules/actions; the deck has separately registered application adapters."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "docs/GAME_PACK_WORKSHOP.md",
+          "scope": "Pack schema, authoring and replay workflow."
+        }
+      ],
+      "next_gap": "Reconcile pack actions and routine/deck capability descriptions without introducing another runtime registry.",
+      "related": [
+        "audit.actions",
+        "audit.replay"
+      ]
+    },
+    {
+      "id": "audit.actions",
+      "title": "Named pack action bindings",
+      "scope": "Shared desktop framework",
+      "source_refs": [
+        {
+          "path": "tools/game_packs.py",
+          "anchor": "def validate_pack("
+        }
+      ],
+      "callable_surfaces": [
+        "Schema-2 pack named-action validation and replay resolution"
+      ],
+      "limits": [
+        "Registry is data scoped to a pack, not a global callable method catalog; a replay proposal is not dispatched input."
+      ],
+      "deck_binding": {
+        "status": "not-connected",
+        "detail": "No automatic promotion from an arbitrary pack action to a live deck adapter."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "tools/tests/test_action_registry.py",
+          "scope": "Named-action binding test source."
+        },
+        {
+          "path": "docs/GAME_PACK_WORKSHOP.md",
+          "scope": "Explicit pack-only registry boundary."
+        }
+      ],
+      "next_gap": "Add a documented mapping between supported pack actions, module actions and trusted live adapters.",
+      "related": [
+        "audit.packs",
+        "audit.modules"
+      ]
+    },
+    {
+      "id": "audit.modules",
+      "title": "Reusable bounded routine modules",
+      "scope": "Shared desktop framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/ModuleOperation.cs",
+          "anchor": "internal static class ModuleOperation"
+        }
+      ],
+      "callable_surfaces": [
+        "ModuleOperation.SubmitOffline/SubmitOwned; ModuleRunner"
+      ],
+      "limits": [
+        "Owned callback is trusted application code; imported bundles cannot choose executable callbacks. Admission alone is not an outcome."
+      ],
+      "deck_binding": {
+        "status": "shared-service",
+        "detail": "Modules share the scheduler/owner rather than establish a second deck engine."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleOperationTests.cs",
+          "scope": "Offline/owned admission tests."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/ModuleRunnerTests.cs",
+          "scope": "Routine module sequencing test source."
+        }
+      ],
+      "next_gap": "Qualify concrete navigation/menu/sigil/Idle bindings through the same observation and receipt contracts.",
+      "related": [
+        "audit.scheduler",
+        "audit.navigation",
+        "audit.auto-idle"
+      ]
+    },
+    {
+      "id": "audit.replay",
+      "title": "Offline routine replay",
+      "scope": "Shared desktop framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/RoutineReplay.cs",
+          "anchor": "class RoutineReplay"
+        }
+      ],
+      "callable_surfaces": [
+        "--replay-routine; routine replay deck adapter"
+      ],
+      "limits": [
+        "Saved observations and receipts are replayed without desktop input; replay completion is not live gameplay completion."
+      ],
+      "deck_binding": {
+        "status": "bound-limited",
+        "detail": "review.routine is registered for offline saved-session replay."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "docs/ROUTINE_GRAPHS.md",
+          "scope": "Replay contract and command documentation."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/RoutineReplayTests.cs",
+          "scope": "Replay validation test source."
+        }
+      ],
+      "next_gap": "Keep replay and live outcome evidence visibly distinct while comparing pack revisions.",
+      "related": [
+        "audit.packs",
+        "audit.deck"
+      ]
+    },
+    {
+      "id": "audit.deck",
+      "title": "Job-card configuration and conditional deck",
+      "scope": "Shared framework; Wizard101 initial catalog",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckRoutines.cs",
+          "anchor": "internal static class JobDeckRoutines"
+        }
+      ],
+      "callable_surfaces": [
+        "Job Deck UI; JobDeckService; registered routine catalog"
+      ],
+      "limits": [
+        "Most W101 cards are preparation-only. Replay is wired; questing is limited to supported conversations, not navigation/combat/farming."
+      ],
+      "deck_binding": {
+        "status": "shared-service",
+        "detail": "Registry includes future cards with explicit not-connected status; configuration does not enable them."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "docs/JOB_DECK.md",
+          "scope": "User card/deck contract."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckTests.cs",
+          "scope": "Condition/run-limit/deck test source."
+        }
+      ],
+      "next_gap": "Bind one qualified full-visit adapter at a time and show concrete block reasons.",
+      "related": [
+        "audit.api",
+        "audit.quest",
+        "audit.pet-dance",
+        "audit.combat"
+      ]
+    },
+    {
+      "id": "audit.api",
+      "title": "Shared deck API and MCP transport",
+      "scope": "Shared framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckHost.cs",
+          "anchor": "internal sealed class JobDeckHost"
+        }
+      ],
+      "callable_surfaces": [
+        "JobDeckHost request/reply service; documented CLI/MCP deck interface"
+      ],
+      "limits": [
+        "Preview facts do not update live observations; transport access does not expand available game capabilities."
+      ],
+      "deck_binding": {
+        "status": "shared-service",
+        "detail": "Calls the same deck service and registered routines."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/JobDeckHostTests.cs",
+          "scope": "Host request and preview boundary tests."
+        },
+        {
+          "path": "docs/JOB_DECK.md",
+          "scope": "Documented external interface."
+        }
+      ],
+      "next_gap": "Expose a consistent read-only capability/status view before broadening executive calls.",
+      "related": [
+        "audit.deck",
+        "audit.scheduler"
+      ]
+    },
+    {
+      "id": "audit.scheduler",
+      "title": "Single scheduler and input ownership",
+      "scope": "Shared framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/OperationScheduler.cs",
+          "anchor": "internal sealed class OperationScheduler"
+        }
+      ],
+      "callable_surfaces": [
+        "OperationScheduler.Submit; GameInputLease ownership"
+      ],
+      "limits": [
+        "Finite queue (32), timeouts, cancellation and recovery guards; scheduler completion must not replace adapter-specific outcome verification."
+      ],
+      "deck_binding": {
+        "status": "shared-service",
+        "detail": "Registered deck jobs execute through the existing scheduler."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/OperationSchedulerTests.cs",
+          "scope": "Scheduler lifecycle test source."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/LegacyInputOwnershipTests.cs",
+          "scope": "Legacy ownership-boundary tests."
+        }
+      ],
+      "next_gap": "Keep every new live adapter on the same control owner; report queue/recovery state consistently.",
+      "related": [
+        "audit.recovery"
+      ]
+    },
+    {
+      "id": "audit.recovery",
+      "title": "Verified input cleanup and recovery",
+      "scope": "Shared framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/InputRecoveryOperation.cs",
+          "anchor": "internal sealed class InputRecoveryOperation"
+        }
+      ],
+      "callable_surfaces": [
+        "Recovery UI: StopAsync, CheckAsync, RestoreAsync"
+      ],
+      "limits": [
+        "Preview does not clear recovery; restoring controls does not automatically resume interrupted jobs."
+      ],
+      "deck_binding": {
+        "status": "shared-service",
+        "detail": "Recovery blocks live admissions until cleanup requirements pass."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/InputRecoveryOperationTests.cs",
+          "scope": "Recovery workflow tests."
+        },
+        {
+          "path": "docs/INPUT_RECOVERY_LIVE_20261110.md",
+          "scope": "Historical live evidence only; inspect scope and build before relying on it."
+        }
+      ],
+      "next_gap": "Maintain installed-build evidence and test no-gameplay recovery after releases.",
+      "related": [
+        "audit.scheduler"
+      ]
+    },
+    {
+      "id": "audit.ui-observation",
+      "title": "Optional W101 UI-tree observation",
+      "scope": "Wizard101",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101UiTreeOperation.cs",
+          "anchor": "internal static class W101UiTreeOperation"
+        }
+      ],
+      "callable_surfaces": [
+        "W101UiTreeOperation.Submit/ReadOwnedAsync; bounded observer commands"
+      ],
+      "limits": [
+        "Optional reviewed client adapter; positive UI state and fresh target identity required. Reading a node is not a completed interaction."
+      ],
+      "deck_binding": {
+        "status": "shared-service",
+        "detail": "Supplies facts to supported W101 adapters; no standalone generic play card."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/W101UiTreeOperationTests.cs",
+          "scope": "Observer result/identity test source."
+        },
+        {
+          "path": "docs/W101_UI_TREE_20261110.md",
+          "scope": "UI-tree findings and validation scope."
+        }
+      ],
+      "next_gap": "Extend measured UI-state coverage while keeping unknown/conflict and disconnect evidence explicit.",
+      "related": [
+        "audit.loading",
+        "audit.quest"
+      ]
+    },
+    {
+      "id": "audit.loading",
+      "title": "Optional W101 loading and transition gate",
+      "scope": "Wizard101",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/WizwalkerModuleLoading.cs",
+          "anchor": "class WizwalkerModuleLoading"
+        }
+      ],
+      "callable_surfaces": [
+        "WizwalkerModuleLoading; wizwalker loading observer"
+      ],
+      "limits": [
+        "Client loading is optional and patch-sensitive; not-loading alone does not prove gameplay readiness."
+      ],
+      "deck_binding": {
+        "status": "shared-service",
+        "detail": "Shared routine gate rather than an unbounded controller."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerModuleLoadingTests.cs",
+          "scope": "Loading-to-module gate tests."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/WizwalkerLoadingWatchTests.cs",
+          "scope": "Bounded watch test source."
+        }
+      ],
+      "next_gap": "Bind positive loading pauses and ready-state checks uniformly across full visits.",
+      "related": [
+        "audit.modules",
+        "audit.ui-observation"
+      ]
+    },
+    {
+      "id": "audit.quest",
+      "title": "Selected quest conversation and intent parsing",
+      "scope": "Wizard101",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101QuestConversationOperation.cs",
+          "anchor": "internal static class W101QuestConversationOperation"
+        }
+      ],
+      "callable_surfaces": [
+        "Quest card supported conversation mode; W101QuestConversationOperation.Submit"
+      ],
+      "limits": [
+        "Can prepare/execute bounded selected dialogue; active-objective parsing is not an autonomous route/combat/collection implementation."
+      ],
+      "deck_binding": {
+        "status": "bound-limited",
+        "detail": "w101.questing supports qualified conversation path; other objective needs remain blocked."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/W101QuestConversationOperationTests.cs",
+          "scope": "Conversation operation tests."
+        },
+        {
+          "path": "docs/W101_QUEST_STEP_20261110.md",
+          "scope": "Selected quest-step scope and evidence."
+        }
+      ],
+      "next_gap": "Connect navigation/combat/collection only after their independent adapters and before/after objective checks pass.",
+      "related": [
+        "audit.ui-observation",
+        "audit.navigation",
+        "audit.combat"
+      ]
+    },
+    {
+      "id": "audit.navigation",
+      "title": "Navigation, menus and sigil primitives",
+      "scope": "Shared modules; Wizard101 bindings",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/NavigationModule.cs",
+          "anchor": "class NavigationModule"
+        }
+      ],
+      "callable_surfaces": [
+        "NavigationModule, MenuModule, SigilModule; module graph evaluation"
+      ],
+      "limits": [
+        "Reusable primitives do not supply world routes, obstacle/enemy avoidance or reliable arbitrary-destination travel."
+      ],
+      "deck_binding": {
+        "status": "not-connected",
+        "detail": "Quest destination parsing does not automatically dispatch a complete navigation card."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/NavigationModuleTests.cs",
+          "scope": "Navigation contract test source."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/MenuModuleTests.cs",
+          "scope": "Menu contract test source."
+        }
+      ],
+      "next_gap": "Complete observed route segments with arrival/failure evidence; compose them under the existing owner.",
+      "related": [
+        "audit.modules",
+        "audit.quest"
+      ]
+    },
+    {
+      "id": "audit.auto-idle",
+      "title": "Native Idle and optional motion maintenance",
+      "scope": "Wizard101",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/Modules/AutoIdleModule.cs",
+          "anchor": "class AutoIdleModule"
+        }
+      ],
+      "callable_surfaces": [
+        "AutoIdleModule; existing standalone home movement/native Idle flows"
+      ],
+      "limits": [
+        "User takeover, explicit method, context and observed Idle/resume checks remain required; no universal automatic fallback is qualified."
+      ],
+      "deck_binding": {
+        "status": "library-only",
+        "detail": "w101.auto-idle is preparation-only in JobDeckRoutines."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/AutoIdleModuleTests.cs",
+          "scope": "Module contract test source."
+        },
+        {
+          "path": "docs/W101_ROUTINES.md",
+          "scope": "Routine configuration and limitations."
+        }
+      ],
+      "next_gap": "Connect verified between-run Idle/resume as bounded deck transitions.",
+      "related": [
+        "audit.modules",
+        "audit.pet-dance"
+      ]
+    },
+    {
+      "id": "audit.pet-dance",
+      "title": "Pet Dance teacher and phased player",
+      "scope": "Wizard101 Pet Dance",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/PetDanceLiveTrial.cs",
+          "anchor": "internal static class PetDanceLiveTrial"
+        }
+      ],
+      "callable_surfaces": [
+        "Pet Dance player/teacher UI; bounded live-trial runner"
+      ],
+      "limits": [
+        "Current preset evidence is context-specific; standalone phases and visit cleanup are distinct from a qualified repeating deck job."
+      ],
+      "deck_binding": {
+        "status": "library-only",
+        "detail": "w101.pet.dance has no connected deck visit adapter."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Resources/PetDance/default-v1/PROVENANCE.txt",
+          "scope": "Preset provenance records specific live geometry; inventory does not requalify it."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/PetDanceVisitReplayTests.cs",
+          "scope": "Saved-visit transition replay test source."
+        }
+      ],
+      "next_gap": "Connect complete start/play/result/native-Idle visit with finite repeat/energy policy.",
+      "related": [
+        "audit.loading",
+        "audit.auto-idle",
+        "audit.deck"
+      ]
+    },
+    {
+      "id": "audit.dodge",
+      "title": "Dodge specialist and isolated learning loop",
+      "scope": "Dodge the Creeps",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/DodgeExperimentRunner.cs",
+          "anchor": "internal static class DodgeExperimentRunner"
+        }
+      ],
+      "callable_surfaces": [
+        "Dodge workspace/test commands; DodgeExperimentRunner.RunAsync"
+      ],
+      "limits": [
+        "Experimental policy/isolated test results need context and independent-game evidence; a single score or simulation is not a repeatable real-game average."
+      ],
+      "deck_binding": {
+        "status": "not-connected",
+        "detail": "Dodge experiment paths exist independently of the current W101 deck catalog."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/DodgeWslVerificationTests.cs",
+          "scope": "Isolated verification tests."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/DodgeLearnedPolicyTests.cs",
+          "scope": "Learned-policy offline tests."
+        },
+        {
+          "path": "docs/EXPERIMENT_WORKBENCH.md",
+          "scope": "Experiment evidence contract."
+        }
+      ],
+      "next_gap": "Unify specialist registration and version comparison without making W101 semantics mandatory.",
+      "related": [
+        "audit.experiments",
+        "audit.actions"
+      ]
+    },
+    {
+      "id": "audit.conjuration",
+      "title": "Conjuration recognition and memory proposals",
+      "scope": "Wizard101 Conjuration",
+      "source_refs": [
+        {
+          "path": "tools/conjuration_vision.py",
+          "anchor": "class ConjurationVision:"
+        }
+      ],
+      "callable_surfaces": [
+        "Conjuration saved-image recognition/replay and collection tooling"
+      ],
+      "limits": [
+        "Synthetic positive fixtures only; current-client card identity/layout data and a live player are not qualified."
+      ],
+      "deck_binding": {
+        "status": "library-only",
+        "detail": "w101.minigame.conjuration is preparation-only."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "docs/CONJURATION_RECOGNITION.md",
+          "scope": "Explicit synthetic/offline scope."
+        },
+        {
+          "path": "tools/tests/test_conjuration_vision.py",
+          "scope": "Image recognizer test source."
+        }
+      ],
+      "next_gap": "Collect representative game-card examples and independent checks before connecting play.",
+      "related": [
+        "audit.packs",
+        "audit.sampler"
+      ]
+    },
+    {
+      "id": "audit.experiments",
+      "title": "Outcome-based experiment workbench",
+      "scope": "Shared framework",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameExperiments.cs",
+          "anchor": "internal sealed class GameExperiments"
+        }
+      ],
+      "callable_surfaces": [
+        "Experiments UI; GameExperiments plan/result/statistics"
+      ],
+      "limits": [
+        "Development/check roles, owner status, policy/context pins and complete-game outcomes matter; test code presence is not a passing experiment."
+      ],
+      "deck_binding": {
+        "status": "not-connected",
+        "detail": "Experiment workbench is not currently a general deck routine adapter."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/GameExperimentsTests.cs",
+          "scope": "Experiment integrity/statistics test source."
+        },
+        {
+          "path": "docs/EXPERIMENT_WORKBENCH.md",
+          "scope": "Experiment workflow documentation."
+        }
+      ],
+      "next_gap": "Adopt stable experiment identity with distinct immutable attempts and conflicting-result checks.",
+      "related": [
+        "audit.dodge",
+        "audit.replay"
+      ]
+    },
+    {
+      "id": "audit.knowledge",
+      "title": "Research notes and reviewed knowledge import",
+      "scope": "Shared research; Wizard101 snack ledger",
+      "source_refs": [
+        {
+          "path": "tools/import_w101_knowledge.py",
+          "anchor": "MAPPING = \"w101-pet-snacks-v1\""
+        }
+      ],
+      "callable_surfaces": [
+        "Game Research workflow; bounded offline W101 knowledge importer"
+      ],
+      "limits": [
+        "Source claims and suggested tags are context, not fresh game facts; current importer targets a specific reviewed ledger, not every imported dataset."
+      ],
+      "deck_binding": {
+        "status": "not-connected",
+        "detail": "Knowledge does not grant an executable deck operation."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "tools/tests/test_import_w101_knowledge.py",
+          "scope": "Bounded knowledge-import tests."
+        },
+        {
+          "path": "docs/W101_GAME_RESEARCH_20261108.md",
+          "scope": "Historical research findings and sources."
+        }
+      ],
+      "next_gap": "Track chronology, contradictions, source changes and dependent pack invalidation.",
+      "related": [
+        "audit.labels",
+        "audit.legacy"
+      ]
+    },
+    {
+      "id": "audit.legacy",
+      "title": "Legacy source catalog and integration maps",
+      "scope": "Wizard101 and peer repositories",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101LegacyCatalog.cs",
+          "anchor": "record W101LegacyCatalog"
+        }
+      ],
+      "callable_surfaces": [
+        "W101 legacy catalog; offline source/map validation tools"
+      ],
+      "limits": [
+        "25 supplied archives mapped does not mean 25 integrations completed. Historical status text may lag current source and policy."
+      ],
+      "deck_binding": {
+        "status": "not-connected",
+        "detail": "Legacy package availability does not register its arbitrary functions into the deck."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "research/w101-legacy-work-packages.json",
+          "scope": "Archive mapping and historical integration gaps."
+        },
+        {
+          "path": "docs/coordination/results/CORE-REUSE-AUDIT-01.md",
+          "scope": "Current selective source reuse audit."
+        }
+      ],
+      "next_gap": "Reconcile current adapter truth and extract one bounded useful capability per integration.",
+      "related": [
+        "audit.ui-observation",
+        "audit.knowledge"
+      ]
+    },
+    {
+      "id": "audit.sign-in",
+      "title": "Optional saved game credentials",
+      "scope": "Wizard101",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/GameCredentialStore.cs",
+          "anchor": "class GameCredentialStore"
+        }
+      ],
+      "callable_surfaces": [
+        "GameSignInForm; credential status/save/remove"
+      ],
+      "limits": [
+        "Credential setup only; no automatic login submission, launcher interaction, reconnect loop or password retrieval API."
+      ],
+      "deck_binding": {
+        "status": "not-connected",
+        "detail": "Saved credentials do not authorize or implement a login card."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "docs/W101_SIGN_IN.md",
+          "scope": "Explicit credential-only contract."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/GameCredentialStoreTests.cs",
+          "scope": "Synthetic vault-interface tests; no real credential access."
+        }
+      ],
+      "next_gap": "Qualify a separately enabled bounded login workflow without recording secrets.",
+      "related": [
+        "audit.scheduler"
+      ]
+    },
+    {
+      "id": "audit.combat",
+      "title": "Bounded combat turn/battle adapter and policies",
+      "scope": "Wizard101",
+      "source_refs": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom/Utilities/W101CombatBattleOperation.cs",
+          "anchor": "internal static class W101CombatBattleOperation"
+        }
+      ],
+      "callable_surfaces": [
+        "W101CombatTurnOperation/W101CombatBattleOperation; observed combat policy"
+      ],
+      "limits": [
+        "Source adapters and tests exist; current mechanics, calibrated targets, full battles and quest collection outcomes require evidence."
+      ],
+      "deck_binding": {
+        "status": "library-only",
+        "detail": "w101.battle remains preparation-only; Quest card does not yet dispatch combat objectives."
+      },
+      "verification": {
+        "source": "present",
+        "installed": "not-assessed",
+        "live": "not-assessed"
+      },
+      "evidence": [
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CombatBattleOperationTests.cs",
+          "scope": "Battle operation test source."
+        },
+        {
+          "path": "ProjectMaelstrom/ProjectMaelstrom.Tests/W101CombatRuntimeTests.cs",
+          "scope": "Runtime observation/policy tests."
+        }
+      ],
+      "next_gap": "Verify fresh hand/target observations, bounded input and outcomes before connecting the Quest/Battle cards.",
+      "related": [
+        "audit.quest",
+        "audit.ui-observation",
+        "audit.scheduler"
+      ]
+    }
+  ]
+}

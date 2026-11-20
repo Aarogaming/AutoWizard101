@@ -3,8 +3,11 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Preserve the existing SQLite package's legacy RID asset mapping on .NET 9. -->
+    <UseRidGraph>true</UseRidGraph>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../ProjectMaelstrom/ProjectMaelstrom/Utilities/JobDeckWire.cs" Link="JobDeckWire.cs" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.5" />
     <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />

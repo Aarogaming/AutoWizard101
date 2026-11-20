@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "sourceRunId": "9a0c596712694b969822305e1a19afdb",
+  "sourceReportSha256": "7c6605c8373bcd818d62c1f6418ed4cad74b1d6c2561a351142a440ebcc66ade",
+  "scope": "Live event order with game dialogue hashed, target identity replaced by an inert test target, and synthetic replay timing. No live input or latency qualification in replay.",
+  "selection": {
+    "id": "saved-quinn-offer",
+    "objectiveBefore": "Explore Dark Cave in Wizard City",
+    "dialogueBefore": "sha256:3704c450a1687f83f543a6ae5d30ee93b768992c9a6cd0cf21d356c36fc239d5",
+    "expectedObjectiveAfter": null,
+    "maxPages": 12
+  },
+  "events": [
+    {
+      "kind": "observation",
+      "context": {
+        "objectiveText": "Explore Dark Cave in Wizard City",
+        "dialogueText": "sha256:3704c450a1687f83f543a6ae5d30ee93b768992c9a6cd0cf21d356c36fc239d5",
+        "advanceEnabled": true
+      },
+      "states": {
+        "interactionPrompt": false,
+        "dialogue": true,
+        "menu": false,
+        "nativeIdle": false
+      },
+      "sourceTraceSha256": "f87cb2a78176852c97e580dd2bd86890f0a4acf35ec9c7d5e29974ac22f2e539"
+    },
+    {
+      "kind": "input-receipt",
+      "accepted": true,
+      "inputReleased": true
+    },
+    {
+      "kind": "observation",
+      "context": {
+        "objectiveText": "Explore Dark Cave in Wizard City",
+        "dialogueText": "sha256:46db76e8997095e0279aaf0d133e2bccda08de69376e6f3ee7f4f68419b71d4e",
+        "advanceEnabled": true
+      },
+      "states": {
+        "interactionPrompt": false,
+        "dialogue": true,
+        "menu": false,
+        "nativeIdle": false
+      },
+      "sourceTraceSha256": "e3df1faf3c755053fe97b4e555e6215bb3f1430f38802b689b24a942466e9837"
+    },
+    {
+      "kind": "input-receipt",
+      "accepted": true,
+      "inputReleased": true
+    },
+    {
+      "kind": "observation",
+      "context": {
+        "objectiveText": "Explore Dark Cave in Wizard City",
+        "dialogueText": "sha256:6343cf09dbe6ad2ce6eea06ac129b2459e96b44662c702183b6236a43ea6caf2",
+        "advanceEnabled": true
+      },
+      "states": {
+        "interactionPrompt": false,
+        "dialogue": true,
+        "menu": false,
+        "nativeIdle": false
+      },
+      "sourceTraceSha256": "d99069fb52ed52ed4932cbfcf92dd86a202e9ab279966a6b17965835f70c3af4"
+    },
+    {
+      "kind": "input-receipt",
+      "accepted": true,
+      "inputReleased": true
+    },
+    {
+      "kind": "observation",
+      "context": {
+        "objectiveText": "Go To Fireglobe Theatre in Firecat Alley",
+        "dialogueText": null,
+        "advanceEnabled": null
+      },
+      "states": {
+        "interactionPrompt": true,
+        "dialogue": false,
+        "menu": false,
+        "nativeIdle": false
+      },
+      "sourceTraceSha256": "d15ae2aa5a21dd5c283bf5cc423d5eea2c1ba0c6c2a3c2a6521ac6132c5fc14c"
+    }
+  ]
+}

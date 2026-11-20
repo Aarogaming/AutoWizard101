@@ -1,0 +1,3 @@
+# Rust pause-clock conformance - 2026-11-12
+
+Staged unexported gameplay_pause_clock.rs, shared TSV and native/Rust consumers created by worker; coordinator completed checks after worker usage limit. Native focused test passed25scenarios/51observations. Standalone command rustc --edition2021 --test crates/maelstrom-core/tests/pause_clock_parity.rs (with space between edition and2021 in actual command) output .local/rust-pause-35/pause-tests.exe passed. This is standalone conformance, not Cargo crate integration; concurrent manifests/lock remain untouched. Models startup/loading/active clock budgets, not operator input ownership or UI pause. No live execution, dependencies or host substitution.

@@ -9,7 +9,6 @@ namespace ProjectMaelstrom.Utilities;
 internal sealed class SnapshotBridge : IDisposable
 {
     private readonly string _snapshotPath;
-    private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = false };
     private System.Threading.Timer? _timer;
     private bool _disposing;
 
@@ -57,12 +56,25 @@ internal sealed class SnapshotBridge : IDisposable
     {
         try
         {
-            string json = JsonSerializer.Serialize(snapshot, _jsonOptions);
-            File.WriteAllText(_snapshotPath, json);
+            WriteSnapshotFile(_snapshotPath, snapshot);
         }
         catch (Exception ex)
         {
             Logger.LogError("[SnapshotBridge] Failed to write snapshot cache", ex);
+        }
+    }
+
+    internal static void WriteSnapshotFile(string path, GameStateSnapshot snapshot)
+    {
+        var temporaryPath = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temporaryPath, JsonSerializer.Serialize(snapshot));
+            File.Move(temporaryPath, path, overwrite: true);
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath)) File.Delete(temporaryPath);
         }
     }
 }

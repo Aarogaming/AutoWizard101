@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "dodge-development-25pct-v1",
+  "purpose": "Known training scenarios for measuring development progress; not held-out evaluation.",
+  "seeds": [118, 247, 781, 997],
+  "mode": "stepped",
+  "speed": 0.25,
+  "target_mean_score": 50
+}

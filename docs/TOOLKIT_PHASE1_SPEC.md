@@ -14,7 +14,7 @@ Phase 1 targets (future work)
 - Exit codes: 0 success; 1 args/usage; 2 validation; 3 IO; 4 selftest.
 - Strict vars: enforce required_vars; support --vars <json or path>; support repeatable --set key=value; precedence defaults < --vars < --set; fail before writing if missing/unresolved vars.
 - Plan/dry-run: deterministic CREATE/OVERWRITE/SKIP with reasons; stable ordering (Ordinal); flags --fail-on-existing; optional --plan-json for machine-readable plan.
-- Per-command help: short description, 2�3 examples with --out, files written (manifest-driven when available), stop conditions.
+- Per-command help: short description, 2–3 examples with --out, files written (manifest-driven when available), stop conditions.
 
 Determinism requirements
 - Stable ordering for plans and missing-var reporting (StringComparer.Ordinal).

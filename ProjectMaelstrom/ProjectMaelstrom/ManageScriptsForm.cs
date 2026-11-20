@@ -132,7 +132,7 @@ public partial class ManageScriptsForm : Form
             }
             else
             {
-                _service.StartScript(selected);
+                _service.ScheduleScript(selected);
             }
             UpdateScriptStatus();
         }

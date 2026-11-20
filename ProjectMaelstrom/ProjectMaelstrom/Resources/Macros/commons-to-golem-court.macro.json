@@ -1,0 +1,48 @@
+{
+  "schema": "maelstrom.route-preview.v1",
+  "executable": false,
+  "qualification": "unqualified-example-coordinates",
+  "coordinate_source": null,
+  "live_qualified": false,
+  "route_id": "commons-to-golem-court",
+  "title": "commons-to-golem-court",
+  "from_zone": "The Commons",
+  "to_zone": "Golem Court",
+  "tags": [
+    "hub",
+    "golem_tower",
+    "practice"
+  ],
+  "example_waypoints": [
+    {
+      "example_x": 0.0,
+      "example_y": 0.0,
+      "example_z": 0.0,
+      "name": "Commons World Gate Center"
+    },
+    {
+      "example_x": -380.0,
+      "example_y": -210.0,
+      "example_z": 0.0,
+      "name": "Golem Court Tunnel Ramp"
+    },
+    {
+      "example_x": -750.0,
+      "example_y": -320.0,
+      "example_z": 10.0,
+      "name": "Golem Court Archway"
+    },
+    {
+      "example_x": -1120.0,
+      "example_y": -450.0,
+      "example_z": 15.0,
+      "name": "Golem Tower Sigil Perimeter"
+    }
+  ],
+  "warning": "Legacy filename retained; this is not a macro. Do not use these coordinates for movement or arrival checks.",
+  "quarantined_macro_sha256": "3f7ee48683e5f2e168732d0e948bd9f85508fee492e2259f0e22e742a37f7c1d",
+  "unqualified_reference": {
+    "former_tolerance": 45.0,
+    "former_timeout_seconds": 32.0
+  }
+}

@@ -41,7 +41,7 @@ internal static class MacroPlayer
         try
         {
             var json = File.ReadAllText(macroPath);
-            var commands = JsonSerializer.Deserialize<List<InputCommand>>(json, _jsonOpts);
+            var commands = ParseMacroCommands(json);
             if (commands == null || commands.Count == 0)
             {
                 MessageBox.Show("Macro is empty or invalid.", "Macro Runner", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -66,5 +66,64 @@ internal static class MacroPlayer
             MessageBox.Show($"Failed to play macro: {ex.Message}", "Macro Runner", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return false;
         }
+    }
+
+    internal static List<InputCommand>? ParseMacroCommands(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return null;
+
+        var trimmed = json.TrimStart();
+        if (trimmed.StartsWith('['))
+        {
+            return JsonSerializer.Deserialize<List<InputCommand>>(json, _jsonOpts);
+        }
+
+        if (trimmed.StartsWith('{'))
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                if (root.TryGetProperty("nodes", out var nodesProp) && nodesProp.ValueKind == JsonValueKind.Array)
+                {
+                    var commands = new List<InputCommand>();
+                    foreach (var node in nodesProp.EnumerateArray())
+                    {
+                        var kind = node.TryGetProperty("kind", out var k) ? k.GetString() : null;
+                        var payload = node.TryGetProperty("payload", out var p) ? p : default;
+
+                        if (kind == "interact_key" && payload.ValueKind == JsonValueKind.Object)
+                        {
+                            var key = payload.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : "X";
+                            commands.Add(new InputCommand { Type = "key_down", Key = key });
+                            commands.Add(new InputCommand { Type = "delay", DelayMs = 100 });
+                            commands.Add(new InputCommand { Type = "key_up", Key = key });
+                        }
+                        else if (kind == "click_ui" && payload.ValueKind == JsonValueKind.Object)
+                        {
+                            int cx = payload.TryGetProperty("client_x", out var xProp) ? xProp.GetInt32() : 0;
+                            int cy = payload.TryGetProperty("client_y", out var yProp) ? yProp.GetInt32() : 0;
+                            commands.Add(new InputCommand { Type = "click", X = cx, Y = cy });
+                        }
+                        else if (kind == "navigate_path")
+                        {
+                            var nodeId = node.TryGetProperty("node_id", out var idProp) ? idProp.GetString() : "nav";
+                            commands.Add(new InputCommand { Type = "navigate_waypoints", Key = nodeId });
+                        }
+                        else if (kind == "combat_gate")
+                        {
+                            commands.Add(new InputCommand { Type = "combat_gate", Key = "combat-turn-decision" });
+                        }
+                    }
+                    return commands;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        return null;
     }
 }

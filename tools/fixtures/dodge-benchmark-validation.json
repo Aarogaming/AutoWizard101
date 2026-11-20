@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "dodge-validation-25pct-v1",
+  "purpose": "Predeclared validation scenarios reserved until a policy is selected from development results.",
+  "seeds": [26871, 99316, 29795, 89248, 22879, 63762, 90595, 92997, 32261, 65532],
+  "mode": "stepped",
+  "speed": 0.25,
+  "target_mean_score": 50
+}

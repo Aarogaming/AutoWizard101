@@ -1,0 +1,829 @@
+use maelstrom_core::costmap::{
+    CostmapComposition, DynamicMobActor, FootprintInflation, Nav2Costmap, NavEdge, NavVertex,
+    ObstacleSegment, PolygonZone, Vec2D, ZoneNavMesh, COST_FREE, COST_LETHAL_OBSTACLE,
+};
+
+#[test]
+fn test_integration_additive_and_max_composition() {
+    let footprint = FootprintInflation::new(10.0, 30.0);
+
+    // Obstacle at x = 0
+    let obs = ObstacleSegment::new(Vec2D::new(0.0, -50.0), Vec2D::new(0.0, 50.0));
+    // Zone giving 30 penalty
+    let zone = PolygonZone::new(
+        "road",
+        vec![
+            Vec2D::new(-50.0, -50.0),
+            Vec2D::new(50.0, -50.0),
+            Vec2D::new(50.0, 50.0),
+            Vec2D::new(-50.0, 50.0),
+        ],
+        30,
+    );
+
+    let mut map_max = Nav2Costmap::new(footprint, CostmapComposition::Max);
+    map_max.add_obstacle(obs);
+    map_max.add_zone(zone.clone());
+
+    let mut map_add = Nav2Costmap::new(footprint, CostmapComposition::Additive);
+    map_add.add_obstacle(obs);
+    map_add.add_zone(zone);
+
+    // Query point at x = 20.0 (dist to obs = 20.0, so inflation cost is active)
+    let pt = Vec2D::new(20.0, 0.0);
+    let inf_cost = footprint.compute_cost(20.0); // Between 1 and 252
+    assert!(inf_cost > 0 && inf_cost < 253);
+
+    let cost_max = map_max.evaluate_cost(pt, 0.0);
+    assert_eq!(cost_max, inf_cost.max(30));
+
+    let cost_add = map_add.evaluate_cost(pt, 0.0);
+    assert_eq!(cost_add, (inf_cost as u32 + 30).min(252) as u8);
+}
+
+#[test]
+fn test_additive_composition_saturates_instead_of_wrapping() {
+    let footprint = FootprintInflation::new(10.0, 30.0);
+    let obs = ObstacleSegment::new(Vec2D::new(0.0, -50.0), Vec2D::new(0.0, 50.0));
+    let zone = PolygonZone::new(
+        "heavy road",
+        vec![
+            Vec2D::new(-50.0, -50.0),
+            Vec2D::new(50.0, -50.0),
+            Vec2D::new(50.0, 50.0),
+            Vec2D::new(-50.0, 50.0),
+        ],
+        127,
+    );
+
+    let mut map_max = Nav2Costmap::new(footprint, CostmapComposition::Max);
+    map_max.add_obstacle(obs);
+    map_max.add_zone(zone.clone());
+    let mut map_add = Nav2Costmap::new(footprint, CostmapComposition::Additive);
+    map_add.add_obstacle(obs);
+    map_add.add_zone(zone);
+
+    // 12 units from the obstacle: inflation cost 227, zone cost 127, sum 354 (does not fit in a u8).
+    let pt = Vec2D::new(12.0, 0.0);
+    assert_eq!(footprint.compute_cost(12.0), 227);
+
+    let cost_max = map_max.evaluate_cost(pt, 0.0);
+    let cost_add = map_add.evaluate_cost(pt, 0.0);
+    assert_eq!(cost_max, 227);
+    // Adding a layer must never make a cell cheaper; the sum saturates at 252.
+    assert!(
+        cost_add >= cost_max,
+        "additive cost {cost_add} fell below max cost {cost_max}"
+    );
+    assert_eq!(cost_add, 252);
+}
+
+#[test]
+fn test_integration_moving_mob_intercept_prediction() {
+    // Player plans to move from (0, 0) to (50, 0) at speed 10 units/s (arrival at t = 5s)
+    let footprint = FootprintInflation::new(15.0, 40.0);
+    let mut costmap = Nav2Costmap::new(footprint, CostmapComposition::Max);
+
+    // Mob patrols along y-axis from (50, 100) down to (50, -100) at 20 units/s with 5s lookahead
+    let mob = DynamicMobActor::new(
+        42,
+        Vec2D::new(50.0, 100.0),
+        Vec2D::new(0.0, -20.0), // Moves -20 in y per sec
+        20.0,                   // aggro cylinder
+        60.0,                   // repulsion field
+        5000.0,
+    )
+    .with_elevation(0.0, 50.0)
+    .with_lookahead(5.0);
+    costmap.add_mob(mob);
+
+    let target_node = Vec2D::new(50.0, 0.0);
+
+    // At t = 0: mob is at (50, 100), distance to target = 100.0 > 60.0 -> FREE
+    assert_eq!(costmap.evaluate_cost(target_node, 0.0), COST_FREE);
+    assert!(costmap.is_passable(target_node, 0.0));
+
+    // At t = 5s (when player would arrive): mob is at (50, 100 - 20*5) = (50, 0) -> EXACT COLLISION -> LETHAL
+    let arrival_cost = costmap.evaluate_cost(target_node, 5.0);
+    assert_eq!(arrival_cost, COST_LETHAL_OBSTACLE);
+    assert!(!costmap.is_passable(target_node, 5.0));
+
+    // A lateral detour node at (20.0, 0.0) at t = 2s:
+    // At t = 2s, mob is at (50, 60). Distance from (20, 0) to (50, 60) = sqrt(30^2 + 60^2) = sqrt(4500) ≈ 67.0 > 60.0 -> FREE
+    let detour_node = Vec2D::new(20.0, 0.0);
+    assert_eq!(costmap.evaluate_cost(detour_node, 2.0), COST_FREE);
+    assert!(costmap.is_passable(detour_node, 2.0));
+}
+
+#[test]
+fn test_integration_elevation_bridge_separation() {
+    let footprint = FootprintInflation::new(10.0, 30.0);
+    let mut costmap = Nav2Costmap::new(footprint, CostmapComposition::Max);
+
+    // Patrol mob on ground underpass at (50, 50, z = 0.0) with vertical tolerance 40.0
+    costmap.add_mob(
+        DynamicMobActor::new(
+            101,
+            Vec2D::new(50.0, 50.0),
+            Vec2D::new(0.0, 0.0),
+            25.0, // aggro cylinder
+            80.0, // repulsion radius
+            3000.0,
+        )
+        .with_elevation(0.0, 40.0),
+    );
+
+    let bridge_point = Vec2D::new(50.0, 50.0);
+
+    // Player walking on overhead bridge directly above mob at z = 120.0
+    // In 2D projection (no z), it would falsely flag as LETHAL (254)
+    assert_eq!(
+        costmap.evaluate_cost(bridge_point, 0.0),
+        COST_LETHAL_OBSTACLE
+    );
+
+    // With 3D elevation awareness (z = 120.0 > 0.0 + 40.0): bridge is safe and passable!
+    assert_eq!(
+        costmap.evaluate_cost_3d(bridge_point, Some(120.0), 0.0),
+        COST_FREE
+    );
+    assert!(costmap.is_passable_3d(bridge_point, Some(120.0), 0.0));
+
+    // Player walking in underpass at z = 10.0 (within vertical tolerance 40.0): LETHAL
+    assert_eq!(
+        costmap.evaluate_cost_3d(bridge_point, Some(10.0), 0.0),
+        COST_LETHAL_OBSTACLE
+    );
+    assert!(!costmap.is_passable_3d(bridge_point, Some(10.0), 0.0));
+}
+
+#[test]
+fn test_integration_dynamic_mob_deflects_nav_mesh_path() {
+    // Diamond navigation mesh topology:
+    //      (1: North 50, 30)
+    //     /                 \
+    // (0: Start 0,0)         (3: Goal 100,0)
+    //     \                 /
+    //      (2: South 50,-30)
+    let mesh = ZoneNavMesh {
+        header_count: 4,
+        header_unknown: 0,
+        vertex_records: 4,
+        vertices: vec![
+            NavVertex::new(0.0, 0.0, 0.0),    // 0: Start
+            NavVertex::new(50.0, 30.0, 0.0),  // 1: North fork
+            NavVertex::new(50.0, -30.0, 0.0), // 2: South fork
+            NavVertex::new(100.0, 0.0, 0.0),  // 3: Goal
+        ],
+        edges: vec![
+            NavEdge::new(0, 1),
+            NavEdge::new(1, 3),
+            NavEdge::new(0, 2),
+            NavEdge::new(2, 3),
+        ],
+    };
+
+    let footprint = FootprintInflation::new(10.0, 25.0);
+    let mut costmap = Nav2Costmap::new(footprint, CostmapComposition::Max);
+
+    // Initial state: No obstacles or mobs. Both paths have identical length ~116.62 units.
+    let baseline_path = mesh
+        .find_safest_path(0, 3, &costmap, 0.0, 10.0)
+        .expect("Baseline path must exist");
+    assert!(
+        baseline_path == vec![0, 1, 3] || baseline_path == vec![0, 2, 3],
+        "Baseline must choose one of the symmetric branches"
+    );
+
+    // Introduce an enemy patrol mob camping right on the North fork (node 1 at 50, 30)
+    costmap.add_mob(
+        DynamicMobActor::new(
+            77,
+            Vec2D::new(50.0, 30.0),
+            Vec2D::new(0.0, 0.0),
+            20.0,   // aggro radius
+            60.0,   // repulsion radius
+            3000.0, // strong repulsive field
+        )
+        .with_elevation(0.0, 40.0),
+    );
+
+    // Dynamic Dijkstra re-evaluates all edge costs against the costmap.
+    // The North branch (0->1 and 1->3) has midpoint within the mob's lethal/repulsive field.
+    // The South branch (0->2 and 2->3) is completely clean.
+    let deflected_path = mesh
+        .find_safest_path(0, 3, &costmap, 0.0, 10.0)
+        .expect("Deflected path must find the South branch");
+    assert_eq!(
+        deflected_path,
+        vec![0, 2, 3],
+        "Costmap penalty must deflect Dijkstra safely to South branch [0, 2, 3]"
+    );
+
+    // If a second enemy mob moves into the South fork (node 2 at 50, -30), both branches are blocked.
+    costmap.add_mob(
+        DynamicMobActor::new(
+            78,
+            Vec2D::new(50.0, -30.0),
+            Vec2D::new(0.0, 0.0),
+            25.0, // aggro radius covering midpoint
+            60.0,
+            3000.0,
+        )
+        .with_elevation(0.0, 40.0),
+    );
+
+    let impassable_path = mesh.find_safest_path(0, 3, &costmap, 0.0, 10.0);
+    assert_eq!(
+        impassable_path, None,
+        "When all paths exceed lethal cost, find_safest_path safely aborts"
+    );
+}
+
+#[test]
+fn test_spatial_index_nearest_reagent_and_chest() {
+    use maelstrom_core::spatial_index::{EntityKind, SpatialEntity3D};
+
+    let footprint = FootprintInflation::new(10.0, 30.0);
+    let mut costmap = Nav2Costmap::new(footprint, CostmapComposition::Max);
+
+    // Add a mob via standard add_mob (automatically indexes into spatial_index)
+    costmap.add_mob(
+        DynamicMobActor::new(
+            1,
+            Vec2D::new(100.0, 100.0),
+            Vec2D::new(0.0, 0.0),
+            20.0,
+            50.0,
+            1000.0,
+        )
+        .with_elevation(10.0, 30.0),
+    );
+
+    // Add candidate reagents
+    costmap.add_spatial_entity(SpatialEntity3D::new(
+        10,
+        EntityKind::Reagent,
+        105.0,
+        100.0,
+        10.0,
+        2.0,
+    ));
+    costmap.add_spatial_entity(SpatialEntity3D::new(
+        11,
+        EntityKind::Reagent,
+        180.0,
+        100.0,
+        10.0,
+        2.0,
+    ));
+
+    // Add chests
+    costmap.add_spatial_entity(SpatialEntity3D::new(
+        20,
+        EntityKind::SilverChest,
+        120.0,
+        100.0,
+        10.0,
+        3.0,
+    ));
+
+    assert_eq!(costmap.spatial_index.len(), 4);
+
+    // Query nearest reagent to (102, 100, 10)
+    let nearest_reagent = costmap
+        .find_nearest_reagent(102.0, 100.0, 10.0, 20.0)
+        .expect("Should find reagent 10");
+    assert_eq!(nearest_reagent.0.id, 10);
+    assert!((nearest_reagent.1 - 3.0).abs() < 1e-4);
+
+    // Query nearest chest
+    let nearest_chest = costmap
+        .find_nearest_chest(102.0, 100.0, 10.0, 30.0)
+        .expect("Should find silver chest 20");
+    assert_eq!(nearest_chest.0.id, 20);
+}
+
+#[test]
+fn test_spatial_corridor_safety_evaluation() {
+    let footprint = FootprintInflation::new(10.0, 30.0);
+    let mut costmap = Nav2Costmap::new(footprint, CostmapComposition::Max);
+
+    // Dynamic mob at (50, 0, 0) directly blocking corridor from (0, 0, 0) to (100, 0, 0)
+    costmap.add_mob(
+        DynamicMobActor::new(
+            1,
+            Vec2D::new(50.0, 0.0),
+            Vec2D::new(0.0, 0.0),
+            25.0, // Lethal aggro
+            60.0,
+            2000.0,
+        )
+        .with_elevation(0.0, 30.0),
+    );
+
+    // Corridor of radius 5.0 directly passes through the mob
+    assert!(
+        !costmap.is_corridor_safe_3d((0.0, 0.0, 0.0), (100.0, 0.0, 0.0), 5.0, 0.0),
+        "Corridor intersecting mob aggro cylinder must not be safe"
+    );
+
+    // Parallel corridor displaced at Y = 50.0 (distance 50.0 > 25.0 aggro)
+    assert!(
+        costmap.is_corridor_safe_3d((0.0, 50.0, 0.0), (100.0, 50.0, 0.0), 5.0, 0.0),
+        "Corridor outside mob aggro must be safe"
+    );
+
+    // Corridor passing over bridge at Z = 60.0 (delta Z = 60.0 > 30.0 tolerance)
+    assert!(
+        costmap.is_corridor_safe_3d((0.0, 0.0, 60.0), (100.0, 0.0, 60.0), 5.0, 0.0),
+        "Corridor separated by vertical elevation on bridge must be safe"
+    );
+}
+
+#[test]
+fn test_detour_budget_equation_and_approval() {
+    use maelstrom_core::spatial_index::EntityKind;
+
+    let footprint = FootprintInflation::new(10.0, 30.0);
+    let mut costmap = Nav2Costmap::new(footprint, CostmapComposition::Max);
+
+    let curr = (0.0, 0.0, 0.0);
+    let resume = (100.0, 0.0, 0.0);
+    let budget = 35.0;
+
+    // Candidate A: Reagent at (50, 10, 0)
+    // Direct = 100.0. Leg 1 = sqrt(50^2 + 10^2) ≈ 50.99. Leg 2 ≈ 50.99. Total ≈ 101.98. Delta C ≈ 1.98 < 35.0
+    let candidate_a = costmap.evaluate_detour_candidate(
+        curr,
+        resume,
+        1,
+        (50.0, 10.0, 0.0),
+        EntityKind::Reagent,
+        budget,
+        5.0,
+        0.0,
+    );
+    assert!(
+        candidate_a.approved,
+        "Candidate A within budget must be approved"
+    );
+    assert!(candidate_a.delta_cost < 5.0);
+
+    // Candidate B: Distant reagent at (50, 60, 0)
+    // Direct = 100.0. Leg 1 = sqrt(50^2 + 60^2) ≈ 78.10. Leg 2 ≈ 78.10. Total ≈ 156.20. Delta C ≈ 56.20 >= 35.0
+    let candidate_b = costmap.evaluate_detour_candidate(
+        curr,
+        resume,
+        2,
+        (50.0, 60.0, 0.0),
+        EntityKind::Reagent,
+        budget,
+        5.0,
+        0.0,
+    );
+    assert!(
+        !candidate_b.approved,
+        "Candidate B exceeding budget must be rejected"
+    );
+    assert!(candidate_b.delta_cost > budget);
+
+    // Candidate C: Reagent at (50, 10, 0) but mob camps right on it
+    costmap.add_mob(
+        DynamicMobActor::new(
+            99,
+            Vec2D::new(50.0, 10.0),
+            Vec2D::new(0.0, 0.0),
+            20.0,
+            50.0,
+            1000.0,
+        )
+        .with_elevation(0.0, 30.0),
+    );
+
+    let candidate_c = costmap.evaluate_detour_candidate(
+        curr,
+        resume,
+        3,
+        (50.0, 10.0, 0.0),
+        EntityKind::Reagent,
+        budget,
+        5.0,
+        0.0,
+    );
+    assert!(
+        !candidate_c.approved,
+        "Candidate C covered by dynamic mob aggro cylinder must be rejected"
+    );
+}
+
+fn straight_mesh(points: &[(f64, f64)]) -> ZoneNavMesh {
+    let edges = (0..points.len() - 1)
+        .map(|i| NavEdge::new(i, i + 1))
+        .collect();
+    ZoneNavMesh {
+        header_count: points.len() as i16,
+        header_unknown: 0,
+        vertex_records: points.len(),
+        vertices: points
+            .iter()
+            .map(|p| NavVertex::new(p.0, p.1, 0.0))
+            .collect(),
+        edges,
+    }
+}
+
+#[test]
+fn test_edge_cost_rejects_mob_standing_on_a_long_edge() {
+    // Regression for the audit finding: five fixed samples left a mob on a 400-unit edge unseen.
+    let mesh = straight_mesh(&[(0.0, 0.0), (400.0, 0.0)]);
+    for repulsion_radius in [60.0, 10.0] {
+        let mut costmap =
+            Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+        costmap.add_mob(DynamicMobActor::new(
+            1,
+            Vec2D::new(50.0, 0.0),
+            Vec2D::new(0.0, 0.0),
+            10.0,
+            repulsion_radius,
+            3000.0,
+        ));
+        assert_eq!(
+            mesh.evaluate_edge_cost(&mesh.edges[0], &costmap, 0.0),
+            None,
+            "mob inside its aggro radius on the edge must block it (repulsion {repulsion_radius})"
+        );
+    }
+}
+
+#[test]
+fn test_edge_cost_leaves_a_clear_long_edge_at_its_length() {
+    let mesh = straight_mesh(&[(0.0, 0.0), (400.0, 0.0)]);
+    let costmap = Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    let weight = mesh.evaluate_edge_cost(&mesh.edges[0], &costmap, 0.0);
+    assert_eq!(weight, Some(400.0));
+}
+
+#[test]
+fn test_edge_cost_sees_a_static_zone_between_the_old_sample_points() {
+    // The old 5-sample rule looked at x = 0, 100, 200, 300, 400 and missed this zone entirely.
+    let mesh = straight_mesh(&[(0.0, 0.0), (400.0, 0.0)]);
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    costmap.add_zone(PolygonZone::new(
+        "narrow-penalty",
+        vec![
+            Vec2D::new(130.0, -5.0),
+            Vec2D::new(160.0, -5.0),
+            Vec2D::new(160.0, 5.0),
+            Vec2D::new(130.0, 5.0),
+        ],
+        100,
+    ));
+    let weight = mesh
+        .evaluate_edge_cost(&mesh.edges[0], &costmap, 0.0)
+        .expect("a penalty zone is costly, not blocking");
+    // 400 * (1 + 100 / 50) = 1200
+    assert!((weight - 1200.0).abs() < 1e-6, "weight was {weight}");
+}
+
+#[test]
+fn test_safest_path_arrival_time_follows_length_not_penalty_cost() {
+    // Edge 0->1 crosses a penalty-100 zone, so its weight is 150 although it is only 50 units long.
+    // The walker reaches vertex 1 at t = 5 s (10 units/s) and is on edge 1->2 during t = 5..10 s.
+    // A mob reaches (75, 0), the middle of edge 1->2, only at t = 15 s. Deriving arrival time from the
+    // weighted cost (150 / 10 = 15 s) wrongly puts the walker there at the same moment as the mob.
+    let mesh = straight_mesh(&[(0.0, 0.0), (50.0, 0.0), (100.0, 0.0)]);
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    costmap.add_zone(PolygonZone::new(
+        "penalty-on-first-edge",
+        vec![
+            Vec2D::new(-5.0, -5.0),
+            Vec2D::new(55.0, -5.0),
+            Vec2D::new(55.0, 5.0),
+            Vec2D::new(-5.0, 5.0),
+        ],
+        100,
+    ));
+    costmap.add_mob(
+        DynamicMobActor::new(
+            5,
+            Vec2D::new(75.0, 150.0),
+            Vec2D::new(0.0, -10.0),
+            10.0,
+            10.0,
+            0.0,
+        )
+        .with_lookahead(30.0),
+    );
+    assert_eq!(
+        mesh.find_safest_path(0, 2, &costmap, 0.0, 10.0),
+        Some(vec![0, 1, 2]),
+        "the mob stays more than 50 units from the walker during the real crossing"
+    );
+}
+
+#[test]
+fn test_moving_edge_cost_follows_the_walker_along_a_long_edge() {
+    // A mob reaches the far end (200, 0) at t = 20 s, exactly when a 10 units/s walker does.
+    let mesh = straight_mesh(&[(0.0, 0.0), (200.0, 0.0)]);
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    costmap.add_mob(
+        DynamicMobActor::new(
+            6,
+            Vec2D::new(200.0, 200.0),
+            Vec2D::new(0.0, -10.0),
+            10.0,
+            10.0,
+            0.0,
+        )
+        .with_lookahead(30.0),
+    );
+    assert_eq!(
+        mesh.evaluate_edge_cost_moving(&mesh.edges[0], &costmap, 0.0, 10.0),
+        None,
+        "walker and mob meet at the far end at t = 20 s"
+    );
+    // A fast walker (100 units/s) is there at t = 2 s, long before the mob arrives.
+    assert_eq!(
+        mesh.evaluate_edge_cost_moving(&mesh.edges[0], &costmap, 0.0, 100.0),
+        Some(200.0)
+    );
+    // The constant-time form evaluates everything at the departure time, where the mob is far away.
+    assert_eq!(
+        mesh.evaluate_edge_cost(&mesh.edges[0], &costmap, 0.0),
+        Some(200.0)
+    );
+}
+
+#[test]
+fn test_moving_edge_cost_does_not_invent_a_conflict_after_the_walker_passed() {
+    // The mob crosses the edge's midpoint at t = 5 s; the walker gets there at t = 10 s. Their closest
+    // approach is about 35 units, outside the 10-unit aggro radius.
+    let mesh = straight_mesh(&[(0.0, 0.0), (200.0, 0.0)]);
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    costmap.add_mob(
+        DynamicMobActor::new(
+            7,
+            Vec2D::new(100.0, 50.0),
+            Vec2D::new(0.0, -10.0),
+            10.0,
+            10.0,
+            0.0,
+        )
+        .with_lookahead(30.0),
+    );
+    assert!(mesh
+        .evaluate_edge_cost_moving(&mesh.edges[0], &costmap, 0.0, 10.0)
+        .is_some());
+}
+
+#[test]
+fn test_update_and_remove_mob_keep_mob_list_and_index_in_step() {
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    let mob_at = |y: f64| {
+        DynamicMobActor::new(
+            1,
+            Vec2D::new(50.0, y),
+            Vec2D::new(0.0, 0.0),
+            10.0,
+            20.0,
+            100.0,
+        )
+    };
+    let corridor_safe = |costmap: &Nav2Costmap| {
+        costmap.is_corridor_safe_3d((0.0, 0.0, 0.0), (100.0, 0.0, 0.0), 3.0, 0.0)
+    };
+
+    // Absent mob: update adds it.
+    assert!(!costmap.update_mob(mob_at(5.0)));
+    assert!(
+        !corridor_safe(&costmap),
+        "mob 5 units from the corridor is in aggro range"
+    );
+    assert_eq!(costmap.dynamic_mobs.len(), 1);
+    assert_eq!(costmap.spatial_index.len(), 1);
+
+    // Moving it replaces both copies; the old position no longer blocks the corridor.
+    assert!(costmap.update_mob(mob_at(200.0)));
+    assert!(
+        corridor_safe(&costmap),
+        "a stale index entity would still block the corridor"
+    );
+    assert_eq!(costmap.dynamic_mobs.len(), 1);
+    assert_eq!(costmap.spatial_index.len(), 1);
+
+    // Remove clears both; removing again reports nothing removed.
+    assert!(costmap.remove_mob(1));
+    assert!(!costmap.remove_mob(1));
+    assert!(costmap.dynamic_mobs.is_empty());
+    assert!(costmap.spatial_index.is_empty());
+}
+
+// ---------------------------------------------------------------------------------------------
+// Corridor safety must follow where a mob will be at arrival, not where it is now. The spatial
+// index narrow phase compares the CURRENT position with `corridor_radius + repulsion_radius`, so
+// a mob that is far away now but walking in used to be dropped before the predicted-position
+// check ever ran.
+// ---------------------------------------------------------------------------------------------
+
+const CORRIDOR_P1: (f64, f64, f64) = (-100.0, 0.0, 0.0);
+const CORRIDOR_P2: (f64, f64, f64) = (100.0, 0.0, 0.0);
+
+fn corridor_map(mobs: &[DynamicMobActor]) -> Nav2Costmap {
+    let mut map = Nav2Costmap::new(FootprintInflation::new(10.0, 40.0), CostmapComposition::Max);
+    for mob in mobs {
+        map.add_mob(mob.clone());
+    }
+    map
+}
+
+fn walker(id: u64, pos: (f64, f64), vel: (f64, f64)) -> DynamicMobActor {
+    // aggro 40, repulsion 60, weight 1
+    DynamicMobActor::new(
+        id,
+        Vec2D::new(pos.0, pos.1),
+        Vec2D::new(vel.0, vel.1),
+        40.0,
+        60.0,
+        1.0,
+    )
+}
+
+/// Independent reference with no broad phase: every mob, predicted position, closest point on the
+/// 3D segment, vertical tolerance, then horizontal distance against `aggro_radius + radius`.
+fn corridor_safe_reference(
+    map: &Nav2Costmap,
+    p1: (f64, f64, f64),
+    p2: (f64, f64, f64),
+    radius: f64,
+    arrival_time_s: f64,
+) -> bool {
+    for mob in &map.dynamic_mobs {
+        let pred = mob.predicted_position(arrival_time_s);
+        let (px, py, pz) = (pred.x, pred.y, mob.elevation_z);
+        let (sx, sy, sz) = (p2.0 - p1.0, p2.1 - p1.1, p2.2 - p1.2);
+        let len_sq = sx * sx + sy * sy + sz * sz;
+        let u = if len_sq < 1e-9 {
+            0.0
+        } else {
+            (((px - p1.0) * sx + (py - p1.1) * sy + (pz - p1.2) * sz) / len_sq).clamp(0.0, 1.0)
+        };
+        let c = (p1.0 + sx * u, p1.1 + sy * u, p1.2 + sz * u);
+        if (c.2 - mob.elevation_z).abs() <= mob.vertical_tolerance {
+            let d = ((c.0 - px).powi(2) + (c.1 - py).powi(2)).sqrt();
+            if d <= mob.aggro_radius + radius {
+                return false;
+            }
+        }
+    }
+    true
+}
+
+#[test]
+fn test_corridor_rejects_mob_that_closes_in_before_arrival() {
+    // 200 units north, walking south at 60 u/s: after 3 s it is 20 units from the corridor line,
+    // well inside aggro 40 + corridor 10.
+    let map = corridor_map(&[walker(1, (0.0, 200.0), (0.0, -60.0))]);
+    assert!(!map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 3.0));
+    // Arriving "now" the mob has not moved, so the same corridor is clear.
+    assert!(map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 0.0));
+}
+
+#[test]
+fn test_corridor_rejects_slow_mob_that_starts_far_outside_repulsion_range() {
+    // 120 units away (more than aggro 40 + repulsion 60 + corridor 10), walking in at 30 u/s:
+    // 30 units from the line after 3 s.
+    let map = corridor_map(&[walker(1, (0.0, 120.0), (0.0, -30.0))]);
+    assert!(!map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 3.0));
+}
+
+#[test]
+fn test_corridor_accepts_mobs_that_never_reach_it() {
+    // Standing far away.
+    let still = corridor_map(&[walker(1, (0.0, 200.0), (0.0, 0.0))]);
+    assert!(still.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 3.0));
+    // Walking away.
+    let leaving = corridor_map(&[walker(1, (0.0, 200.0), (0.0, 60.0))]);
+    assert!(leaving.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 3.0));
+    // Closing in, but the 3 s lookahead clamp stops the projection at y = 220, so a later arrival
+    // time does not extrapolate it onto the corridor.
+    let clamped = corridor_map(&[walker(1, (0.0, 400.0), (0.0, -60.0))]);
+    assert!(clamped.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 10.0));
+}
+
+#[test]
+fn test_corridor_keeps_vertical_separation_for_a_closing_mob() {
+    let on_same_deck = walker(1, (0.0, 200.0), (0.0, -60.0));
+    let on_bridge_above = walker(1, (0.0, 200.0), (0.0, -60.0)).with_elevation(500.0, 50.0);
+    assert!(!corridor_map(&[on_same_deck]).is_corridor_safe_3d(
+        CORRIDOR_P1,
+        CORRIDOR_P2,
+        10.0,
+        3.0
+    ));
+    assert!(corridor_map(&[on_bridge_above]).is_corridor_safe_3d(
+        CORRIDOR_P1,
+        CORRIDOR_P2,
+        10.0,
+        3.0
+    ));
+}
+
+#[test]
+fn test_corridor_rejects_stationary_mob_whose_aggro_exceeds_its_repulsion_radius() {
+    // 30 units off a 200-unit corridor, aggro 40, repulsion only 10. The index narrow phase used
+    // `corridor_radius + repulsion_radius` = 20, so this mob was never examined.
+    let mob = DynamicMobActor::new(
+        1,
+        Vec2D::new(0.0, 30.0),
+        Vec2D::new(0.0, 0.0),
+        40.0,
+        10.0,
+        1.0,
+    );
+    let map = corridor_map(&[mob]);
+    assert!(!map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 0.0));
+}
+
+#[test]
+fn test_corridor_rejects_mob_standing_at_either_end() {
+    for x in [-100.0, 100.0] {
+        let map = corridor_map(&[walker(1, (x, 0.0), (0.0, 0.0))]);
+        assert!(
+            !map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 0.0),
+            "mob at x={x} must block the corridor"
+        );
+    }
+    // Just past the end, outside aggro 40 + corridor 10 of the clamped end point.
+    let beyond = corridor_map(&[walker(1, (151.0, 0.0), (0.0, 0.0))]);
+    assert!(beyond.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 0.0));
+}
+
+#[test]
+fn test_corridor_check_matches_reference_on_random_mob_fields() {
+    let mut state: u64 = 0x9E37_79B9_7F4A_7C15;
+    let mut next = move || {
+        state = state
+            .wrapping_mul(6_364_136_223_846_793_005)
+            .wrapping_add(1_442_695_040_888_963_407);
+        ((state >> 11) as f64) / ((1u64 << 53) as f64)
+    };
+    let range = |lo: f64, hi: f64, next: &mut dyn FnMut() -> f64| lo + (hi - lo) * next();
+
+    let mut unsafe_cases = 0;
+    let mut safe_cases = 0;
+    for case in 0..400 {
+        let mob_count = 1 + (next() * 6.0) as u64;
+        let mut mobs = Vec::new();
+        for id in 0..mob_count {
+            let aggro = range(15.0, 60.0, &mut next);
+            let mob = DynamicMobActor::new(
+                id,
+                Vec2D::new(
+                    range(-500.0, 500.0, &mut next),
+                    range(-500.0, 500.0, &mut next),
+                ),
+                Vec2D::new(range(-90.0, 90.0, &mut next), range(-90.0, 90.0, &mut next)),
+                aggro,
+                aggro * range(0.2, 1.8, &mut next),
+                1.0,
+            )
+            .with_lookahead(range(1.0, 5.0, &mut next));
+            let elevation = [0.0, 0.0, 30.0, -30.0, 200.0][(next() * 5.0) as usize % 5];
+            mobs.push(mob.with_elevation(elevation, 50.0));
+        }
+        let map = corridor_map(&mobs);
+        let p1 = (
+            range(-300.0, 300.0, &mut next),
+            range(-300.0, 300.0, &mut next),
+            range(-60.0, 60.0, &mut next),
+        );
+        let p2 = (
+            range(-300.0, 300.0, &mut next),
+            range(-300.0, 300.0, &mut next),
+            range(-60.0, 60.0, &mut next),
+        );
+        let radius = range(5.0, 25.0, &mut next);
+        let arrival = range(0.0, 6.0, &mut next);
+
+        let expected = corridor_safe_reference(&map, p1, p2, radius, arrival);
+        let actual = map.is_corridor_safe_3d(p1, p2, radius, arrival);
+        assert_eq!(
+            actual, expected,
+            "case {case}: p1={p1:?} p2={p2:?} radius={radius} arrival={arrival} mobs={mobs:?}"
+        );
+        if expected {
+            safe_cases += 1;
+        } else {
+            unsafe_cases += 1;
+        }
+    }
+    // The comparison only means something if both outcomes actually occur.
+    assert!(safe_cases >= 30, "only {safe_cases} safe cases");
+    assert!(unsafe_cases >= 30, "only {unsafe_cases} unsafe cases");
+}

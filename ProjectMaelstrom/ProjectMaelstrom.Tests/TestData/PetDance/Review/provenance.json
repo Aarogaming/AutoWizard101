@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "source": ".local/parallel-recognition-20261109/selection-seek/frame-18.46.png",
+  "source_sha256": "769de99bd89bdd6c007084d58dba89f8054126b15992b671009881ea06ef738f",
+  "encoded_pts_seconds": 18.466667,
+  "crop": [
+    754,
+    568,
+    90,
+    25
+  ],
+  "file": "play-enabled-hover.png",
+  "sha256": "21f4792624b888b76493bd6db295c30d07073246a20b5ec4231c5d10dfb042ca",
+  "label": "enabled-hover-or-press",
+  "label_basis": "Manually reviewed saved Dance instructions: pink/white Play appearance after pointer leaves the selected Wizard City icon; panel disappears by encoded time18.60. Same-recording calibration, not a fresh-session holdout.",
+  "input_video_alignment_verified": false,
+  "runtime_enabled": false
+}

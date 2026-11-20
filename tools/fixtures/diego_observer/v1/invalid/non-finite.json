@@ -1,0 +1,45 @@
+{
+  "mode": "offline-observer",
+  "inputSent": false,
+  "sourceSize": [
+    760,
+    420
+  ],
+  "playArea": [
+    20,
+    60,
+    720,
+    300
+  ],
+  "exampleCount": 2,
+  "similarityThreshold": 0.94,
+  "detections": [
+    {
+      "label": "Diego",
+      "box": [
+        120,
+        230,
+        55,
+        76
+      ],
+      "similarity": NaN
+    },
+    {
+      "label": "Barrel",
+      "box": [
+        550,
+        261,
+        45,
+        45
+      ],
+      "similarity": 1.0
+    }
+  ],
+  "tracks": [],
+  "suggestions": [
+    "Barrel: gap 375px, relative motion unknown. Jump candidate; check approach distance. Timing is uncalibrated."
+  ],
+  "spawnSequenceAssumed": false,
+  "limitations": "Example similarity is not probability. No motion or input timing is inferred from one frame.",
+  "syntheticDemo": true
+}

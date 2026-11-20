@@ -1,0 +1,11 @@
+# Graphical card workshop — 2026-11-12
+
+Added dependency-free dark graphical editor served by the existing optional Node-RED admin surface. Front: description/requirements/filters/qualification/limits. Back: catalog routine and options, typed conditions, run limits, priority and selected state. Existing native card library supplies save/load/versioning. No arbitrary executable actions or new input owner.
+
+Replay integration uses the installed executable's existing --replay-routine in a hidden bounded subprocess (no shell,60seconds), with report validation. It sends no game inputs and does not attach a client. Conditions/filters are explicitly refused for recorded-graph replay because this path cannot establish card eligibility; original conditional cards remain preserved. This is a visible limitation, not a false passing conditional replay.
+
+Actual browser evidence: opened back, configured recorded Idle transition graph/session, added energy>=10, saved bdc30eaf10164179b0b5917267268bdd; replay correctly refused to bypass condition. Removed condition and saved separate73a392f357124f61b1ae3f88689dfc5a version, loaded it and completed replay with zero desktop inputs. Report .local/card-editor-45/library/replay-reports/de6f14cd-d257-4206-a6d0-c30f3cbeaa86.json. Browser screenshot front.png/back.png under .local/card-editor-45. Fixed duplicate catalog facts in requirement dropdown; reloaded and verified unique options.
+
+Checks:9 automated tests pass (3editor,2library,4bridge);2older integration tests explicitly skipped because their distinct host was not running. Browser test above is the current real installed-executable integration evidence. Server and extracted browser JS syntax pass. No standalone JS formatter/linter configured. No C# edits or native rebuild. Board validation passes.
+
+Known limits: optional local Node-RED surface, not native-app packaged UI; saved picker uses IDs; loaded filters preserved but no graphical filter editor; no dirty-edit navigation guard; upstream catalog includes legacy mojibake text; full conditional-card replay still pending. File paths are currently text fields. No live qualification implied. User is playing W101; all work stayed on disconnected isolated owner. Test processes stopped afterward.

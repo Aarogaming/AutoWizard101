@@ -1,0 +1,89 @@
+{
+  "schema_version": 2,
+  "pack_id": "dodge-baseline",
+  "title": "Dodge the Creeps - experimental baseline",
+  "game_id": "godot-dodge-the-creeps",
+  "version": "0.1.0",
+  "status": "draft",
+  "capabilities": [
+    "keyboard"
+  ],
+  "actions": [
+    {
+      "id": "move-left",
+      "title": "Move left",
+      "key": "LEFT",
+      "duration_ms": 120
+    },
+    {
+      "id": "move-right",
+      "title": "Move right",
+      "key": "RIGHT",
+      "duration_ms": 120
+    },
+    {
+      "id": "move-up",
+      "title": "Move up",
+      "key": "UP",
+      "duration_ms": 120
+    },
+    {
+      "id": "move-down",
+      "title": "Move down",
+      "key": "DOWN",
+      "duration_ms": 120
+    }
+  ],
+  "skills": [
+    {
+      "id": "avoid-left",
+      "when": {
+        "state": "dodge-advice-left"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-left"
+        }
+      }
+    },
+    {
+      "id": "avoid-right",
+      "when": {
+        "state": "dodge-advice-right"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-right"
+        }
+      }
+    },
+    {
+      "id": "avoid-up",
+      "when": {
+        "state": "dodge-advice-up"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-up"
+        }
+      }
+    },
+    {
+      "id": "avoid-down",
+      "when": {
+        "state": "dodge-advice-down"
+      },
+      "propose": {
+        "type": "action",
+        "parameters": {
+          "action_id": "move-down"
+        }
+      }
+    }
+  ],
+  "fixtures": [],
+  "dependencies": []
+}

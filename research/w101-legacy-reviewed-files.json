@@ -1,0 +1,20 @@
+{
+  "afk-wizard-main-73eb31ecf4/afk-wizard-main/main.py": "c3f3ddf1c3a7455b40ce8a03aeda089d5d57401af7d0439428e03828a81d5505",
+  "Automatus-v2-master-e87cca6a6b/Automatus-v2-master/lib/statistic.py": "c439f291164caed1c92ef7549a129c39cefe148f46b4abfe8025747c085c25cc",
+  "Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deck_encoder.py": "af70c3892c461f00a73284302d7586388ca440d9abf9f06494aa59dd38be4800",
+  "Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/teleport_math.py": "27cff8188489a118462b3e9c7887af8930a9aff0b0b5f9bcdf548007df8fc68d",
+  "Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/ir.py": "163f93714085b624c89a7f3428c848bc5276575cebd185f5242ff93b326d441b",
+  "Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/parser.py": "c90d6060687efd8d7d25a7b2945722e0358ae48daedde2b711306a32edc66fe1",
+  "Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/sem.py": "b2041a60d52131ded067b37cd7adbf30416d188e753cdba786ad0c552dd8792e",
+  "Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/tokenizer.py": "6810d3a4c09bf2e72285b99129043f0d328706d50807a4c713f991563271b9fc",
+  "Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/types.py": "8976701af71bc1585568800fab8c7a585fc7305d4b602319bed30c6d8ade9b54",
+  "Deimos-Wizard101-main-0e4ce956b8/Deimos-Wizard101-main/src/deimoslang/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "Deimos-Wizard101-master-47db55d724/Deimos-Wizard101-master/src/teleport_math.py": "a73965fb7aa622c417a40a0417378092c3896b83195c94b475d16b0c195f7763",
+  "gardening-bot-main-ff395a786a/gardening-bot-main/utils/actions.py": "095ec62ac2363cd57fc175095cdbaaf0e4f41994064ec4233617e60552fcdc67",
+  "wizAPI-master-b2853c3b41/wizAPI-master/wizAPI.py": "b107d85fca9ac0e8aa0f6a68ec144cf627c26d37a82b55811c29cb706c87a793",
+  "Wizard101-Bazaar-Tc-Farming-master-7115291770/Wizard101-Bazaar-Tc-Farming-master/imagesearch.py": "875cbdd8959f8e0e26bed30af5b3b02253d7ab5178378874f7cde744b76eeee9",
+  "Wizard101-Farming-main-71848d31dc/Wizard101-Farming-main/Play.py": "95f0baab211d4265f88785d7dde7f9e8fc12224a92dc59a4f47039590598ff82",
+  "wizSDK-master-f88867bc09/wizSDK-master/wizsdk/pixels.py": "cd7710cdf5bb10191662fcaaaca2de0892a044d7b3331de432a6843cc8cd5cf7",
+  "wizwad-main-f4e9103b9e/wizwad-main/wizwad/wad.py": "4df4c914b8d57bdbeae58dfe6c5f15322b68b38db9cd3cbe4e2ea30c022ac31b",
+  "wizwalker-master-265c50b940/wizwalker-master/wizwalker/file_readers/wad.py": "c5a4cf05987365a6016a7597cc0486812c5da26887cc12a54448d5b599fea5f2"
+}

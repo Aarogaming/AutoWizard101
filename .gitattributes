@@ -1,0 +1,10 @@
+# Reviewed adapter hashes are byte-sensitive. Preserve their qualified checkout
+# bytes independently of each contributor's core.autocrlf setting.
+tools/w101_ui_tree.py text eol=crlf
+tools/w101_identity.py text eol=lf
+tools/wizwalker_adapter.py text eol=lf
+tools/w101_pose_reader.py text eol=lf
+tools/w101_combat_reader.py text eol=lf
+tools/w101_duel_reader.py text eol=lf
+tools/w101_zone_reader.py text eol=lf
+tools/w101_moving_pose.py text eol=crlf

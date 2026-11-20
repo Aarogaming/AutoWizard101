@@ -19,6 +19,8 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <!-- Compile the preserved experiment only into this offline test assembly. -->
+    <Compile Include="..\ProjectMaelstrom\Utilities\GenericMacroDeck.cs" Link="Prototypes\GenericMacroDeck.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +30,11 @@
 
   <ItemGroup>
     <None Include="TestData\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\tools\fixtures\game_packs\dodge-context\pack.json" Link="TestData\DodgeContext\pack.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\tools\fixtures\game_packs\dodge-context-v2\pack.json" Link="TestData\DodgeContextV2\pack.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\tools\fixtures\game_packs\dodge-context-v3\pack.json" Link="TestData\DodgeContextV3\pack.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\tools\fixtures\game_packs\dodge-context-v4\pack.json" Link="TestData\DodgeContextV4\pack.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\tools\fixtures\game_packs\dodge-context-v12\pack.json" Link="TestData\DodgeContextV12\pack.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

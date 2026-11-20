@@ -1,0 +1,20 @@
+[package]
+name = "maelstrom-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", default-features = false, features = ["derive", "alloc"] }
+# serde_json removed as unused in lib, added as dev-dependency
+uuid = { version = "1.10", default-features = false, features = ["v4", "serde"] }
+thiserror = { version = "2.0", optional = true }
+flate2 = { version = "1.0", optional = true }
+base64 = { version = "0.22", optional = true }
+
+[features]
+default = ["std", "deck_codec"]
+std = ["serde/std", "uuid/std"]
+deck_codec = ["flate2", "base64", "thiserror", "std"]
+
+[dev-dependencies]
+serde_json = { version = "1.0", features = ["alloc"] }

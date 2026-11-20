@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "kind": "saved-footage-dance-selection-calibration",
+  "source_video": "F:\\Modlists\\AutoWizard101\\.local\\w101-route-study\\lifecycle-01\\video\\capture.mp4",
+  "source_video_sha256": "88329347100875165c93a777b0ad7b997d372dc73c8267f8fd4eddcc04b40317",
+  "source_seek_manifest": ".local/parallel-recognition-20261109/selection-seek/selection-seek.json",
+  "source_seek_manifest_sha256": "1dc4f64f76c1457860c5396252852d76db00686e9fee61a27b49da7708c7d787",
+  "arena": "WizardCity",
+  "qualified_geometry": [
+    1282,
+    760
+  ],
+  "control_crop": [
+    452,
+    485,
+    59,
+    55
+  ],
+  "references": [
+    {
+      "file": "unselected.png",
+      "sha256": "494ed1a3814aa7a1e88db9e64b4cf86e08998fa2e4eb9abbaffe19080738cd89",
+      "width": 59,
+      "height": 55,
+      "source_file": ".local/parallel-recognition-20261109/selection-seek/frame-11.50.png",
+      "source_sha256": "81774ef2ea63f10e6dd7b1e5e30d9962068c7db6648c260f09d0097448bf0ce8",
+      "source_geometry": [
+        1282,
+        760
+      ],
+      "source_pts_seconds": 11.5,
+      "source_crop": [
+        452,
+        485,
+        59,
+        55
+      ],
+      "role": "calibration-unselected"
+    },
+    {
+      "file": "selected-hover.png",
+      "sha256": "efe4c2084c3873920252675164e80ed8adb7c97f1c0e79a242e1b2c6db76b680",
+      "width": 59,
+      "height": 55,
+      "source_file": ".local/parallel-recognition-20261109/selection-seek/frame-11.85.png",
+      "source_sha256": "5fb44be5cbab7bf8bad5f8995ae8e171142cc75d116d55aa54d791b7f975ef81",
+      "source_geometry": [
+        1282,
+        760
+      ],
+      "source_pts_seconds": 11.85,
+      "source_crop": [
+        452,
+        485,
+        59,
+        55
+      ],
+      "role": "same-recording-evaluation-hover-not-an-independent-holdout"
+    },
+    {
+      "file": "selected-away.png",
+      "sha256": "69eaba30b29f7ca16d021c1c7ea48ef18beae1f4ed25de1bad775a3193a987dd",
+      "width": 59,
+      "height": 55,
+      "source_file": ".local/parallel-recognition-20261109/selection-seek/frame-18.46.png",
+      "source_sha256": "769de99bd89bdd6c007084d58dba89f8054126b15992b671009881ea06ef738f",
+      "source_geometry": [
+        1282,
+        760
+      ],
+      "source_pts_seconds": 18.466667,
+      "source_crop": [
+        452,
+        485,
+        59,
+        55
+      ],
+      "role": "calibration-selected-after-pointer-away"
+    }
+  ],
+  "additional_saved_frames": [
+    {
+      "file": "frame-11.50.png",
+      "requested_seconds": 11.5,
+      "first_showinfo_pts": [
+        "690000",
+        "11.5"
+      ],
+      "width": 1282,
+      "height": 760,
+      "sha256": "81774ef2ea63f10e6dd7b1e5e30d9962068c7db6648c260f09d0097448bf0ce8",
+      "bytes": 998989,
+      "elapsed_seconds": 0.109
+    },
+    {
+      "file": "frame-11.62.png",
+      "requested_seconds": 11.62,
+      "first_showinfo_pts": [
+        "698000",
+        "11.633333"
+      ],
+      "width": 1282,
+      "height": 760,
+      "sha256": "55359b4b5e49db05276b4a6ee3787b57c8928902df00533d323a31a1a216e64a",
+      "bytes": 999394,
+      "elapsed_seconds": 0.11
+    },
+    {
+      "file": "frame-11.68.png",
+      "requested_seconds": 11.68,
+      "first_showinfo_pts": [
+        "701000",
+        "11.683333"
+      ],
+      "width": 1282,
+      "height": 760,
+      "sha256": "1e7f8ade110b1a4749156bb6617171efa9aaa0331b799d0869764c584d5dc1c0",
+      "bytes": 1010020,
+      "elapsed_seconds": 0.11
+    },
+    {
+      "file": "frame-11.85.png",
+      "requested_seconds": 11.85,
+      "first_showinfo_pts": [
+        "711000",
+        "11.85"
+      ],
+      "width": 1282,
+      "height": 760,
+      "sha256": "5fb44be5cbab7bf8bad5f8995ae8e171142cc75d116d55aa54d791b7f975ef81",
+      "bytes": 1011030,
+      "elapsed_seconds": 0.125
+    },
+    {
+      "file": "frame-18.30.png",
+      "requested_seconds": 18.3,
+      "first_showinfo_pts": [
+        "1098000",
+        "18.3"
+      ],
+      "width": 1282,
+      "height": 760,
+      "sha256": "a46047f8564cbf38835f3c00e93979bf255b138dc1b49021320a53b7c88b4bf9",
+      "bytes": 992854,
+      "elapsed_seconds": 0.109
+    },
+    {
+      "file": "frame-18.40.png",
+      "requested_seconds": 18.4,
+      "first_showinfo_pts": [
+        "1104000",
+        "18.4"
+      ],
+      "width": 1282,
+      "height": 760,
+      "sha256": "03b3e162036674e8fd1a081340b38554ccdb271e2ef5dc2f36ebde8262b28613",
+      "bytes": 993159,
+      "elapsed_seconds": 0.11
+    },
+    {
+      "file": "frame-18.46.png",
+      "requested_seconds": 18.46,
+      "first_showinfo_pts": [
+        "1108000",
+        "18.466667"
+      ],
+      "width": 1282,
+      "height": 760,
+      "sha256": "769de99bd89bdd6c007084d58dba89f8054126b15992b671009881ea06ef738f",
+      "bytes": 1011893,
+      "elapsed_seconds": 0.109
+    },
+    {
+      "file": "frame-18.60.png",
+      "requested_seconds": 18.6,
+      "first_showinfo_pts": [
+        "1116000",
+        "18.6"
+      ],
+      "width": 1282,
+      "height": 760,
+      "sha256": "978430b16fa10974b4ac56e77a1144af5214d6eba7d6ddfca6dc3bedc92f601c",
+      "bytes": 847049,
+      "elapsed_seconds": 0.109
+    }
+  ],
+  "qualification": {
+    "live_qualified": false,
+    "independent_recordings": 1,
+    "independent_session_holdout": false,
+    "exact_input_video_alignment_verified": false,
+    "hover_only_unselected_negative_available": false,
+    "pointer_away_basis": "At18.466667s the Wizard City tooltip is gone, PLAY has its hover/press appearance, and the first icon remains highlighted. Pointer-away must be independently supplied for each analyzed image; missing cursor pixels alone are not proof.",
+    "arena_identity_basis": "Wizard City tooltip and first-icon location in this saved layout; caller must independently identify the same current control.",
+    "same_recording_limit": "11.85 is withheld from reference construction but is a nearby same-recording sample, not independent holdout evidence. Its hovered appearance is expected Unknown.",
+    "input_limit": "Saved supervised input timings are context only, not a bound action receipt and not exact video alignment. No new input was sent."
+  },
+  "calibration_thresholds": {
+    "minimum_similarity": 0.94,
+    "minimum_margin": 0.025
+  },
+  "resource_bounds": {
+    "crop_pixels": 3245,
+    "feature_rgb_values": 2304,
+    "comparisons": 2,
+    "full_screen_search": false
+  },
+  "other_arenas_layouts_scales": "Unknown until separately qualified"
+}

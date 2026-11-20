@@ -1,0 +1,176 @@
+{
+  "reviewedOn": "2026-10-30",
+  "scope": "17 repositories returned by configured GitHub connection; second page empty. Selected-source review, not exhaustive audit or upstream test certification.",
+  "repositories": [
+    {
+      "name": "AutoWizard101",
+      "revision": "5b5c2400809dbcb9a146254036ffb86fce148094",
+      "branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "license": "GPL-3.0",
+      "reviewDepth": "selected-source-review",
+      "decision": "Current baseline; preserve local guided tools and observer."
+    },
+    {
+      "name": "Wizard101_DanceBot",
+      "revision": "ca0ec613182a803b66dd9ce0f4a14ca631d9ab27",
+      "branch": "main",
+      "archived": true,
+      "visibility": "public",
+      "license": "none detected",
+      "reviewDepth": "overview-screen",
+      "decision": "Already adapted locally; keep isolated backend. No second implementation."
+    },
+    {
+      "name": "AaroneousAutomationSuite",
+      "revision": "4b52088a021abdbcb8029e3d3ad3a8cc3748a608",
+      "branch": "master",
+      "archived": false,
+      "visibility": "private",
+      "license": "none detected",
+      "reviewDepth": "selected-source-review",
+      "decision": "Inspect workflow concept only; reject whole kernel import. Missing asyncio import in reviewed workflow."
+    },
+    {
+      "name": "AndroidApp",
+      "revision": "b68dbf351efa19b0d8508d109760714e8adf84a0",
+      "branch": "main",
+      "archived": false,
+      "visibility": "private",
+      "license": "none detected",
+      "reviewDepth": "selected-source-review",
+      "decision": "Defer mobile UI; unique background work/backoff is inspiration, Android WorkManager is not a Windows component."
+    },
+    {
+      "name": "Merlin",
+      "revision": "191b9371e20cbc246a140a2b5624aa5ebbefb227",
+      "branch": "main",
+      "archived": false,
+      "visibility": "private",
+      "license": "none detected",
+      "reviewDepth": "selected-source-review",
+      "decision": "Adapt routing explanations, fallback codes and policy version when a model adapter is added. No model/server import now."
+    },
+    {
+      "name": "MyFortress",
+      "revision": "3a9b922f8ccc86b560cd38d049bdf30962c0b290",
+      "branch": "main",
+      "archived": false,
+      "visibility": "private",
+      "license": "none detected",
+      "reviewDepth": "selected-source-review",
+      "decision": "Defer gateway; rate limiter needs monotonic time, bounded key retention and concurrency review."
+    },
+    {
+      "name": "Maelstrom",
+      "revision": "bb6e3608ec0e85cc4d07bb1cda9810a19d505fd0",
+      "branch": "main",
+      "archived": false,
+      "visibility": "private",
+      "license": "none detected",
+      "reviewDepth": "selected-source-review",
+      "decision": "Compare selectively; existing local MinigameCatalog counterpart makes wholesale copying redundant."
+    },
+    {
+      "name": "Library",
+      "revision": "9ee5442d05441525ff2aac70dd4be88c82f28836",
+      "branch": "main",
+      "archived": false,
+      "visibility": "private",
+      "license": "none detected",
+      "reviewDepth": "selected-source-review",
+      "decision": "Adapt artifact/run identity and evidence references. Do not adopt compile/decompile-specific provenance or entire governance."
+    },
+    {
+      "name": "Workbench",
+      "revision": "7df1b0ca5ec3275b18e597e4a25127df00a5dfc9",
+      "branch": "main",
+      "archived": false,
+      "visibility": "private",
+      "license": "none detected",
+      "reviewDepth": "selected-source-review",
+      "decision": "Apply digest-verification approach to existing fixtures with stricter validation. No verbatim source imported."
+    },
+    {
+      "name": "Aarogaming.github.io",
+      "revision": "4317c4c8de4e0d0f71a7fec02af6ba7f298c2565",
+      "branch": "main",
+      "archived": false,
+      "visibility": "private",
+      "license": "none detected",
+      "reviewDepth": "overview-screen",
+      "decision": "README-only site scaffold; no current reuse."
+    },
+    {
+      "name": "opencode",
+      "revision": "f0a9075fdf4d2c93ca3e1b27b953a871b03846ce",
+      "branch": "dev",
+      "archived": false,
+      "visibility": "public",
+      "license": "MIT",
+      "reviewDepth": "overview-screen",
+      "decision": "Defer full coding-agent stack; outside gameplay/observer scope."
+    },
+    {
+      "name": "chatterbox",
+      "revision": "a29d61f35a0c684d2e0b9d3b36122d0a7fe41e18",
+      "branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "license": "MIT",
+      "reviewDepth": "overview-screen",
+      "decision": "Defer optional spoken coaching until needed; model/runtime dependencies are unnecessary now."
+    },
+    {
+      "name": "alexa-skills-kit-sdk-for-java",
+      "revision": "e7f16b0523b24a34a7971d4df7ecbb48b4539639",
+      "branch": "2.0.x",
+      "archived": true,
+      "visibility": "public",
+      "license": "Apache-2.0",
+      "reviewDepth": "overview-screen",
+      "decision": "Defer; Alexa/Java service integration does not solve current desktop needs."
+    },
+    {
+      "name": "Guild",
+      "revision": "b3749df871403488532a950c51476805dabd77ab",
+      "branch": "main",
+      "archived": false,
+      "visibility": "private",
+      "license": "MIT",
+      "reviewDepth": "selected-source-review",
+      "decision": "Adapt separation of observation, decision, execution and health. Do not copy permissive lifecycle transitions."
+    },
+    {
+      "name": "circuit-simulator",
+      "revision": "ac24c4f534b914a14481a31b0b16b580d4e02328",
+      "branch": "master",
+      "archived": false,
+      "visibility": "public",
+      "license": "none detected",
+      "reviewDepth": "overview-screen",
+      "decision": "No relevant implementation reuse; domain mismatch and restrictive original license terms."
+    },
+    {
+      "name": "aaroneous",
+      "revision": "a3383f2feeeee32a47bcd11e34698cfc0d138131",
+      "branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "license": "MIT",
+      "reviewDepth": "selected-source-review",
+      "decision": "Keep previously reviewed resource-governor/adapter ideas; no Rust rewrite."
+    },
+    {
+      "name": "aaroneous-devtools",
+      "revision": "513a246e76aac42b9d49fd522bc14e7c67d5ffc7",
+      "branch": "main",
+      "archived": false,
+      "visibility": "public",
+      "license": "MIT",
+      "reviewDepth": "selected-source-review",
+      "decision": "Highest priority follow-on: attempt receipts, stale-result rejection and explicit recovery."
+    }
+  ]
+}

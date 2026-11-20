@@ -1,0 +1,1436 @@
+{
+  "schema_version": 1,
+  "kind": "saved-image-ocr",
+  "capture_times_available": false,
+  "dispatch_count": 0,
+  "selection_detector_qualified": false,
+  "frames": [
+    {
+      "id": "instructions-disabled",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-006.png",
+      "image_sha256": "78c7e1cd3482a0bc0130ee180f559875751d23c4a023353ac74062428b5f0de1",
+      "expected_ocr_scene": "InstructionsUnselected",
+      "image_size": {
+        "width": 1282,
+        "height": 760
+      },
+      "words": [
+        {
+          "text": "Wizard101",
+          "bounds": {
+            "x": 37,
+            "y": 14,
+            "width": 68,
+            "height": 11
+          }
+        },
+        {
+          "text": "DANCE",
+          "bounds": {
+            "x": 591,
+            "y": 211,
+            "width": 50,
+            "height": 15
+          }
+        },
+        {
+          "text": "GAME",
+          "bounds": {
+            "x": 646,
+            "y": 212,
+            "width": 45,
+            "height": 14
+          }
+        },
+        {
+          "text": "102",
+          "bounds": {
+            "x": 21,
+            "y": 684,
+            "width": 30,
+            "height": 15
+          }
+        },
+        {
+          "text": "n",
+          "bounds": {
+            "x": 654,
+            "y": 713,
+            "width": 3,
+            "height": 5
+          }
+        },
+        {
+          "text": "Wiurd",
+          "bounds": {
+            "x": 663,
+            "y": 711,
+            "width": 29,
+            "height": 8
+          }
+        },
+        {
+          "text": "City",
+          "bounds": {
+            "x": 697,
+            "y": 711,
+            "width": 17,
+            "height": 10
+          }
+        },
+        {
+          "text": "GAArs",
+          "bounds": {
+            "x": 521,
+            "y": 253,
+            "width": 35,
+            "height": 10
+          }
+        },
+        {
+          "text": "WON",
+          "bounds": {
+            "x": 559,
+            "y": 252,
+            "width": 23,
+            "height": 11
+          }
+        },
+        {
+          "text": "4",
+          "bounds": {
+            "x": 484,
+            "y": 317,
+            "width": 9,
+            "height": 14
+          }
+        },
+        {
+          "text": "0",
+          "bounds": {
+            "x": 500,
+            "y": 312,
+            "width": 25,
+            "height": 26
+          }
+        },
+        {
+          "text": "S2iss",
+          "bounds": {
+            "x": 535,
+            "y": 309,
+            "width": 46,
+            "height": 22
+          }
+        },
+        {
+          "text": "O",
+          "bounds": {
+            "x": 589,
+            "y": 312,
+            "width": 25,
+            "height": 26
+          }
+        },
+        {
+          "text": "OBJECTIVE",
+          "bounds": {
+            "x": 437,
+            "y": 343,
+            "width": 66,
+            "height": 11
+          }
+        },
+        {
+          "text": "Repeat",
+          "bounds": {
+            "x": 437,
+            "y": 360,
+            "width": 37,
+            "height": 13
+          }
+        },
+        {
+          "text": "the",
+          "bounds": {
+            "x": 479,
+            "y": 360,
+            "width": 18,
+            "height": 10
+          }
+        },
+        {
+          "text": "ar•rcw",
+          "bounds": {
+            "x": 502,
+            "y": 363,
+            "width": 30,
+            "height": 7
+          }
+        },
+        {
+          "text": "seqence",
+          "bounds": {
+            "x": 537,
+            "y": 362,
+            "width": 48,
+            "height": 11
+          }
+        },
+        {
+          "text": "fran",
+          "bounds": {
+            "x": 437,
+            "y": 377,
+            "width": 25,
+            "height": 11
+          }
+        },
+        {
+          "text": "the",
+          "bounds": {
+            "x": 468,
+            "y": 377,
+            "width": 17,
+            "height": 10
+          }
+        },
+        {
+          "text": "screen",
+          "bounds": {
+            "x": 491,
+            "y": 379,
+            "width": 34,
+            "height": 8
+          }
+        },
+        {
+          "text": "bottom.",
+          "bounds": {
+            "x": 531,
+            "y": 377,
+            "width": 40,
+            "height": 14
+          }
+        },
+        {
+          "text": "the",
+          "bounds": {
+            "x": 472,
+            "y": 393,
+            "width": 17,
+            "height": 11
+          }
+        },
+        {
+          "text": "sequence",
+          "bounds": {
+            "x": 495,
+            "y": 396,
+            "width": 47,
+            "height": 10
+          }
+        },
+        {
+          "text": "s,'205",
+          "bounds": {
+            "x": 791,
+            "y": 255,
+            "width": 40,
+            "height": 12
+          }
+        },
+        {
+          "text": "TRENGTH",
+          "bounds": {
+            "x": 676,
+            "y": 258,
+            "width": 49,
+            "height": 11
+          }
+        },
+        {
+          "text": "'\"ELLECT",
+          "bounds": {
+            "x": 669,
+            "y": 292,
+            "width": 55,
+            "height": 12
+          }
+        },
+        {
+          "text": "'0/220",
+          "bounds": {
+            "x": 782,
+            "y": 290,
+            "width": 47,
+            "height": 12
+          }
+        },
+        {
+          "text": "UTL_",
+          "bounds": {
+            "x": 691,
+            "y": 328,
+            "width": 81,
+            "height": 12
+          }
+        },
+        {
+          "text": "24/230",
+          "bounds": {
+            "x": 780,
+            "y": 325,
+            "width": 49,
+            "height": 14
+          }
+        },
+        {
+          "text": "57/24S",
+          "bounds": {
+            "x": 783,
+            "y": 360,
+            "width": 48,
+            "height": 12
+          }
+        },
+        {
+          "text": "Will",
+          "bounds": {
+            "x": 556,
+            "y": 402,
+            "width": 15,
+            "height": 9
+          }
+        },
+        {
+          "text": "affects",
+          "bounds": {
+            "x": 576,
+            "y": 402,
+            "width": 31,
+            "height": 9
+          }
+        },
+        {
+          "text": "'nana.",
+          "bounds": {
+            "x": 647,
+            "y": 404,
+            "width": 24,
+            "height": 8
+          }
+        },
+        {
+          "text": "darn.",
+          "bounds": {
+            "x": 676,
+            "y": 402,
+            "width": 35,
+            "height": 11
+          }
+        },
+        {
+          "text": "outgoing",
+          "bounds": {
+            "x": 716,
+            "y": 403,
+            "width": 35,
+            "height": 10
+          }
+        },
+        {
+          "text": "larger.",
+          "bounds": {
+            "x": 438,
+            "y": 410,
+            "width": 34,
+            "height": 13
+          }
+        },
+        {
+          "text": "Gone",
+          "bounds": {
+            "x": 480,
+            "y": 410,
+            "width": 28,
+            "height": 11
+          }
+        },
+        {
+          "text": "ervis",
+          "bounds": {
+            "x": 514,
+            "y": 410,
+            "width": 24,
+            "height": 10
+          }
+        },
+        {
+          "text": "and",
+          "bounds": {
+            "x": 559,
+            "y": 416,
+            "width": 14,
+            "height": 8
+          }
+        },
+        {
+          "text": "to",
+          "bounds": {
+            "x": 618,
+            "y": 416,
+            "width": 9,
+            "height": 8
+          }
+        },
+        {
+          "text": "while",
+          "bounds": {
+            "x": 659,
+            "y": 416,
+            "width": 20,
+            "height": 8
+          }
+        },
+        {
+          "text": "running",
+          "bounds": {
+            "x": 684,
+            "y": 416,
+            "width": 29,
+            "height": 10
+          }
+        },
+        {
+          "text": "on",
+          "bounds": {
+            "x": 718,
+            "y": 418,
+            "width": 9,
+            "height": 6
+          }
+        },
+        {
+          "text": "dirt",
+          "bounds": {
+            "x": 731,
+            "y": 416,
+            "width": 16,
+            "height": 8
+          }
+        },
+        {
+          "text": "pet",
+          "bounds": {
+            "x": 782,
+            "y": 416,
+            "width": 13,
+            "height": 10
+          }
+        },
+        {
+          "text": "rounds",
+          "bounds": {
+            "x": 437,
+            "y": 427,
+            "width": 35,
+            "height": 10
+          }
+        },
+        {
+          "text": "3",
+          "bounds": {
+            "x": 495,
+            "y": 427,
+            "width": 5,
+            "height": 10
+          }
+        },
+        {
+          "text": "failures,",
+          "bounds": {
+            "x": 506,
+            "y": 427,
+            "width": 44,
+            "height": 11
+          }
+        },
+        {
+          "text": "CANCEL",
+          "bounds": {
+            "x": 463,
+            "y": 574,
+            "width": 45,
+            "height": 12
+          }
+        },
+        {
+          "text": "Expl",
+          "bounds": {
+            "x": 566,
+            "y": 711,
+            "width": 17,
+            "height": 10
+          }
+        },
+        {
+          "text": "e",
+          "bounds": {
+            "x": 594,
+            "y": 713,
+            "width": 4,
+            "height": 5
+          }
+        },
+        {
+          "text": "SELECT",
+          "bounds": {
+            "x": 604,
+            "y": 473,
+            "width": 36,
+            "height": 12
+          }
+        },
+        {
+          "text": "LEVEL",
+          "bounds": {
+            "x": 643,
+            "y": 473,
+            "width": 32,
+            "height": 11
+          }
+        },
+        {
+          "text": "PLAY!",
+          "bounds": {
+            "x": 778,
+            "y": 574,
+            "width": 42,
+            "height": 11
+          }
+        },
+        {
+          "text": "545",
+          "bounds": {
+            "x": 631.6666,
+            "y": 670.6667,
+            "width": 18,
+            "height": 8
+          }
+        },
+        {
+          "text": "Expw•e",
+          "bounds": {
+            "x": 565.3333,
+            "y": 710.3333,
+            "width": 32.333332,
+            "height": 10
+          }
+        },
+        {
+          "text": "Dark",
+          "bounds": {
+            "x": 602.3334,
+            "y": 710.6667,
+            "width": 19.666666,
+            "height": 8.333333
+          }
+        },
+        {
+          "text": "Coæ",
+          "bounds": {
+            "x": 625.6666,
+            "y": 710.3333,
+            "width": 20.333334,
+            "height": 7.6666665
+          }
+        },
+        {
+          "text": "tn",
+          "bounds": {
+            "x": 650.3334,
+            "y": 711.6667,
+            "width": 6.6666665,
+            "height": 6.3333335
+          }
+        },
+        {
+          "text": "W(zard",
+          "bounds": {
+            "x": 662.3334,
+            "y": 710.3333,
+            "width": 29.666666,
+            "height": 8.333333
+          }
+        }
+      ]
+    },
+    {
+      "id": "instructions-hovered",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-013.png",
+      "image_sha256": "7004d579dd1234ea3a0af71b997b851fb58a1e5543ee34127839c307f0776c40",
+      "expected_ocr_scene": "InstructionsUnselected",
+      "image_size": {
+        "width": 1282,
+        "height": 760
+      },
+      "words": [
+        {
+          "text": "Wizard101",
+          "bounds": {
+            "x": 37,
+            "y": 14,
+            "width": 68,
+            "height": 11
+          }
+        },
+        {
+          "text": "102",
+          "bounds": {
+            "x": 21,
+            "y": 685,
+            "width": 30,
+            "height": 14
+          }
+        },
+        {
+          "text": "76",
+          "bounds": {
+            "x": 71,
+            "y": 707,
+            "width": 20,
+            "height": 14
+          }
+        },
+        {
+          "text": "DANCE",
+          "bounds": {
+            "x": 591,
+            "y": 211,
+            "width": 50,
+            "height": 15
+          }
+        },
+        {
+          "text": "GAME",
+          "bounds": {
+            "x": 646,
+            "y": 212,
+            "width": 45,
+            "height": 14
+          }
+        },
+        {
+          "text": "GAArs",
+          "bounds": {
+            "x": 521,
+            "y": 252,
+            "width": 35,
+            "height": 11
+          }
+        },
+        {
+          "text": "WON",
+          "bounds": {
+            "x": 559,
+            "y": 252,
+            "width": 23,
+            "height": 11
+          }
+        },
+        {
+          "text": "4",
+          "bounds": {
+            "x": 484,
+            "y": 317,
+            "width": 9,
+            "height": 14
+          }
+        },
+        {
+          "text": "0",
+          "bounds": {
+            "x": 500,
+            "y": 312,
+            "width": 26,
+            "height": 26
+          }
+        },
+        {
+          "text": "si/SS",
+          "bounds": {
+            "x": 535,
+            "y": 309,
+            "width": 46,
+            "height": 22
+          }
+        },
+        {
+          "text": "O",
+          "bounds": {
+            "x": 589,
+            "y": 312,
+            "width": 25,
+            "height": 26
+          }
+        },
+        {
+          "text": "OBJECTIVE",
+          "bounds": {
+            "x": 437,
+            "y": 343,
+            "width": 66,
+            "height": 11
+          }
+        },
+        {
+          "text": "Repeat",
+          "bounds": {
+            "x": 437,
+            "y": 360,
+            "width": 37,
+            "height": 13
+          }
+        },
+        {
+          "text": "the",
+          "bounds": {
+            "x": 479,
+            "y": 360,
+            "width": 18,
+            "height": 10
+          }
+        },
+        {
+          "text": "seqence",
+          "bounds": {
+            "x": 537,
+            "y": 362,
+            "width": 48,
+            "height": 11
+          }
+        },
+        {
+          "text": "fran",
+          "bounds": {
+            "x": 437,
+            "y": 377,
+            "width": 25,
+            "height": 11
+          }
+        },
+        {
+          "text": "the",
+          "bounds": {
+            "x": 468,
+            "y": 377,
+            "width": 17,
+            "height": 10
+          }
+        },
+        {
+          "text": "screen",
+          "bounds": {
+            "x": 491,
+            "y": 379,
+            "width": 34,
+            "height": 8
+          }
+        },
+        {
+          "text": "bottom,",
+          "bounds": {
+            "x": 531,
+            "y": 377,
+            "width": 40,
+            "height": 10
+          }
+        },
+        {
+          "text": "Each",
+          "bounds": {
+            "x": 579,
+            "y": 376,
+            "width": 24,
+            "height": 11
+          }
+        },
+        {
+          "text": "s,'205",
+          "bounds": {
+            "x": 791,
+            "y": 255,
+            "width": 40,
+            "height": 12
+          }
+        },
+        {
+          "text": "TRENGTU",
+          "bounds": {
+            "x": 676,
+            "y": 258,
+            "width": 49,
+            "height": 11
+          }
+        },
+        {
+          "text": "10/220",
+          "bounds": {
+            "x": 782,
+            "y": 290,
+            "width": 47,
+            "height": 12
+          }
+        },
+        {
+          "text": "'\"ELLECT",
+          "bounds": {
+            "x": 669,
+            "y": 292,
+            "width": 55,
+            "height": 12
+          }
+        },
+        {
+          "text": "UTL_24/230",
+          "bounds": {
+            "x": 691,
+            "y": 325,
+            "width": 138,
+            "height": 15
+          }
+        },
+        {
+          "text": "57/245",
+          "bounds": {
+            "x": 783,
+            "y": 359,
+            "width": 48,
+            "height": 13
+          }
+        },
+        {
+          "text": "round",
+          "bounds": {
+            "x": 437,
+            "y": 393,
+            "width": 29,
+            "height": 11
+          }
+        },
+        {
+          "text": "the",
+          "bounds": {
+            "x": 472,
+            "y": 393,
+            "width": 17,
+            "height": 11
+          }
+        },
+        {
+          "text": "sequence",
+          "bounds": {
+            "x": 495,
+            "y": 396,
+            "width": 47,
+            "height": 10
+          }
+        },
+        {
+          "text": "gets",
+          "bounds": {
+            "x": 547,
+            "y": 394,
+            "width": 23,
+            "height": 13
+          }
+        },
+        {
+          "text": "lorger.",
+          "bounds": {
+            "x": 438,
+            "y": 410,
+            "width": 34,
+            "height": 13
+          }
+        },
+        {
+          "text": "Gane",
+          "bounds": {
+            "x": 480,
+            "y": 411,
+            "width": 28,
+            "height": 10
+          }
+        },
+        {
+          "text": "ervis",
+          "bounds": {
+            "x": 514,
+            "y": 410,
+            "width": 24,
+            "height": 11
+          }
+        },
+        {
+          "text": "after",
+          "bounds": {
+            "x": 543,
+            "y": 410,
+            "width": 29,
+            "height": 11
+          }
+        },
+        {
+          "text": "5",
+          "bounds": {
+            "x": 577,
+            "y": 410,
+            "width": 6,
+            "height": 11
+          }
+        },
+        {
+          "text": "rounds",
+          "bounds": {
+            "x": 437,
+            "y": 427,
+            "width": 35,
+            "height": 10
+          }
+        },
+        {
+          "text": "3",
+          "bounds": {
+            "x": 495,
+            "y": 427,
+            "width": 5,
+            "height": 10
+          }
+        },
+        {
+          "text": "failures,",
+          "bounds": {
+            "x": 506,
+            "y": 427,
+            "width": 44,
+            "height": 11
+          }
+        },
+        {
+          "text": "CIT",
+          "bounds": {
+            "x": 491,
+            "y": 548,
+            "width": 11,
+            "height": 7
+          }
+        },
+        {
+          "text": "y",
+          "bounds": {
+            "x": 503,
+            "y": 550,
+            "width": 5,
+            "height": 8
+          }
+        },
+        {
+          "text": "SELECT",
+          "bounds": {
+            "x": 604,
+            "y": 473,
+            "width": 36,
+            "height": 12
+          }
+        },
+        {
+          "text": "LEVEL",
+          "bounds": {
+            "x": 643,
+            "y": 473,
+            "width": 32,
+            "height": 11
+          }
+        },
+        {
+          "text": "47/250",
+          "bounds": {
+            "x": 782,
+            "y": 394,
+            "width": 47,
+            "height": 13
+          }
+        },
+        {
+          "text": "GS/143",
+          "bounds": {
+            "x": 784,
+            "y": 429,
+            "width": 45,
+            "height": 13
+          }
+        },
+        {
+          "text": "PLAY!",
+          "bounds": {
+            "x": 778,
+            "y": 574,
+            "width": 42,
+            "height": 12
+          }
+        },
+        {
+          "text": "rd",
+          "bounds": {
+            "x": 684,
+            "y": 711,
+            "width": 8,
+            "height": 7
+          }
+        },
+        {
+          "text": "City",
+          "bounds": {
+            "x": 697,
+            "y": 711,
+            "width": 17,
+            "height": 10
+          }
+        },
+        {
+          "text": "Expw•e",
+          "bounds": {
+            "x": 565.3333,
+            "y": 710.3333,
+            "width": 32.333332,
+            "height": 10
+          }
+        },
+        {
+          "text": "Dork",
+          "bounds": {
+            "x": 602.3334,
+            "y": 710.3333,
+            "width": 19.666666,
+            "height": 8.666667
+          }
+        },
+        {
+          "text": "COE",
+          "bounds": {
+            "x": 625.6666,
+            "y": 710.3333,
+            "width": 20.333334,
+            "height": 7.6666665
+          }
+        },
+        {
+          "text": "tn",
+          "bounds": {
+            "x": 650.3334,
+            "y": 711.6667,
+            "width": 6.6666665,
+            "height": 6.3333335
+          }
+        },
+        {
+          "text": "Mzard",
+          "bounds": {
+            "x": 662.3334,
+            "y": 710.3333,
+            "width": 29.666666,
+            "height": 8.333333
+          }
+        }
+      ]
+    },
+    {
+      "id": "loading-artwork",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-020.png",
+      "image_sha256": "7aceb383428029eacea14c4ecb2d639b4a3700a3f6dc87097f078ee9d2e4240e",
+      "expected_ocr_scene": "Unknown",
+      "image_size": {
+        "width": 1282,
+        "height": 760
+      },
+      "words": []
+    },
+    {
+      "id": "sigil-title-unread",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-101.png",
+      "image_sha256": "163d93d418012c55f278a618c1a99c893788955c2d046d5d57410602da52ccaa",
+      "expected_ocr_scene": "Unknown",
+      "image_size": {
+        "width": 1282,
+        "height": 760
+      },
+      "words": [
+        {
+          "text": "Wizard101",
+          "bounds": {
+            "x": 37,
+            "y": 14,
+            "width": 68,
+            "height": 11
+          }
+        },
+        {
+          "text": "TEEN",
+          "bounds": {
+            "x": 483,
+            "y": 553,
+            "width": 38,
+            "height": 15
+          }
+        },
+        {
+          "text": "Ime",
+          "bounds": {
+            "x": 582,
+            "y": 617,
+            "width": 16,
+            "height": 8
+          }
+        },
+        {
+          "text": "bark",
+          "bounds": {
+            "x": 603,
+            "y": 617,
+            "width": 19,
+            "height": 7
+          }
+        },
+        {
+          "text": "Coye",
+          "bounds": {
+            "x": 626,
+            "y": 617,
+            "width": 20,
+            "height": 8
+          }
+        },
+        {
+          "text": "in",
+          "bounds": {
+            "x": 651,
+            "y": 617,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "text": "Wizard",
+          "bounds": {
+            "x": 663,
+            "y": 617,
+            "width": 29,
+            "height": 8
+          }
+        },
+        {
+          "text": "City",
+          "bounds": {
+            "x": 697,
+            "y": 617,
+            "width": 17,
+            "height": 9
+          }
+        },
+        {
+          "text": "or",
+          "bounds": {
+            "x": 640,
+            "y": 678,
+            "width": 14,
+            "height": 9
+          }
+        },
+        {
+          "text": "to",
+          "bounds": {
+            "x": 689,
+            "y": 676,
+            "width": 15,
+            "height": 11
+          }
+        },
+        {
+          "text": "Play",
+          "bounds": {
+            "x": 711,
+            "y": 675,
+            "width": 27,
+            "height": 15
+          }
+        },
+        {
+          "text": "Press",
+          "bounds": {
+            "x": 568,
+            "y": 675,
+            "width": 36,
+            "height": 12
+          }
+        },
+        {
+          "text": "102",
+          "bounds": {
+            "x": 21,
+            "y": 685,
+            "width": 30,
+            "height": 14
+          }
+        },
+        {
+          "text": "76",
+          "bounds": {
+            "x": 71,
+            "y": 707,
+            "width": 20,
+            "height": 14
+          }
+        },
+        {
+          "text": "lore",
+          "bounds": {
+            "x": 581.3334,
+            "y": 616.3333,
+            "width": 16.333334,
+            "height": 7.6666665
+          }
+        },
+        {
+          "text": "Dark",
+          "bounds": {
+            "x": 602.3334,
+            "y": 616.3333,
+            "width": 19.333334,
+            "height": 7.6666665
+          }
+        },
+        {
+          "text": "Caw",
+          "bounds": {
+            "x": 625.6666,
+            "y": 616.3333,
+            "width": 20.333334,
+            "height": 7.6666665
+          }
+        },
+        {
+          "text": "C)",
+          "bounds": {
+            "x": 611.6666,
+            "y": 670.6667,
+            "width": 22,
+            "height": 21
+          }
+        }
+      ]
+    },
+    {
+      "id": "idle-over-sigil",
+      "source": ".local/w101-route-study/lifecycle-01/review/inspect-123.png",
+      "image_sha256": "4ae0f6d6e97f1010d66ee3a6ccbf59eb165dd660176ff1301bfdca77beeab31c",
+      "expected_ocr_scene": "NativeIdle",
+      "image_size": {
+        "width": 1282,
+        "height": 760
+      },
+      "words": [
+        {
+          "text": "Wizard101",
+          "bounds": {
+            "x": 37,
+            "y": 14,
+            "width": 68,
+            "height": 11
+          }
+        },
+        {
+          "text": "102",
+          "bounds": {
+            "x": 21,
+            "y": 685,
+            "width": 30,
+            "height": 14
+          }
+        },
+        {
+          "text": "YOU",
+          "bounds": {
+            "x": 588,
+            "y": 55,
+            "width": 33,
+            "height": 13
+          }
+        },
+        {
+          "text": "ARE",
+          "bounds": {
+            "x": 622,
+            "y": 55,
+            "width": 33,
+            "height": 13
+          }
+        },
+        {
+          "text": "IDLE",
+          "bounds": {
+            "x": 660,
+            "y": 55,
+            "width": 32,
+            "height": 13
+          }
+        },
+        {
+          "text": "TEEN",
+          "bounds": {
+            "x": 483,
+            "y": 553,
+            "width": 38,
+            "height": 15
+          }
+        },
+        {
+          "text": "S",
+          "bounds": {
+            "x": 533,
+            "y": 549,
+            "width": 32,
+            "height": 19
+          }
+        },
+        {
+          "text": "153)",
+          "bounds": {
+            "x": 569,
+            "y": 551,
+            "width": 38,
+            "height": 22
+          }
+        },
+        {
+          "text": "Cove",
+          "bounds": {
+            "x": 626,
+            "y": 617,
+            "width": 20,
+            "height": 8
+          }
+        },
+        {
+          "text": "in",
+          "bounds": {
+            "x": 651,
+            "y": 617,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "text": "Wizard",
+          "bounds": {
+            "x": 663,
+            "y": 617,
+            "width": 29,
+            "height": 8
+          }
+        },
+        {
+          "text": "City",
+          "bounds": {
+            "x": 697,
+            "y": 617,
+            "width": 17,
+            "height": 9
+          }
+        },
+        {
+          "text": "or",
+          "bounds": {
+            "x": 640,
+            "y": 678,
+            "width": 14,
+            "height": 9
+          }
+        },
+        {
+          "text": "to",
+          "bounds": {
+            "x": 689,
+            "y": 676,
+            "width": 15,
+            "height": 11
+          }
+        },
+        {
+          "text": "Play",
+          "bounds": {
+            "x": 711,
+            "y": 675,
+            "width": 27,
+            "height": 16
+          }
+        },
+        {
+          "text": "Press",
+          "bounds": {
+            "x": 568,
+            "y": 675,
+            "width": 36,
+            "height": 13
+          }
+        },
+        {
+          "text": "lore",
+          "bounds": {
+            "x": 581.3334,
+            "y": 616.3333,
+            "width": 16.333334,
+            "height": 7.6666665
+          }
+        },
+        {
+          "text": "Dark",
+          "bounds": {
+            "x": 602.3334,
+            "y": 616.3333,
+            "width": 19.666666,
+            "height": 7.6666665
+          }
+        },
+        {
+          "text": "Caw",
+          "bounds": {
+            "x": 625.6666,
+            "y": 616.3333,
+            "width": 20,
+            "height": 7.6666665
+          }
+        },
+        {
+          "text": "C)",
+          "bounds": {
+            "x": 611.6666,
+            "y": 670.6667,
+            "width": 22,
+            "height": 21
+          }
+        },
+        {
+          "text": "Phy",
+          "bounds": {
+            "x": 710.6666,
+            "y": 674.6667,
+            "width": 27,
+            "height": 15.333333
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "maelstrom.route-preview.v1",
+  "executable": false,
+  "qualification": "unqualified-example-coordinates",
+  "coordinate_source": null,
+  "live_qualified": false,
+  "route_id": "commons-to-olde-town",
+  "title": "commons-to-olde-town",
+  "from_zone": "The Commons",
+  "to_zone": "Olde Town",
+  "tags": [
+    "hub",
+    "avenues",
+    "travel"
+  ],
+  "example_waypoints": [
+    {
+      "example_x": 0.0,
+      "example_y": 0.0,
+      "example_z": 0.0,
+      "name": "Commons World Gate Center"
+    },
+    {
+      "example_x": 20.0,
+      "example_y": 480.0,
+      "example_z": 0.0,
+      "name": "Rainbow Bridge South Pier"
+    },
+    {
+      "example_x": 35.0,
+      "example_y": 950.0,
+      "example_z": 12.0,
+      "name": "Rainbow Bridge Center Arch"
+    },
+    {
+      "example_x": 45.0,
+      "example_y": 1420.0,
+      "example_z": 15.0,
+      "name": "Olde Town Tunnel Portal"
+    },
+    {
+      "example_x": 50.0,
+      "example_y": 1780.0,
+      "example_z": 20.0,
+      "name": "Olde Town Central Plaza"
+    }
+  ],
+  "warning": "Legacy filename retained; this is not a macro. Do not use these coordinates for movement or arrival checks.",
+  "quarantined_macro_sha256": "a856798faa24c455a164bf32f6af6efddcebf9220f200bc081ee38888ecc9c76",
+  "unqualified_reference": {
+    "former_tolerance": 45.0,
+    "former_timeout_seconds": 40.0
+  }
+}

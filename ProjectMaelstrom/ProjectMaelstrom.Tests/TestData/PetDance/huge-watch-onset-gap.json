@@ -1,0 +1,625 @@
+{
+  "source_run": "20261110-010648-989f7695881e4f4486e49776a8a64c19",
+  "source_sha256": "0ABE86B99559BD615BD80B66C359E67BC04BA13348C62FA9282CF2EC8756C672",
+  "note": "Recorded Huge UI round2: capture gap concealed first Left, complete four-note audio survived. Counterfactual only; original game failed.",
+  "expected": 4,
+  "events": [
+    {
+      "qpc_ms": 1994625.8044,
+      "phase": "Success",
+      "cue": "Neutral"
+    },
+    {
+      "qpc_ms": 1995198.0117,
+      "phase": "Watch",
+      "cue": "Neutral"
+    },
+    {
+      "qpc_ms": 1995231.347,
+      "phase": "Watch",
+      "cue": "Left"
+    },
+    {
+      "qpc_ms": 1995292.4576,
+      "phase": "Watch",
+      "cue": "Left"
+    },
+    {
+      "qpc_ms": 1995359.1225,
+      "phase": "Watch",
+      "cue": "Left"
+    },
+    {
+      "qpc_ms": 1995398.0117,
+      "phase": "Watch",
+      "cue": "Left"
+    },
+    {
+      "qpc_ms": 1995470.2341,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1995509.1232,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1995548.0128,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1995581.346,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1995620.2346,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1995659.1236,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1995698.0119,
+      "phase": "Watch",
+      "cue": "Neutral"
+    },
+    {
+      "qpc_ms": 1995736.9004,
+      "phase": "Watch",
+      "cue": "Down"
+    },
+    {
+      "qpc_ms": 1995775.7874,
+      "phase": "Watch",
+      "cue": "Down"
+    },
+    {
+      "qpc_ms": 1995842.4531,
+      "phase": "Watch",
+      "cue": "Down"
+    },
+    {
+      "qpc_ms": 1995875.786,
+      "phase": "Watch",
+      "cue": "Down"
+    },
+    {
+      "qpc_ms": 1995942.4516,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1995981.3405,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996020.2292,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996059.1178,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996098.0063,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996136.8946,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996175.783,
+      "phase": "Watch",
+      "cue": "Unknown"
+    },
+    {
+      "qpc_ms": 1996214.6711,
+      "phase": "Watch",
+      "cue": "Neutral"
+    },
+    {
+      "qpc_ms": 1996286.8913,
+      "phase": "Watch",
+      "cue": "Right"
+    },
+    {
+      "qpc_ms": 1996325.7789,
+      "phase": "Watch",
+      "cue": "Right"
+    },
+    {
+      "qpc_ms": 1996392.4439,
+      "phase": "Watch",
+      "cue": "Right"
+    },
+    {
+      "qpc_ms": 1996431.3326,
+      "phase": "Watch",
+      "cue": "Right"
+    },
+    {
+      "qpc_ms": 1996470.2206,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996509.1077,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996547.9956,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996586.8831,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996625.7713,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996664.6604,
+      "phase": "Watch",
+      "cue": "Fading"
+    },
+    {
+      "qpc_ms": 1996697.9928,
+      "phase": "Watch",
+      "cue": "Neutral"
+    },
+    {
+      "qpc_ms": 1996736.8821,
+      "phase": "Go",
+      "cue": "Neutral"
+    }
+  ],
+  "audio_events": [
+    {
+      "CandidateQpcMs": 1994629.6525,
+      "AvailableQpcMs": 1994849.6525,
+      "Status": "out_of_band_or_boundary_peak",
+      "Direction": null,
+      "Similarity": 0,
+      "Margin": 0,
+      "Emitted": false,
+      "ProcessedQpcMs": 1994852.4294
+    },
+    {
+      "CandidateQpcMs": 1994679.6525,
+      "AvailableQpcMs": 1994899.6525,
+      "Status": "mixed_or_harmonic_ambiguity",
+      "Direction": null,
+      "Similarity": 0,
+      "Margin": 0,
+      "Emitted": false,
+      "ProcessedQpcMs": 1994902.5505
+    },
+    {
+      "CandidateQpcMs": 1994729.6525,
+      "AvailableQpcMs": 1994949.6525,
+      "Status": "confirming-candidate",
+      "Direction": "Left",
+      "Similarity": 0.9794854003859702,
+      "Margin": 0.6465509660331665,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995165.1986
+    },
+    {
+      "CandidateQpcMs": 1994779.6525,
+      "AvailableQpcMs": 1994999.6525,
+      "Status": "cue-candidate",
+      "Direction": "Left",
+      "Similarity": 0.9950295640029602,
+      "Margin": 0.6890155428568484,
+      "Emitted": true,
+      "ProcessedQpcMs": 1995168.6746
+    },
+    {
+      "CandidateQpcMs": 1994829.6525,
+      "AvailableQpcMs": 1995049.6525,
+      "Status": "occurrence-held",
+      "Direction": "Left",
+      "Similarity": 0.9927588710426227,
+      "Margin": 0.6882135250875185,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995171.9649
+    },
+    {
+      "CandidateQpcMs": 1994879.6525,
+      "AvailableQpcMs": 1995099.6525,
+      "Status": "occurrence-held",
+      "Direction": "Left",
+      "Similarity": 0.9903873121714144,
+      "Margin": 0.7077040459443676,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995175.2447
+    },
+    {
+      "CandidateQpcMs": 1994929.6525,
+      "AvailableQpcMs": 1995149.6525,
+      "Status": "occurrence-held",
+      "Direction": "Left",
+      "Similarity": 0.9485314012102243,
+      "Margin": 0.6883663533728429,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995178.7436
+    },
+    {
+      "CandidateQpcMs": 1994979.6525,
+      "AvailableQpcMs": 1995199.6525,
+      "Status": "occurrence-held",
+      "Direction": "Left",
+      "Similarity": 0.8872334366587808,
+      "Margin": 0.7046038794011023,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995202.5274
+    },
+    {
+      "CandidateQpcMs": 1995029.6525,
+      "AvailableQpcMs": 1995249.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.03627014701989391,
+      "Margin": 0.0009450510373398419,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995253.3442
+    },
+    {
+      "CandidateQpcMs": 1995079.6525,
+      "AvailableQpcMs": 1995299.6525,
+      "Status": "no_local_change_music_or_held_sound",
+      "Direction": null,
+      "Similarity": 0,
+      "Margin": 0,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995302.4458
+    },
+    {
+      "CandidateQpcMs": 1995129.6525,
+      "AvailableQpcMs": 1995349.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.04288491194113974,
+      "Margin": 0.003937601671806346,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995352.4213
+    },
+    {
+      "CandidateQpcMs": 1995179.6525,
+      "AvailableQpcMs": 1995399.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.4437982484514603,
+      "Margin": 0.06645750411950924,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995402.3627
+    },
+    {
+      "CandidateQpcMs": 1995229.6525,
+      "AvailableQpcMs": 1995449.6525,
+      "Status": "confirming-candidate",
+      "Direction": "Left",
+      "Similarity": 0.9331496724773092,
+      "Margin": 0.5835370519365287,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995452.563
+    },
+    {
+      "CandidateQpcMs": 1995279.6525,
+      "AvailableQpcMs": 1995499.6525,
+      "Status": "cue-candidate",
+      "Direction": "Left",
+      "Similarity": 0.996362976909888,
+      "Margin": 0.6928933902716535,
+      "Emitted": true,
+      "ProcessedQpcMs": 1995503.1361
+    },
+    {
+      "CandidateQpcMs": 1995329.6525,
+      "AvailableQpcMs": 1995549.6525,
+      "Status": "occurrence-held",
+      "Direction": "Left",
+      "Similarity": 0.994307029738248,
+      "Margin": 0.688626487825805,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995553.1266
+    },
+    {
+      "CandidateQpcMs": 1995379.6525,
+      "AvailableQpcMs": 1995599.6525,
+      "Status": "occurrence-held",
+      "Direction": "Left",
+      "Similarity": 0.9917133933273625,
+      "Margin": 0.7059674333203374,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995602.6875
+    },
+    {
+      "CandidateQpcMs": 1995429.6525,
+      "AvailableQpcMs": 1995649.6525,
+      "Status": "occurrence-held",
+      "Direction": "Left",
+      "Similarity": 0.9490776828749657,
+      "Margin": 0.6904815500730583,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995652.5156
+    },
+    {
+      "CandidateQpcMs": 1995479.6525,
+      "AvailableQpcMs": 1995699.6525,
+      "Status": "occurrence-held",
+      "Direction": "Left",
+      "Similarity": 0.8695714892145157,
+      "Margin": 0.7061197224736188,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995703.0531
+    },
+    {
+      "CandidateQpcMs": 1995529.6525,
+      "AvailableQpcMs": 1995749.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.025343926317731972,
+      "Margin": 0.002732778189062691,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995752.3928
+    },
+    {
+      "CandidateQpcMs": 1995579.6525,
+      "AvailableQpcMs": 1995799.6525,
+      "Status": "no_local_change_music_or_held_sound",
+      "Direction": null,
+      "Similarity": 0,
+      "Margin": 0,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995802.6813
+    },
+    {
+      "CandidateQpcMs": 1995629.6525,
+      "AvailableQpcMs": 1995849.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.14951410305236532,
+      "Margin": 0.01742126306775274,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995852.5983
+    },
+    {
+      "CandidateQpcMs": 1995679.6525,
+      "AvailableQpcMs": 1995899.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.8876334483584472,
+      "Margin": 0.04752137459857608,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995902.9515
+    },
+    {
+      "CandidateQpcMs": 1995729.6525,
+      "AvailableQpcMs": 1995949.6525,
+      "Status": "confirming-candidate",
+      "Direction": "Down",
+      "Similarity": 0.9891487693255148,
+      "Margin": 0.15618205376101857,
+      "Emitted": false,
+      "ProcessedQpcMs": 1995952.4229
+    },
+    {
+      "CandidateQpcMs": 1995779.6525,
+      "AvailableQpcMs": 1995999.6525,
+      "Status": "cue-candidate",
+      "Direction": "Down",
+      "Similarity": 0.9934224634192023,
+      "Margin": 0.1721228650862524,
+      "Emitted": true,
+      "ProcessedQpcMs": 1996002.3423
+    },
+    {
+      "CandidateQpcMs": 1995829.6525,
+      "AvailableQpcMs": 1996049.6525,
+      "Status": "occurrence-held",
+      "Direction": "Down",
+      "Similarity": 0.9912615698033085,
+      "Margin": 0.1774759731284976,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996053.0092
+    },
+    {
+      "CandidateQpcMs": 1995879.6525,
+      "AvailableQpcMs": 1996099.6525,
+      "Status": "occurrence-held",
+      "Direction": "Down",
+      "Similarity": 0.9855457437493389,
+      "Margin": 0.1948801509991357,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996102.4962
+    },
+    {
+      "CandidateQpcMs": 1995929.6525,
+      "AvailableQpcMs": 1996149.6525,
+      "Status": "occurrence-held",
+      "Direction": "Down",
+      "Similarity": 0.9601179221165431,
+      "Margin": 0.15627812818524955,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996152.5551
+    },
+    {
+      "CandidateQpcMs": 1995979.6525,
+      "AvailableQpcMs": 1996199.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.5729039806133809,
+      "Margin": 0.2573754325055178,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996202.6043
+    },
+    {
+      "CandidateQpcMs": 1996029.6525,
+      "AvailableQpcMs": 1996249.6525,
+      "Status": "no_local_change_music_or_held_sound",
+      "Direction": null,
+      "Similarity": 0,
+      "Margin": 0,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996253.1021
+    },
+    {
+      "CandidateQpcMs": 1996079.6525,
+      "AvailableQpcMs": 1996299.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.1519423312214532,
+      "Margin": 0.08717337478009098,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996303.3816
+    },
+    {
+      "CandidateQpcMs": 1996129.6525,
+      "AvailableQpcMs": 1996349.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.23817947137898382,
+      "Margin": 0.09525603351138259,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996352.3976
+    },
+    {
+      "CandidateQpcMs": 1996179.6525,
+      "AvailableQpcMs": 1996399.6525,
+      "Status": "confirming-candidate",
+      "Direction": "Right",
+      "Similarity": 0.8579962233043242,
+      "Margin": 0.5167616236444694,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996402.5795
+    },
+    {
+      "CandidateQpcMs": 1996229.6525,
+      "AvailableQpcMs": 1996449.6525,
+      "Status": "cue-candidate",
+      "Direction": "Right",
+      "Similarity": 0.9901190621210145,
+      "Margin": 0.6475350984750067,
+      "Emitted": true,
+      "ProcessedQpcMs": 1996453.1253
+    },
+    {
+      "CandidateQpcMs": 1996279.6525,
+      "AvailableQpcMs": 1996499.6525,
+      "Status": "occurrence-held",
+      "Direction": "Right",
+      "Similarity": 0.9801784512789378,
+      "Margin": 0.5668520609213485,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996503.2535
+    },
+    {
+      "CandidateQpcMs": 1996329.6525,
+      "AvailableQpcMs": 1996549.6525,
+      "Status": "occurrence-held",
+      "Direction": "Right",
+      "Similarity": 0.9763254283838251,
+      "Margin": 0.5634306116833433,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996552.0953
+    },
+    {
+      "CandidateQpcMs": 1996379.6525,
+      "AvailableQpcMs": 1996599.6525,
+      "Status": "occurrence-held",
+      "Direction": "Right",
+      "Similarity": 0.9671439728436523,
+      "Margin": 0.5896698249937853,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996602.5726
+    },
+    {
+      "CandidateQpcMs": 1996429.6525,
+      "AvailableQpcMs": 1996649.6525,
+      "Status": "occurrence-held",
+      "Direction": "Right",
+      "Similarity": 0.9225818795322354,
+      "Margin": 0.5792852951986118,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996652.7692
+    },
+    {
+      "CandidateQpcMs": 1996479.6525,
+      "AvailableQpcMs": 1996699.6525,
+      "Status": "occurrence-held",
+      "Direction": "Right",
+      "Similarity": 0.8252886716209178,
+      "Margin": 0.6315142058475198,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996703.3578
+    },
+    {
+      "CandidateQpcMs": 1996529.6525,
+      "AvailableQpcMs": 1996749.6525,
+      "Status": "no_local_change_music_or_held_sound",
+      "Direction": null,
+      "Similarity": 0,
+      "Margin": 0,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996752.5073
+    },
+    {
+      "CandidateQpcMs": 1996579.6525,
+      "AvailableQpcMs": 1996799.6525,
+      "Status": "no_local_change_music_or_held_sound",
+      "Direction": null,
+      "Similarity": 0,
+      "Margin": 0,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996803.1052
+    },
+    {
+      "CandidateQpcMs": 1996629.6525,
+      "AvailableQpcMs": 1996849.6525,
+      "Status": "no_local_change_music_or_held_sound",
+      "Direction": null,
+      "Similarity": 0,
+      "Margin": 0,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996853.1683
+    },
+    {
+      "CandidateQpcMs": 1996679.6525,
+      "AvailableQpcMs": 1996899.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.23851382305803615,
+      "Margin": 0.06980157110026991,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996902.6459
+    },
+    {
+      "CandidateQpcMs": 1996729.6525,
+      "AvailableQpcMs": 1996949.6525,
+      "Status": "low_similarity_or_ambiguous_templates",
+      "Direction": null,
+      "Similarity": 0.27680179801554416,
+      "Margin": 0.07879930314658523,
+      "Emitted": false,
+      "ProcessedQpcMs": 1996952.5303
+    }
+  ]
+}

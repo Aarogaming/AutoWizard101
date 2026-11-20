@@ -1,0 +1,4 @@
+interface:
+  display_name: "Desktop Use Evidence"
+  short_description: "Test desktop actions with bounded, verified evidence"
+  default_prompt: "Use $desktop-use-evidence to test this desktop workflow and report what actually happened."

@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "id": "dodge-development-25pct-v2",
+  "purpose": "Development includes previously observed difficult openings; fresh disjoint validation is required.",
+  "seeds": [118, 247, 781, 997, 26871, 99316, 90595, 32261],
+  "mode": "stepped",
+  "speed": 0.25,
+  "target_mean_score": 50
+}

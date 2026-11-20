@@ -28,6 +28,7 @@ internal static class PluginHost
         {
             try
             {
+                W101InteractionPolicy.Require(W101InteractionMethod.UnreviewedCode);
                 var asm = Assembly.LoadFrom(plugin.AssemblyPath);
                 var type = asm.GetTypes().FirstOrDefault(t =>
                     typeof(IMaelstromPlugin).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface);

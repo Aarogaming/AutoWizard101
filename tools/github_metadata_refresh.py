@@ -30,7 +30,7 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 REPORT_PATH = ROOT / "ProjectMaelstrom" / "repo_analysis_report.json"
 CACHE_PATH = ROOT / "ProjectMaelstrom" / "github_cache.json"
-PLAN_PATH = ROOT / "project_integration_plan.json"
+PLAN_PATH = ROOT / "docs/history/project_integration_plan.json"
 SOURCES_PATH = ROOT / "ProjectMaelstrom" / "wizard101_data_sources.json"
 
 TTL_SECONDS = 6 * 60 * 60  # 6 hours
