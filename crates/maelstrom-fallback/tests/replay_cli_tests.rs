@@ -505,3 +505,32 @@ fn test_cli_exits_with_code_1_on_unparsable_trace() {
 
     fs::remove_dir_all(&temp_dir).ok();
 }
+
+#[test]
+fn test_run_batch_only_removes_its_own_scratch_directories() {
+    let root = env::temp_dir().join(format!("maelstrom_batch_escape_{}", uuid::Uuid::new_v4()));
+    let base = root.join("base");
+    let victim = root.join("victim");
+    fs::create_dir_all(&base).unwrap();
+    fs::create_dir_all(victim.join("inner")).unwrap();
+    fs::write(victim.join("keep.txt"), "keep").unwrap();
+    fs::write(victim.join("inner").join("keep2.txt"), "keep").unwrap();
+
+    // `session_id` is read from the trace file. Joined into the scratch directory name it resolves to
+    // `root/victim`, a directory outside `base` that holds user data.
+    let mut session = AutonomyReplaySession::new("/../../victim");
+    session.push_frame(make_test_frame(
+        0, true, 500, 500, 100, 100, 0.0, false, 100.0, 100.0, None,
+    ));
+
+    let batch_result = AutonomyReplayHarness::new().run_batch(&[session], &base);
+
+    assert_eq!(batch_result.total_sessions, 1);
+    assert_eq!(batch_result.entries.len(), 1);
+    assert!(
+        victim.join("keep.txt").exists() && victim.join("inner").join("keep2.txt").exists(),
+        "run_batch deleted a directory outside its scratch base"
+    );
+
+    fs::remove_dir_all(&root).ok();
+}
