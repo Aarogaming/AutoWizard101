@@ -41,8 +41,8 @@ Let $\mathbf{x}_k = (x_k, y_k)$ denote cursor position, $\mathbf{v}_k = (v_{x,k}
    where $W$ is the maximum wind force magnitude, generating autoregressive, continuous drift rather than uncorrelated white noise.
 3. **Dynamic Damping & Deceleration**:
    When distance $d = \|\mathbf{x}_{\text{target}} - \mathbf{x}_k\| \le D_{\text{threshold}}$:
-   - Wind force is exponentially suppressed: $W_{\text{eff}} = W \cdot \frac{d}{D_{\text{threshold}}}$.
-   - Damping coefficient increases, naturally decelerating the cursor and producing micro-overshoot and terminal corrective convergence.
+   - Wind force is scaled down linearly with distance: $W_{\text{eff}} = W \cdot \frac{d}{D_{\text{threshold}}}$ (`eff_wind = wind * d / threshold` in the code).
+   - Gravity is scaled by $\max(d / D_{\text{threshold}}, 0.4)$, so the cursor slows near the target. There is no separate damping coefficient: the speed clamp $v_{\max}$ is the only velocity limit, the loop ends within 2.5 px of the target, and a final step snaps to it. Micro-overshoot is neither produced by design nor tested.
 
 #### Discrete State Update:
 $$\mathbf{v}_{k+1} = \mathbf{v}_k + \mathbf{F}_{\text{grav}} + \mathbf{v}_{\text{wind}, k+1}$$
@@ -94,7 +94,7 @@ $$f(t; \mu, \sigma) = \frac{1}{t \sigma \sqrt{2\pi}} \exp\left(-\frac{(\ln t - \
 #### Calibration Constants:
 - **Mouse Click Dwell**:
   - $\mu = \ln(75) \approx 4.317$, $\sigma = 0.22$.
-  - Median duration $\approx 75\text{ms}$, 95th percentile $[48\text{ms}, 120\text{ms}]$.
+  - Median duration $\approx 75\text{ms}$; the central 95% interval of this distribution is about $[49\text{ms}, 115\text{ms}]$ before the code's clamp to 40-180 ms.
 - **Steering Key Pulse Dwell (`W`, `A`, `D`)**:
   - Controlled by Pure Pursuit curvature and cadence in `steering.rs`, with log-normal edge jitter $\pm 12\text{ms}$.
 - **Inter-Keystroke Interval (Cadence)**:
@@ -156,3 +156,16 @@ Checked against `crates/maelstrom-core/src/kinematics.rs` and `steering.rs`; the
   - The "+/-12 ms log-normal edge jitter" for `W`/`A`/`D` pulses is not in `steering.rs`; no jitter or log-normal sampling was found there.
 - **"Empirical Baseline Calibration" is overstated.** The Fitts and dwell constants are generic starting values, not measured from human or game data. The quoted percentile range for clicks (48-120 ms) is approximate; the code clamps dwell to 40-180 ms.
 - **Wiring:** the generated plans are consumed by the C# actuator only as a summary and the reviewed live/simulation paths use stubbed delegates (see the kinematics audit in `W101-KINEMATICS-CORE-02`). Nothing here is evidence of any live game outcome.
+
+- **Second audit (2026-11-19, pass 33)**, against `maelstrom_bridge.rs` and `DesktopInputActuator.cs`. The result file
+  `W101-KINEMATICS-DOCS-01` holds the evidence.
+  - Sections 2.1 and 2.4 had wrong wording ("exponentially suppressed", "damping coefficient increases", "95th percentile
+    [48 ms, 120 ms]"); they are fixed in place. The first bullet above that calls the WindMouse generator "implemented as
+    described" should be read with that correction.
+  - **The curved, timed path in section 3 is generated and then discarded.** The summary sent to C# carries point count, total
+    duration, dwell and the final target only, and the actuator presses at the target, holds for the dwell and releases. What
+    reaches dispatch is the Gaussian target scatter and the click hold time.
+  - `WindMouseGenerator`, `DwellProfile::key_tap` and `DwellProfile::inter_keystroke_cadence` have no caller outside tests. The
+    bridge calls only `sample_target_in_rect`, `FittsLawModel` and `BezierTrajectoryGenerator`.
+  - The no_std fallbacks (three-term Taylor `exp`, rough `log2`) are crude: the click median would come out near 28 ms instead of
+    75 ms and clamp to the 40 ms floor. Unreachable today because the crate does not build without std.

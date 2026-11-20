@@ -173,7 +173,8 @@ impl FastPrng {
         }
         #[cfg(not(feature = "std"))]
         {
-            // Taylor expansion approximation for exp(x)
+            // Crude Taylor approximation of exp(x). At the click median it gives about 28 instead of 75,
+            // so a clamped dwell would collapse to its minimum; not statistically valid.
             let x = mu + sigma * z;
             1.0 + x + (x * x) / 2.0 + (x * x * x) / 6.0
         }
@@ -272,7 +273,7 @@ impl WindMouseGenerator {
             v_x += w_x + g_x;
             v_y += w_y + g_y;
 
-            // Velocity damping
+            // Speed clamp (the only velocity limit; there is no damping term)
             let speed = Point2D::new(0.0, 0.0).distance(&Point2D::new(v_x, v_y));
             if speed > config.max_step_size {
                 let scale = config.max_step_size / speed;
@@ -328,7 +329,8 @@ impl Default for BezierConfig {
 pub struct BezierTrajectoryGenerator;
 
 impl BezierTrajectoryGenerator {
-    /// Generates a cubic Bézier trajectory with asymmetric minimum-jerk acceleration/deceleration.
+    /// Generates a cubic Bézier trajectory timed with the symmetric minimum-jerk polynomial
+    /// (there is no separate, longer deceleration phase).
     pub fn generate_trajectory(
         start: Point2D,
         target: Point2D,
@@ -458,19 +460,22 @@ impl DwellProfile {
     }
 
     /// Pre-calibrated profile for mouse button down-to-up hold duration.
-    /// Median: ~75ms, 95% within [45ms, 140ms].
+    /// Median: ~75ms; the central 95% interval is about [49ms, 115ms] before clamping (computed
+    /// from mu and sigma, not measured human data).
     pub fn mouse_click() -> Self {
         Self::new(4.317, 0.22, 40.0, 180.0)
     }
 
     /// Pre-calibrated profile for keyboard key tap duration.
-    /// Median: ~85ms, 95% within [50ms, 160ms].
+    /// Median: ~85ms; the central 95% interval is about [57ms, 126ms] before clamping (computed
+    /// from mu and sigma, not measured human data).
     pub fn key_tap() -> Self {
         Self::new(4.442, 0.20, 45.0, 220.0)
     }
 
     /// Pre-calibrated profile for inter-keystroke cadence delay.
-    /// Median: ~130ms.
+    /// Median: ~130ms; the central 95% interval is about [75ms, 225ms] before clamping (computed
+    /// from mu and sigma, not measured human data).
     pub fn inter_keystroke_cadence() -> Self {
         Self::new(4.867, 0.28, 60.0, 350.0)
     }

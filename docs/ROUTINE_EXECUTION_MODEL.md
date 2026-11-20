@@ -218,9 +218,9 @@ The Behavior Tree adheres strictly to Maelstrom's safety invariants:
 ### 4. Kinematic Motion & Biomechanical Input Profiles
 
 When an Action Node proposes a physical interaction (such as mouse clicks on combat spell cards or keyboard navigation pulses):
-1. **Mouse Trajectories**: Rather than teleporting or moving along straight lines, mouse actions pass through the kinematic trajectory planner (`kinematics.rs`). The planner applies WindMouse physical simulation (gravity, damping, stochastic wind drift) or cubic Bézier minimum-jerk curves with Fitts's law acquisition timing. See [Kinematic input profiles](KINEMATIC_INPUT_PROFILES.md).
-2. **Temporal Jitter**: Keypresses and mouse click hold times are modulated by log-normal distributions ($\mu = \ln(75\text{ms})$, $\sigma = 0.22$), eliminating robotic isochronous timing.
-3. **Dispatch Pipeline**: The resulting `KinematicPlan` provides timestamped coordinate waypoints to the platform actuator under the verified input lease.
+1. **Mouse Trajectories (design intent, partly implemented)**: the kinematic planner (`kinematics.rs`) can generate WindMouse or cubic Bézier minimum-jerk paths with Fitts's law timing. In code today only the Bézier generator, Fitts timing and Gaussian target scatter are called (by `maelstrom_bridge.rs`); WindMouse has no caller. See [Kinematic input profiles](KINEMATIC_INPUT_PROFILES.md).
+2. **Temporal Jitter (mouse click hold only)**: the click hold time in the plan is sampled from a log-normal distribution ($\mu = \ln(75\text{ms})$, $\sigma = 0.22$, clamped to 40-180 ms). Key-press dwell and cadence profiles exist but have no caller, and steering pulses are not jittered.
+3. **Dispatch Pipeline**: the plan is reduced to a `KinematicPlanSummary` (point count, duration, dwell, final target); the waypoints are not forwarded. `DesktopInputActuator.DispatchKinematicClickAsync` presses at the target, holds for the dwell and releases, under the verified input lease. See the audit note in `coordination/results/W101-KINEMATICS-DOCS-01.md`.
 
 ### 5. Host IPC Bridge (`MaelstromAutonomyBridge`)
 

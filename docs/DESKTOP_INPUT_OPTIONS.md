@@ -89,7 +89,7 @@ to implement or install a driver.
 
 ## Kinematic Trajectories & Biomechanical Profiles
 
-Regardless of transport (`SendInput`, Raw Input, or synthetic events), input dispatched without realistic human kinematic profiles exhibits immediate statistical anomalies (instant cursor teleportation, constant-velocity linear segments, isochronous click delays). See [Kinematic input profiles](KINEMATIC_INPUT_PROFILES.md) for the native mathematical models (WindMouse physics simulation, cubic Bézier minimum-jerk curves, Fitts's law acquisition durations, and log-normal dwell time jitter) governing non-robotic cursor and keystroke dispatch.
+Regardless of transport (`SendInput`, Raw Input, or synthetic events), input with instant cursor jumps, constant-velocity segments and fixed click delays is assumed to be easy to tell apart from human input (a design assumption; this repository holds no detection data). See [Kinematic input profiles](KINEMATIC_INPUT_PROFILES.md) for the models in `kinematics.rs` (WindMouse, cubic Bézier minimum-jerk curves, Fitts's law durations, log-normal dwell). Today only the Bézier generator, Fitts timing, target scatter and click dwell are called, and the actuator receives only the target and the dwell, not the path.
 
 ## Desktop Input Actuator Wiring
 
