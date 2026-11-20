@@ -118,3 +118,17 @@ Checked by running the built binary offline on synthetic fixtures and reading `r
 - **"Sandboxed" bridge instances** means a fresh bridge object and a scratch directory, not an isolation boundary.
 - **Latent:** a session whose bridge cannot be created is counted in `Total Sessions` but in neither pass nor fail, so it cannot turn the gate red (read from the code).
 - **"Hundreds of recorded gameplay traces"** in the summary and the 1,094-row run stand corrected by the 2026-11-19 note (74 distinct ids, ingester-labelled).
+
+## Audit corrections, addendum 2 (2026-11-20, pass 50)
+Re-ran the matrix through the library (`discover_and_load_traces` and the per-session replay of `run_batch`) with a throwaway probe, not the CLI's `--batch-dir`, so the scratch-directory defect above was not
+exercised. The earlier corrections stand.
+- **Reproduced exactly.** All 1,094 committed rows (id, frames, duration, accuracy, replans, max jerk) match today's replay of `.local/` (0 differences). There are 349 distinct full rows and 74 distinct ids.
+- **What the 1,094 are.** 9 `events.jsonl` rows (11 frames each, 99 frames, 36 labelled ticks, all matched, `initial_goal` set) and 1,085 `ui-observations.jsonl` rows (8,041 frames, 0 labelled ticks, no
+  initial goal, so the bridge answers `YieldIdle` on every tick; 0 replans, 0 kinematic plans). Frames per session: min 5, median 7, max 175; the longest trace is 34.9 s.
+- **The PASS is vacuous for 1,085 of 1,094 rows (99.2%).** 36 of 8,140 frames (0.44%) carry a label, in 9 sessions. "Passed: 1,094 (100.0%)" therefore means 36 label checks matched plus 1,085 sessions with nothing to
+  check. The ingesters also derive the labels themselves (2026-11-19 note), so even the 36 are agreement with the ingester, not with the game.
+- **0 replans and 0.000 jerk in every row is not a smoothness result.** The UI rows never plan; the 9 events rows run on the ingester's fabricated pose.
+- **The data has moved on.** `.local/` now yields 1,104 sessions (9,884 frames): ten newer UI sessions, two of them combat captures (298 frames, 22 replans, max jerk 0.39, 11 labelled ticks; 104 frames, 8 replans,
+  max jerk 0.315, 4 labelled ticks) with 15 CombatTurn labels, all matched. Today's totals are 51 labelled ticks in 11 sessions, all matched. The committed matrix was not regenerated: that needs the git-ignored
+  `.local/` and is the coordinator's call.
+- The matrix file now carries a status banner (regenerating overwrites it); `OFFLINE_AUTONOMY_REPLAY.md`, `REALITY_RUNTIME_PROPOSAL.md` and the `INDEX.md` line carry the qualifier.

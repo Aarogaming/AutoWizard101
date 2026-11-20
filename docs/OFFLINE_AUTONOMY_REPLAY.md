@@ -18,7 +18,7 @@ To satisfy this standard for the Maelstrom Autonomy Stack (Tier 2 Behavior Tree 
 The harness feeds serialized session traces (synthetic frames, or frames ingested from event and UI logs) directly through `MaelstromAutonomyBridge` without requiring a live game client, graphic window, or physical desktop actuation.
 
 **Today:** no recorded autonomy trace is committed. The longest test trace is 1000 hand-written frames spanning 99.9 s of synthetic time, and the
-checked-in benchmark matrix result lists 1094 short sessions totalling 1269.71 s. The ingesters (`from_w101_events_jsonl`,
+checked-in benchmark matrix result lists 1094 short sessions totalling 1269.71 s (74 distinct ids; 1085 of the rows are UI captures with no labelled tick, so they pass vacuously: see the banner on that file). The ingesters (`from_w101_events_jsonl`,
 `from_ui_observations_jsonl`) take only a scene or combat-planning flag from the log and fabricate the rest: zone, health, mana and potions are
 constants, the position is a constant or derived from the event time, and `is_simulation` is set. Each frame is one `process_state` call; nothing is
 paced against a clock.

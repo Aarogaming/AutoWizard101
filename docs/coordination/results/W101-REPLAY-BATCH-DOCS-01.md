@@ -49,3 +49,5 @@ synthetic fixtures. The page was written before the code and describes intent; i
 - **Verified:** `docs/REPLAY_BATCH_BENCHMARK.md` and the `INDEX.md` entry exist; the exit code is 2 when a session is below 95.0% (run: 1 of 3 failed); the claim release for `W101-REPLAY-BATCH-CORE-02`
   appears in `claims.json`. That file's release notes for both batch tasks (coordinator-owned, not edited) point at `docs/BATCH_REPLAY_VALIDATION.md`, which does not exist, and say
   "parallel" evaluation, which the sequential `run_batch` does not do.
+- **Addendum (pass 50, 2026-11-20):** the committed 1,094-row matrix this page specifies is mostly vacuous (36 labelled ticks in 8,140 frames, 74 distinct ids); see the addendum 2 in
+  [W101-REPLAY-BATCH-CORE-02](W101-REPLAY-BATCH-CORE-02.md) and the banner on the matrix.

@@ -1,5 +1,17 @@
 # Autonomy Replay Benchmark Matrix
 
+> **Status (audit 2026-11-20, Claude): generated output; the PASS below is almost entirely vacuous.** Regenerating this file (`--matrix-out`) overwrites this note; the same findings are in
+> the addendum of [W101-REPLAY-BATCH-CORE-02](W101-REPLAY-BATCH-CORE-02.md).
+> - **Reproducible.** Replaying today's `.local/` through the same library functions gives the same id, frames, duration, accuracy, replans and jerk for all 1094 rows (0 differences).
+> - **What the rows are.** 9 come from `events.jsonl` (11 frames each, 36 labelled ticks, all matched). The other 1085 are `ui-observations.jsonl` dumps: 8041 frames, 0 labelled ticks, no
+>   initial goal, so the bridge answers `YieldIdle` on every tick, and a session with no labelled tick scores 100.0% by definition. Only 36 of 8140 frames (0.44%), in 9 sessions, were ever
+>   compared with a label.
+> - **Not 1094 sessions.** The rows hold 74 distinct ids (the id is the directory name); the median session is 7 frames and the longest trace 34.9 s.
+> - **0 replans and 0.000 jerk in every row is not a smoothness result.** The UI rows never plan, and the 9 events rows run on a fabricated pose.
+> - **Out of date.** `.local/` now yields 1104 sessions: two of the ten newer ones are combat captures (22 replans, max jerk 0.39; 8 replans, max jerk 0.315) with 15 labelled CombatTurn
+>   ticks, all matched. This file was not regenerated.
+> - **Not shown here:** planning (the replay does not run GOAP), any live game, or the single-trace 99.5% gate (the batch gate is accuracy >= 95.0%).
+
 ## Aggregate Execution Summary
 - **Total Sessions Evaluated**: 1094
 - **Passed**: 1094 | **Failed**: 0
