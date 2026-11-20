@@ -38,6 +38,9 @@ pub enum ProvenanceOrigin {
 }
 
 /// Formal audit provenance tag tracking data origin, verification count, and freshness.
+///
+/// `verification_count` counts calls to `record_verification` (every `Entity::record_observation` on a tagged entity), not independent
+/// sessions, and timestamps are caller-supplied and not checked for monotonicity. Nothing outside the tests reads a tag.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ProvenanceTag {
     pub origin: ProvenanceOrigin,
@@ -242,6 +245,9 @@ impl Entity {
     }
 
     /// Records that the agent checked this entity's coordinate and confirmed nothing was present.
+    ///
+    /// This is a counter, not a probability: the second check sets `Unknown`. It also refreshes `last_observed_ms`, which delays TTL
+    /// decay, and on a `Depleted` entity the second check replaces the cooldown with `Unknown`.
     pub fn record_negative_evidence(&mut self, now_ms: u64) {
         self.negative_evidence_count += 1;
         self.last_observed_ms = now_ms;
@@ -256,6 +262,9 @@ impl Entity {
     }
 
     /// Evaluates temporal staleness based on elapsed time and TTL.
+    ///
+    /// Every entity defaults to a 60 s TTL whatever its kind; a short mob TTL must be set with `with_ttl_ms`. The cut-off is hard
+    /// (strictly greater than the TTL) and there is no half-life.
     pub fn update_decay(&mut self, now_ms: u64) {
         match self.epistemic_state {
             EntityEpistemicState::Active => {
@@ -280,6 +289,8 @@ impl Entity {
     }
 
     /// Returns true if this entity is actively trusted for path planning and targeting.
+    ///
+    /// Only tests call this; no planner or `RealityWorldModel` query consults it.
     pub fn is_valid_for_planning(&self) -> bool {
         matches!(self.epistemic_state, EntityEpistemicState::Active)
     }
@@ -415,6 +426,8 @@ impl Connector {
     }
 
     /// Fast-Travel to Commons Hub shortcut connector (`End` key).
+    ///
+    /// `End` goes to the current world's common area, but this constructor hard-codes the manifold id `Commons`.
     pub fn fast_travel_commons(
         current_manifold: impl Into<String>,
         commons_anchor: (f64, f64, f64),
@@ -614,7 +627,8 @@ pub enum SigilClientStatus {
     InCombat,
 }
 
-/// Multi-client sigil lockstep synchronization barrier.
+/// Status gate for a multi-client sigil entry. It only reads statuses that a caller reports: it has no clock, countdown or timing
+/// rule, and nothing in the crate calls it.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct MultiClientSigilBarrier {
     pub sigil_id: String,
@@ -647,6 +661,9 @@ impl MultiClientSigilBarrier {
     }
 
     /// Barrier passes only when all required clients are ReadyForSigil, SteppedOnSigil, or InCombat.
+    ///
+    /// `Preparing` ratios, `deck_verified` and `countdown_remaining_s` are never read, and a status reported under an id that is not in
+    /// `required_clients` is stored but has no effect.
     pub fn can_step_onto_sigil(&self) -> bool {
         if self.required_clients.is_empty() {
             return false;
@@ -668,13 +685,17 @@ pub enum DegradationTier {
     /// Tier 0: Primary full ontology (Process memory pose + 3D BCD mesh + visual validation).
     #[default]
     Tier0FullOntology,
-    /// Tier 1: Memory offset shift / hook failure (Compass bearing vector + OCR HUD + audio cues).
+    /// Tier 1: Memory offset shift / hook failure (Compass bearing vector + OCR HUD + audio cues). Entered by a single drift fault;
+    /// there is no hook-failure input.
     Tier1VisualAcoustic,
-    /// Tier 2: Double residual drift threshold fault (Release GameInputLease, dump replay trace, safe park).
+    /// Tier 2: Double residual drift threshold fault. Intended: release the input lease, dump a replay trace, safe park. Nothing in
+    /// the crate does any of that, and nothing reads the tier.
     Tier2SafeHalt,
 }
 
 /// Unified Reality World Model aggregating the 7 primitives with systems-level hardening.
+///
+/// No query on this struct reads `entities`, so an `Unknown` entity changes no result, and `connectors` is stored but never searched.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub struct RealityWorldModel {
     pub active_manifold_id: Option<String>,
@@ -735,6 +756,9 @@ impl RealityWorldModel {
 
     /// Evaluates drift between expected pose and observed pose against tolerance.
     /// Manages the tiered degradation ladder (Tier 0 -> Tier 1 -> Tier 2).
+    ///
+    /// Tier 2 is not latched: a clean observation keeps it but resets the fault count, and the next fault sets Tier 1. A `NaN` drift or
+    /// tolerance compares false and counts as a clean observation.
     pub fn record_drift_observation(
         &mut self,
         drift_magnitude: f64,

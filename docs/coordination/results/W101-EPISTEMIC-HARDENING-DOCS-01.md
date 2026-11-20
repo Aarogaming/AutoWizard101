@@ -1,5 +1,8 @@
 # Evidence Report: W101-EPISTEMIC-HARDENING-DOCS-01
 
+Status: **Partially verified** (audited 2026-11-20; the document exists and is indexed, but it specifies far more than the code does and several
+figures and keys are unsourced; see "Audit note" at the end).
+
 ## 1. Summary
 Authored formal architectural and systems specification for Epistemic Reality Runtime Hardening in `docs/EPISTEMIC_RUNTIME_HARDENING.md`, and updated `docs/INDEX.md`.
 
@@ -15,3 +18,24 @@ Authored formal architectural and systems specification for Epistemic Reality Ru
 - `docs/INDEX.md` updated with reference to `EPISTEMIC_RUNTIME_HARDENING.md`.
 - `python tools/check_project_board.py` validated (30 workstreams, dependency graph clean).
 - `python tools/check_text_encoding.py` verified (0 violations).
+
+## Audit note (2026-11-20, Claude)
+
+Checked `docs/EPISTEMIC_RUNTIME_HARDENING.md` against `ontology.rs`, `goap.rs`, `maelstrom-fallback`, `WIZARD101_GAME_KNOWLEDGE.md`,
+[W101-KNOWLEDGE-AUDIT-01](W101-KNOWLEDGE-AUDIT-01.md) and a throwaway probe crate. The document now carries a status block and **Today** notes.
+
+1. **Not implemented, described as specified:** the half-life curve (decay is a hard TTL cut-off), the Bayesian spawn-prior formula (a
+   counter), the Shared Spatial Blackboard (no IPC, SQLite or cross-client state exists), the 3-phase barrier timing (no clock, no 200 ms
+   rule), the Tier 1 sources and the Tier 2 halt, lease release and trace snapshot (the tier is a drift counter that nothing reads).
+2. **TTL and half-life figures are the author's targets.** The code default is 60 s for every kind; a 500 ms mob TTL exists only through
+   `with_ttl_ms(500)`. The 20% recall mana cost and the "100% Health and 50% Mana" potion figures have no source (the repository's notes say
+   marking costs mana and that exact costs must be read, not assumed), and `N`, `Ctrl+K` and `Ctrl+M` are unsourced.
+3. **The shortcut keys themselves are real**, as are the two quest keys: `Home`, `End`, `Page Down`, `Page Up`, `Ctrl+O`, `Ctrl+T` and
+   `Ctrl+Shift+Q` appear in the official defaults recorded in `WIZARD101_GAME_KNOWLEDGE.md`. But `End` is the current world's common area, not
+   always Wizard City's Commons, and the code hard-codes `Commons`.
+4. **A safety contradiction was fixed.** Section 5 proposed a "canonical camera reset (`Home` key ...)", while section 2 defines `Home` as
+   the Dorm/Castle fast-travel key; sending it would travel, not reset the camera.
+5. **The replay claim was wrong in two ways.** The binary is `maelstrom-replay` and its batch flag is `--batch-dir <DIR>`, not `--batch`, and
+   no code reads a `ProvenanceTag`, so replay cannot distinguish planner regressions from poisoned anchors.
+6. **Gate lines held up.** On 2026-11-20 `check_project_board.py` reports 30 workstreams and `check_text_encoding.py` reports 0 violations,
+   and `docs/INDEX.md` does list the document (its line now states what is implemented).
