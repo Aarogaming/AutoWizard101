@@ -251,7 +251,10 @@ To qualify the two-tier autonomy stack against multi-hour recorded game session 
 
 ### 9. Desktop Input Actuator Under Verified Lease
 
-Actuation of parameterized autonomy proposals into physical Windows input events is performed by `DesktopInputActuator.cs`. Dispatches execute strictly under `GameInputLease.Current` with continuous mid-pulse monitoring, foreground focus checks, pre-resume countdown enforcement, and verified key/mouse release. See [Desktop Input Actuator](DESKTOP_INPUT_ACTUATOR.md).
+`DesktopInputActuator.cs` turns a steering or click summary into bounded key or mouse presses, with a lease-identity check, a
+10 ms re-check loop, guaranteed release and a recovery hold on an unconfirmed release. Focus, countdown and user-takeover checks
+are not in the actuator: they come from a caller-supplied `ready()` delegate. The only caller is the `actuate` pipe command,
+whose live branch sends no input today. See [Desktop Input Actuator](DESKTOP_INPUT_ACTUATOR.md).
 
 ### 10. Combat Dueling Loop Integration
 

@@ -1,5 +1,8 @@
 # Claim Evidence: W101-ACTUATOR-CORE-02
 
+Status: **Partially verified** (audited 2026-11-19; the actuator and its simulation are real and tested, the scheduler wiring and readiness
+checks described below are not; see "Audit note" at the end).
+
 ## 1. Overview
 - **Task ID**: `W101-ACTUATOR-CORE-02`
 - **Workstream**: `W101-NAVIGATION`
@@ -40,3 +43,44 @@
 - `dotnet build -c Release -warnaserror`: 0 warnings, 0 errors.
 - `python tools/check_project_board.py`: Valid (30 workstreams, zero broken links).
 - `python tools/check_text_encoding.py`: 0 violations.
+
+## Audit note (2026-11-19, Claude)
+
+Checked against `DesktopInputActuator.cs`, the committed `JobDeckHost.cs`, both test files, the two docs this task owns and a
+throwaway xunit probe in a separate worktree (not committed). The probe used the in-memory simulation transport and, for one case,
+a lease in a temporary directory. No game window and no OS input were involved. The original text above is kept unchanged.
+
+**Verified.** The three records, the constants (500 ms forward, 300 ms turns and reverse, 40-200 ms dwell, 5,000 ms release wait),
+the `Owned()` predicate, the 10 ms re-check loop, release in `finally` with a retry every 100 ms, `RequireRecovery` on a failed
+release and the 1280 x 720 rejection are in the code. The 11 listed tests exist and pass (re-run today together with the 5 host
+tests: 16 passed). The clamps hold: a 9,000 ms request held 500 ms for forward, 300 ms for reverse and for a turn; a click dwell of
+9,000 held 200 ms and a dwell of 5 held 40 ms. A failed release does trip recovery (probe: 5,023 ms, `released=False`,
+`RecoveryRequired=True`, `CanDispatch=False`).
+
+**Corrections.**
+1. **Not wired into the scheduler.** The only non-test user of the actuator is `JobDeckHost.Actuate`, which builds its own
+   `OperationContext` by hand: no `OperationScheduler`, no focus budget. Nothing on the Rust side sends the summaries, and the Rust
+   structs serialize snake_case, which the host's reader rejects (probe: `JsonException`, `'forward_pulse_ms'` could not be mapped).
+2. **Readiness and takeover are delegated.** The actuator only calls the `ready()` delegate it is given. Foreground focus, the
+   3,000 ms quiet period, the countdown and loading screens are not checked by it; the host passes `() => true` in simulation and
+   `() => _session != null` live. So "any focus loss, user keypress, or cancellation breaks hold" is true only for cancellation as
+   implemented. The `ready()` test is false at the start; no test flips it during a hold.
+3. **Target identity is a format check.** The actuator requires `pid-<n>-start-<n>` with positive integers and equality with the
+   request's target. It does not check the process name or any window, and the host uses a caller-supplied target as given.
+4. **"Zero physical events without the OS file lock" is about the predicate, not the transport.** The lease test is skipped in
+   simulation by design and the transport is injected. The lock file belongs to `GameInputLease` and was not re-audited.
+5. **One key per call, and several fields are unused.** Order of choice: turn-left, turn-right, reverse, forward. Probe: forward 250
+   plus turn-left 80 sent only `A` down and up. `Curvature`, `AngleErrorRad`, `PointCount` and `TotalDurationMs` are never read, and
+   no cursor path is produced: a click is one down and one up at the target.
+6. **The viewport defense is a fixed box and lets NaN through.** The comparison uses constants, not the client's viewport. Probe: a
+   NaN target was accepted with events at `NaN,NaN`, a NaN dwell was accepted and held 0 ms, infinity was rejected. A NaN needs an
+   in-process caller; I did not test whether the pipe's JSON can carry one.
+7. **Simulation is not instant.** Its delay is a no-op, so the hold loop busy-waits on the wall clock: a 500 ms forward pulse took 500
+   ms wall and about 600 ms of process CPU (process-wide, so approximate).
+8. **Gaps in the tests.** None covers NaN, `S` or `D`, the clamps, a transport that throws, or `ready()` changing mid-hold.
+
+The docs this task owns were corrected to match (`DESKTOP_INPUT_ACTUATOR.md`, plus the references in `ROUTINE_EXECUTION_MODEL.md`,
+`BACKEND_CONTROL_PLANE.md` and `INDEX.md`).
+
+**What this evidence does not prove.** Nothing here shows input reaching a game window. The simulation and the injected transports
+show the actuator's own logic only; the 15 ms timing target in the doc was never measured on a real transport.

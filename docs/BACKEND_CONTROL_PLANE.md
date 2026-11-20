@@ -78,6 +78,11 @@ The integration between the high-performance native Rust core (`maelstrom-core`,
    - If UI interaction is active, `WindMouseGenerator` or `BezierTrajectoryGenerator` generates an immutable `KinematicPlan`.
 3. **Action Dispatch Invariant (`Facts ≠ Authority ≠ Actions`)**:
    - The Rust autonomy engine never directly injects OS keystrokes or mouse clicks. It returns an `AutonomyCycleResult` containing the proposed action and kinematic parameters.
-   - The host's single scheduler and input lease holder executes physical actuation only when target identity, window focus, pre-resume countdown, and cancellation latches are verified clean.
+   - Intended design: physical actuation runs under the host's single scheduler and input lease holder only when target identity,
+     window focus, the pre-resume countdown and the cancellation latches are verified clean. The `actuate` command does not meet
+     that today (see item 4).
 4. **End-to-End Actuation Event Loop (`"actuate"`)**:
-   - `JobDeckHost` exposes an explicit `actuate` command over the named pipe, routing autonomy intents into `DesktopInputActuator` under simulated playback (`simulation: true`) or live verified lease modes (`simulation: false`). See [JobDeckHost Actuation Loop](JOB_DECK_ACTUATION_LOOP.md).
+   - `JobDeckHost` exposes an explicit `actuate` command over the named pipe that drives `DesktopInputActuator`. Simulated playback
+     (`simulation: true`) works and is tested. The live branch (`simulation: false`) is a stub that sends no input. Nothing in the
+     Rust crates calls it, and the Rust summary structs use snake_case, which the host rejects. See
+     [JobDeckHost Actuation Loop](JOB_DECK_ACTUATION_LOOP.md).
