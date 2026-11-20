@@ -60,6 +60,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # rust-toolchain.toml pins the compiler. Install what it names explicitly instead of relying on
+      # rustup doing so on first use; this changes nothing when that toolchain is already present.
+      - name: Install pinned Rust toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+
       - name: Rust tests
         run: cargo test --workspace --locked
 
