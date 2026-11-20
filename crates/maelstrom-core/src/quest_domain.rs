@@ -155,7 +155,8 @@ pub fn find_spatial_anchor(name: &str) -> Option<&'static SpatialAnchor> {
 // NPC Target & Screen Bounding Box Specification
 // ---------------------------------------------------------------------------
 
-/// Calibrated screen bounding box `[min_x, min_y, max_x, max_y]` for 1280x720 base viewport.
+/// Screen bounding box `[min_x, min_y, max_x, max_y]` for a 1280x720 base viewport. The rectangles built in this
+/// module are placeholders; nothing records a calibration.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ScreenRect {
     pub min_x: f64,
@@ -225,7 +226,8 @@ impl NpcInteractionTarget {
 // Standard NPC Anchor Lookup
 // ---------------------------------------------------------------------------
 
-/// Retrieves calibrated NPC interaction geometry for canonical Wizard City NPCs.
+/// Retrieves placeholder NPC interaction geometry for canonical Wizard City NPCs. Most NPCs share the default
+/// rectangles, nothing records a calibration, and there is no caller outside tests.
 pub fn get_npc_interaction_target(name: &str) -> Option<NpcInteractionTarget> {
     // Default interaction prompt is centered near character feet/overhead in 720p
     let default_prompt = ScreenRect::new(580.0, 520.0, 700.0, 560.0);
@@ -541,6 +543,7 @@ pub fn build_wizard_city_starter_repertoire() -> Vec<GoapAction> {
             .require(KEY_ZONE, ZONE_COMMONS)
             .effect(KEY_HAS_POTIONS, true)
             .effect(KEY_VITALS_LOW, false),
+        // Does not consume a potion: `has_potions` is a boolean and stays true, so a plan can drink repeatedly.
         GoapAction::new("drink_potion_recovery", 1.0)
             .require(KEY_HAS_POTIONS, true)
             .require(KEY_VITALS_LOW, true)

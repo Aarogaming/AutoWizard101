@@ -283,6 +283,8 @@ field that can hold a plan, and nothing detects an invalidated precondition or r
 
 The concrete action repertoire for Wizard City starter questlines (*"The Lore of Magic"*, *"Enrollment"*, *"A Good Impression"*), the subsequent Unicorn Way combat progression (*"Finding Out"*, Private O'Ryan, Lost Soul & Skeletal Pirate combat, Private Stillson, Lady Oriel), topological zone transitions, NPC interaction bounding geometry, and potion fountain checkpoints is grounded in `crates/maelstrom-core/src/quest_domain.rs`. See [W101 Quest Repertoire](W101_QUEST_REPERTOIRE.md) and [W101 Unicorn Way Quest Domain](W101_QUEST_UNICORN_WAY.md).
 
+**Today (audit 2026-11-20, Claude):** planning data only. The repertoire has 41 actions and boolean vitals (`vitals_low`, `has_potions`; drinking does not consume a potion), its NPC rectangles are uncalibrated placeholders, and neither the repertoire nor `get_npc_interaction_target` is called outside tests.
+
 ### 8. Offline Autonomy Replay Harness
 
 To check the autonomy stack's decisions against synthetic or ingested session frames without live client execution, Maelstrom provides an offline replay harness (`crates/maelstrom-fallback/src/autonomy_replay.rs`). It reports intent-label agreement, an intent-change counter, a Pure Pursuit curvature figure and a click-plan jerk proxy. See [Offline Autonomy Replay Harness](OFFLINE_AUTONOMY_REPLAY.md).

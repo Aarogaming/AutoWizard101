@@ -60,3 +60,16 @@
 Scope: wording about `no_std` and dependencies only; the rest of this report was not re-audited in this pass.
 - The "full `#![no_std]` / `alloc` compatibility" claim is wrong: `maelstrom-core` does not build with `--no-default-features` (22 errors, for example `f64::floor`, `sin`, `cos` and `round` need `std` or `libm`). The quest modules use `alloc` types and `serde`; "zero OS/UI calls" is not contradicted by the imports checked.
 - The crate runs as a `std` library; it currently depends on `serde`, `uuid` and optional codec crates. Adding `libm` or similar to support `no_std` would be a new dependency decision.
+
+## Audit note, addendum (2026-11-20)
+Scope: the implementation summary, test list and adversarial-audit claims, checked against the code, the test file and a throwaway probe. The 2026-11-19 `no_std` note stands.
+- **"Full multi-quest prologue across 18 actions in <80ms" is wrong on the number.** `test_end_to_end_starter_prologue_synthesis` plans `goal_complete_good_impression`, which is 24 actions (cost 109);
+  18 is the enrollment goal alone. The probe took about 25 ms per goal in a release build, but no test asserts a time, so "<80ms" and "0.08 seconds" are an unchecked snapshot.
+- **The iteration-budget story is overstated.** The end-to-end tests allow 10,000 and 20,000 iterations ("requires expanding state search"), but the smallest budgets that find the plans are 816 and 906,
+  so the planner's default of 2,000 plans every goal in this file. The "combinatorial blowup" attack vector did not occur.
+- **`KEY_VITALS_LOW` and `KEY_HAS_POTIONS` are the whole vitals model** (booleans). `drink_potion_recovery` sets `vitals_low = false` and leaves `has_potions` true, so potions are never consumed.
+- **"Calibrated for ... NPCs" is not supported:** the rectangles are placeholders (nine of thirteen NPCs have the same prompt rectangle), and `get_npc_interaction_target` has no caller outside tests.
+- **"Precondition enforcement: incomplete enrollment sets cannot trigger Ambrose turn-in"** is true of the action definition (the turn-in requires all six flags) but no test tries an incomplete set.
+- **Counts are stale:** the integration file now has 15 tests, not 7 (the Unicorn Way, combat-safety and interpreter-anchor tests were added later), and "134 passed across all 5 crates" is a 2026-11 snapshot.
+  The repertoire has 41 actions (18 travel actions, not the 5 zones listed in the summary).
+- **Still correct:** the 7-step Lore of Magic plan (cost 36), the potion (cost 1) versus fountain (cost 8 + 6 from Ravenwood) choice, and routing from the Shopping District.

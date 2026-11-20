@@ -1,5 +1,11 @@
 # Wizard101 Quest Domain Action Repertoire
 
+> **Status (audit 2026-11-20, Claude):** the planning domain is real library code (`crates/maelstrom-core/src/quest_domain.rs`, 41 actions) with offline tests, and the quest, zone and cost tables below match it.
+> The vitals model (section 5), the NPC rectangles (section 6) and some of section 7 did not; they are corrected. Nothing calls the repertoire outside tests, and the planner that
+> would run it has no caller either. Game-rule facts (quest order, NPC names, which professor teaches which school) are taken from the code and were not re-verified against the game.
+> Notes marked **Today** say what the code does. Evidence: [W101-QUEST-REPERTOIRE-CORE-02](coordination/results/W101-QUEST-REPERTOIRE-CORE-02.md) and
+> [W101-QUEST-REPERTOIRE-DOCS-01](coordination/results/W101-QUEST-REPERTOIRE-DOCS-01.md), audit notes.
+
 ## 1. Overview & Architectural Role
 
 Goal-Oriented Action Planning (GOAP) operates at **Tier 1 (Macro Planning)** of the Maelstrom autonomy architecture, synthesizing multi-step prerequisite action sequences across game zones. While Tier 2 (Behavior Trees) evaluates instantaneous perceptual ticks and reactively steers around dynamic obstacles or arbitrates combat, the GOAP planner formulates the long-horizon roadmap to satisfy higher-level quest objectives.
@@ -9,7 +15,7 @@ This document formalizes the canonical **Wizard City Starter Questline Action Re
 2. *"Enrollment"* (Visiting and registering with the Ravenwood School professors).
 3. *"A Good Impression"* / *"Golem Court"* (Visiting Mr. Lincoln $\rightarrow$ Golem Court).
 4. *"Vital Replenishment & Potion Fountain Checkpoints"* (Commons potion vendor and health/mana recovery).
-5. *"Unicorn Way & Combat Encounters"* (Private O'Ryan $\rightarrow$ Lost Souls $\rightarrow$ Private Stillson $\rightarrow$ Skeletal Pirates $\rightarrow$ Lady Oriel; see [W101_QUEST_UNICORN_WAY.md](file:///f:/Modlists/AutoWizard101/docs/W101_QUEST_UNICORN_WAY.md)).
+5. *"Unicorn Way & Combat Encounters"* (Private O'Ryan $\rightarrow$ Lost Souls $\rightarrow$ Private Stillson $\rightarrow$ Skeletal Pirates $\rightarrow$ Lady Oriel; see [W101_QUEST_UNICORN_WAY.md](W101_QUEST_UNICORN_WAY.md)).
 
 ```mermaid
 flowchart TD
@@ -35,6 +41,9 @@ flowchart TD
     end
 ```
 
+**Today:** the diagram is the intended architecture. `GoapPlanner::plan` has no caller outside tests, nothing hands a plan to the Behavior Tree, and the costmap is not wired to steering
+(see [DESTINATION_NAVIGATION.md](DESTINATION_NAVIGATION.md)). The repertoire is only ever planned over by its own tests.
+
 ---
 
 ## 2. World State Ontology & State Atoms
@@ -43,7 +52,7 @@ The world state $s \in \mathcal{S}$ is represented as an immutable mapping of ty
 
 | State Atom Key | Type | Description |
 | :--- | :--- | :--- |
-| `zone` | `Str` | Current topological zone: `"HeadmasterOffice"`, `"WizardCity_Commons"`, `"WizardCity_Ravenwood"`, `"WizardCity_GolemCourt"`, `"WizardCity_ShoppingDistrict"`. |
+| `zone` | `Str` | Current topological zone: `"HeadmasterOffice"`, `"WizardCity_Commons"`, `"WizardCity_Ravenwood"`, `"WizardCity_GolemCourt"`, `"WizardCity_ShoppingDistrict"`, `"WizardCity_UnicornWay"` and, for the interpreter anchors, `"WizardCity_OldeTown"`, `"WizardCity_TritonAvenue"`, `"WizardCity_FirecatAlley"`, `"WizardCity_CyclopsLane"`. |
 | `has_quest_lore_of_magic` | `Bool` | Whether *"The Lore of Magic"* quest is accepted in the quest log. |
 | `talked_to_bartleby` | `Bool` | Whether player has interacted with Bartleby in Ravenwood. |
 | `completed_lore_of_magic` | `Bool` | Quest completion status for *"The Lore of Magic"*. |
@@ -58,10 +67,12 @@ The world state $s \in \mathcal{S}$ is represented as an immutable mapping of ty
 | `has_quest_good_impression`| `Bool` | Whether *"A Good Impression"* quest is active. |
 | `talked_to_lincoln` | `Bool` | Visited Mr. Lincoln in Golem Court. |
 | `completed_good_impression`| `Bool` | Turned in *"A Good Impression"*. |
-| `potions` | `Int` | Count of filled health/mana potions (0..=3). |
-| `health_pct` | `Int` | Health percentage (0..=100). |
-| `mana` | `Int` | Current player mana points. |
-| `in_combat` | `Bool` | True if engaged in an active dueling ring. |
+| `vitals_low` | `Bool` | Whether vitals are low enough to need recovery (the combat actions require it false). |
+| `has_potions` | `Bool` | Whether at least one potion is available. |
+
+**Today:** the vitals model is two booleans. An earlier version of this table listed `potions` (Int 0..=3), `health_pct`, `mana` and `in_combat`; none of them exists in `quest_domain.rs`.
+The Unicorn Way atoms (`has_quest_unicorn_way`, `talked_to_oryan`, `lost_souls_defeated`, `skeletal_pirates_defeated`, `completed_unicorn_way` and the rest) are in
+[W101_QUEST_UNICORN_WAY.md](W101_QUEST_UNICORN_WAY.md).
 
 ---
 
@@ -82,7 +93,7 @@ graph LR
 1. `travel_office_to_commons`:
    - Preconditions: `zone == "HeadmasterOffice"`
    - Effects: `zone = "WizardCity_Commons"`
-   - Cost: 5 (tunnel walk duration $\approx 5\text{s}$)
+   - Cost: 5
 2. `travel_commons_to_office`:
    - Preconditions: `zone == "WizardCity_Commons"`
    - Effects: `zone = "HeadmasterOffice"`
@@ -90,7 +101,7 @@ graph LR
 3. `travel_commons_to_ravenwood`:
    - Preconditions: `zone == "WizardCity_Commons"`
    - Effects: `zone = "WizardCity_Ravenwood"`
-   - Cost: 8 (longer bridge transition)
+   - Cost: 8
 4. `travel_ravenwood_to_commons`:
    - Preconditions: `zone == "WizardCity_Ravenwood"`
    - Effects: `zone = "WizardCity_Commons"`
@@ -111,6 +122,10 @@ graph LR
    - Preconditions: `zone == "WizardCity_UnicornWay"`
    - Effects: `zone = "WizardCity_Commons"`
    - Cost: 6
+9. `travel_commons_to_shopping_district` and `travel_shopping_district_to_commons`: preconditions `zone` is the source, effect `zone` is the destination, cost 6 each (the diagram shows this edge; the list above omitted it).
+10. Eight more edges for the interpreter's Olde Town area (`travel_commons_to_olde_town`, `travel_olde_town_to_triton`, `travel_olde_town_to_firecat`, `travel_olde_town_to_cyclops` and their returns), cost 5 each. The code has 18 travel actions in all.
+
+**Today:** the costs are unitless planner weights. The earlier text called 5 a "tunnel walk duration of about 5 s" and 8 a "longer bridge transition"; no duration was measured and the code states none.
 
 ---
 
@@ -183,38 +198,42 @@ The *"Enrollment"* quest requires visiting the 6 school professors located aroun
 
 ## 5. Vital Replenishment Checkpoints
 
-When health falls below safety margins (e.g., $health\_pct < 40$) or potions are exhausted ($potions == 0$):
+Vitals are two booleans, `vitals_low` and `has_potions`:
 - **Refill at Commons Fountain** (`refill_potions_at_fountain`):
   - Preconditions: `zone == "WizardCity_Commons"`.
-  - Effects: `potions = 3`, `health_pct = 100`, `mana = 100`.
+  - Effects: `has_potions = true`, `vitals_low = false`.
   - Cost: 6.
-- **Drink Potion** (`drink_potion_vital_recovery`):
-  - Preconditions: `potions > 0`.
-  - Effects: `health_pct = 100`, `potions = potions - 1` (modeled via state mutation).
+- **Drink Potion** (`drink_potion_recovery`):
+  - Preconditions: `has_potions == true`, `vitals_low == true`.
+  - Effects: `vitals_low = false`.
   - Cost: 1.
+
+**Today:** drinking does not consume a potion: `has_potions` stays true (probe: after `drink_potion_recovery`, `has_potions = true`, `vitals_low = false`), so a plan can drink forever. An
+earlier version of this section gave integer effects (`potions = 3`, `health_pct = 100`, `mana = 100`, `potions = potions - 1`), a precondition `potions > 0` and the action name
+`drink_potion_vital_recovery`; none of that is in the code. The only thresholds (health below 40%) existed in the text, not in the planner. The two combat actions
+(`engage_and_defeat_lost_soul`, `engage_and_defeat_skeletal_pirate`) require `vitals_low == false`, so low vitals force a recovery action first.
 
 ---
 
 ## 6. NPC Interaction Anchors & Bounding Geometry
 
-When an action node dispatches an NPC dialogue step, physical coordinates are resolved via non-centered Gaussian targeting within calibrated interaction screen rectangles:
+`get_npc_interaction_target(name)` returns, for 13 named NPCs, a zone, a prompt rectangle, an advance-button rectangle and a dialogue-step count, all in 1280x720 screen pixels:
 
-```
-+--------------------------------------------------------------+
-| Wizard City Dialogue Bounds (1280x720 Base Calibration)      |
-|                                                              |
-| [NPC Interaction 'X' Prompt]                                |
-|   Target Bounding Box: (x: 580..700, y: 520..560)            |
-|                                                              |
-| [Dialogue Advance 'Continue' Button]                         |
-|   Target Bounding Box: (x: 590..690, y: 640..680)            |
-|                                                              |
-| [Quest Accept Button]                                        |
-|   Target Bounding Box: (x: 480..580, y: 580..620)            |
-+--------------------------------------------------------------+
-```
+| Rectangle | (min x, min y, max x, max y) | Used by |
+| :--- | :--- | :--- |
+| default prompt | (580, 520, 700, 560) | Merle Ambrose, the six professors (Falmea, Greyrose, Balestrom, Drake, Wu, Ashthorn), Mr. Lincoln, and Private Stillson (a literal copy of the same four numbers) |
+| default advance button | (590, 640, 690, 680) | every NPC |
+| Bartleby prompt | (560, 480, 720, 540) | Bartleby |
+| Commons Potion Vendor prompt | (600, 500, 680, 550) | Commons Potion Vendor |
+| Private O'Ryan prompt | (570, 510, 690, 550) | Private O'Ryan |
+| Lady Oriel prompt | (560, 490, 710, 540) | Lady Oriel |
 
-Interaction execution uses Fitts's Law duration modeling and log-normal dwell jitter before key/mouse dispatch, ensuring fully humanized actuation profiles under the active input lease.
+**Today:**
+- These are placeholders, not calibrated measurements: the code comments call the defaults "centered near character feet/overhead in 720p" and "bottom-center in 720p", and nothing in the
+  repository records where the numbers came from. Nine of the thirteen NPCs have the same prompt rectangle.
+- An earlier version of this section also showed a "Quest Accept Button" rectangle (480..580 x 580..620). No such rectangle exists in the code.
+- Nothing calls `get_npc_interaction_target` outside tests, so no click is resolved from these rectangles. The Gaussian rectangle sampling (`sample_target_in_rect`) is used by the bridge's
+  combat click plan, not by this module, and the claim that interaction "uses Fitts's Law duration modeling and log-normal dwell jitter before key/mouse dispatch" describes no code path here.
 
 ---
 
@@ -223,6 +242,20 @@ Interaction execution uses Fitts's Law duration modeling and log-normal dwell ji
 1. **Deterministic Solution Existence**: Every canonical quest goal must yield an optimal, acyclic action plan from any valid starting zone.
 2. **Zone Transition Minimization**: The $A^*$ admissible heuristic must prevent spurious back-and-forth travel between zones.
 3. **Preemption Resiliency**: If an external disturbance alters state atoms (e.g., combat drags player out of transit, or potion count drops), replanning from the new state must seamlessly splice in recovery actions without human intervention.
+
+**Today:** these are criteria, not results. What the tests check: plans from a fresh wizard in the Office to each of the four goals (`test_plan_*`, `test_end_to_end_*`), one start in the Shopping District
+(`test_recovery_from_unexpected_displacement`), and the potion-versus-fountain choice. There is no test from "any valid starting zone", no check that plans are acyclic beyond reaching the goal, and
+nothing detects a disturbance or re-runs the planner. Measured offline with a throwaway probe from the fresh state (release build, one machine):
+
+| Goal | Plan length | Plan cost | Smallest `max_iterations` that finds it |
+| :--- | :--- | :--- | :--- |
+| `goal_complete_lore_of_magic` | 7 | 36 | 28 |
+| `goal_complete_enrollment` | 18 | 84 | 797 |
+| `goal_complete_good_impression` | 24 | 109 | 816 |
+| `goal_complete_unicorn_way` | 37 | 184 | 906 |
+
+Each goal plans in about 25 ms or less with a budget of 10,000, and each also plans with the planner's default budget of 2,000. The tests use budgets of 10,000 and 20,000, and the comment that
+the Unicorn Way plan "requires expanding state search" is not true.
 
 ---
 
@@ -236,7 +269,7 @@ To scale beyond hardcoded starter quests across all 16+ worlds, the system abstr
 5. `Interact / Gather`
 6. `Boss / Sigil Instance`
 
-The underlying spatial navigation, portal transitions, and named NPC/landmark anchors remain decoupled within `quest_domain.rs`, allowing any quest in Olde Town, Triton Avenue, or beyond to be executed dynamically through the shared template engine. See [QUEST_INTERPRETER_ENGINE.md](file:///f:/Modlists/AutoWizard101/docs/QUEST_INTERPRETER_ENGINE.md).
+The underlying spatial navigation, portal transitions, and named NPC/landmark anchors remain decoupled within `quest_domain.rs`, allowing any quest in Olde Town, Triton Avenue, or beyond to be executed dynamically through the shared template engine. See [QUEST_INTERPRETER_ENGINE.md](QUEST_INTERPRETER_ENGINE.md).
 
 > **Audit note (2026-11-19, Claude).** This section states intended scope. The interpreter classifies five English
 > phrasings into the six archetypes and has a dialogue state machine; it does not execute quests, and nothing outside its
