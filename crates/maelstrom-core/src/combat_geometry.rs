@@ -144,6 +144,8 @@ impl CombatGeometry {
     pub const VIEWPORT_1280X720_HEIGHT: f64 = 720.0;
 
     /// Scales a point from base 800x600 coordinates to target viewport dimensions (default 1280x720).
+    ///
+    /// A plain per-axis stretch (1.6 and 1.2 for 1280x720); it assumes the game UI scales that way and has not been measured.
     pub fn scale_point_to_viewport(p: Point, target_width: f64, target_height: f64) -> (f64, f64) {
         let scale_x = target_width / Self::BASE_WIDTH;
         let scale_y = target_height / Self::BASE_HEIGHT;
@@ -167,6 +169,8 @@ impl CombatGeometry {
     }
 
     /// Returns hand card click coordinates scaled directly to the 1280x720 base viewport.
+    ///
+    /// The 800x600 value times 1.6 and 1.2; not measured at 1280x720. Invalid slots return `Err`.
     pub fn get_hand_card_coordinates_720p(
         hand_index: usize,
         total_cards_in_hand: usize,

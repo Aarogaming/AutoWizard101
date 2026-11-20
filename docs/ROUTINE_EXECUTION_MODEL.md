@@ -260,6 +260,10 @@ whose live branch sends no input today. See [Desktop Input Actuator](DESKTOP_INP
 
 The end-to-end combat dueling loop integrates Behavior Tree combat preemption (`Branch 1: CombatBranch`), `CombatGeometry` coordinate transformation and 1280x720 viewport scaling, card and target selection, pass fallback, and `DesktopInputActuator` kinematic click execution. See [Combat Dueling Loop](COMBAT_DUELING_LOOP.md).
 
+Today the branch, the geometry and a click-target plan summary exist and are tested separately. Nothing chooses a card, target or pass,
+nothing sends the plan to the host, the 1280x720 coordinates are scaled from 800x600 and not measured, and the host's live branch sends
+no input.
+
 
 
 

@@ -801,7 +801,10 @@ impl MaelstromAutonomyBridge {
                     steering_summary = Some(SteeringCommandSummary::from(cmd));
                 }
             } else if intent.starts_with("PROPOSAL:CombatTurn") {
-                // Generate humanized combat click trajectory targeting calibrated 1280x720 viewport bounds
+                // Click target for a combat turn in 1280x720 viewport pixels: the 800x600 geometry scaled by 1.6 and 1.2, not
+                // measured at 1280x720. A parse failure or an `Err` from `CombatGeometry` falls back to a default target instead of
+                // withholding the plan, and an unrecognised action is treated as a card click. The plan starts at the player's world
+                // position (`current_pose`), not at the cursor, and the host uses only its end point and dwell.
                 let (target, target_width) = if intent == "PROPOSAL:CombatTurn:Pass" {
                     let (pass_x, pass_y) = CombatGeometry::get_pass_button_coordinates_720p();
                     let t = sample_target_in_rect(

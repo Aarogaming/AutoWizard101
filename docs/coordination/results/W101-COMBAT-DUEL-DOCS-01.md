@@ -1,5 +1,8 @@
 # Claim Evidence: W101-COMBAT-DUEL-DOCS-01
 
+Status: **Partially verified** (audited 2026-11-20; the document exists, is indexed and its arithmetic is right, but the lifecycle, bounding boxes,
+jitter figure and several actuator invariants it formalizes are not what the code does; see "Audit note" at the end).
+
 ## 1. Overview
 - **Task ID**: `W101-COMBAT-DUEL-DOCS-01`
 - **Workstream**: `W101-COMBAT`
@@ -27,3 +30,29 @@
 ## 4. Verification Evidence
 - `python tools/check_project_board.py`: Valid (30 workstreams, zero broken links).
 - `python tools/check_text_encoding.py`: 0 violations.
+
+## Audit note (2026-11-20, Claude)
+
+Checked `docs/COMBAT_DUELING_LOOP.md` against `combat_geometry.rs`, `behavior_tree.rs`, `maelstrom_bridge.rs`, `kinematics.rs`,
+`DesktopInputActuator.cs`, `JobDeckHost.cs` and a throwaway probe crate. The document now carries a status block and **Today** notes.
+
+1. **"Formalized 3-stage combat turn lifecycle" is not a lifecycle in code.** There is one blackboard string that tests set and nothing clears;
+   there are no stages, preconditions or transitions, and no hand or target evaluation. The intent format is `PlayCard:<slot>/<total>` and
+   `SelectTarget:<index>`, not parameters.
+2. **The coordinate matrix is arithmetically right and unmeasured.** The values match the code. "Grounded" and "calibrated" mean scaled from
+   800x600; no 1280x720 measurement is recorded.
+3. **Bounding boxes and jitter were misdescribed.** Pedestal boxes are 50 x 50 (+/- 25 px), not +/- 35; Pass is 36 x 20; Flee has no click path.
+   The sampling is a Gaussian centered on the box with a standard deviation of about 0.17 of its size (0.15 is the margin ratio), not
+   "non-centered" with sigma = 0.15.
+4. **Several actuator invariants were not in the actuator.** Lease identity, the cancellation token and the 10 ms re-check are real, but during
+   the dwell only (there is no trajectory to poll). Foreground and focus come from a caller-supplied `ready()`, there is no countdown
+   enforcement or "> 2 px" pointer check, and release is a retried send whose boolean is the confirmation, with a recovery hold on failure. It
+   does not call `mouse_event`.
+5. **The "Ban Invariant" and "robotic telemetry signature" rationale is unsourced**, and the document now describes the click placement only as
+   what it does. The preemption claim is also wrong: the tree does not cancel pending clicks (nothing links `in_combat` to the actuator's
+   token), and a stale `combat_turn_action` survives the fight.
+6. **Acceptance criterion 4 is untested end to end.** No Rust code sends `actuate`; the host's live branch sends no input.
+7. **Section 10 of `ROUTINE_EXECUTION_MODEL.md` and the `INDEX.md` entry exist** and now say what is and is not built. `claims.json`
+   (coordinator-owned, not edited) cites `docs/W101_COMBAT_DUELING_REPERTOIRE.md`, which does not exist, and "1080p" models the document does
+   not contain.
+8. **Gate lines held up.** On 2026-11-20 `check_project_board.py` reports 30 workstreams and `check_text_encoding.py` reports 0 violations.
