@@ -1,18 +1,26 @@
 # Dynamic 3D Spatial Indexing & Robotics Navigation
 
+> **Status: draft design note, partly aspirational (audit 2026-11-19, Claude).** In code today
+> (`crates/maelstrom-core/src/spatial_index.rs`): the box primitives, an insert-only bounding-volume tree and three queries,
+> with four unit tests. Not true today: the tree never rebalances (depth is about n/4 for entities inserted along a line),
+> the O(log n) figures are expected-case for spread-out entities and not a guarantee, the per-point cost used by the planner
+> (`evaluate_cost_3d`) still scans every mob, and nothing outside tests calls the index. Details are in the audit notes of
+> [W101-SPATIAL-INDEX-CORE-02](coordination/results/W101-SPATIAL-INDEX-CORE-02.md). The 20 Hz tick, the zone examples and the
+> cache-coherence wording below are unsourced design assumptions, not measurements.
+
 ## 1. Architectural Motivation
 
 Standard game automation often flattens environments into 2D grid costmaps or iterates linearly ($O(n)$) over active entity lists on every tick. In Wizard101, this approach breaks down due to two fundamental constraints:
-1. **Vertical Geometry & Overlapping 3D Manifolds**: Wizard101 features bridges (Shopping District, Triton Avenue), spiral staircases (Ravenwood towers, Golem Tower), and multi-deck ramps. A flat 2D distance calculation falsely flags mobs walking beneath a bridge as immediate collision hazards for a player walking on top of it.
-2. **Computational Scaling**: As zones populate with dozens of moving mobs, static NPC anchors, reagent spawns, and chests, evaluating all entities on every steering tick at $20\text{ Hz}$ wastes CPU cycles.
+1. **Vertical Geometry & Overlapping 3D Manifolds**: Wizard101 features bridges (Shopping District, Triton Avenue), spiral staircases (Ravenwood towers, Golem Tower), and multi-deck ramps. A flat 2D distance calculation falsely flags mobs walking beneath a bridge as immediate collision hazards for a player walking on top of it. (The zone examples are unsourced; no zone geometry in the repository was used to check them.)
+2. **Computational Scaling**: As zones populate with dozens of moving mobs, static NPC anchors, reagent spawns, and chests, evaluating all entities on every steering tick at an assumed $20\text{ Hz}$ would waste CPU cycles. The 20 Hz rate is a proposed starting rate in W101-NAV-AUDIT-103, not a measured or implemented tick, and no profile in the repository shows the cost today.
 
-To solve this, Maelstrom introduces a cache-coherent **3D Bounding Volume Hierarchy (BVH / R-Tree Spatial Index)** in `crates/maelstrom-core/src/spatial_index.rs`, integrated directly into `costmap.rs`.
+To address this, Maelstrom has a simple **bounding-volume tree** (a BVH / R-tree hybrid; "cache-coherent" is not measured, and nodes are heap `Vec`s) in `crates/maelstrom-core/src/spatial_index.rs`, held by `Nav2Costmap` in `costmap.rs`.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │                   SpatialTree3D (3D Dynamic R-Tree)                    │
 │   - Hierarchical AABB3D Nodes [min_x, min_y, min_z]..[max_x..max_z]    │
-│   - Leaf Entities: Mobs, Reagents, Chests, Portals, Sigils            │
+│   - Leaf Entities: Mobs, Reagents, Chests, NPCs,    Sigils            │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
        ┌────────────────────────────┼────────────────────────────┐
@@ -46,42 +54,63 @@ Supports:
 - `intersects(&other) -> bool`: Axis-overlap separation test.
 - `contains_point(x, y, z) -> bool`: Inclusion check.
 - `enclosing(&other) -> AABB3D`: Computes minimum enclosing bounding volume.
-- `distance_squared(x, y, z) -> f64`: Euclidean lower-bound distance to box.
+- `distance_squared_to_point(x, y, z) -> f64`: squared distance to the nearest point of the box (0 inside).
+- `surface_area()`, `from_point_radius(..)` and `from_point_cylinder(..)` helpers.
 
 ### 2.2 Spatial Entity (`SpatialEntity3D`)
 ```rust
 pub struct SpatialEntity3D {
     pub id: u64,
-    pub kind: EntityKind, // Mob, Reagent, SilverChest, Npc, Sigil
-    pub position: (f64, f64, f64),
-    pub velocity: (f64, f64, f64),
+    pub kind: EntityKind, // Player, DynamicMob, Reagent, SilverChest, CantripChest, NpcAnchor, Sigil
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    pub vx: f64,
+    pub vy: f64,
+    pub vz: f64,
     pub radius: f64,
-    pub elevation_z: f64,
-    pub vertical_tolerance: f64,
-    pub bounds: AABB3D,
+    pub bounds: AABB3D, // cylinder of half-height 25.0 by default, widened by a fixed 3.0 s velocity projection
 }
 ```
+There is no `elevation_z` or `vertical_tolerance` on the entity; those live on `DynamicMobActor` in `costmap.rs`.
 
 ---
 
 ## 3. Query Interfaces
 
-### 3.1 $O(\log n)$ Range Query (`query_range`)
-Finds all entities whose bounding volumes intersect a target 3D query box. Replaces brute-force scans across the entire zone entity list.
+The tree is insert-only and never rebalances: leaves split at the median of the widest axis, and an insert descends to the
+child whose box grows least. Query cost is therefore near $O(\log n + k)$ for spread-out entities (probe: 4,096 scattered
+entities, one small query tested about 28 nodes) and degrades toward $O(n)$ for entities inserted in spatial order
+(probe: 4,096 entities along a line gave depth 1,023 and about 1,000 nodes tested per query). Real entity lists in the
+repository are tens of entities, where none of this matters yet.
 
-### 3.2 $O(\log n)$ Nearest-Neighbor Query (`query_nearest`)
-Finds the closest entity of a specified kind (e.g. `EntityKind::Reagent`) within `max_radius`. Used by the opportunistic world detour filter to evaluate candidate harvesting opportunities against the active detour budget.
+### 3.1 Range Query (`query_range`)
+Finds all entities whose bounding volumes intersect a target 3D query box. Mobs carry a fixed 3.0 s forward projection in their
+stored box, so this query can return a moving mob that is still far from the box.
 
-### 3.3 $O(\log n)$ Corridor Clearance Query (`query_corridor`)
-Given two consecutive waypoints $\mathbf{p}_1$ and $\mathbf{p}_2$, constructs a bounding volume around the transit capsule.
-1. **Broad-Phase**: Intersects capsule AABB against `SpatialTree3D`, filtering out $95\%+$ of distant zone entities in $O(\log n)$ time.
-2. **Narrow-Phase**: For candidate mobs, evaluates exact cylinder-vs-capsule clearance with 3D elevation filtering ($\vert z - z_{\text{mob}} \vert \le \text{tolerance}$). If any mob's predicted aggro volume breaches the corridor, the route is flagged as hazardous.
+### 3.2 Nearest-Neighbor Query (`query_nearest`)
+Finds the closest entity of a specified kind (e.g. `EntityKind::Reagent`) within `max_radius`. It is a range query over the
+radius box followed by a linear scan of the candidates (ties go to the later entity), not a best-first traversal. It is meant
+for the opportunistic detour filter, which has no caller yet.
+
+### 3.3 Corridor Query (`query_corridor`)
+Given two consecutive waypoints $\mathbf{p}_1$ and $\mathbf{p}_2$, returns entities near the segment between them.
+1. **Broad-Phase**: Intersects the segment's box, grown by `corridor_radius`, with the tree. The share of entities removed is
+   not measured.
+2. **Narrow-Phase**: Keeps an entity when the 3D point-to-segment distance from its current position (not its predicted one)
+   is at most `corridor_radius + entity.radius`. It returns every entity kind, applies no elevation tolerance, and flags no
+   route. The mob check with `vertical_tolerance` and the predicted position is in `Nav2Costmap::is_corridor_safe_3d`.
 
 ---
 
 ## 4. Integration with Nav2Costmap
 
 In `crates/maelstrom-core/src/costmap.rs`:
-- `Nav2Costmap` contains a `SpatialTree3D` indexing dynamic actors.
-- Dynamic mob cost evaluation routes through `query_range` bounding the candidate waypoint $+ \text{repulsion\_radius}$.
-- Elevation filtering ensures bridge walkways remain `COST_FREE` even when mobs patrol underneath.
+- `Nav2Costmap` holds a `SpatialTree3D` (`spatial_index`) that `add_mob` and `add_spatial_entity` insert into. A mob is stored
+  twice: in `dynamic_mobs` and as an index entity whose radius is its `repulsion_radius`.
+- The index serves `is_corridor_safe_3d`, `find_nearest_reagent`, `find_nearest_chest` and `find_best_detour`. The per-point
+  cost `evaluate_cost_3d` (used by the nav-mesh planner) loops over every entry in `dynamic_mobs` and does not use the index.
+- Elevation filtering for mob cost is in `DynamicMobActor::compute_cost_3d` and, for corridors, in `is_corridor_safe_3d`; it is
+  not part of the spatial index.
+- There is no remove or update operation: entities are insert-only, `clear()` empties every kind at once, and adding a mob with
+  an existing id leaves the old index entity in place.
