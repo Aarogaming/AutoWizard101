@@ -755,7 +755,8 @@ impl Nav2Costmap {
                     COST_INSCRIBED_INFLATED
                 } else {
                     let sum = (zone_cost as u32) + (inflation_cost as u32) + (mob_cost as u32);
-                    (sum as u8).min(COST_INSCRIBED_INFLATED - 1)
+                    // Saturate before narrowing: `sum as u8` wraps modulo 256 and made a busier cell cheaper.
+                    sum.min((COST_INSCRIBED_INFLATED - 1) as u32) as u8
                 }
             }
         }
