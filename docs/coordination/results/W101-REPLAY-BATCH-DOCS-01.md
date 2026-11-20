@@ -43,8 +43,7 @@ synthetic fixtures. The page was written before the code and describes intent; i
 - **"Deterministic" and "automated regression gate" were overstated.** Two runs gave a byte-identical matrix on one machine; cross-machine identity is unchecked, and nothing in CI
   or the repository's scripts runs the CLI.
 - **Defects found while checking, not claims of this report:** (1) `run_batch` named its scratch directory after the trace's `session_id` and deleted it recursively, so a crafted id
-  such as `/../../../victim` made a batch run delete a directory outside the temp base (reproduced in a sandbox with a decoy; fixed on branch
-  `maelstrom/batch-session-dir-safety` (commit 84e85cb, not merged), with a test that fails on the old code). (2) The `maelstrom_batch_<uuid>` base directory is left behind after every run. (3) A session whose bridge cannot be
+  such as `/../../../victim` made a batch run delete a directory outside the temp base (reproduced in a sandbox with a decoy; fixed in commit 84e85cb, merged as `f93d65d` on 2026-11-20, with a test that fails on the old code). (2) The `maelstrom_batch_<uuid>` base directory is left behind after every run. (3) A session whose bridge cannot be
   created counts in `Total Sessions` but in neither the pass nor the fail count (read from the code, not triggered).
 - **Verified:** `docs/REPLAY_BATCH_BENCHMARK.md` and the `INDEX.md` entry exist; the exit code is 2 when a session is below 95.0% (run: 1 of 3 failed); the claim release for `W101-REPLAY-BATCH-CORE-02`
   appears in `claims.json`. That file's release notes for both batch tasks (coordinator-owned, not edited) point at `docs/BATCH_REPLAY_VALIDATION.md`, which does not exist, and say

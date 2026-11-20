@@ -133,9 +133,8 @@ Implemented natively in pure Rust (`crates/maelstrom-core/src/costmap.rs`, claim
      - Outside buffer ($d \ge R_{\text{repulse}}$): `COST_FREE` (0). A probe with $R_{\text{repulse}} = 100$ returned 0 at exactly 100.
    - **Today:** $k$ is the mob's `repulsion_weight`, so the cost just outside the aggro radius is about $k$ (200 in a probe with weight 200, 50 one unit further out) and the buffer is steep.
 4. **Composition & Gradient Extraction (`Nav2Costmap`)**:
-   - Consolidates layers via `CostmapComposition::Max` or `CostmapComposition::Additive`. **Today:** `Additive` narrows the summed cost with `sum as u8`, which wraps modulo 256: a zone penalty of 127 plus an inflation cost of 227 gave 98,
-     below the 227 of the obstacle layer alone, so a busier cell looked cheaper. Nothing outside tests uses `Additive`. A fix with a regression test that fails on the old code is on branch
-     `maelstrom/additive-cost-saturation` (commit 3e6b5c8, not merged); this branch still has the wrap.
+   - Consolidates layers via `CostmapComposition::Max` or `CostmapComposition::Additive`. **Today:** `Additive` sums the layer costs and saturates at 252, one below `COST_INSCRIBED_INFLATED`; before commit 3e6b5c8 (merged as `8c7d301` on 2026-11-20) it narrowed the sum with `sum as u8`, which wrapped modulo 256: a zone penalty of 127 plus an inflation cost of 227 gave 98,
+     below the 227 of the obstacle layer alone, so a busier cell looked cheaper. Nothing outside tests uses `Additive`.
    - `sample_repulsive_gradient(point, arrival_time_s, delta)` computes $(-\nabla C)$ via central differences, providing the physical repulsive force vector pushing away from approaching mobs and walls.
      **Today:** it differentiates the integer cost, so it is exactly zero wherever the cost is flat: inside the lethal aggro cylinder (254), inside the inscribed zone (253), and over the part of a buffer
      where the rounded cost has already reached 1. In a probe (aggro 30, repulsion 100, weight 200) the gradient was (0, 0) at distances 5, 20 and 29, (116, 0) at 31, (0.5, 0) at 40 and (0, 0) at 60, so it

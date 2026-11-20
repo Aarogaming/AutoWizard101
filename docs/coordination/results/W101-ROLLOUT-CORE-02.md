@@ -52,8 +52,8 @@ Under `Tier1VisualAcoustic` the aggro margin used for the lethal test is multipl
    moved 12.5 (15.0), 700 ms moved 15.0 (17.5), because `3 * 0.1` is `0.30000000000000004` and fails `<= 0.3`. The tests use 400, 500,
    800 and 1,000 ms, which are exact in floating point, so they do not see it. Separately, pulses are rounded down to whole steps (450 ms
    acts for 400 ms), and a 60 ms forward pulse moves nothing and so takes the 500-point snag penalty (probe: score -500.0): the snag
-   term fires on pulses shorter than a step, not on a predicted obstacle (there is no obstacle or terrain model). The defect is fixed
-   with a regression test on branch `maelstrom/rollout-pulse-boundary` (commit 1e02f69), not merged.
+   term fires on pulses shorter than a step, not on a predicted obstacle (there is no obstacle or terrain model). The defect was fixed
+   with a regression test in commit 1e02f69, merged as `12b22fd` on 2026-11-20.
 4. **The 1.5x widening is of the aggro radius, not the repulsion radius.** The summary says "Widens hazard repulsion radii by 1.5x".
    The code multiplies the aggro radius in the clearance test only (1.5 for Tier 1; 2.0 for Tier 2, which the summary and the test do
    not mention). Probe: a hazard in the repulsion band gives the same threat penalty (39.0) under all three tiers and a different clearance (15.0, 7.5, 0.0).

@@ -94,10 +94,10 @@ From the shadow state, simulates $K$ discrete steps (default $K = 10$ steps at $
 a horizon can be 0.01 s to 15 s), not the 5-15 ticks drawn above. Hazards move in straight lines at constant velocity, frozen
 after 3 s, and there is no wall or terrain model. A pulse is applied for whole steps only, rounded down: 450 ms acts for 400 ms and a
 pulse under one step (100 ms) does not move at all. A forward pulse of 51-99 ms is therefore scored with the 500-point snag
-penalty because it moves nothing; that is a quantization artifact, not a snag prediction. **Known defect (measured):** a pulse that
+penalty because it moves nothing; that is a quantization artifact, not a snag prediction. **Known defect (measured; fixed 2026-11-20):** a pulse that
 ends on the third, sixth or seventh step boundary (300, 600, 700 ms) loses that step to floating-point rounding: a 300 ms pulse
 moves 5.0 units instead of 7.5 and scores like a 200 ms pulse. The existing tests use 400, 500, 800 and 1,000 ms, which are not
-affected. A fix with a regression test is on branch `maelstrom/rollout-pulse-boundary` (commit 1e02f69), not merged.
+affected. Fixed with a regression test in commit 1e02f69, merged as `12b22fd` on 2026-11-20 (the defect text above describes the code before that merge).
 
 ### Step 3: Feasibility & Risk Scoring
 Each simulated trajectory branch $B_i$ is evaluated against an objective cost function:

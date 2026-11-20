@@ -57,6 +57,6 @@ Checked against `crates/maelstrom-core/src/costmap.rs`, `tests/costmap_tests.rs`
   the only planner is the Dijkstra `ZoneNavMesh::find_safest_path`, which also has no caller.
 - **Smaller inaccuracies:** the decay is rounded, so non-increasing rather than "strictly monotonic"; the buffer is `d < R_repulse` (0 at equality), not `<=`; `PolygonZone` penalties are not limited to `50..=127`;
   the gradient is zero inside the lethal cylinder and over flat parts of the buffer, so it is not a general "repulsive force pushing away from mobs"; the elevation filter applies only when `query_z` is passed.
-- **Defect found, not a claim of this report:** `Additive` composition wraps modulo 256 in `sum as u8` (127 + 227 gave 98, below the 227 of the obstacle layer alone). Fixed with a regression test on branch `maelstrom/additive-cost-saturation` (commit 3e6b5c8, not merged).
+- **Defect found, not a claim of this report:** `Additive` composition wrapped modulo 256 in `sum as u8` (127 + 227 gave 98, below the 227 of the obstacle layer alone). Fixed with a regression test in commit 3e6b5c8, merged as `8c7d301` on 2026-11-20.
 - **Gate table:** "0 claim overlaps" is not a message the project-board checker prints today (it reports `30 workstreams; evidence paths and dependency graph checked`); both gates pass on 2026-11-20.
   The claim that edits were bounded to the five owned paths was not re-checked (`claims.json` is coordinator-owned).

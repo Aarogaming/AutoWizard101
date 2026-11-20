@@ -144,6 +144,6 @@ per-session directory afterwards.
 - **Path escape (defect, fixed on a branch).** The per-session directory was named `batch_<session_id>`, and `session_id` is read from the trace file. A
   session id such as `/../../../victim` therefore resolved outside the temp base, and the batch run deleted that directory recursively. Reproduced in a sandbox:
   a decoy directory holding two files was removed by `maelstrom-replay --batch-dir` over a single hostile JSON file. It needs a crafted trace, but traces are file
-  content. The fix names the directory by the session's position (`batch_<index>`) and adds a regression test that fails on the old code: branch `maelstrom/batch-session-dir-safety` (commit 84e85cb, not merged).
-  This branch still has the old behaviour, so do not run `--batch-dir` over traces you did not produce.
+  content. The fix names the directory by the session's position (`batch_<index>`) and adds a regression test that fails on the old code (commit 84e85cb, merged as `f93d65d` on 2026-11-20).
+  Before that merge a crafted id escaped the temp base; traces are still untrusted file content, so prefer traces you produced.
 - **Leftover directory.** Only the per-session directories are removed; the `maelstrom_batch_<uuid>` base stays behind, empty, in the temp folder after every batch run.

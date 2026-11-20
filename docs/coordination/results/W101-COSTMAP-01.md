@@ -85,7 +85,7 @@ Scope: wording about `no_std` and dependencies only; the rest of this report was
 ## Audit note, addendum (2026-11-20)
 Scope: the layer descriptions, the `Additive` test claim and the gate table, checked against `costmap.rs` and by a throwaway probe. The 2026-11-19 `no_std` note stands.
 - **Test claim 6 is too broad.** `test_integration_additive_and_max_composition` covers a case whose sum is about 157 (inflation about 127 plus zone 30). `Additive` wrapped modulo 256 above 255: 127 plus 227 gave 98.
-  A regression test and the saturating fix are on branch `maelstrom/additive-cost-saturation` (commit 3e6b5c8, not merged); this branch keeps the wrap.
+  A regression test and the saturating fix (commit 3e6b5c8) were merged into this branch on 2026-11-20 as `8c7d301`; `Additive` now saturates at 252.
 - **"When A* plans routes across this layer" / "the cost heuristic naturally hugs sidewalks"** describes no code: nothing plans over `Nav2Costmap`, and the only path search is the uncalled Dijkstra `find_safest_path`.
 - **"Strictly monotonic linear decay" is non-increasing** (integer rounding; a 1,000-unit span gave 252, 252, 251, 251, 251), the buffer ends at `d < R_repulse`, and zone penalties are not limited to `50..=127`.
 - **The gradient gives no direction inside the lethal cylinder** (cost is flat at 254, so it is exactly zero there) or over flat parts of the buffer.
