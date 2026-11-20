@@ -281,3 +281,32 @@ fn test_vertical_gate_boundary_matches_the_hazard_threat_cost() {
     );
     assert!(above.min_hazard_clearance > 0.0);
 }
+
+#[test]
+fn test_pulse_ending_on_a_step_boundary_applies_that_step() {
+    // 3 * 0.1 and 6 * 0.1 are not exactly 0.3 and 0.6 in floating point. A pulse whose end falls on such
+    // a step boundary must still get that step, so displacement is speed x duration for whole-step pulses.
+    let engine = PredictiveRolloutEngine::new().with_horizon(10, 0.10);
+    let shadow = ShadowWorldState::new(Pose3D::new(0.0, 0.0, 0.0, 0.0), 10_000);
+    let goal = (100.0, 0.0, 0.0);
+
+    for (duration_ms, expected_x) in [
+        (100u32, 2.5),
+        (200, 5.0),
+        (300, 7.5),
+        (400, 10.0),
+        (500, 12.5),
+        (600, 15.0),
+        (700, 17.5),
+        (800, 20.0),
+        (900, 22.5),
+        (1000, 25.0),
+    ] {
+        let eval = engine.simulate_action(&shadow, &CandidateAction::forward(duration_ms), goal);
+        assert!(
+            (eval.final_pose.x - expected_x).abs() < 1e-9,
+            "{duration_ms} ms pulse ended at x = {}, expected {expected_x}",
+            eval.final_pose.x
+        );
+    }
+}
