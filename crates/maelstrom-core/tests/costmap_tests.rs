@@ -42,6 +42,43 @@ fn test_integration_additive_and_max_composition() {
 }
 
 #[test]
+fn test_additive_composition_saturates_instead_of_wrapping() {
+    let footprint = FootprintInflation::new(10.0, 30.0);
+    let obs = ObstacleSegment::new(Vec2D::new(0.0, -50.0), Vec2D::new(0.0, 50.0));
+    let zone = PolygonZone::new(
+        "heavy road",
+        vec![
+            Vec2D::new(-50.0, -50.0),
+            Vec2D::new(50.0, -50.0),
+            Vec2D::new(50.0, 50.0),
+            Vec2D::new(-50.0, 50.0),
+        ],
+        127,
+    );
+
+    let mut map_max = Nav2Costmap::new(footprint, CostmapComposition::Max);
+    map_max.add_obstacle(obs);
+    map_max.add_zone(zone.clone());
+    let mut map_add = Nav2Costmap::new(footprint, CostmapComposition::Additive);
+    map_add.add_obstacle(obs);
+    map_add.add_zone(zone);
+
+    // 12 units from the obstacle: inflation cost 227, zone cost 127, sum 354 (does not fit in a u8).
+    let pt = Vec2D::new(12.0, 0.0);
+    assert_eq!(footprint.compute_cost(12.0), 227);
+
+    let cost_max = map_max.evaluate_cost(pt, 0.0);
+    let cost_add = map_add.evaluate_cost(pt, 0.0);
+    assert_eq!(cost_max, 227);
+    // Adding a layer must never make a cell cheaper; the sum saturates at 252.
+    assert!(
+        cost_add >= cost_max,
+        "additive cost {cost_add} fell below max cost {cost_max}"
+    );
+    assert_eq!(cost_add, 252);
+}
+
+#[test]
 fn test_integration_moving_mob_intercept_prediction() {
     // Player plans to move from (0, 0) to (50, 0) at speed 10 units/s (arrival at t = 5s)
     let footprint = FootprintInflation::new(15.0, 40.0);
