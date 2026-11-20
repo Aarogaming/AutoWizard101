@@ -75,6 +75,10 @@ pub enum CheatEffect {
 }
 
 /// Tactical counter-constraint imposed on the player's turn evaluator.
+///
+/// Every variant except `CapDamagePerHit` is aggregated across all living enemies and applies to the
+/// whole turn, not only to the enemy that carries it. `CapDamagePerHit` clamps estimates against the
+/// carrying enemy only, and a cap of zero or less is ignored.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum CounterConstraint {
     ForbidTraps,
@@ -85,6 +89,10 @@ pub enum CounterConstraint {
 }
 
 /// Declarative Boss Cheat Rule representing a scripted encounter mechanic.
+///
+/// Only `counter_constraint` is read by `CombatTurnEvaluator`, and it applies for as long as the enemy
+/// carrying the rule is alive. `trigger`, `phase` and `effect` are descriptive data that nothing
+/// evaluates, so a rule never switches on or off by round, health, player count or phase.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BossCheatRule {
     pub name: String,
