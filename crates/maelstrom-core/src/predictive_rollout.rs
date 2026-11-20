@@ -1,11 +1,14 @@
 //! `predictive_rollout`: Short-Horizon "Mr. House" Prediction & Rollout Engine.
 //!
-//! Evaluates candidate kinematic trajectories across short horizons (5-15 discrete ticks, 0.5s-2.0s),
-//! penalizes predicted aggro-cylinder intersections, Z-mismatches, and zero-displacement snags,
-//! and selects the optimal trajectory for dispatch under the `GameInputLease`.
+//! Evaluates caller-supplied candidate actions over a short horizon (default 10 ticks of 0.1 s;
+//! `with_horizon` clamps to 1-30 ticks of 0.01-0.5 s), rejects trajectories whose clearance to a hazard's
+//! aggro cylinder reaches zero, penalizes the repulsion-band threat cost and a forward pulse that moves
+//! nothing, and returns the best safe candidate. Nothing dispatches it: it is not connected to the
+//! `GameInputLease` or any actuator. There is no Z-mismatch term in the score.
 //!
 //! Computes spatial prediction residuals ($\mathbf{r} = \|\mathbf{p}_{\text{actual}} - \hat{\mathbf{p}}\|$),
-//! flagging model surprise events to feed counterfactual replay training (`maelstrom-replay`).
+//! flagging model surprise events for counterfactual replay training (`maelstrom-replay`); nothing
+//! records or consumes them yet.
 //!
 //! Adheres strictly to `Facts ≠ Authority ≠ Actions`.
 
@@ -194,6 +197,7 @@ pub struct PredictiveRolloutEngine {
     pub step_dt_s: f64,
     pub base_speed_units_s: f64,
     pub residual_tolerance: f64,
+    /// Declared per-tick budget. Nothing reads or enforces it, and no rollout is timed.
     pub max_compute_budget_ms: f64,
 }
 
@@ -362,7 +366,8 @@ impl PredictiveRolloutEngine {
     }
 
     /// Evaluates all candidate actions and returns the optimal safe action.
-    /// Falls back to BrakeAndHold if all forward branches are lethal.
+    /// Falls back to a fixed 500 ms BrakeAndHold if no candidate is safe. The fallback is returned even when
+    /// it is itself unsafe (for example when the player already stands inside an aggro radius).
     pub fn evaluate_and_select(
         &self,
         shadow: &ShadowWorldState,
@@ -396,6 +401,10 @@ impl PredictiveRolloutEngine {
     }
 
     /// Calculates spatial residual and model surprise against the actual observation.
+    ///
+    /// The residual is measured against the horizon's final pose whatever the observation time; the per-step
+    /// poses and `now_ms` are not used to align them. Only three of the five failure causes are ever assigned
+    /// (`StaleEntityTTL` and `InputLatencyJitter` are not).
     pub fn calculate_surprise(
         &self,
         predicted: &CandidateEvaluation,

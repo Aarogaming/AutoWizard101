@@ -1,5 +1,8 @@
 # Evidence Report: W101-ROLLOUT-DOCS-01
 
+Status: **Corrected** (audited 2026-11-20; the specification presented design intent as implemented behavior and has been amended; see
+"Audit note" at the end).
+
 ## 1. Summary
 Authored formal architecture and systems specification for the Short-Horizon "Mr. House" Prediction & Rollout Engine in `docs/SHORT_HORIZON_PREDICTION_ROLLOUT.md`, and updated `docs/INDEX.md`.
 
@@ -24,3 +27,26 @@ Authored formal architecture and systems specification for the Short-Horizon "Mr
 - `docs/INDEX.md` updated with reference to `SHORT_HORIZON_PREDICTION_ROLLOUT.md`.
 - `python tools/check_project_board.py` validated (30 workstreams, zero broken dependencies).
 - `python tools/check_text_encoding.py` verified (0 violations).
+
+## Audit note (2026-11-20, Claude)
+
+`docs/INDEX.md` does reference the document (line for "Short-Horizon Prediction Rollout Engine"). The original text above is kept
+unchanged. Compared with `predictive_rollout.rs` (see the [W101-ROLLOUT-CORE-02](W101-ROLLOUT-CORE-02.md) audit note for the probe
+evidence):
+
+**Corrections.**
+1. **"Strict <= 10 ms per-tick rollout time budget" is not implemented.** `max_compute_budget_ms` is a field that nothing reads, there is
+   no timer and no 8 ms truncation, and no rollout was timed.
+2. **Step 1 and Step 4 describe things the code does not do.** There is no 150-unit sensory perimeter, floor or water height in
+   `ShadowWorldState`, and `z` never changes in a rollout. The engine emits no "single bounded proposal": it returns a
+   `CandidateEvaluation`, `PROPOSAL:Kinematics:PulseKey` appears nowhere in the code, and nothing connects the engine to the bridge or to
+   `DesktopInputActuator`.
+3. **The learned layer is not implemented.** There are no learned predictors, no 1-4 s patrol forecasts, no snag predictor (the snag
+   term fires on pulses shorter than a step) and no combat outcome estimator in this module. The surprise events "form the empirical
+   training corpus" only in intent: nothing records them.
+4. **The uncertainty and Z-mismatch terms of the cost function are absent,** and the document's "5 to 15 discrete ticks" and "widens
+   repulsion radii by 1.5" do not match the code (1-30 ticks; the aggro radius in the lethal test, by 1.5 for Tier 1 and 2.0 for Tier 2).
+5. **The game-mechanic statements in section 1** (crossing a mob's invisible aggro perimeter triggers an instant, uncancelable
+   transition into a 4-player duel; 30-second dueling timers) cite no source here and were not checked.
+6. **Where the document was amended:** a status banner, a **Today** note under steps 1-4, section 4, section 5 and section 6, and
+   "design only" on Layer 2. The module's own doc comments in `predictive_rollout.rs` were corrected to match (comments only).
