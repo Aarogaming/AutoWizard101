@@ -4,11 +4,13 @@
 //! `Facts ≠ Authority ≠ Actions`:
 //! - Energy budget preconditions and one-attempt execution gate.
 //! - Lead-cast kinematics over 3D swimming fish entities.
-//! - Sub-millisecond acoustic bite detection reflex via `FishingBobberSplash` audio cue.
-//! - Reflex latency gating (≤ 150ms) dispatching `Spacebar` strikes.
+//! - Bite reaction to a `FishingBobberSplash` audio cue (the detector's latency is unmeasured).
+//! - Reflex latency flagging (≤ 150ms from the cue timestamp to its handling): a late cue is flagged, not rejected.
 //! - Structured catch resolution (fish species, chest loot, XP, size classification).
 //!
-//! Emits purely advisory `FishingProposal` records for the C# `DesktopInputActuator`.
+//! Emits advisory `FishingProposal` records. Nothing consumes them yet, and `DesktopInputActuator` cannot send a
+//! `Spacebar` or hotbar key. Not guarded: only `WaitingForBite` has a timeout, cues are not checked against the
+//! cast time, and `resolve_catch` accepts any state.
 
 use alloc::string::String;
 use serde::{Deserialize, Serialize};
@@ -533,7 +535,9 @@ pub enum FishingProposal {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct FishingStateMachine {
     pub state: FishingState,
+    /// Set by the caller; nothing observes the game's energy and nothing regenerates it.
     pub current_energy: u32,
+    /// Not read by the state machine.
     pub max_energy: u32,
     pub pond: PondSurface,
     pub stats: FishingSessionStats,
@@ -662,6 +666,10 @@ impl FishingStateMachine {
     }
 
     /// Handles discrete acoustic cues emitted by the audio subsystem.
+    ///
+    /// Latency is `now_s - cue.timestamp_s`, clamped at zero. A cue older than the cast, or stamped in the future,
+    /// is not rejected, and a cue over `max_reflex_latency_ms` still yields a `ReflexStrike` with
+    /// `is_sub_150ms == false`.
     pub fn handle_audio_cue(&mut self, cue: &AudioCueEvent, now_s: f64) -> Option<FishingProposal> {
         if cue.cue_type != AudioCueType::FishingBobberSplash {
             return None;
@@ -703,6 +711,8 @@ impl FishingStateMachine {
     }
 
     /// Updates watchdog timers and checks for cast timeouts.
+    ///
+    /// Only `WaitingForBite` has a timeout; `Casting`, `Striking` and `ReelingIn` can wait forever.
     pub fn update_timer(&mut self, now_s: f64) -> Option<FishingOutcome> {
         if let FishingState::WaitingForBite {
             cast_timestamp_s,
@@ -736,6 +746,8 @@ impl FishingStateMachine {
     }
 
     /// Resolves the catch outcome, updating telemetry and emitting reward popup dismissal proposal.
+    ///
+    /// Not guarded by state: it can be called from any state, and every call is counted.
     pub fn resolve_catch(&mut self, outcome: FishingOutcome) -> FishingProposal {
         self.stats.record_outcome(&outcome);
         self.state = FishingState::CatchResolved { outcome };
