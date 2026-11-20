@@ -127,3 +127,17 @@ A sample markdown report generated during test execution from real `.local/quest
   - `crates/maelstrom-fallback/src/autonomy_replay.rs`
   - `crates/maelstrom-fallback/tests/replay_cli_tests.rs`
   - `docs/coordination/results/W101-TRACE-INGEST-CORE-02.md`
+
+## Audit corrections, addendum (2026-11-20)
+Checked by reading both ingesters and by replaying the two real JSONL files offline (`--batch-dir`); nothing live. The 2026-11-19 corrections stand, with these additions.
+- **Frames and duration:** the sample report in section 4 shows 19 frames and 200 ms. The ingester replays the 11 observation events only (800 ms). The 19 lines are 11 observations,
+  7 receipts and 1 marker. The `events_w101-operations` row of the committed matrix agrees (11 frames, 800 ms).
+- **Item 7 of the 2026-11-19 list is half right.** `saturating_sub` offsets exist only in the UI ingester; the events ingester uses `time_ms` unchanged.
+- **"Returns `Err("No valid frames could be parsed ...")`"** (Attack Vector 1) is not in the code: both ingesters return `Ok` with an empty frame list, which `discover_and_load_traces` then drops.
+- **The listed frame fields do not exist.** `is_idle`, `window_focused`, `cur_x`, `cur_y`, `cur_yaw`, `pitch`, `vitals_low` and `in_combat` are not produced. The frames carry the typed aliases
+  `combat.active`, `zone.name`, `position.x|y|z`, `health(.max)`, `mana(.max)`, `potions` and `nativeIdle` (see `REAL_TRACE_INGESTION.md`, section 3).
+- **"Detects sigil interactions, dialog prompts" and "extracts dialog options and prompt trees"** are not implemented. The events ingester labels `Landmark.*` and `Progress.*` scenes and treats
+  `NativeIdle`/`MenuObserved` as idle; the UI ingester reads only `loading`, `states.nativeIdle` and `combatContext.planningVisible` (not `DuelTimerWindow` or `planningCards`).
+- **The real UI trace has no combat frame.** All 3 `tree` lines have `planningVisible` false, so the ingested session has no labelled tick; 100.0% there is vacuous. The events file's 4 labelled ticks
+  are the only scored decisions in the two real files.
+- **Test count:** `replay_cli_tests` has 9 tests on this branch (two exit-code tests were added on 2026-11-20).

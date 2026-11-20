@@ -182,8 +182,11 @@ impl AutonomyReplaySession {
         sessions
     }
 
-    /// Ingests real Wizard101 routine observation events (e.g. from events.jsonl)
-    /// into an AutonomyReplaySession trace.
+    /// Ingests Wizard101 routine observation events (e.g. from events.jsonl) into an AutonomyReplaySession trace.
+    ///
+    /// Only `kind: observation` lines become frames. Only the scene name and `time_ms` come from the file: position
+    /// (`100 + 0.1 * time_ms`), vitals, potions, zone and `combat.active` are constants, and the bundled sample file is a
+    /// synthetic rehearsal. Labels are `StepWaypoint` for `Landmark.*` and `Progress.*` scenes. Never returns `Err`.
     pub fn from_w101_events_jsonl(
         events_jsonl_content: &str,
         session_id: &str,
@@ -318,8 +321,11 @@ impl AutonomyReplaySession {
         })
     }
 
-    /// Ingests real Wizard101 UI tree observations (e.g. from ui-observations.jsonl)
-    /// into an AutonomyReplaySession trace.
+    /// Ingests Wizard101 UI tree observations (e.g. from ui-observations.jsonl) into an AutonomyReplaySession trace.
+    ///
+    /// Only `tree` and `loading` lines become frames. Only `loading`, `states.nativeIdle`, `combatContext.planningVisible`
+    /// and the tick offset come from the file; position, vitals, potions and zone are constants. A frame is labelled
+    /// `CombatTurn` only when `planningVisible` is true, so a trace without it has no labelled tick. Never returns `Err`.
     pub fn from_ui_observations_jsonl(
         ui_jsonl_content: &str,
         session_id: &str,
