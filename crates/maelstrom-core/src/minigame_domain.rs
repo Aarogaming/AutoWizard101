@@ -278,7 +278,8 @@ impl CantripChestType {
     }
 }
 
-/// Full input vector for the exact Wizard101 damage calculation pipeline.
+/// Input vector for a draft multiplicative damage pipeline. The stage order and the combination rules are not
+/// verified against the game, and the numbers in this module's tests are invented fixtures.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DamagePipelineInputs {
     pub base_damage: f64,
@@ -312,9 +313,18 @@ impl DamagePipelineInputs {
     }
 }
 
-/// Calculates exact spell damage resolving through the canonical LIFO stack pipeline:
+/// Calculates spell damage through a draft multiplicative pipeline (the stage order is not verified against the
+/// game; the module's tests compare the function with its own arithmetic on invented inputs):
 ///
-/// $$\text{Damage} = \left\lfloor \left(\text{Base} + \text{Enchant}\right) \times \left(1.0 + \text{Gear\%}\right) + \text{FlatDmg} \right\rfloor \times \left(1.0 + \text{Aura}\right) \times \prod \left(1.0 + \text{Charm}\right) \times \left(1.0 + \text{Global}\right) \times \prod \left(1.0 + \text{Ward}\right) \times \text{CritMult} \times \left(1.0 - \text{Resist} + \text{Pierce}\right)$$
+/// $$\text{Damage} = \left\lfloor \left(\text{Base} + \text{Enchant}\right) \times \left(1.0 + \text{Gear\%}\right) + \text{FlatDmg} \right\rfloor \times \left(1.0 + \text{Aura}\right) \times \prod \left(1.0 + \text{Charm}\right) \times \left(1.0 + \text{Global}\right) \times \prod \left(1.0 + \text{Ward}\right) \times \text{CritMult} \times \left(1.0 - R_{\text{eff}}\right)$$
+///
+/// where `R_eff = max(Resist - Pierce, 0)` when `Resist > 0` and `R_eff = Resist` otherwise: pierce cancels
+/// positive resist but never creates a boost, and a negative resist (an enemy weakness) amplifies the damage.
+/// The last factor is floored at 0 and the result is rounded to the nearest integer.
+///
+/// Things the names suggest but the code does not do: `charms_lifo` and `wards_lifo` are multiplied together,
+/// so the order of each list has no effect (no stack order is modelled), and a `critical_multiplier` below 1.0
+/// is treated as 1.0.
 pub fn calculate_pipeline_damage(inputs: &DamagePipelineInputs) -> u32 {
     if inputs.base_damage <= 0.0 {
         return 0;

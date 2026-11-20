@@ -216,3 +216,44 @@ fn test_damage_pipeline_enemy_boost_amplification() {
         "Negative resistance (enemy boost) must amplify incoming spell damage"
     );
 }
+
+#[test]
+fn test_pierce_never_turns_positive_resist_into_a_boost() {
+    // Pierce larger than the resist floors the effective resist at 0: no boost is created.
+    let mut over_pierced = DamagePipelineInputs::new(500.0);
+    over_pierced.enemy_resist = 0.20;
+    over_pierced.player_pierce = 0.50;
+    assert_eq!(calculate_pipeline_damage(&over_pierced), 500);
+
+    // Pierce equal to the resist cancels it exactly.
+    let mut cancelled = DamagePipelineInputs::new(500.0);
+    cancelled.enemy_resist = 0.40;
+    cancelled.player_pierce = 0.40;
+    assert_eq!(calculate_pipeline_damage(&cancelled), 500);
+
+    // Resist of 100% or more passes nothing through (the factor is floored at 0).
+    let mut immune = DamagePipelineInputs::new(500.0);
+    immune.enemy_resist = 1.5;
+    assert_eq!(calculate_pipeline_damage(&immune), 0);
+}
+
+#[test]
+fn test_charm_and_ward_order_does_not_change_damage_today() {
+    // The `*_lifo` names promise a stack order, but every factor is multiplied in and multiplication
+    // commutes, so the order has no effect in this implementation. If real LIFO behaviour is ever
+    // added (the game's own order has not been observed), this test must change deliberately.
+    let damage = |charms: Vec<f64>, wards: Vec<f64>| {
+        let mut inputs = DamagePipelineInputs::new(895.0);
+        inputs.charms_lifo = charms;
+        inputs.wards_lifo = wards;
+        calculate_pipeline_damage(&inputs)
+    };
+    assert_eq!(
+        damage(vec![0.35, 0.45], vec![]),
+        damage(vec![0.45, 0.35], vec![])
+    );
+    assert_eq!(
+        damage(vec![], vec![0.70, 0.80]),
+        damage(vec![], vec![0.80, 0.70])
+    );
+}

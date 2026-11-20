@@ -237,3 +237,47 @@ fn test_bridge_vertical_separation_not_pruned_as_lethal() {
         "Valid forward bridge traversal should achieve positive score"
     );
 }
+
+#[test]
+fn test_vertical_gate_boundary_matches_the_hazard_threat_cost() {
+    let engine = PredictiveRolloutEngine::new().with_horizon(10, 0.10);
+
+    // The same overlapping mob (aggro 15.0 around x = 10.0, vertical tolerance 30.0), with the player
+    // at different heights. A separation of exactly the tolerance still counts as the same level.
+    let evaluate = |player_z: f64| {
+        let mob = Hazard::dynamic_aggro(
+            105,
+            "VerticalBoundary",
+            (10.0, 0.0, 0.0),
+            (0.0, 0.0, 0.0),
+            15.0,
+            35.0,
+        );
+        let shadow = ShadowWorldState::new(Pose3D::new(0.0, 0.0, player_z, 0.0), 10_000)
+            .with_hazards(vec![mob]);
+        engine.simulate_action(
+            &shadow,
+            &CandidateAction::forward(800),
+            (40.0, 0.0, player_z),
+        )
+    };
+
+    let same_level = evaluate(0.0);
+    assert!(
+        !same_level.is_safe,
+        "an overlapping mob at the same height is lethal"
+    );
+    assert_eq!(same_level.score, -1_000_000.0);
+
+    assert!(
+        !evaluate(30.0).is_safe,
+        "a separation of exactly the tolerance is still the same level"
+    );
+
+    let above = evaluate(30.1);
+    assert!(
+        above.is_safe,
+        "just beyond the tolerance the player is clear overhead"
+    );
+    assert!(above.min_hazard_clearance > 0.0);
+}

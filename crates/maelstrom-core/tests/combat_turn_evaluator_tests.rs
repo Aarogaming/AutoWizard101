@@ -646,3 +646,53 @@ fn test_evaluator_selects_highest_magnitude_buff_and_dot() {
         _ => panic!("Expected PlayCard DoT play"),
     }
 }
+
+#[test]
+fn test_evaluator_selects_highest_buff_trap_in_either_hand_order() {
+    let evaluator = CombatTurnEvaluator::new(MagicSchool::Fire, 0.20);
+    let pips = CombatPips::new(0, 4, 0);
+    let player = CombatantState::new(4, "Player", MagicSchool::Fire, 500.0);
+    let enemies = vec![CombatantState::new(
+        0,
+        "High Health Boss",
+        MagicSchool::Death,
+        10000.0,
+    )];
+
+    let weak = |slot: usize| {
+        CombatCardCandidate::new(
+            slot,
+            "Weak Trap",
+            MagicSchool::Fire,
+            2,
+            SpellCardType::TrapEnemy,
+        )
+        .with_buff(0.25)
+    };
+    let strong = |slot: usize| {
+        CombatCardCandidate::new(
+            slot,
+            "Strong Trap",
+            MagicSchool::Fire,
+            2,
+            SpellCardType::TrapEnemy,
+        )
+        .with_buff(0.50)
+    };
+
+    for (hand, expected_slot) in [(vec![weak(0), strong(1)], 1), (vec![strong(0), weak(1)], 0)] {
+        match evaluator.evaluate_turn(&pips, &hand, &player, &enemies) {
+            CombatDecision::PlayCard {
+                slot_index,
+                spell_name,
+                target_index,
+                ..
+            } => {
+                assert_eq!(slot_index, expected_slot);
+                assert_eq!(spell_name, "Strong Trap");
+                assert_eq!(target_index, 0);
+            }
+            _ => panic!("Expected PlayCard trap play"),
+        }
+    }
+}

@@ -148,6 +148,8 @@ pub struct RolloutStep {
     pub step_idx: usize,
     pub delta_t_s: f64,
     pub pose: Pose3D,
+    /// Smallest clearance to a hazard so far. `f64::MAX` is a sentinel meaning "no hazard was within its
+    /// vertical tolerance" (that includes having no hazards at all), not a real distance.
     pub min_hazard_clearance: f64,
     pub threat_cost: u8,
     pub is_lethal: bool,
@@ -160,6 +162,7 @@ pub struct CandidateEvaluation {
     pub steps: Vec<RolloutStep>,
     pub final_pose: Pose3D,
     pub progress_gain: f64,
+    /// As in `RolloutStep`: `f64::MAX` is the "no hazard on the same level" sentinel, not a distance.
     pub min_hazard_clearance: f64,
     pub total_threat_penalty: f64,
     pub snag_penalty: f64,

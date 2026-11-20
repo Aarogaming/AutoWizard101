@@ -56,3 +56,13 @@ Ingested and formalized the comprehensive Wizard101 Onboarding Context Corpus in
   - `rustfmt --edition 2021`: Clean.
   - `python tools/check_project_board.py`: 30 workstreams valid.
   - `python tools/check_text_encoding.py`: 0 violations.
+
+---
+
+## Partial audit note (audit 2026-11-20, Claude)
+Only the `calculate_pipeline_damage` lines above were checked; the rest of this report (pet, chest and corpus claims) was not audited in this pass.
+- **The printed formula is wrong.** The last factor `(1.0 - Resist + Pierce)` is not what the code computes: it uses `1 - R_eff` with `R_eff = max(Resist - Pierce, 0)` for positive resist and `R_eff = Resist` for a negative one
+  (resist 0.2, pierce 0.5 gives the base damage, not +30%), floors the factor at 0 and rounds the result. The source rustdoc is corrected.
+- **"Exact" is not supported.** The pipeline has no caller outside its tests and its stage order is unverified; "27,906 damage" is the function's own arithmetic on invented fixture values (an Efreet base of 895, an enchant of 300),
+  not an in-game observation. `charms_lifo` and `wards_lifo` are multiplied, so the order of each list has no effect.
+- See the audit note in [CORE-SELF-AUDIT-REPAIRS-01](CORE-SELF-AUDIT-REPAIRS-01.md) for the resistance, pierce and boost handling.

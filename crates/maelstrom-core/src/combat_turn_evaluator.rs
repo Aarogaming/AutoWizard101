@@ -358,7 +358,11 @@ impl CombatTurnEvaluator {
         final_damage
     }
 
-    /// Evaluates the turn and returns the optimal combat decision.
+    /// Evaluates the turn with a fixed priority list and returns its first applicable decision (not a proven
+    /// optimum). Among equally eligible cards, the required-DoT, blade, trap and standard-damage steps pick the
+    /// highest magnitude (`base_damage` or `buff_percentage`); the low-health heal, multi-enemy AoE and lethal-check
+    /// steps take the first match in hand order. `is_lethal` for a `DamageOverTime` card compares the whole DoT
+    /// damage with current health, although DoT damage lands over later rounds.
     pub fn evaluate_turn(
         &self,
         pips: &CombatPips,
