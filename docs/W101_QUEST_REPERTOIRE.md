@@ -254,7 +254,7 @@ nothing detects a disturbance or re-runs the planner. Measured offline with a th
 | `goal_complete_good_impression` | 24 | 109 | 816 |
 | `goal_complete_unicorn_way` | 37 | 184 | 906 |
 
-Each goal plans in about 25 ms or less with a budget of 10,000, and each also plans with the planner's default budget of 2,000. The tests use budgets of 10,000 and 20,000, and the comment that
+Each goal plans in about 25 ms or less with a budget of 10,000, and each also plans with the planner's default budget of 2,000 from this healthy start (with low vitals and a potion in hand the Unicorn Way goal needs 2,546 iterations and the default returns `None`; see [W101_QUEST_UNICORN_WAY.md](W101_QUEST_UNICORN_WAY.md) section 7). The tests use budgets of 10,000 and 20,000, and the comment that
 the Unicorn Way plan "requires expanding state search" is not true.
 
 ---

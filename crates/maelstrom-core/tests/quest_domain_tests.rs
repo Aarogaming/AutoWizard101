@@ -489,3 +489,142 @@ fn test_quest_interpreter_anchor_resolution_pipeline() {
     assert_eq!(tower_anchor.zone, ZONE_TRITON_AVENUE);
     assert_eq!(tower_anchor.z, 35.0);
 }
+
+/// Plans the Unicorn Way goal from `zone` and checks the plan step by step: every action is executable where it
+/// runs, no world state repeats, both fights are planned, no combat action runs while `vitals_low` is true, and the
+/// goal is reached. This is a plan-shape check, not a detector for a removed fight precondition: from a fresh quest
+/// state the Lost Soul fight comes first and clears low vitals (nothing sets `vitals_low` to true), and the planner
+/// happens to place the drink early on ties. The precondition tests are
+/// `test_combat_safety_precondition_forces_*` and `test_skeletal_pirate_fight_requires_recovery_when_vitals_low`
+/// (checked by deleting each fight's vitals precondition in a scratch copy: each deletion fails one of them).
+fn assert_unicorn_way_plan_is_safe(zone: &str, vitals_low: bool, has_potions: bool) {
+    let actions = build_wizard_city_starter_repertoire();
+    let goal = goal_complete_unicorn_way();
+    let mut start = initial_fresh_wizard_state();
+    start.set(KEY_ZONE, zone);
+    start.set(KEY_VITALS_LOW, vitals_low);
+    start.set(KEY_HAS_POTIONS, has_potions);
+    let label = format!("zone={zone} vitals_low={vitals_low} has_potions={has_potions}");
+
+    let plan = GoapPlanner::new(10_000)
+        .plan(&start, &goal, &actions)
+        .unwrap_or_else(|| panic!("no plan from {label}"));
+
+    let mut seen = vec![start.clone()];
+    let mut current = start;
+    let mut combat_actions = 0;
+    for action in &plan {
+        assert!(
+            action.is_achievable(&current),
+            "{} is not executable in sequence from {label}",
+            action.name
+        );
+        if action.name.starts_with("engage_and_defeat") {
+            combat_actions += 1;
+            assert_eq!(
+                current.get_bool(KEY_VITALS_LOW),
+                Some(false),
+                "{} runs with low vitals from {label}",
+                action.name
+            );
+        }
+        current = action.apply(&current);
+        assert!(
+            !seen.contains(&current),
+            "{} returns to an earlier world state from {label}",
+            action.name
+        );
+        seen.push(current.clone());
+    }
+    assert_eq!(
+        combat_actions, 2,
+        "both fights must be planned from {label}"
+    );
+    assert_eq!(
+        current.get_bool(KEY_COMPLETED_UNICORN_WAY),
+        Some(true),
+        "goal not reached from {label}"
+    );
+}
+
+/// The Skeletal Pirate fight has its own vitals precondition, which only matters when the Lost Soul fight is already
+/// done (a mid-chain start): low vitals with a potion force a drink first, and low vitals with no potion force a trip
+/// to the Commons fountain and back.
+#[test]
+fn test_skeletal_pirate_fight_requires_recovery_when_vitals_low() {
+    let actions = build_wizard_city_starter_repertoire();
+    let planner = GoapPlanner::new(2000);
+
+    let mut goal = maelstrom_core::goap::WorldState::new();
+    goal.set(KEY_SKELETAL_PIRATES_DEFEATED, true);
+
+    let mut with_potion = initial_fresh_wizard_state();
+    with_potion.set(KEY_ZONE, ZONE_UNICORN_WAY);
+    with_potion.set(KEY_HAS_QUEST_DEFEAT_SKELETAL_PIRATES, true);
+    with_potion.set(KEY_VITALS_LOW, true);
+    with_potion.set(KEY_HAS_POTIONS, true);
+    let plan = planner
+        .plan(&with_potion, &goal, &actions)
+        .expect("Plan must be synthesized");
+    let names: Vec<&str> = plan.iter().map(|a| a.name.as_str()).collect();
+    assert_eq!(
+        names,
+        vec!["drink_potion_recovery", "engage_and_defeat_skeletal_pirate"]
+    );
+
+    let mut no_potion = with_potion.clone();
+    no_potion.set(KEY_HAS_POTIONS, false);
+    let plan = planner
+        .plan(&no_potion, &goal, &actions)
+        .expect("Plan must route to the Commons fountain and back");
+    let names: Vec<&str> = plan.iter().map(|a| a.name.as_str()).collect();
+    assert_eq!(
+        names,
+        vec![
+            "travel_unicorn_way_to_commons",
+            "refill_potions_at_fountain",
+            "travel_commons_to_unicorn_way",
+            "engage_and_defeat_skeletal_pirate",
+        ]
+    );
+}
+
+/// The Unicorn Way plan is acyclic and combat-safe from a healthy start in each of the ten zones, and from low-vitals
+/// starts (with and without a potion) in the Office and on Unicorn Way. The low-vitals starts are limited to two zones
+/// and every case runs on its own thread because a debug-build plan from a low-vitals start takes about 1.5 s. The
+/// search budget is 10,000: a start with low vitals and a potion in hand needs more than the planner's default of 2,000
+/// iterations (measured: 2,546).
+#[test]
+fn test_unicorn_way_plan_is_acyclic_and_combat_safe_from_every_zone() {
+    let zones = [
+        ZONE_HEADMASTER_OFFICE,
+        ZONE_COMMONS,
+        ZONE_RAVENWOOD,
+        ZONE_GOLEM_COURT,
+        ZONE_SHOPPING_DISTRICT,
+        ZONE_UNICORN_WAY,
+        ZONE_OLDE_TOWN,
+        ZONE_TRITON_AVENUE,
+        ZONE_FIRECAT_ALLEY,
+        ZONE_CYCLOPS_LANE,
+    ];
+    let mut cases: Vec<(&str, bool, bool)> = zones.iter().map(|z| (*z, false, true)).collect();
+    for zone in [ZONE_HEADMASTER_OFFICE, ZONE_UNICORN_WAY] {
+        cases.push((zone, true, true));
+        cases.push((zone, true, false));
+    }
+
+    std::thread::scope(|scope| {
+        let handles: Vec<_> = cases
+            .iter()
+            .map(|&(zone, low, potions)| {
+                scope.spawn(move || assert_unicorn_way_plan_is_safe(zone, low, potions))
+            })
+            .collect();
+        for handle in handles {
+            if let Err(payload) = handle.join() {
+                std::panic::resume_unwind(payload);
+            }
+        }
+    });
+}

@@ -94,7 +94,8 @@ cheapest-branch test, not proven in general.
   pairs. That is fine at the repertoire sizes tested and is not an efficient $A^*$.
 - `max_iterations` defaults to 2000 (`GoapPlanner::new(0)` also means 2000). When the budget runs out `plan` returns `None`, the same
   value as for an unreachable goal: in a probe a 3-step chain with a budget of 1 returned `None` and with the default budget returned a
-  3-action plan. An already-satisfied goal returns an empty plan.
+  3-action plan. An already-satisfied goal returns an empty plan. A measured case in the real repertoire: `goal_complete_unicorn_way` from the Office needs 906 iterations when vitals are healthy
+  but 2,546 with `vitals_low` true and a potion in hand, so the default budget returns `None` there (see [W101_QUEST_UNICORN_WAY.md](W101_QUEST_UNICORN_WAY.md) section 7).
 
 ---
 

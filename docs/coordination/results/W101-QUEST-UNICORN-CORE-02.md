@@ -57,3 +57,20 @@
 
 ## Audit note (2026-11-19)
 `cargo test -p maelstrom-core --offline --test quest_domain_tests` now runs 15 tests and passes; the "12 passed" figure above was true only for the file as it stood when written. Found by `tools/check_claim_evidence.py`; the rest of this report was not re-audited.
+
+## Audit note, addendum (2026-11-20)
+Scope: the implementation summary, the test list and the adversarial-audit claims, checked against the code, the test file and a throwaway probe. The 2026-11-19 count note stands.
+- **Verified:** the eleven state keys, `ZONE_UNICORN_WAY`, the symmetric transitions, all nine actions with their preconditions, effects and costs, the `initial_fresh_wizard_state()` atoms,
+  `goal_complete_unicorn_way()`, the 13-action plan in `test_plan_unicorn_way_from_good_impression_completion`, and both recovery plans (drink; fountain trip). `cargo clippy --workspace --all-targets
+  -- -D warnings` and `cargo fmt --check` are clean today.
+- **"Calibrated" NPC anchors:** placeholders. Private Stillson's rectangle is a copy of the shared default, and the anchor test only checks that a rectangle's centre is inside the same rectangle.
+- **"A* search proves mathematically that combat actions cannot be selected without first satisfying vitals restoration" is overstated.** The two tests compare exact plans from two start states; the
+  guarantee comes from the action preconditions, and the Skeletal Pirate precondition had no test (deleting it in a scratch copy failed nothing). It now has one:
+  `test_skeletal_pirate_fight_requires_recovery_when_vitals_low`, which fails on that mutation.
+- **"Prologue + Unicorn Way = 20+ steps ... in under 0.12 seconds" understates the plan and the time.** The plan from the Office is 37 actions (cost 184); it takes about 25 ms in a release build
+  and about 0.3 s in a debug build. From a low-vitals start with a potion it is 38 actions and about 150 ms release (1.6 s debug), and it needs 2,546 search iterations, so the planner's default budget
+  of 2,000 returns `None`. No test asserts a time. The "requires expanding state search" comment on the 20,000 budget is wrong for the healthy start (906 iterations suffice).
+- **Test counts are stale:** "12 passed" (already noted) and "144 passed across all 5 crates" were snapshots; today `cargo test --workspace --offline --locked` ran 283 tests, 0 failed, before this
+  audit's two additions. The `dotnet test (actuator & host suites): 14 passed` line is unrelated to this Rust task and was not re-run.
+- **Added in this audit** (`crates/maelstrom-core/tests/quest_domain_tests.rs`): `test_skeletal_pirate_fight_requires_recovery_when_vitals_low` and
+  `test_unicorn_way_plan_is_acyclic_and_combat_safe_from_every_zone` (ten zones; it is a plan-shape check and did not fail when the Lost Soul precondition was deleted, the older tests did).

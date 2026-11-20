@@ -66,7 +66,7 @@ Scope: the implementation summary, test list and adversarial-audit claims, check
 - **"Full multi-quest prologue across 18 actions in <80ms" is wrong on the number.** `test_end_to_end_starter_prologue_synthesis` plans `goal_complete_good_impression`, which is 24 actions (cost 109);
   18 is the enrollment goal alone. The probe took about 25 ms per goal in a release build, but no test asserts a time, so "<80ms" and "0.08 seconds" are an unchecked snapshot.
 - **The iteration-budget story is overstated.** The end-to-end tests allow 10,000 and 20,000 iterations ("requires expanding state search"), but the smallest budgets that find the plans are 816 and 906,
-  so the planner's default of 2,000 plans every goal in this file. The "combinatorial blowup" attack vector did not occur.
+  so the planner's default of 2,000 plans every goal in this file from the healthy starts these tests use (a low-vitals start with a potion needs 2,546; see the W101-QUEST-UNICORN-CORE-02 addendum). The "combinatorial blowup" attack vector did not occur.
 - **`KEY_VITALS_LOW` and `KEY_HAS_POTIONS` are the whole vitals model** (booleans). `drink_potion_recovery` sets `vitals_low = false` and leaves `has_potions` true, so potions are never consumed.
 - **"Calibrated for ... NPCs" is not supported:** the rectangles are placeholders (nine of thirteen NPCs have the same prompt rectangle), and `get_npc_interaction_target` has no caller outside tests.
 - **"Precondition enforcement: incomplete enrollment sets cannot trigger Ambrose turn-in"** is true of the action definition (the turn-in requires all six flags) but no test tries an incomplete set.
