@@ -285,7 +285,9 @@ The concrete action repertoire for Wizard City starter questlines (*"The Lore of
 
 ### 8. Offline Autonomy Replay Harness
 
-To qualify the two-tier autonomy stack against multi-hour recorded game session traces without live client execution, Maelstrom provides an offline replay harness (`crates/maelstrom-fallback/src/autonomy_replay.rs`). The harness measures decision accuracy ($\ge 99.5\%$), replanning frequency, trajectory curvature smoothness, and kinematic minimum-jerk compliance. See [Offline Autonomy Replay Harness](OFFLINE_AUTONOMY_REPLAY.md).
+To check the autonomy stack's decisions against synthetic or ingested session frames without live client execution, Maelstrom provides an offline replay harness (`crates/maelstrom-fallback/src/autonomy_replay.rs`). It reports intent-label agreement, an intent-change counter, a Pure Pursuit curvature figure and a click-plan jerk proxy. See [Offline Autonomy Replay Harness](OFFLINE_AUTONOMY_REPLAY.md).
+
+**Today (audit 2026-11-20, Claude):** the replay runs the Behavior Tree bridge only, not GOAP. The 99.5% accuracy threshold is the report's, while `run_batch` and the CLI exit code use 95%, and a session with no labels reports 100%. The curvature threshold (5.0) cannot be exceeded because the controller bounds the magnitude at 2.0, and the replan status is a constant PASS. The longest test trace is 99.9 s of synthetic frames.
 
 ### 9. Desktop Input Actuator Under Verified Lease
 

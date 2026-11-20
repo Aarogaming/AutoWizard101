@@ -49,3 +49,13 @@ Checked against `autonomy_replay.rs` and `autonomy_replay_tests.rs`; the origina
 - **Replan assertion is weaker than described.** The test comment says "at least 3 replans"; the assertion is `replan_count >= 2`.
 - **"Zero OS/UI calls" needs a qualifier.** Replay itself is offline, but the module does read and write files (`from_file`, `to_file`, trace discovery, and temp directories in `run_batch`). No named-pipe or game-client access was found.
 - Not reproduced: the "137 passed across 5 crates" workspace count, the clippy run and the project-board and encoding gates; the counts have changed since this was written.
+
+## Audit corrections, addendum (2026-11-20)
+Checked by reading `autonomy_replay.rs`, `maelstrom-replay.rs` and `steering.rs`, and by a throwaway release probe (not committed). The 2026-11-19
+corrections above stand.
+- **The `max_steering_curvature < 5.0` assertion cannot fail.** The controller's curvature is $2\sin\alpha / \max(d, 1)$, so its magnitude never exceeds
+  2.0 (largest value in 2,000,000 random draws with the bridge's settings: 0.08). The "bounded curvature" result carries no information.
+- **An unlabeled session reports 100% accuracy** (the default is 100.0 when `labeled_ticks` is 0), and the report prints PASS for it.
+- **Three different accuracy thresholds are in play:** 99.5 in the report and the long test, 95.0 in `run_batch` and in the `maelstrom-replay` exit code.
+- **The Markdown report's replan status is a constant PASS** (`<= 30.0 /hr` has no source), and `replan_count` counts every intent change, including a
+  combat flag that flips each frame (9 for 10 frames).

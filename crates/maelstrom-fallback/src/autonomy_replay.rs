@@ -2,6 +2,9 @@
 //!
 //! Evaluates recorded session traces through `MaelstromAutonomyBridge` without live game
 //! interaction, calculating decision accuracy, replanning rates, path curvature, and jerk compliance.
+//! The replan figure is an intent-change counter, the curvature is the Pure Pursuit controller's own value
+//! (magnitude at most 2.0), and the jerk is a scale-dependent proxy; none is a calibrated gate. The fixtures
+//! here are synthetic. See docs/OFFLINE_AUTONOMY_REPLAY.md.
 //! Adheres strictly to `Facts ≠ Authority ≠ Actions`.
 
 use serde::{Deserialize, Serialize};
@@ -51,7 +54,8 @@ impl ReplayFrame {
     }
 }
 
-/// A serialized collection of replay frames representing a multi-hour recorded game session.
+/// A serialized collection of replay frames. In this repository they are synthetic fixtures, or frames ingested
+/// from event and UI logs with fabricated position and vitals; none is a recorded multi-hour session.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct AutonomyReplaySession {
     pub session_id: String,
@@ -463,7 +467,10 @@ pub struct AutonomyReplayMetrics {
     pub total_ticks: usize,
     pub labeled_ticks: usize,
     pub matched_intent_ticks: usize,
+    /// 100.0 when no frame carries an `expected_intent` (the default), so an unlabeled session counts as a pass.
     pub decision_accuracy_pct: f64,
+    /// Counts every change of `proposed_intent` between consecutive intent-bearing frames; it does not separate
+    /// planned completions from aborts.
     pub replan_count: usize,
     pub replan_rate_per_hour: f64,
     pub total_steering_commands: usize,
@@ -539,6 +546,7 @@ impl AutonomyReplayMetrics {
             "| **Decision Accuracy** | {:.2}% | >= 99.5% | **{}** |\n",
             self.decision_accuracy_pct, acc_gate
         ));
+        // The status below is a constant: no replan threshold is enforced and 30.0 has no source.
         md.push_str(&format!(
             "| **Replanning Rate** | {:.2} replans/hr | <= 30.0 /hr | **PASS** |\n",
             self.replan_rate_per_hour
@@ -669,6 +677,8 @@ impl AutonomyReplayHarness {
             }
 
             // Steering curvature analysis: curvature is pre-computed in steering.curvature
+            // (Pure Pursuit kappa = 2 sin(alpha) / max(d, 1) in world units, so |kappa| <= 2.0 and the threshold
+            // below cannot be exceeded)
             if let Some(ref steering) = result.steering_command {
                 metrics.total_steering_commands += 1;
                 let kappa = steering.curvature.abs();
@@ -727,7 +737,8 @@ impl AutonomyReplayHarness {
         (metrics, cycle_results)
     }
 
-    /// Evaluates discrete third-order derivative (jerk) along the kinematic plan waypoints.
+    /// Scale-dependent jerk proxy computed from the plan summary alone (no waypoints are available here); it is
+    /// not a third derivative.
     fn compute_trajectory_peak_jerk(
         &self,
         plan: &crate::maelstrom_bridge::KinematicPlanSummary,
@@ -739,6 +750,7 @@ impl AutonomyReplayHarness {
         // Analytical cubic minimum-jerk profile:
         // Peak jerk occurs at boundary: J_peak = (distance / T^3) * 60
         // Approximate distance assuming standard center screen origin (640, 360)
+        // The expression below uses 0.001 where the formula above has 60, so it is a proxy, not J_peak.
         let dist = ((plan.target_x - 640.0).powi(2) + (plan.target_y - 360.0).powi(2)).sqrt();
         let t_sec = plan.total_duration_ms / 1000.0;
         if t_sec > 0.01 {
@@ -763,8 +775,10 @@ impl AutonomyReplayHarness {
         for session in sessions {
             let session_dir = temp_base.join(format!("batch_{}", session.session_id));
             let _ = std::fs::create_dir_all(&session_dir);
+            // A fresh bridge per session: without `initial_goal` and `initial_waypoints` it answers YieldIdle.
             if let Ok(mut bridge) = MaelstromAutonomyBridge::new(&session_dir) {
                 let (metrics, _) = self.replay_session(session, &mut bridge);
+                // 95.0 here and in the maelstrom-replay exit code; the report text and the long test use 99.5.
                 let passed = metrics.decision_accuracy_pct >= 95.0;
                 if passed {
                     passed_sessions += 1;
