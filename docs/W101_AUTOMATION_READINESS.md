@@ -26,7 +26,7 @@ a reliable, unattended, complete workflow. New source is not automatically insta
 | Walk one known route | Navigation primitives and recorded route material | Current localization, movement feedback, stuck recovery and arrival |
 | Cross zones / resume after loading | Real loading observations, shared gates | Connect movement and destination identity across transition |
 | Navigate arbitrary objectives | Framework/research stage | Route graph, current location, barriers, landmark/arrival evidence |
-| Avoid enemies while travelling | Pure Rust Nav2 3-layer costmap implemented (`crates/maelstrom-core/src/costmap.rs`, `W101-COSTMAP-01`); not a qualified W101 routine | Live threat tracking, zone asset ingestion, reachable paths and battle interruption |
+| Avoid enemies while travelling | Pure Rust Nav2 3-layer costmap implemented as library code with no caller outside its tests (`crates/maelstrom-core/src/costmap.rs`, `W101-COSTMAP-01`); not a qualified W101 routine | Live threat tracking, zone asset ingestion, reachable paths and battle interruption |
 | Use Home/Commons/marked travel | Research/configuration material | Explicit allowed action, destination verification, resource constraints |
 | Complete one selected conversation | Narrow live quest-progression evidence | Broader conversation/offer variants and generic card qualification |
 | Accept/turn in quests routinely | Selected conversation machinery | Distinguish offers, continuation, completion and objective changes |

@@ -79,6 +79,8 @@ pub struct PolygonZone {
 }
 
 impl PolygonZone {
+    /// The penalty is not validated: any `u8` is accepted, and a value at or above `COST_INSCRIBED_INFLATED` makes the
+    /// zone impassable (`COST_PREFERENTIAL_MAX` is not enforced).
     pub fn new(name: impl Into<String>, vertices: Vec<Vec2D>, penalty: u8) -> Self {
         Self {
             name: name.into(),
@@ -166,7 +168,8 @@ impl FootprintInflation {
         }
     }
 
-    /// Evaluates cost given the distance to the closest static obstacle.
+    /// Evaluates cost given the distance to the closest static obstacle. The decay between the radii is rounded to an
+    /// integer, so it is non-increasing rather than strictly monotonic (plateaus when the span exceeds 251 units).
     pub fn compute_cost(&self, min_obstacle_dist: f64) -> u8 {
         if min_obstacle_dist <= self.inscribed_radius {
             COST_INSCRIBED_INFLATED
@@ -270,7 +273,8 @@ impl DynamicMobActor {
     }
 
     /// Cost this mob imposes at planar distance `dist` from its (predicted) position.
-    /// Non-increasing in `dist`, so the worst cost along a path is the cost at the closest approach.
+    /// Non-increasing in `dist`, so the worst cost along a path is the cost at the closest approach. It is `COST_FREE`
+    /// from `dist >= repulsion_radius`, and just outside the aggro radius it is about `repulsion_weight`.
     pub fn cost_for_distance(&self, dist: f64) -> u8 {
         if dist <= self.aggro_radius {
             COST_LETHAL_OBSTACLE
@@ -777,7 +781,8 @@ impl Nav2Costmap {
     }
 
     /// Numerically samples the repulsive gradient (-grad C) via central differences with elevation awareness.
-    /// Points in the direction of steepest cost descent (away from obstacles and mobs).
+    /// Points in the direction of steepest cost descent (away from obstacles and mobs). The cost is an integer field, so
+    /// the result is exactly zero wherever it is flat, including inside the lethal (254) and inscribed (253) plateaus.
     pub fn sample_repulsive_gradient_3d(
         &self,
         point: Vec2D,

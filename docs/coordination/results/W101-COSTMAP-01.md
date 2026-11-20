@@ -81,3 +81,12 @@ Addressing the kinetic and navigational limitations of classical shortest-path A
 Scope: wording about `no_std` and dependencies only; the rest of this report was not re-audited in this pass.
 - The "no_std compatibility" claim for `Vec2D` is wrong: `maelstrom-core` does not build with `--no-default-features` (22 errors, for example `f64::floor`, `sin`, `cos` and `round` need `std` or `libm`). `costmap.rs` uses `alloc` types plus `serde`, so "no external dependencies" is also imprecise: it depends on `serde`.
 - The crate runs as a `std` library; it currently depends on `serde`, `uuid` and optional codec crates. Adding `libm` or similar to support `no_std` would be a new dependency decision.
+
+## Audit note, addendum (2026-11-20)
+Scope: the layer descriptions, the `Additive` test claim and the gate table, checked against `costmap.rs` and by a throwaway probe. The 2026-11-19 `no_std` note stands.
+- **Test claim 6 is too broad.** `test_integration_additive_and_max_composition` covers a case whose sum is about 157 (inflation about 127 plus zone 30). `Additive` wrapped modulo 256 above 255: 127 plus 227 gave 98.
+  A regression test and the saturating fix are on branch `maelstrom/additive-cost-saturation` (commit 3e6b5c8, not merged); this branch keeps the wrap.
+- **"When A* plans routes across this layer" / "the cost heuristic naturally hugs sidewalks"** describes no code: nothing plans over `Nav2Costmap`, and the only path search is the uncalled Dijkstra `find_safest_path`.
+- **"Strictly monotonic linear decay" is non-increasing** (integer rounding; a 1,000-unit span gave 252, 252, 251, 251, 251), the buffer ends at `d < R_repulse`, and zone penalties are not limited to `50..=127`.
+- **The gradient gives no direction inside the lethal cylinder** (cost is flat at 254, so it is exactly zero there) or over flat parts of the buffer.
+- **The gate table is a 2026-11-18 snapshot.** `costmap_tests.rs` has 21 tests on this branch and `maelstrom-core`'s lib has 72; "48 tests" and "0 claim overlaps" are not current figures.

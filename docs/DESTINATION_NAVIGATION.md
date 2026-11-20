@@ -108,18 +108,19 @@ Task110 live calibration checkpoint: right100ms operation9d137e96875e4661a5705ce
 
 ## Nav2 3-layer costmap & dynamic threat repulsion (2026-11-18)
 
-Implemented natively in pure Rust (`crates/maelstrom-core/src/costmap.rs`, claim `W101-COSTMAP-01`) under the unburdened operational reality (no client-side anti-cheat; server-side kinematic displacement checks $\Delta d / \Delta t \le v_{\text{max}}$ and server-authoritative combat). Replaces bare Euclidean distance pathing with layered spatial costing compatible with Nav2 conventions:
+Implemented natively in pure Rust (`crates/maelstrom-core/src/costmap.rs`, claim `W101-COSTMAP-01`) under an assumed operational model (no client-side anti-cheat; server-side kinematic displacement checks $\Delta d / \Delta t \le v_{\text{max}}$ and server-authoritative combat). **Unverified premise:** nothing in the repository tests that model; [POST-PATCH-DOCTRINE-01](coordination/results/POST-PATCH-DOCTRINE-01.md) records that no anti-cheat behaviour was tested. **Today (audit 2026-11-20, Claude):** this is library code and offline tests. `Nav2Costmap` has no caller outside `costmap.rs` and its own tests, so it replaces no pathing. It provides layered spatial costing in the style of Nav2:
 
 ### Layer structure
 1. **Layer 1: Static Geometry (`PolygonZone`)**:
    - Traversal cost penalties assigned to polygon regions (e.g. street penalty `50..=127`, sidewalk penalty `0`).
    - Point-in-polygon containment testing via the ray-casting Jordan curve theorem.
-   - Gives the A* planner a cost heuristic to prefer sidewalks and margins without asserting false "sidewalk immunity" (mobs still override).
+   - Gives the edge-cost evaluator (`ZoneNavMesh::evaluate_edge_cost`, used by the Dijkstra `find_safest_path`) a cost that prefers sidewalks and margins without asserting false "sidewalk immunity" (mobs still override). No A* planner uses it.
+   - **Today:** `PolygonZone::new` accepts any `u8` penalty. `COST_PREFERENTIAL_MAX` (127) is a constant that nothing enforces, and a probe zone with penalty 254 made its cells lethal and impassable. The ranges above are examples.
 2. **Layer 2: Footprint & Obstacle Clearance Inflation (`FootprintInflation`)**:
    - Inscribed player/mount radius $R_{\text{inscribed}}$ (e.g. 25 unmounted, 45 mounted) and outer clearance buffer $R_{\text{inflation}}$ (e.g. 75).
    - Orthogonal distance projection to solid obstacle segments (`ObstacleSegment`).
    - For $d \le R_{\text{inscribed}}$: returns `COST_INSCRIBED_INFLATED` (253).
-   - For $R_{\text{inscribed}} < d < R_{\text{inflation}}$: strictly monotonic linear decay from 252 down to 1.
+   - For $R_{\text{inscribed}} < d < R_{\text{inflation}}$: linear decay from 252 toward 1, rounded to an integer (`1 + ratio * 251`). **Today:** that makes the cost non-increasing, not strictly monotonic: over a 1,000-unit span a probe gave 252, 252, 251, 251, 251 at distances 11, 11.5, 12, 12.5 and 13. The value 1 is reached only in the last 0.2% of the span (a probe with a 50-unit span gave 2 at 0.1 unit inside the outer radius).
    - For $d \ge R_{\text{inflation}}$: returns `COST_FREE` (0).
 3. **Layer 3: Dynamic Mob Radar & Repulsive Field (`DynamicMobActor`)**:
    - Evaluates roaming patrol mobs with position $(x, y)$, velocity vector $(\Delta x/\Delta t, \Delta y/\Delta t)$, aggro radius $R_{\text{aggro}}$, and repulsion radius $R_{\text{repulse}}$.
@@ -127,17 +128,23 @@ Implemented natively in pure Rust (`crates/maelstrom-core/src/costmap.rs`, claim
      $$\vec{P}_{\text{pred}}(t_{\text{arrival}}) = \vec{P}_0 + \vec{V} \cdot t_{\text{arrival}}$$
    - **Inverse-Square Repulsive Potential Field**:
      - Inside aggro cylinder ($d \le R_{\text{aggro}}$): `COST_LETHAL_OBSTACLE` (254).
-     - Inside repulsion buffer ($R_{\text{aggro}} < d \le R_{\text{repulse}}$):
+     - Inside repulsion buffer ($R_{\text{aggro}} < d < R_{\text{repulse}}$):
        $$\text{Cost} = \min\left(253, \; \max\left(1, \; \text{round}\left( k \cdot \frac{1}{(d - R_{\text{aggro}} + 1.0)^2} \right)\right)\right)$$
-     - Outside buffer: `COST_FREE` (0).
+     - Outside buffer ($d \ge R_{\text{repulse}}$): `COST_FREE` (0). A probe with $R_{\text{repulse}} = 100$ returned 0 at exactly 100.
+   - **Today:** $k$ is the mob's `repulsion_weight`, so the cost just outside the aggro radius is about $k$ (200 in a probe with weight 200, 50 one unit further out) and the buffer is steep.
 4. **Composition & Gradient Extraction (`Nav2Costmap`)**:
-   - Consolidates layers via `CostmapComposition::Max` or `CostmapComposition::Additive`.
+   - Consolidates layers via `CostmapComposition::Max` or `CostmapComposition::Additive`. **Today:** `Additive` narrows the summed cost with `sum as u8`, which wraps modulo 256: a zone penalty of 127 plus an inflation cost of 227 gave 98,
+     below the 227 of the obstacle layer alone, so a busier cell looked cheaper. Nothing outside tests uses `Additive`. A fix with a regression test that fails on the old code is on branch
+     `maelstrom/additive-cost-saturation` (commit 3e6b5c8, not merged); this branch still has the wrap.
    - `sample_repulsive_gradient(point, arrival_time_s, delta)` computes $(-\nabla C)$ via central differences, providing the physical repulsive force vector pushing away from approaching mobs and walls.
+     **Today:** it differentiates the integer cost, so it is exactly zero wherever the cost is flat: inside the lethal aggro cylinder (254), inside the inscribed zone (253), and over the part of a buffer
+     where the rounded cost has already reached 1. In a probe (aggro 30, repulsion 100, weight 200) the gradient was (0, 0) at distances 5, 20 and 29, (116, 0) at 31, (0.5, 0) at 40 and (0, 0) at 60, so it
+     gives no escape direction from inside a lethal cylinder. Its unit is cost per world unit, not a physical force.
 
 ### Red Team/Blue Team audit findings & roadmap
 An adversarial audit on 2026-11-18 identified three hardening requirements and two subsequent architectural stages:
-1. **Verticality & Elevation Aware Filtering (Complete - W101-HARDENING-01)**: Added vertical elevation tolerance $|Z_P - Z_{\text{mob}}| \le \Delta Z_{\text{max}}$ on `DynamicMobActor` and `Nav2Costmap` to prevent mobs patrolling beneath bridges from projecting phantom lethal obstacles onto overhead paths.
-2. **Lookahead Clamping (Complete - W101-HARDENING-01)**: Clamped trajectory projection time $t \le 3.0\text{s}$ to prevent linear extrapolation runaway on curved patrol splines.
+1. **Verticality & Elevation Aware Filtering (Complete - W101-HARDENING-01)**: Added vertical elevation tolerance $|Z_P - Z_{\text{mob}}| \le \Delta Z_{\text{max}}$ on `DynamicMobActor` and `Nav2Costmap` to prevent mobs patrolling beneath bridges from projecting phantom lethal obstacles onto overhead paths. **Today:** the filter runs only when the caller passes `query_z`; the 2D `evaluate_cost` never applies it. The tolerance defaults to 50 units and a mob's elevation to 0 unless `with_elevation` is called.
+2. **Lookahead Clamping (Complete - W101-HARDENING-01)**: Clamped trajectory projection time $t \le 3.0\text{s}$ to prevent linear extrapolation runaway on curved patrol splines. **Today:** 3.0 s is the default `max_lookahead_s`, changeable with `with_lookahead` (a non-positive value falls back to 3.0); negative arrival times clamp to 0.
 3. **Asset Ingestion Bridge (Library code and offline tests only; not wired to any caller - W101-ZONE-COSTMAP-02)**: `ZoneNavMesh` in `crates/maelstrom-core/src/costmap.rs` parses binary little-endian `zone.nav` data and agrees with the `NavigationMap.cs` test cases (synthetic bytes only; no real file parsed). `evaluate_edge_cost` checks mobs exactly along each edge and samples static layers at least every inscribed radius (at most 256 points); `find_safest_path` is a Dijkstra over those costs with arrival time taken from walked length, tested against stationary and moving mobs on small graphs. See the audit note of [the result](coordination/results/W101-ZONE-COSTMAP-02.md).
 4. **Behavior Tree Orchestration (Library code and offline tests - W101-BEHAVIOR-TREE-02, audited 2026-11-20)**: Embeds a deterministic Priority Behavior Tree (`behavior_tree.rs`) where `FollowNavMeshPath` runs as an interruptible leaf action under higher-priority Combat, Vital Recovery, and Stuck Recovery branches. **Today:** `FollowNavMeshPath` runs no path search: it emits `PROPOSAL:StepWaypoint` while `active_waypoints` (set by the caller) is non-empty and `PROPOSAL:Arrival` when it is empty, and `find_safest_path` has no caller. Only `MaelstromAutonomyBridge` ticks the tree.
 5. **Local Steering Controller & Odometry Watchdog (Library code and offline tests - W101-STEERING-01)**: Translates planned waypoint paths into smooth kinematic key pulses (`W`, `A`, `D`) using Pure Pursuit / Dynamic Window Approach (DWA) coupled with an odometry stall detector ($\Delta \text{pos} < \epsilon$ over $>1.5\text{s}$) to trigger stuck recovery. **Today:** the Pure Pursuit controller is called by the offline bridge for `StepWaypoint` intents; `OdometryWatchdog` has no caller, so the blackboard's `is_stuck` is set only by tests.
