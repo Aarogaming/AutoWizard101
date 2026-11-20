@@ -132,9 +132,36 @@ status because several behaviours described below are not in the code. Nothing w
    `quest_domain_tests.rs` alone has 15 tests.
 9. **Not integrated.** Outside its own tests, `quest_interpreter` is only declared in `lib.rs`; no runtime path calls it.
    It is a unit-tested draft module, not live-qualified.
-10. **`Ctrl+Shift+Q` is unverified.** The Quest Helper key appears only in Gemini-era design docs
+10. **`Ctrl+Shift+Q` is unverified.** *(Wrong; corrected 2026-11-20, see the addendum below.)* The Quest Helper key appears only in Gemini-era design docs
     (`docs/EPISTEMIC_RUNTIME_HARDENING.md`, `docs/QUEST_INTERPRETER_ENGINE.md`), not in
     `docs/WIZARD101_GAME_KNOWLEDGE.md`.
 
 The clippy, rustfmt, board-gate and encoding lines in section 2 were not re-run for this audit; only the test counts above
 were re-measured.
+
+## Audit note, addendum (2026-11-20)
+Scope: the implementation summary, the test list, the red-team claims and the 2026-11-19 note, checked against the code, a throwaway probe of the parser and state machine (not committed), and the
+repository's sourced game-knowledge docs. Nothing was run against a live game.
+- **Correction to the 2026-11-19 note, item 10 (my error).** `Ctrl+Shift+Q` is not unverified: `docs/WIZARD101_GAME_KNOWLEDGE.md` line 22 lists it as "select nearest quest", sourced to the official
+  shortcuts page, and `W101-KNOWLEDGE-AUDIT-01.md` confirms it. The note was wrong to say it is absent there. What the evidence does not support is this report's use of it: "incorporates ... the Quest Helper
+  compass arrow ... providing a guaranteed physical bearing". The sourced docs call quest guidance approximate and "not a collision-free path", and `EPISTEMIC_RUNTIME_HARDENING.md` says no code reads the arrow;
+  `fallback_bearing_deg` is a caller-supplied parameter that nothing produces or consumes.
+- **"Extracts ... count fraction `(current, required)`" is false.** `current_count` is always 0 and no fraction is parsed; `Defeat 4 Scarlet Screamers in Triton Avenue (2/4)` yields the zone
+  `Triton Avenue (2/4)`.
+- **"Advances dialogue with humanized cadence" and the dialogue state machine summary:** the machine returns strings that no code consumes, does not persist conversation text, never times out `StuckBackoff`,
+  and enters it from `Idle` too. A second backoff path (25 non-final pages, then `Dismiss`, `{25, 3000}`) also discards a final page that arrives on the 26th call.
+- **Parser behaviours the summary does not mention** (each checked with the probe): the ` in <Zone>` suffix stays inside the name for `Defeat ... and collect ...` and `Collect ...` lines; `and Collect` with a
+  capital C falls through to Defeat (Count); any `Defeat` line under a quest title containing "tower" becomes `BossSigilInstance` (`Haunted Towers` / `Defeat 4 Scarlet Screamers in Triton Avenue`), as does
+  `Defeat Bosswick`; a count above `u32::MAX` is silently left in the name with a count of 1.
+- **The anchor registry:** `Susie Gryphonbane` is in Triton Avenue in the code and in `test_quest_interpreter_anchor_resolution_pipeline` (the interpreter page put her in Olde Town); the eight coordinates are
+  round numbers with no source and the tests only pin them; `find_spatial_anchor("the Kraken Gate")` finds nothing, because articles are not stripped and the zone in the text is never checked.
+  "Symmetric portal transitions" are GOAP travel actions (cost 5 each way), not portals.
+- **"Executes arbitrary quests dynamically without one-off scripts" is not what exists:** a prefix classifier and a state machine, with no caller outside its tests.
+- **Test counts are stale again:** today `cargo test -p maelstrom-core --offline` runs 72 unit tests (11 in `quest_interpreter` after this audit's four additions, 7 before) and 118 integration tests in 17 files, 0
+  failed; "58 + 38 = 96" and the earlier note's "66 + 102" were snapshots.
+- **Added in this audit** (`crates/maelstrom-core/src/quest_interpreter.rs` tests): `test_parse_collect_and_use_are_interact_gather` (archetype 5 had no parse test),
+  `test_parse_go_to_is_explore_and_unknown_wording_yields_no_fact`, `test_reward_page_proposes_complete_and_interact_needs_a_prompt` and `test_dialogue_paging_backs_off_after_25_pages`. Seven mutations of the source
+  (25 to 26 pages, `Collect`, `Use` and `Go to` prefixes disabled, reward page proposing Accept, lower-case `talk to` accepted, interact allowed from `Idle`) were each caught by exactly one of them. The parser defects
+  above are documented, not pinned by tests, and not fixed here (they need decisions on the intended grammar).
+- **Still correct:** the six archetypes, the `W101QuestFact` fields, the six dialogue states, the three-failure backoff with 2,500 ms, the ASCII case-insensitive anchor lookup, the eight anchor names and the GOAP travel
+  actions (Commons, Olde Town, Triton Avenue, Firecat Alley, Cyclops Lane).

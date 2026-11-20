@@ -52,3 +52,12 @@ exist in `crates/maelstrom-core/src/quest_domain.rs`.
    an objective door or NPC trigger volume.
 3. **"A scalable template engine replacing hardcoded scripts" overstates it.** The module is a five-pattern text
    classifier plus a dialogue state machine, and nothing outside its own tests calls it.
+
+## Audit note, addendum (2026-11-20)
+Scope: `docs/QUEST_INTERPRETER_ENGINE.md` section by section against `quest_interpreter.rs` and `quest_domain.rs`, plus a throwaway probe (not committed). The 2026-11-19 note stands except where corrected here.
+- **Correction to the 2026-11-19 note:** `Ctrl+Shift+Q` is documented ("select nearest quest") in `WIZARD101_GAME_KNOWLEDGE.md`; the CORE-02 addendum has the details. The page's description of it ("snaps the arrow to
+  the active tracking task", "a valid directional vector") is what is unsupported.
+- **Section 5 of the page was wrong on the registry:** it placed Susie Gryphonbane in Olde Town (code and test: Triton Avenue) and listed waypoints, sidewalk and street penalties, a main-avenue corridor and mob spawn
+  clusters that are not in `quest_domain.rs`. "Decoupled spatial topology & anchor registry" is eight placeholder anchors plus GOAP travel actions.
+- **Section 4 and the deliverables list:** "randomized human cadence" and "persisting conversation text for replay audit" do not exist; the state machine's strings have no consumer.
+- **The page now carries a status banner and inline "Today" notes** in sections 1 to 5 (the earlier audit note was at the bottom only), and `INDEX.md` marks the entry as a draft design reference.

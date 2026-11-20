@@ -1,8 +1,8 @@
-//! `quest_interpreter`: Data-driven quest objective interpreter and universal dialogue state machine.
+//! `quest_interpreter`: Quest objective text classifier and a dialogue state machine (draft; no caller outside tests).
 //!
-//! Replaces hardcoded per-quest scripts with 6 canonical objective archetypes,
-//! parses live HUD/tracker strings into `W101QuestFact` primitives, incorporates
-//! the built-in Quest Helper compass vector, and manages NPC dialogue/offer cycles.
+//! Classifies English tracker lines into 6 objective archetypes (`W101QuestFact`) by prefix matching, carries a
+//! caller-supplied compass bearing alongside a parsed fact, and models NPC dialogue/offer cycles as proposal strings.
+//! Nothing executes a quest from these facts and nothing consumes the proposal strings.
 //!
 //! Operates under `Facts ≠ Authority ≠ Actions` with no OS or UI calls (it allocates and currently builds only with std).
 
@@ -35,14 +35,22 @@ pub struct W101QuestFact {
     pub archetype: QuestArchetype,
     pub target_entity_or_landmark: String,
     pub target_zone: String,
+    /// Always 0: no progress fraction such as "(2/4)" is parsed from the line.
     pub current_count: u32,
     pub required_count: u32,
-    /// Quest Helper compass vector in degrees [0, 360) pointing toward objective.
+    /// Caller-supplied Quest Helper compass bearing in degrees, documented as [0, 360) but not enforced. Nothing
+    /// here reads the arrow, and the value exists only inside a successfully parsed fact.
     pub fallback_bearing_deg: Option<f64>,
 }
 
 impl W101QuestFact {
     /// Attempts to parse raw tracker HUD or journal text into a structured `W101QuestFact`.
+    ///
+    /// Matches only the case-sensitive English prefixes `Talk to`, `Explore`, `Go to`, `Defeat`, `Collect` and `Use`;
+    /// any other wording returns `None`. The ` in <Zone>` suffix is split off for Talk, Explore/Go to and Defeat
+    /// lines only (not for "Defeat ... and collect ..." or Collect lines), a trailing progress fraction is not
+    /// recognised, and a `Defeat` line becomes `BossSigilInstance` when the quest title contains "tower" or the
+    /// target contains "boss" or "kraken".
     pub fn parse_from_text(
         title: &str,
         line: &str,
@@ -207,13 +215,14 @@ pub enum DialogueState {
     TurnInReward {
         quest_title: String,
     },
+    /// `cooldown_ms` is data only: nothing in this module times it out, and only `finish_interaction` leaves the state.
     StuckBackoff {
         failed_attempts: u32,
         cooldown_ms: u64,
     },
 }
 
-/// Policy for quest acceptance.
+/// Policy for quest acceptance. Currently has no effect: `on_dialogue_page` proposes Accept under both variants.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum QuestAcceptPolicy {
     AcceptMainlineOnly,
@@ -320,7 +329,8 @@ impl DialogueStateMachine {
         self.failed_interact_count = 0;
     }
 
-    /// Handles failed interact pulses, triggering stuck backoff if threshold exceeded.
+    /// Handles failed interact pulses, triggering stuck backoff if threshold exceeded. It only sets the state (from any
+    /// state, including `Idle`); nothing retries, halts a behavior-tree leaf or re-queries the player's height.
     pub fn on_interact_failed(&mut self) -> bool {
         self.failed_interact_count += 1;
         if self.failed_interact_count >= self.max_interact_retries {
@@ -471,5 +481,95 @@ mod tests {
                 cooldown_ms: 2500
             }
         ));
+    }
+
+    #[test]
+    fn test_parse_collect_and_use_are_interact_gather() {
+        let collect = W101QuestFact::parse_from_text(
+            "Candle Hunt",
+            "Collect 3 Haunted Candles",
+            false,
+            Some(270.0),
+        )
+        .expect("Should parse collect as interact/gather");
+        assert_eq!(collect.archetype, QuestArchetype::InteractGather);
+        assert_eq!(collect.target_entity_or_landmark, "Haunted Candles");
+        assert_eq!(collect.required_count, 3);
+        assert_eq!(collect.current_count, 0);
+        assert!(!collect.is_mainline);
+        assert_eq!(collect.fallback_bearing_deg, Some(270.0));
+
+        let device =
+            W101QuestFact::parse_from_text("Old Machine", "Use Ancient Device", true, None)
+                .expect("Should parse use as interact/gather");
+        assert_eq!(device.archetype, QuestArchetype::InteractGather);
+        assert_eq!(device.target_entity_or_landmark, "Ancient Device");
+        assert_eq!(device.required_count, 1);
+    }
+
+    #[test]
+    fn test_parse_go_to_is_explore_and_unknown_wording_yields_no_fact() {
+        let go_to = W101QuestFact::parse_from_text(
+            "Gate Work",
+            "Go to Galvanost Tower in Triton Avenue",
+            true,
+            None,
+        )
+        .expect("Should parse go-to as explore");
+        assert_eq!(go_to.archetype, QuestArchetype::ExploreLandmark);
+        assert_eq!(go_to.target_entity_or_landmark, "Galvanost Tower");
+        assert_eq!(go_to.target_zone, "Triton Avenue");
+
+        // Unrecognised or differently cased wording yields no fact, so a compass bearing passed with the line is
+        // dropped rather than used as a fallback.
+        for line in ["Visit Mr Lincoln", "talk to Susie Gryphonbane", "", "   "] {
+            assert!(
+                W101QuestFact::parse_from_text("Q", line, true, Some(123.0)).is_none(),
+                "{line:?} must not parse"
+            );
+        }
+    }
+
+    #[test]
+    fn test_reward_page_proposes_complete_and_interact_needs_a_prompt() {
+        let mut dsm = DialogueStateMachine::new(QuestAcceptPolicy::AcceptAllInZone);
+        // No prompt has been detected yet, so there is nothing to interact with.
+        assert_eq!(dsm.dispatch_interact(), None);
+
+        dsm.on_prompt_detected("Press X to Talk");
+        dsm.dispatch_interact().expect("prompt is visible");
+        let intent = dsm.on_dialogue_page("Here is your reward!", true, true, "Menacing Minions");
+        assert_eq!(intent, Some("PROPOSAL:Dialogue:Complete"));
+        assert_eq!(
+            dsm.state,
+            DialogueState::TurnInReward {
+                quest_title: "Menacing Minions".to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn test_dialogue_paging_backs_off_after_25_pages() {
+        let mut dsm = DialogueStateMachine::new(QuestAcceptPolicy::AcceptAllInZone);
+        dsm.on_prompt_detected("Press X to Talk");
+        dsm.dispatch_interact().expect("prompt is visible");
+        for _ in 0..25 {
+            assert_eq!(
+                dsm.on_dialogue_page("page", false, false, "Q"),
+                Some("PROPOSAL:Dialogue:AdvanceSpace")
+            );
+        }
+        // A 26th page is treated as a stuck dialogue: dismiss and back off for 3 s.
+        assert_eq!(
+            dsm.on_dialogue_page("page", false, false, "Q"),
+            Some("PROPOSAL:Dialogue:Dismiss")
+        );
+        assert_eq!(
+            dsm.state,
+            DialogueState::StuckBackoff {
+                failed_attempts: 25,
+                cooldown_ms: 3000
+            }
+        );
     }
 }
