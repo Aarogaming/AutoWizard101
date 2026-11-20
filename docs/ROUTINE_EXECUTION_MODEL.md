@@ -155,6 +155,11 @@ instant cancellation of broken dependencies or unattended 24/7 operation.
 
 ## Hierarchical Behavior Trees for State Orchestration & Interruption Handling
 
+> **Status (audit 2026-11-20, Claude):** the engine in `behavior_tree.rs` is real and tested offline. The tree below is the one the code builds, but
+> several leaves only set a string, and only the offline autonomy bridge ticks it. Notes marked **Today** say what the code does.
+> Evidence: [W101-BEHAVIOR-TREE-02](coordination/results/W101-BEHAVIOR-TREE-02.md) and
+> [W101-BEHAVIOR-DOCS-01](coordination/results/W101-BEHAVIOR-DOCS-01.md), audit notes.
+
 Flat `if/else` state machines and simple state transition graphs break down rapidly when an autonomous agent encounters nested, asynchronous interruptions (e.g. *Questing along a route $\to$ Unexpectedly pulled into combat $\to$ Health/Mana depleted $\to$ Need Potion / Refill $\to$ Kinematic snag on world geometry $\to$ Resume original quest*). 
 
 To resolve this, Maelstrom embeds a native, deterministic **Behavior Tree (BT)** engine (`crates/maelstrom-core/src/behavior_tree.rs`).
@@ -164,31 +169,54 @@ To resolve this, Maelstrom embeds a native, deterministic **Behavior Tree (BT)**
 Behavior Trees evaluate execution hierarchies from top to bottom on every decision tick against a shared, typed `Blackboard` of verified facts:
 
 ```
-[Priority Selector: Root]
-├── [Branch 1: Combat Interruption] (Highest Priority)
+[Priority Selector: Root]   (W101RootSelector, built by build_w101_canonical_tree)
+├── [Branch 1: Combat Interruption] (Highest Priority; CombatBranch)
 │    ├── Condition: in_combat == true
-│    └── Subtree: CombatRoutine (ObserveTurn -> SelectSpell -> Cast -> AwaitResult)
-├── [Branch 2: Vital Recovery]
-│    ├── Sequence: PotionRecovery
-│    │    ├── Condition: mana_pct < 0.20 || health_pct < 0.25
-│    │    ├── Condition: has_potion == true
-│    │    └── Action: DrinkPotion (Emits potion proposal, verifies resource gain)
-├── [Branch 3: Kinematic Stuck Recovery]
-│    ├── Sequence: UnstuckManeuver
-│    │    ├── Condition: is_stuck == true (odometry watchdog: Δpos < ε over >1.5s)
-│    │    └── Action: ExecuteUnstuckPulse (Reverse pulse 0.5s -> Yaw rotate 45° -> Clear latch)
-├── [Branch 4: Quest Navigation]
-│    ├── Sequence: NavigateToObjective
-│    │    ├── Condition: has_active_goal == true
-│    │    └── Action: FollowNavMeshPath (Dynamic Dijkstra over Nav2 Costmap)
-└── [Branch 5: Idle Fallback] (Lowest Priority)
-     └── Action: YieldIdle (Safe resting state)
+│    └── Action: ExecuteCombatTurn (sets PROPOSAL:CombatTurn[:<combat_turn_action>], returns Running on every tick)
+├── [Branch 2: Vital Recovery]  (PotionRecoveryBranch)
+│    ├── Condition: mana_pct < 0.20 || health_pct < 0.25
+│    ├── Condition: has_potion == true
+│    └── Action: DrinkPotionAction (sets PROPOSAL:DrinkPotion, then writes has_potion = false and mana/health = 1.0; returns Success)
+├── [Branch 3: Kinematic Stuck Recovery]  (StuckRecoveryBranch)
+│    ├── Condition: is_stuck == true
+│    └── Action: ExecuteUnstuckPulse (sets PROPOSAL:UnstuckPulse and clears is_stuck; returns Success)
+├── [Branch 4: Opportunistic Detour]  (OpportunisticDetourBranch)
+│    ├── Condition: active_detour is set and approved
+│    └── Action: ExecuteDetourHarvest (within 3.5 of the target: PROPOSAL:Interact:Detour:<id> and Success; else PROPOSAL:SteerDetour:<x>,<y> and Running)
+├── [Branch 5: Quest Navigation]  (QuestNavigationBranch)
+│    ├── Condition: active_goal is set
+│    └── Action: FollowNavMeshPath (PROPOSAL:StepWaypoint and Running while active_waypoints is non-empty; else PROPOSAL:Arrival, clears active_goal, Success)
+└── [Branch 6: Idle Fallback] (Lowest Priority)
+     └── Action: YieldIdleAction (sets PROPOSAL:YieldIdle, Success)
 ```
 
 Because a Priority `Selector` evaluates its children strictly in priority order from left to right on every tick:
-1. If an agent is navigating (`Branch 4: Running`) and suddenly encounters an aggressive mob (`in_combat` flips to `true`), the next tick immediately evaluates `Branch 1` to `Running` / `Success`.
-2. The `Selector` automatically calls `reset()` on the interrupted `NavigateToObjective` branch, clearing running action latches without requiring complex manual interrupt flags.
-3. Once combat concludes (`in_combat` flips to `false`), the root selector falls through to `Branch 2`, `Branch 3`, and back to `Branch 4`, cleanly resuming quest progression.
+1. If an agent is navigating (`Branch 5: Running`) and suddenly encounters an aggressive mob (`in_combat` flips to `true`), the next tick immediately evaluates `Branch 1` to `Running` / `Success`.
+2. The `Selector` calls `reset()` on the previously running child when a *different* child returns `Running` or `Success` (here the
+   interrupted `QuestNavigationBranch`), clearing a `Sequence`'s running index without manual interrupt flags. `ActionNode` and
+   `ConditionNode` hold no state to reset.
+3. Once combat concludes (`in_combat` flips to `false`), the root selector falls through the lower branches and back to
+   `Branch 5`. The tree keeps no memory of the interrupted path: it resumes only while `active_goal` and `active_waypoints` are still set.
+
+**Today (audit 2026-11-20, Claude):** checked by reading the code and by a throwaway release probe (not committed).
+- The tree has six branches, not five. Branch 1 has no `CombatRoutine` subtree (see Section 10 and [COMBAT_DUELING_LOOP.md](COMBAT_DUELING_LOOP.md)).
+  `DrinkPotion` verifies no gain: it assumes the potion worked and writes the restored values into the blackboard, and the bridge overwrites
+  them from the next host snapshot, so while the host still reports low mana and a held potion the proposal repeats every cycle (probe: 3 of 3).
+- `is_stuck` is set only by tests. `OdometryWatchdog` (with the reverse pulse and the 45 degree yaw in `step_unstuck_maneuver`) is in
+  `steering.rs` and has no caller, and `ExecuteUnstuckPulse` only emits the intent and clears the flag.
+- `FollowNavMeshPath` runs no path search and nothing in the tree removes waypoints: waypoints come from the caller (the offline replay
+  sets them from the session) and the node returns `Running` for as long as the list is non-empty. `find_safest_path` has no caller.
+- Of the intents the tree emits, `MaelstromAutonomyBridge::process_state` computes something for only `StepWaypoint` (a steering summary)
+  and `CombatTurn[:...]` (a click-plan summary). `DrinkPotion`, `UnstuckPulse`, `SteerDetour`, `Interact:Detour`, `Arrival` and `YieldIdle`
+  appear only as the `proposed_intent` string. The bridge also accepts `FollowWaypoints`, which the tree never emits.
+- `W101Blackboard::status_log` gets an entry on every navigation tick (`Stepping waypoint`) and every combat tick (`Combat turn proposed`),
+  nothing in the tree or the bridge clears it, and every `AutonomyCycleResult` clones the whole log (probe: 1,000 ticks left 1,000 entries).
+  Over a long session that grows without bound and makes each result larger than the last. Not changed in this pass: who clears it, and
+  whether a result should carry only the new entries, is a design decision.
+- Tick cost was roughly 40-60 ns for the canonical tree in a one-off release probe (tree only, no I/O, `status_log` cleared each tick; not a
+  committed benchmark). "Sub-millisecond" therefore holds for the tree itself and says nothing about the observation loop around it.
+- The only caller of the tree is `MaelstromAutonomyBridge::process_state` (via the snapshot-polling wrapper and the offline replay
+  harness); nothing sends its output to the host (Section 5).
 
 ### 2. Node Composition & Lifecycle
 
@@ -199,11 +227,15 @@ Because a Priority `Selector` evaluates its children strictly in priority order 
 - **Composites**:
   - `Selector` (Fallback): Executes children in order; returns `Success` or `Running` on the first non-failure; returns `Failure` if all children fail.
   - `Sequence`: Executes children in order; returns `Failure` or `Running` on the first non-success; returns `Success` only if all children succeed.
-  - `Parallel`: Evaluates multiple children concurrently with configurable success/failure thresholds.
+  - `Parallel`: Ticks every child, in order, on every tick (not concurrently, and a child that already succeeded is ticked again). Two
+    policies only: `RequireAll` (fails as soon as any child fails, runs while any child runs) and `RequireOne` (succeeds as soon as any
+    child succeeds, fails only when all fail). There are no numeric thresholds.
 - **Decorators**:
   - `Inverter`: Flips `Success` $\leftrightarrow$ `Failure`; passes `Running` through.
-  - `Retry`: Re-executes a child node up to $N$ times upon `Failure`.
-  - `ForceSuccess` / `ForceFailure`: Normalizes terminal status.
+  - `Retry`: Re-executes a child node up to $N$ times upon `Failure`. It returns `Running`, not `Failure`, between failed attempts (the
+    child is reset), so a parent `Selector` treats the child as in flight until the last attempt fails (probe: `Retry(3)` over an
+    always-failing child returned Running, Running, Failure).
+  - `ForceSuccess`: Converts `Failure` into `Success`; passes `Running` through. There is no `ForceFailure`.
 - **Leaves**:
   - `ConditionNode`: Read-only predicates querying blackboard facts.
   - `ActionNode`: Emits structured task proposals onto the blackboard intent channel.
@@ -211,7 +243,9 @@ Because a Priority `Selector` evaluates its children strictly in priority order 
 ### 3. Separation of Concerns: Facts ≠ Authority ≠ Actions
 
 The Behavior Tree adheres strictly to Maelstrom's safety invariants:
-1. **Blackboard**: Contains only *Facts* derived from observation adapters (e.g., entity positions, mana percentage, combat state, odometry deltas).
+1. **Blackboard**: Holds *Facts* derived from observation adapters (e.g., entity positions, mana percentage, combat state). **Today** it
+   also holds the emitted proposal (`proposal_channel`), `combat_turn_action` and `status_log`, and nodes write facts back (`DrinkPotion`
+   sets `has_potion`, `mana_pct` and `health_pct`; `FollowNavMeshPath` clears `active_goal`; the detour branch clears `active_detour`).
 2. **Behavior Tree**: Purely evaluates logic and selects an *Intent* (e.g., `Proposal::DrinkPotion`, `Proposal::FollowWaypoints`). It has zero direct input authority.
 3. **Scheduler & Lease**: Translates intents into bounded physical actions only after verifying lease ownership, target window identity, countdowns, and user takeover flags.
 
@@ -239,7 +273,11 @@ The perception-decision loop is orchestrated across the named pipe bridge (`\\.\
 
 For long-horizon quest prerequisite chains, Maelstrom employs a two-tier autonomy architecture:
 1. **Tier 1 (GOAP Macro Planning)**: An $A^*$ state-space search engine (`goap.rs`) plans the optimal sequence of actions satisfying goal preconditions (e.g. traveling between zones, refilling potions, acquiring quest items). See [Goal-Oriented Action Planning](GOAP_ACTION_PLANNING.md).
-2. **Tier 2 (Behavior Tree Tactical Execution)**: Executes the current GOAP action while reactively arbitrating instantaneous events (combat encounters, vital dips, physical snags). Dynamic replanning is triggered if state deviations invalidate active plan preconditions.
+2. **Tier 2 (Behavior Tree Tactical Execution)**: Executes the current GOAP action while reactively arbitrating instantaneous events (combat encounters, vital dips, physical snags). Dynamic replanning is the intent if state deviations invalidate active plan preconditions; it is not implemented.
+
+**Today (audit 2026-11-20, Claude):** a design, not a pipeline. `GoapPlanner::plan` has no caller outside tests (`quest_domain.rs` builds action lists), `W101Blackboard` has no
+field that can hold a plan, and nothing detects an invalidated precondition or re-runs the planner. The heuristic text in
+`GOAP_ACTION_PLANNING.md` was the pre-fix version and has been corrected.
 
 ### 7. Wizard City Starter & Unicorn Way Quest Domain Repertoire
 

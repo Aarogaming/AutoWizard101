@@ -3,7 +3,7 @@
 **Task**: Native Behavior Tree Engine & Canonical W101 State Orchestration  
 **Owner**: `root`  
 **Workstream**: `W101-NAVIGATION`  
-**Status**: Released  
+**Status**: Released (claims audited 2026-11-19 and 2026-11-20: treat as draft evidence; see the audit notes)  
 **Date**: 2026-11-18  
 **Owned Paths**:
 - `crates/maelstrom-core/src/behavior_tree.rs`
@@ -99,3 +99,20 @@ The objective of `W101-BEHAVIOR-TREE-02` is implementing Option 2: a native, zer
 Scope: wording about `no_std` and dependencies only; the rest of this report was not re-audited in this pass.
 - The "zero-dependency" wording means no third-party crates beyond what `maelstrom-core` already uses; `behavior_tree.rs` imports only `alloc` types, and no `no_std` claim is made here. It was not checked in this pass whether the tests cover every node type described.
 - The crate runs as a `std` library; it currently depends on `serde`, `uuid` and optional codec crates. Adding `libm` or similar to support `no_std` would be a new dependency decision.
+
+## Audit note (2026-11-20, Claude)
+Checked by reading `behavior_tree.rs`, the two test files and `maelstrom_bridge.rs`, and by a throwaway release probe (not committed). The
+test totals in Section 2 are historical and were not re-run here.
+- **"Canonical 5-tier priority hierarchy" is now six:** an Opportunistic Detour branch was added as Priority 4 (Quest Navigation is 5, Idle 6).
+  The doc comment on `build_w101_canonical_tree` listed five and was corrected.
+- **"Odometry watchdog triggers `is_stuck = true`" (integration test step 2) is a hand-set flag.** The test writes `bb.is_stuck = true`;
+  `OdometryWatchdog` has no caller, so nothing sets the flag in production code.
+- **`Parallel` is not concurrent.** It ticks every child in order on every tick (a child that already succeeded is ticked again) under
+  `RequireAll` or `RequireOne`. `Retry` returns `Running` between failed attempts. `DrinkPotion` writes the restored values itself
+  (no verification), and `W101Blackboard::status_log` is appended to on every navigation and combat tick and never cleared (probe: 1,000 ticks left
+  1,000 entries; `AutonomyCycleResult` clones it every cycle). The last is an open design item, not changed here.
+- **Audit Finding 2 ("stale proposals cannot leak")** holds for the canonical tree, where every branch overwrites `proposal_channel`; the bridge
+  also clears it when it withholds a cycle. Resetting a preempted `Sequence` has no observable effect on `ActionNode` or `ConditionNode` leaves
+  (their `reset` does nothing), so `test_integration_reactive_preemption_resets_running_subtrees` shows reactive re-evaluation from index 0, not
+  that any leaf state was cleared.
+- **Audit Finding 3 holds:** the tree emits only strings; no node sends input.

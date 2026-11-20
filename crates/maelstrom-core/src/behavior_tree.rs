@@ -199,7 +199,8 @@ pub enum ParallelPolicy {
 }
 
 /// Parallel composite.
-/// Evaluates all children concurrently on every tick.
+/// Ticks every child, in order, on every tick (not concurrently, and a child that already succeeded is ticked
+/// again). Two policies only, `RequireAll` and `RequireOne`; there are no numeric thresholds.
 pub struct Parallel<B> {
     pub name: String,
     pub children: Vec<Box<dyn BtNode<B>>>,
@@ -312,6 +313,8 @@ impl<B> BtNode<B> for Inverter<B> {
 
 /// Retry decorator.
 /// Re-executes the inner child up to `max_attempts` times on `Failure` before propagating `Failure`.
+/// Between failed attempts it returns `Running` (the child is reset), so a parent `Selector` sees the child as
+/// in flight until the last attempt fails.
 pub struct Retry<B> {
     pub name: String,
     pub child: Box<dyn BtNode<B>>,
@@ -486,6 +489,8 @@ pub struct W101Blackboard {
     pub combat_turn_action: Option<String>,
     pub active_detour: Option<crate::costmap::DetourCandidate>,
     pub detour_budget: f64,
+    /// Appended to on every navigation and combat tick. Nothing in the tree or in `MaelstromAutonomyBridge`
+    /// clears it, and the bridge clones all of it into every `AutonomyCycleResult`.
     pub status_log: Vec<String>,
 }
 
@@ -521,8 +526,13 @@ impl Default for W101Blackboard {
 /// 1. Combat Interruption (Highest)
 /// 2. Vital Recovery (Potion)
 /// 3. Kinematic Stuck Recovery
-/// 4. Quest Navigation
-/// 5. Idle Fallback (Lowest)
+/// 4. Opportunistic Detour
+/// 5. Quest Navigation
+/// 6. Idle Fallback (Lowest)
+///
+/// Several leaves only set `proposal_channel`: the branch-1 action never finishes, the potion action assumes it
+/// worked (it writes the restored values itself), nothing outside tests sets `is_stuck`, and navigation runs no
+/// path search (waypoints come from the caller).
 pub fn build_w101_canonical_tree() -> Selector<W101Blackboard> {
     let mut root = Selector::new("W101RootSelector");
 
@@ -645,7 +655,7 @@ pub fn build_w101_canonical_tree() -> Selector<W101Blackboard> {
     ));
     root.add_child(nav_branch);
 
-    // Branch 5: Idle Fallback (Priority 5)
+    // Branch 6: Idle Fallback (Priority 6)
     root.add_child(ActionNode::new(
         "YieldIdleAction",
         |bb: &mut W101Blackboard| {

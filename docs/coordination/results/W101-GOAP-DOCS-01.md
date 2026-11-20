@@ -3,7 +3,7 @@
 **Task**: Relative Documentation Synchronization: Goal-Oriented Action Planning (GOAP)  
 **Owner**: `root`  
 **Workstream**: `W101-NAVIGATION`  
-**Status**: Released  
+**Status**: Released (docs only; claims audited 2026-11-20: a design spec written before the engine, see "Audit note")  
 **Date**: 2026-11-18  
 **Owned Paths**:
 - `docs/GOAP_ACTION_PLANNING.md`
@@ -35,3 +35,21 @@ Prior to implementing the core Goal-Oriented Action Planning engine in `crates/m
 - `python tools/check_project_board.py`: Project board valid (30 workstreams, all evidence links resolved).
 - `python tools/check_text_encoding.py`: 0 violations across repository.
 - Zero code modifications or unstaged regressions.
+
+---
+
+## Audit note (2026-11-20, Claude)
+Checked by reading `goap.rs`, `behavior_tree.rs`, `maelstrom_bridge.rs` and the tests, and by a throwaway release probe (not committed). Treat this
+evidence as a design spec, not as a record of a working pipeline.
+- **Written before the engine, and the heuristic in it was wrong.** The cited $h(u) = \sum \mathbb{I}[\ldots]$ "guaranteeing optimal plan
+  discovery" overestimates when an action costs less than 1.0 or fixes several atoms. The code was fixed on 2026-11-19 (commit `7f2c5c4`, with a
+  regression test; see the audit corrections in W101-GOAP-CORE-02), and `docs/GOAP_ACTION_PLANNING.md` now states the corrected bound
+  (ceil(unmet / m) x cheapest cost) and the search details.
+- **"GOAP actions queue onto the blackboard ... unexpected state deviations trigger automatic replanning" is not implemented.**
+  `GoapPlanner::plan` has no caller outside tests. `W101Blackboard` has no field that can hold a plan (`active_goal` is an `Option<String>`).
+  No code detects an invalidated precondition or re-runs the planner. The integration test that "feeds" the tree copies `plan[0].name` into
+  `active_goal` by hand, and the replanning test calls `plan` again from a hand-built state.
+- **"Sub-millisecond reactive arbitration" was unmeasured when written.** A one-off release probe on 2026-11-20 gave roughly 40-60 ns per tick
+  of the canonical tree (tree only, no I/O; not a committed benchmark).
+- **Verified:** `docs/GOAP_ACTION_PLANNING.md` exists with the sections described, `ROUTINE_EXECUTION_MODEL.md` Section 6 exists, and the
+  `docs/INDEX.md` entry exists. The gate lines in Section 2 are historical.

@@ -213,7 +213,10 @@ impl GoapPlanner {
     }
 
     /// Plans the optimal sequence of actions bridging `current` to `goal`.
-    /// Returns `Some(plan)` in execution order, or `None` if unreachable.
+    /// Returns `Some(plan)` in execution order, or `None` if unreachable. `None` is also returned when the
+    /// `max_iterations` budget runs out before a plan is found, and the two cases are not distinguished. A goal
+    /// that `current` already satisfies returns `Some` of an empty plan. Optimality holds when the search
+    /// finishes within the budget (see the heuristic below and its regression test).
     pub fn plan(
         &self,
         current: &WorldState,
@@ -226,6 +229,7 @@ impl GoapPlanner {
         }
 
         // 2. Early reachability prune: verify every unsatisfied goal key can be produced by at least one action
+        // (a loop over the unmet atoms times the actions, so linear in their product, not constant time)
         for (key, target_val) in &goal.values {
             if current.get(key) != Some(target_val) {
                 let can_produce = available_actions
