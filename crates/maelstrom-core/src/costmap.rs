@@ -459,8 +459,8 @@ impl Nav2Costmap {
         self.static_obstacles.push(obstacle);
     }
 
-    pub fn add_mob(&mut self, mob: DynamicMobActor) {
-        let entity = SpatialEntity3D::new(
+    fn mob_index_entity(mob: &DynamicMobActor) -> SpatialEntity3D {
+        SpatialEntity3D::new(
             mob.id,
             EntityKind::DynamicMob,
             mob.position.x,
@@ -469,9 +469,30 @@ impl Nav2Costmap {
             mob.repulsion_radius,
         )
         .with_velocity(mob.velocity.x, mob.velocity.y, 0.0)
-        .with_cylinder_height(mob.vertical_tolerance);
-        self.spatial_index.insert(entity);
+        .with_cylinder_height(mob.vertical_tolerance)
+    }
+
+    /// Appends a mob. It does not look for an existing mob with the same id: a repeated id leaves the
+    /// earlier mob in place. Use [`Self::update_mob`] to move or replace a mob.
+    pub fn add_mob(&mut self, mob: DynamicMobActor) {
+        self.spatial_index.insert(Self::mob_index_entity(&mob));
         self.dynamic_mobs.push(mob);
+    }
+
+    /// Replaces the mob with the same id (and its index entity), or adds it when absent. Returns true
+    /// when an existing mob was replaced.
+    pub fn update_mob(&mut self, mob: DynamicMobActor) -> bool {
+        let replaced = self.remove_mob(mob.id);
+        self.add_mob(mob);
+        replaced
+    }
+
+    /// Removes every mob with `id` and its index entity. Returns true when one was removed.
+    pub fn remove_mob(&mut self, id: u64) -> bool {
+        let before = self.dynamic_mobs.len();
+        self.dynamic_mobs.retain(|m| m.id != id);
+        self.spatial_index.remove(EntityKind::DynamicMob, id);
+        self.dynamic_mobs.len() != before
     }
 
     /// Adds an arbitrary spatial entity (reagent, chest, NPC anchor) to the 3D spatial index.

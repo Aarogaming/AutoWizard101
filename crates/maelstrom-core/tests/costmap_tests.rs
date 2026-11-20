@@ -543,3 +543,46 @@ fn test_moving_edge_cost_does_not_invent_a_conflict_after_the_walker_passed() {
         .evaluate_edge_cost_moving(&mesh.edges[0], &costmap, 0.0, 10.0)
         .is_some());
 }
+
+#[test]
+fn test_update_and_remove_mob_keep_mob_list_and_index_in_step() {
+    let mut costmap =
+        Nav2Costmap::new(FootprintInflation::new(10.0, 25.0), CostmapComposition::Max);
+    let mob_at = |y: f64| {
+        DynamicMobActor::new(
+            1,
+            Vec2D::new(50.0, y),
+            Vec2D::new(0.0, 0.0),
+            10.0,
+            20.0,
+            100.0,
+        )
+    };
+    let corridor_safe = |costmap: &Nav2Costmap| {
+        costmap.is_corridor_safe_3d((0.0, 0.0, 0.0), (100.0, 0.0, 0.0), 3.0, 0.0)
+    };
+
+    // Absent mob: update adds it.
+    assert!(!costmap.update_mob(mob_at(5.0)));
+    assert!(
+        !corridor_safe(&costmap),
+        "mob 5 units from the corridor is in aggro range"
+    );
+    assert_eq!(costmap.dynamic_mobs.len(), 1);
+    assert_eq!(costmap.spatial_index.len(), 1);
+
+    // Moving it replaces both copies; the old position no longer blocks the corridor.
+    assert!(costmap.update_mob(mob_at(200.0)));
+    assert!(
+        corridor_safe(&costmap),
+        "a stale index entity would still block the corridor"
+    );
+    assert_eq!(costmap.dynamic_mobs.len(), 1);
+    assert_eq!(costmap.spatial_index.len(), 1);
+
+    // Remove clears both; removing again reports nothing removed.
+    assert!(costmap.remove_mob(1));
+    assert!(!costmap.remove_mob(1));
+    assert!(costmap.dynamic_mobs.is_empty());
+    assert!(costmap.spatial_index.is_empty());
+}
