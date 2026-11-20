@@ -107,3 +107,14 @@ Checked against `autonomy_replay.rs` and `REPLAY-BENCHMARK-MATRIX.md`; the origi
 - **Determinism caveat.** Sessions are sorted by `session_id` only. With duplicate IDs the order depends on directory iteration order.
 - **Not reproduced in this pass:** the 7-test CLI output, the workspace clippy result and the matrix run itself (`.local/` contents change). The traversal design (iterative stack, extension check before I/O) and per-session fresh bridge plus temp dir match the code.
 - The `.local/` inputs are git-ignored, so the matrix cannot be regenerated from the repository alone.
+
+## Audit corrections, addendum (2026-11-20)
+Checked by running the built binary offline on synthetic fixtures and reading `run_batch`; nothing live. The 2026-11-19 corrections stand.
+- **Batch exit code confirmed by a run:** three sessions (one at 88% accuracy) gave a `Gate Status: FAIL` matrix and exit 2; a corrupt `.json` in the directory was skipped
+  silently. The matrix was byte-identical across two runs. No test covered batch exit 2 before; the single-trace exit codes are covered by two tests added on 2026-11-20.
+- **"Mitigation 2" is incomplete.** The fresh bridge and the per-session directory are real, but the directory was named from the trace's `session_id` and removed recursively,
+  so a crafted id deleted a directory outside the temp base (reproduced in a sandbox with a decoy). Fixed on branch
+  `maelstrom/batch-session-dir-safety` (commit 84e85cb, not merged); this branch keeps the old behaviour. The `maelstrom_batch_<uuid>` base is also left behind after each run.
+- **"Sandboxed" bridge instances** means a fresh bridge object and a scratch directory, not an isolation boundary.
+- **Latent:** a session whose bridge cannot be created is counted in `Total Sessions` but in neither pass nor fail, so it cannot turn the gate red (read from the code).
+- **"Hundreds of recorded gameplay traces"** in the summary and the 1,094-row run stand corrected by the 2026-11-19 note (74 distinct ids, ingester-labelled).

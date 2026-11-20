@@ -141,6 +141,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             sessions.len()
         );
 
+        // Only the per-session subdirectories created under this base are removed; the base itself is left behind.
         let temp_dir = env::temp_dir().join(format!("maelstrom_batch_{}", uuid::Uuid::new_v4()));
         let batch_result = harness.run_batch(&sessions, &temp_dir);
 

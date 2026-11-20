@@ -105,7 +105,8 @@ intent-change counter over the Behavior Tree's output; no macro-planner takes pa
 1. **Deterministic Execution (checked on one machine)**: two runs of the same trace wrote byte-identical Markdown and JSON, and the bridge's PRNG has a fixed seed.
    Identity across machines or builds is not verified.
 2. **Zero Live Intrusion (by reading the code)**: `process_state` does no I/O, and the binary opens no socket or named pipe and calls no input function
-   (`compute_pipe_name` only hashes a path). It does read the trace, write the report files you name and, in batch mode, create and remove temporary directories.
+   (`compute_pipe_name` only hashes a path). It does read the trace, write the report files you name and, in batch mode, create and remove temporary directories (named from the trace's `session_id` on this branch, which is unsafe: see
+   [REPLAY_BATCH_BENCHMARK.md](REPLAY_BATCH_BENCHMARK.md) Section 6).
 3. **File safety is not what this page said**: output files are written with `File::create`. An existing file is truncated and overwritten without a message
    (probe: a file holding a sentinel line was replaced), parent directories are created, and the write is not atomic (no temporary file and rename). There is no
    overwrite flag and no refusal to clobber.

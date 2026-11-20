@@ -119,6 +119,10 @@ impl AutonomyReplaySession {
     /// Recursively discovers and loads traces from a given root path.
     /// Ingests native `.json` replay sessions, `events.jsonl` routine event streams,
     /// and `ui-observations.jsonl` combat dumps.
+    ///
+    /// Files that fail to parse and sessions with no frames are skipped silently (no warning, nothing in the matrix).
+    /// The `.jsonl` session ids come from the parent directory name, so same-named directories share an id; the sort
+    /// key is `session_id` only.
     pub fn discover_and_load_traces<P: AsRef<std::path::Path>>(
         root: P,
     ) -> Vec<AutonomyReplaySession> {
