@@ -772,8 +772,10 @@ impl AutonomyReplayHarness {
         let mut total_frames = 0;
         let mut total_duration_ms = 0;
 
-        for session in sessions {
-            let session_dir = temp_base.join(format!("batch_{}", session.session_id));
+        for (index, session) in sessions.iter().enumerate() {
+            // Named by position, never by `session_id`: that string comes from the trace file, may contain `..` or
+            // path separators, and this directory is deleted recursively below.
+            let session_dir = temp_base.join(format!("batch_{index}"));
             let _ = std::fs::create_dir_all(&session_dir);
             // A fresh bridge per session: without `initial_goal` and `initial_waypoints` it answers YieldIdle.
             if let Ok(mut bridge) = MaelstromAutonomyBridge::new(&session_dir) {
