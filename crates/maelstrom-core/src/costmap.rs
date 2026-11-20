@@ -501,7 +501,17 @@ impl Nav2Costmap {
     }
 
     /// Evaluates if a 3D transit corridor between two waypoints is free of dynamic mob aggro intrusions.
-    /// Uses the 3D spatial tree for O(log n) broad-phase culling before exact cylinder clearance evaluation.
+    ///
+    /// Every mob in `dynamic_mobs` is checked at its predicted position (`predicted_position`,
+    /// clamped to the mob's lookahead). The spatial index is deliberately not used as a filter here:
+    /// its corridor query compares a mob's *current* position with `corridor_radius + repulsion_radius`,
+    /// so a mob that is still far away but will have closed in by `arrival_time_s` was dropped before
+    /// the predicted-position test ran and the corridor was wrongly reported safe.
+    ///
+    /// `arrival_time_s` is one time for the whole corridor; a mob is not tracked along the walk (the
+    /// nav-mesh planner uses `evaluate_edge_cost_moving` for the time-correct version). A mob whose
+    /// elevation differs from the closest corridor point by more than its `vertical_tolerance` is
+    /// ignored.
     pub fn is_corridor_safe_3d(
         &self,
         p1: (f64, f64, f64),
@@ -509,20 +519,15 @@ impl Nav2Costmap {
         corridor_radius: f64,
         arrival_time_s: f64,
     ) -> bool {
-        let hits = self.spatial_index.query_corridor(p1, p2, corridor_radius);
-        for entity in hits {
-            if entity.kind == EntityKind::DynamicMob {
-                if let Some(mob) = self.dynamic_mobs.iter().find(|m| m.id == entity.id) {
-                    let pred_2d = mob.predicted_position(arrival_time_s);
-                    let pred_3d = (pred_2d.x, pred_2d.y, mob.elevation_z);
-                    let closest = closest_point_on_segment_3d(pred_3d, p1, p2);
-                    let closest_2d = Vec2D::new(closest.0, closest.1);
-                    if (closest.2 - mob.elevation_z).abs() <= mob.vertical_tolerance {
-                        let dist_2d = closest_2d.distance(&pred_2d);
-                        if dist_2d <= mob.aggro_radius + corridor_radius {
-                            return false;
-                        }
-                    }
+        for mob in &self.dynamic_mobs {
+            let pred_2d = mob.predicted_position(arrival_time_s);
+            let pred_3d = (pred_2d.x, pred_2d.y, mob.elevation_z);
+            let closest = closest_point_on_segment_3d(pred_3d, p1, p2);
+            let closest_2d = Vec2D::new(closest.0, closest.1);
+            if (closest.2 - mob.elevation_z).abs() <= mob.vertical_tolerance {
+                let dist_2d = closest_2d.distance(&pred_2d);
+                if dist_2d <= mob.aggro_radius + corridor_radius {
+                    return false;
                 }
             }
         }

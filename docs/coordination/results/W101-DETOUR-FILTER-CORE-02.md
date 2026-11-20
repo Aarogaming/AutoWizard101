@@ -4,7 +4,7 @@
 - **Claim ID**: `W101-DETOUR-FILTER-CORE-02`
 - **Workstream**: `CORE-TRANSITIONS`
 - **Task**: Opportunistic Detour Budget Filter Implementation (costmap.rs + behavior_tree.rs)
-- **Status**: Library code and offline unit tests delivered; not wired to any caller, corridor check has a known gap (see Audit note)
+- **Status**: Library code and offline unit tests delivered; not wired to any caller; the corridor-check gap in correction 3 was fixed afterwards (see the follow-up at the end of the Audit note)
 
 ## 1. Executive Summary
 This milestone implements the Opportunistic Detour Budget Filter within `crates/maelstrom-core/src/costmap.rs` and `crates/maelstrom-core/src/behavior_tree.rs`. The engine allows navigation routines to harvest detected reagents and chests along the route without disrupting quest completion schedules or violating mob aggro clearance boundaries.
@@ -142,3 +142,21 @@ chests and cantrip chests. All three named tests pass today.
 **What this evidence does not prove.** Offline unit tests and a scratch probe only: they show the arithmetic and the proposal
 strings for hand-built inputs, not that any live reagent or chest can be found, approached or collected, that any proposal
 reaches the game, or that a detour is safe near real moving mobs.
+
+**Follow-up (2026-11-19, Claude).** Correction 3 is fixed on branch `maelstrom/corridor-fix`. `is_corridor_safe_3d` no longer
+asks the spatial index which mobs to examine; it checks every mob in `dynamic_mobs` at its predicted position with the same
+rule as before (closest point on the 3D segment, `vertical_tolerance`, then `aggro_radius + corridor_radius`). This covers
+both probe results in correction 3: the stationary mob whose aggro exceeds its repulsion radius and the mob walking toward
+the corridor. New tests in `crates/maelstrom-core/tests/costmap_tests.rs`, five of which fail on the previous implementation:
+`test_corridor_rejects_mob_that_closes_in_before_arrival`,
+`test_corridor_rejects_slow_mob_that_starts_far_outside_repulsion_range`,
+`test_corridor_rejects_stationary_mob_whose_aggro_exceeds_its_repulsion_radius`,
+`test_corridor_keeps_vertical_separation_for_a_closing_mob`, and `test_corridor_check_matches_reference_on_random_mob_fields`
+(400 random mob fields compared with an independent brute-force reference, with aggro both above and below repulsion, and
+at least 30 safe and 30 unsafe outcomes required so the comparison cannot pass vacuously). Two guard tests also pass on the old
+code: `test_corridor_accepts_mobs_that_never_reach_it` (a standing, a retreating and a lookahead-clamped mob stay safe) and
+`test_corridor_rejects_mob_standing_at_either_end`, which closes the "mob at the start" test gap in correction 5.
+Unchanged: one arrival time covers the whole corridor, so a mob is not tracked along the walk (`evaluate_edge_cost_moving` is
+the time-correct version used by the planner); leg 2's `d_leg1 / 10.0` seconds (correction 4); and nothing calls the detour
+APIs (correction 1). The check is now linear in the number of mobs per corridor, which is tens of mobs in the repository's
+fixtures.

@@ -4,7 +4,7 @@
 > (`crates/maelstrom-core/src/spatial_index.rs`): the box primitives, a height-balanced bounding-volume tree with
 > insert, remove and update, and three queries, with unit tests. Not true today: the per-point cost used by the
 > planner (`evaluate_cost_3d`) still scans every mob, stored bounds carry a fixed 3.0 s velocity projection, and
-> nothing outside tests calls the index. Details are in the audit notes of
+> nothing outside tests calls the index. The corridor safety check (`is_corridor_safe_3d`) no longer uses the index: it examines every mob at its predicted position, because the index's corridor query compares current positions. Details are in the audit notes of
 > [W101-SPATIAL-INDEX-CORE-02](coordination/results/W101-SPATIAL-INDEX-CORE-02.md). The 20 Hz tick, the zone examples
 > and the cache-coherence wording below are unsourced design assumptions, not measurements.
 
@@ -99,7 +99,7 @@ Given two consecutive waypoints $\mathbf{p}_1$ and $\mathbf{p}_2$, returns entit
    not measured.
 2. **Narrow-Phase**: Keeps an entity when the 3D point-to-segment distance from its current position (not its predicted one)
    is at most `corridor_radius + entity.radius`. It returns every entity kind, applies no elevation tolerance, and flags no
-   route. The mob check with `vertical_tolerance` and the predicted position is in `Nav2Costmap::is_corridor_safe_3d`.
+   route. The mob check with `vertical_tolerance` and the predicted position is in `Nav2Costmap::is_corridor_safe_3d`, which does not call this query: a mob far away now can be inside the corridor at arrival, and this query only sees current positions. Nothing outside tests calls `query_corridor`.
 
 ---
 
@@ -108,7 +108,7 @@ Given two consecutive waypoints $\mathbf{p}_1$ and $\mathbf{p}_2$, returns entit
 In `crates/maelstrom-core/src/costmap.rs`:
 - `Nav2Costmap` holds a `SpatialTree3D` (`spatial_index`) that `add_mob` and `add_spatial_entity` insert into. A mob is stored
   twice: in `dynamic_mobs` and as an index entity whose radius is its `repulsion_radius`.
-- The index serves `is_corridor_safe_3d`, `find_nearest_reagent`, `find_nearest_chest` and `find_best_detour`. The per-point
+- The index serves `find_nearest_reagent`, `find_nearest_chest` and `find_best_detour`. `is_corridor_safe_3d` checks every entry of `dynamic_mobs` at its predicted position and does not use the index. The per-point
   cost `evaluate_cost_3d` (used by the nav-mesh planner) loops over every entry in `dynamic_mobs` and does not use the index.
 - Elevation filtering for mob cost is in `DynamicMobActor::compute_cost_3d` and, for corridors, in `is_corridor_safe_3d`; it is
   not part of the spatial index.

@@ -586,3 +586,207 @@ fn test_update_and_remove_mob_keep_mob_list_and_index_in_step() {
     assert!(costmap.dynamic_mobs.is_empty());
     assert!(costmap.spatial_index.is_empty());
 }
+
+// ---------------------------------------------------------------------------------------------
+// Corridor safety must follow where a mob will be at arrival, not where it is now. The spatial
+// index narrow phase compares the CURRENT position with `corridor_radius + repulsion_radius`, so
+// a mob that is far away now but walking in used to be dropped before the predicted-position
+// check ever ran.
+// ---------------------------------------------------------------------------------------------
+
+const CORRIDOR_P1: (f64, f64, f64) = (-100.0, 0.0, 0.0);
+const CORRIDOR_P2: (f64, f64, f64) = (100.0, 0.0, 0.0);
+
+fn corridor_map(mobs: &[DynamicMobActor]) -> Nav2Costmap {
+    let mut map = Nav2Costmap::new(FootprintInflation::new(10.0, 40.0), CostmapComposition::Max);
+    for mob in mobs {
+        map.add_mob(mob.clone());
+    }
+    map
+}
+
+fn walker(id: u64, pos: (f64, f64), vel: (f64, f64)) -> DynamicMobActor {
+    // aggro 40, repulsion 60, weight 1
+    DynamicMobActor::new(
+        id,
+        Vec2D::new(pos.0, pos.1),
+        Vec2D::new(vel.0, vel.1),
+        40.0,
+        60.0,
+        1.0,
+    )
+}
+
+/// Independent reference with no broad phase: every mob, predicted position, closest point on the
+/// 3D segment, vertical tolerance, then horizontal distance against `aggro_radius + radius`.
+fn corridor_safe_reference(
+    map: &Nav2Costmap,
+    p1: (f64, f64, f64),
+    p2: (f64, f64, f64),
+    radius: f64,
+    arrival_time_s: f64,
+) -> bool {
+    for mob in &map.dynamic_mobs {
+        let pred = mob.predicted_position(arrival_time_s);
+        let (px, py, pz) = (pred.x, pred.y, mob.elevation_z);
+        let (sx, sy, sz) = (p2.0 - p1.0, p2.1 - p1.1, p2.2 - p1.2);
+        let len_sq = sx * sx + sy * sy + sz * sz;
+        let u = if len_sq < 1e-9 {
+            0.0
+        } else {
+            (((px - p1.0) * sx + (py - p1.1) * sy + (pz - p1.2) * sz) / len_sq).clamp(0.0, 1.0)
+        };
+        let c = (p1.0 + sx * u, p1.1 + sy * u, p1.2 + sz * u);
+        if (c.2 - mob.elevation_z).abs() <= mob.vertical_tolerance {
+            let d = ((c.0 - px).powi(2) + (c.1 - py).powi(2)).sqrt();
+            if d <= mob.aggro_radius + radius {
+                return false;
+            }
+        }
+    }
+    true
+}
+
+#[test]
+fn test_corridor_rejects_mob_that_closes_in_before_arrival() {
+    // 200 units north, walking south at 60 u/s: after 3 s it is 20 units from the corridor line,
+    // well inside aggro 40 + corridor 10.
+    let map = corridor_map(&[walker(1, (0.0, 200.0), (0.0, -60.0))]);
+    assert!(!map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 3.0));
+    // Arriving "now" the mob has not moved, so the same corridor is clear.
+    assert!(map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 0.0));
+}
+
+#[test]
+fn test_corridor_rejects_slow_mob_that_starts_far_outside_repulsion_range() {
+    // 120 units away (more than aggro 40 + repulsion 60 + corridor 10), walking in at 30 u/s:
+    // 30 units from the line after 3 s.
+    let map = corridor_map(&[walker(1, (0.0, 120.0), (0.0, -30.0))]);
+    assert!(!map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 3.0));
+}
+
+#[test]
+fn test_corridor_accepts_mobs_that_never_reach_it() {
+    // Standing far away.
+    let still = corridor_map(&[walker(1, (0.0, 200.0), (0.0, 0.0))]);
+    assert!(still.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 3.0));
+    // Walking away.
+    let leaving = corridor_map(&[walker(1, (0.0, 200.0), (0.0, 60.0))]);
+    assert!(leaving.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 3.0));
+    // Closing in, but the 3 s lookahead clamp stops the projection at y = 220, so a later arrival
+    // time does not extrapolate it onto the corridor.
+    let clamped = corridor_map(&[walker(1, (0.0, 400.0), (0.0, -60.0))]);
+    assert!(clamped.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 10.0));
+}
+
+#[test]
+fn test_corridor_keeps_vertical_separation_for_a_closing_mob() {
+    let on_same_deck = walker(1, (0.0, 200.0), (0.0, -60.0));
+    let on_bridge_above = walker(1, (0.0, 200.0), (0.0, -60.0)).with_elevation(500.0, 50.0);
+    assert!(!corridor_map(&[on_same_deck]).is_corridor_safe_3d(
+        CORRIDOR_P1,
+        CORRIDOR_P2,
+        10.0,
+        3.0
+    ));
+    assert!(corridor_map(&[on_bridge_above]).is_corridor_safe_3d(
+        CORRIDOR_P1,
+        CORRIDOR_P2,
+        10.0,
+        3.0
+    ));
+}
+
+#[test]
+fn test_corridor_rejects_stationary_mob_whose_aggro_exceeds_its_repulsion_radius() {
+    // 30 units off a 200-unit corridor, aggro 40, repulsion only 10. The index narrow phase used
+    // `corridor_radius + repulsion_radius` = 20, so this mob was never examined.
+    let mob = DynamicMobActor::new(
+        1,
+        Vec2D::new(0.0, 30.0),
+        Vec2D::new(0.0, 0.0),
+        40.0,
+        10.0,
+        1.0,
+    );
+    let map = corridor_map(&[mob]);
+    assert!(!map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 0.0));
+}
+
+#[test]
+fn test_corridor_rejects_mob_standing_at_either_end() {
+    for x in [-100.0, 100.0] {
+        let map = corridor_map(&[walker(1, (x, 0.0), (0.0, 0.0))]);
+        assert!(
+            !map.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 0.0),
+            "mob at x={x} must block the corridor"
+        );
+    }
+    // Just past the end, outside aggro 40 + corridor 10 of the clamped end point.
+    let beyond = corridor_map(&[walker(1, (151.0, 0.0), (0.0, 0.0))]);
+    assert!(beyond.is_corridor_safe_3d(CORRIDOR_P1, CORRIDOR_P2, 10.0, 0.0));
+}
+
+#[test]
+fn test_corridor_check_matches_reference_on_random_mob_fields() {
+    let mut state: u64 = 0x9E37_79B9_7F4A_7C15;
+    let mut next = move || {
+        state = state
+            .wrapping_mul(6_364_136_223_846_793_005)
+            .wrapping_add(1_442_695_040_888_963_407);
+        ((state >> 11) as f64) / ((1u64 << 53) as f64)
+    };
+    let range = |lo: f64, hi: f64, next: &mut dyn FnMut() -> f64| lo + (hi - lo) * next();
+
+    let mut unsafe_cases = 0;
+    let mut safe_cases = 0;
+    for case in 0..400 {
+        let mob_count = 1 + (next() * 6.0) as u64;
+        let mut mobs = Vec::new();
+        for id in 0..mob_count {
+            let aggro = range(15.0, 60.0, &mut next);
+            let mob = DynamicMobActor::new(
+                id,
+                Vec2D::new(
+                    range(-500.0, 500.0, &mut next),
+                    range(-500.0, 500.0, &mut next),
+                ),
+                Vec2D::new(range(-90.0, 90.0, &mut next), range(-90.0, 90.0, &mut next)),
+                aggro,
+                aggro * range(0.2, 1.8, &mut next),
+                1.0,
+            )
+            .with_lookahead(range(1.0, 5.0, &mut next));
+            let elevation = [0.0, 0.0, 30.0, -30.0, 200.0][(next() * 5.0) as usize % 5];
+            mobs.push(mob.with_elevation(elevation, 50.0));
+        }
+        let map = corridor_map(&mobs);
+        let p1 = (
+            range(-300.0, 300.0, &mut next),
+            range(-300.0, 300.0, &mut next),
+            range(-60.0, 60.0, &mut next),
+        );
+        let p2 = (
+            range(-300.0, 300.0, &mut next),
+            range(-300.0, 300.0, &mut next),
+            range(-60.0, 60.0, &mut next),
+        );
+        let radius = range(5.0, 25.0, &mut next);
+        let arrival = range(0.0, 6.0, &mut next);
+
+        let expected = corridor_safe_reference(&map, p1, p2, radius, arrival);
+        let actual = map.is_corridor_safe_3d(p1, p2, radius, arrival);
+        assert_eq!(
+            actual, expected,
+            "case {case}: p1={p1:?} p2={p2:?} radius={radius} arrival={arrival} mobs={mobs:?}"
+        );
+        if expected {
+            safe_cases += 1;
+        } else {
+            unsafe_cases += 1;
+        }
+    }
+    // The comparison only means something if both outcomes actually occur.
+    assert!(safe_cases >= 30, "only {safe_cases} safe cases");
+    assert!(unsafe_cases >= 30, "only {unsafe_cases} unsafe cases");
+}

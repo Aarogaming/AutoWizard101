@@ -163,3 +163,11 @@ range queries with brute force across inserts and removals. Unchanged: there is 
 still scans every mob and nothing outside tests calls the index (correction 3), the fixed 3.0 s projection in stored bounds
 (correction 4), and corrections 5 to 7. On that branch today: `cargo test --workspace --offline` 263 passed, 0 failed;
 workspace clippy with `-D warnings` and `cargo fmt --check` clean.
+
+**Follow-up on branch `maelstrom/corridor-fix` (2026-11-19, Claude).** `Nav2Costmap::is_corridor_safe_3d` no longer uses the
+index: the index's corridor query compares current positions, so a mob far away now but inside the corridor at arrival was
+dropped before the predicted-position test (evidence and tests in the follow-up of
+[W101-DETOUR-FILTER-CORE-02](W101-DETOUR-FILTER-CORE-02.md)). Effect on the corrections above: in correction 3 the index is now
+used only by `find_nearest_reagent`, `find_nearest_chest` and `find_best_detour`, and `query_corridor` has no caller outside
+tests; the first-match id lookup named in correction 2 is gone from that function, which now checks every entry of
+`dynamic_mobs`; the `vertical_tolerance` check in correction 5 stays in `is_corridor_safe_3d`.

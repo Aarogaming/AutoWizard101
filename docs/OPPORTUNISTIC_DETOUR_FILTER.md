@@ -6,8 +6,10 @@
 > (`behavior_tree.rs`); offline unit tests pass; nothing calls them and nothing was run against the game. **Not
 > implemented:** zone surface penalties in `C` (the code uses plain 3D distance), the Section 3 peak threat clamp, dwell-time
 > prediction, the 30-second blacklist, Pure Pursuit steering, the `X` interact pulse and collection verification, and the
-> Section 4 priority order. **Known gap:** the corridor check only considers mobs that pass a broad phase based on their
-> current position and `repulsion_radius`, so it can miss a mob whose aggro reaches the corridor. **Unsourced:** the 25 and
+> Section 4 priority order. **Corridor check:** it examines every mob at its predicted position (an earlier version only saw mobs
+> that passed an index broad phase on current position and `repulsion_radius`, and could miss a mob whose aggro reaches the
+> corridor; fixed 2026-11-19), but it uses one arrival time for the whole corridor, so a mob is not tracked along the walk.
+> **Unsourced:** the 25 and
 > 5.0 unit values and the health wisps; three of the reagent names come from a comment in a separate C# card, not from
 > the Rust code. Details:
 > [W101-DETOUR-FILTER-CORE-02, Audit note](coordination/results/W101-DETOUR-FILTER-CORE-02.md).
