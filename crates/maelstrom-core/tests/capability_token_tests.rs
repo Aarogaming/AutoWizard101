@@ -140,3 +140,82 @@ fn test_single_use_turn_intent_consumption() {
     assert_eq!(receipt.target_index, 0);
     assert_eq!(receipt.committed_at_ms, 30_000);
 }
+
+#[test]
+fn test_verified_freshness_window_is_inclusive_and_never_reaches_into_the_past() {
+    let fact = Verified::new_verified(0u8, 1.0, 1000, 500);
+
+    assert!(
+        !fact.is_fresh(999),
+        "an observation from the future is not fresh"
+    );
+    assert!(fact.is_fresh(1000));
+    assert!(
+        fact.is_fresh(1500),
+        "the last millisecond of the TTL is still fresh"
+    );
+    assert!(!fact.is_fresh(1501));
+    assert_eq!(fact.read_if_fresh(1500), Some(&0u8));
+    assert_eq!(fact.read_if_fresh(1501), None);
+    assert_eq!(*fact.get(), 0u8, "get() ignores freshness by design");
+}
+
+#[test]
+fn test_verify_starts_the_ttl_at_capture_time_and_clamps_confidence() {
+    // Captured at 1000. The API has no clock, so the window cannot start later than the capture.
+    let fact = Unverified::new(7u8, "probe", 1000)
+        .verify(|v| *v == 7, 1.7, 500)
+        .unwrap();
+    assert_eq!(fact.verified_at_ms, 1000);
+    assert!(fact.is_fresh(1500));
+    assert!(!fact.is_fresh(1501));
+    assert_eq!(fact.confidence, 1.0);
+
+    let low = Unverified::new(7u8, "probe", 0)
+        .verify(|_| true, -0.2, 10)
+        .unwrap();
+    assert_eq!(low.confidence, 0.0);
+
+    assert_eq!(Verified::new_verified(0u8, 3.0, 0, 1).confidence, 1.0);
+    assert_eq!(Verified::new_verified(0u8, -3.0, 0, 1).confidence, 0.0);
+}
+
+#[test]
+fn test_out_of_combat_token_freshness_boundary() {
+    let presence = Verified::new_verified(
+        CombatPresenceFact {
+            in_combat: false,
+            sigil_index: None,
+        },
+        1.0,
+        100,
+        50,
+    );
+
+    assert!(OutOfCombatToken::try_acquire(&presence, 99).is_none());
+    assert!(OutOfCombatToken::try_acquire(&presence, 100).is_some());
+    assert!(OutOfCombatToken::try_acquire(&presence, 150).is_some());
+    assert!(OutOfCombatToken::try_acquire(&presence, 151).is_none());
+}
+
+#[test]
+fn test_input_lease_window_boundaries() {
+    let lease = InputLeaseToken::acquire(2, "owner", 100, 50);
+    assert!(!lease.is_valid(99));
+    assert!(lease.is_valid(100));
+    assert!(lease.is_valid(150));
+    assert!(!lease.is_valid(151));
+
+    let last_instant = InputLeaseToken::acquire(3, "owner", 100, 50)
+        .consume_action('W', 1, 150)
+        .expect("a lease is still valid at the last millisecond of its window");
+    assert_eq!(last_instant.executed_at_ms, 150);
+
+    let too_early = InputLeaseToken::acquire(4, "owner", 100, 50).consume_action('W', 1, 99);
+    assert!(
+        too_early.is_err(),
+        "a lease cannot be used before it was acquired"
+    );
+    let too_late = InputLeaseToken::acquire(5, "owner", 100, 50).consume_action('W', 1, 151);
+    assert!(too_late.is_err());
+}

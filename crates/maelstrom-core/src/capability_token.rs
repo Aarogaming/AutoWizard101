@@ -1,12 +1,20 @@
-//! `capability_token`: Rust ownership, borrowing, and typestate semantics for reality runtime authority.
+//! `capability_token`: a draft model of Rust ownership, borrowing, and typestate semantics for runtime authority.
 //!
-//! Enforces:
-//! - Typestate transitions (`Unverified<T>` -> `Verified<T>`) preventing planners from acting on raw sensor data.
-//! - Scoped capability tokens (`OutOfCombatToken<'a>`, `ZoneLifetimeToken<'zone>`) preventing stale out-of-context actions.
-//! - Linear move-only actuation leases (`InputLeaseToken`) preventing duplicate execution and enforcing RAII cleanup.
-//! - Single-use combat turn intents (`SingleUseTurnIntent`) consumed upon commitment.
+//! Status (audit 2026-11-20): offline library code with unit tests. Nothing outside this module and its tests
+//! uses any of these types: no actuator accepts a token or a lease, and nothing acquires one. The one thing the
+//! types do guarantee at compile time is the move-only shape: `InputLeaseToken` and `SingleUseTurnIntent`
+//! cannot be cloned and are consumed by value (the doctests pin this). They guarantee nothing about the game or
+//! the input device: a `Verified<T>` can be built without `verify` (`new_verified`, `pub` fields, `Deserialize`),
+//! leases are not exclusive, and a token carries no freshness or combat check once acquired. See
+//! `docs/architecture/OWNERSHIP_BORROWING_AND_TYPESTATES.md`.
 //!
-//! Follows `Facts ≠ Authority ≠ Actions`.
+//! Models:
+//! - Typestate transitions (`Unverified<T>` -> `Verified<T>`): a convention for marking sensor data as checked.
+//! - Scoped capability tokens (`OutOfCombatToken<'a>`, `ZoneLifetimeToken<'zone>`): borrows of a fact or a zone id.
+//! - Move-only actuation leases (`InputLeaseToken`): a consumed-by-value lease that returns a receipt.
+//! - Single-use combat turn intents (`SingleUseTurnIntent`): consumed by value on commitment.
+//!
+//! Follows `Facts ≠ Authority ≠ Actions` as a naming discipline, not as an enforced rule.
 
 use alloc::string::String;
 use core::marker::PhantomData;
@@ -38,6 +46,10 @@ impl<T> Unverified<T> {
     }
 
     /// Consumes the unverified observation, promoting it to `Verified<T>` if the validator passes.
+    ///
+    /// The freshness window starts at the observation's own `timestamp_ms` (capture time), not at the time of
+    /// this call; the API has no clock. `confidence` is clamped into `0.0..=1.0`, but a `NaN` passes through
+    /// the clamp unchanged.
     pub fn verify<F>(
         self,
         validator: F,
@@ -65,6 +77,9 @@ impl<T> Unverified<T> {
 }
 
 /// Typestate: Verified epistemic fact grounded by a trust validator, carrying confidence and a freshness TTL.
+///
+/// The type does not prove a validator ran: `new_verified` is `pub`, `confidence`, `verified_at_ms` and
+/// `ttl_ms` are `pub` fields (so a TTL can be edited after the fact), and `Deserialize` is derived.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Verified<T> {
     data: T,
@@ -74,7 +89,8 @@ pub struct Verified<T> {
 }
 
 impl<T> Verified<T> {
-    /// Constructs a verified fact directly (restricted to trusted validation routines).
+    /// Constructs a verified fact without running a validator. Despite the intent, nothing restricts this to
+    /// trusted validation routines: it is `pub`. Confidence is clamped like in `verify`.
     pub fn new_verified(data: T, confidence: f64, verified_at_ms: u64, ttl_ms: u64) -> Self {
         Self {
             data,
@@ -116,8 +132,12 @@ pub struct CombatPresenceFact {
     pub sigil_index: Option<usize>,
 }
 
-/// Scoped capability token proving the character is verified outside combat.
+/// Scoped capability token proving the character was verified outside combat when it was acquired.
 /// Cannot outlive the `Verified<CombatPresenceFact>` borrow `'a`.
+///
+/// Acquisition is the only check. The token has no methods, does not re-check freshness or combat state, and a
+/// newer `Verified<CombatPresenceFact>` saying "in combat" does not invalidate it (the borrowed fact is
+/// immutable). Nothing requires one yet.
 #[derive(Debug)]
 pub struct OutOfCombatToken<'a> {
     _presence: &'a Verified<CombatPresenceFact>,
@@ -144,8 +164,8 @@ impl<'a> OutOfCombatToken<'a> {
     }
 }
 
-/// Scoped capability token proving the player is grounded within an active zone manifold.
-/// Cannot outlive the zone lifetime `'zone`.
+/// Holds a zone id borrowed for `'zone` plus an epoch. Any `&str` works (a `'static` literal included), so this
+/// does not prove the zone is loaded and cannot detect a despawned zone; it only ties the id's borrow to a scope.
 #[derive(Debug)]
 pub struct ZoneLifetimeToken<'zone> {
     pub zone_id: &'zone str,
@@ -173,9 +193,17 @@ pub struct ActionExecutionReceipt {
     pub success: bool,
 }
 
-/// Linear, non-cloneable execution lease granting exclusive hardware/input dispatch authority.
+/// Move-only, non-cloneable lease record. It is not an exclusive input owner: `acquire` is `pub` and keeps no
+/// registry, so two leases (even with the same `lease_id`) can be valid at once, and it is affine rather than
+/// linear (dropping an unused lease is allowed). The real single input owner is the C# `GameInputLease`.
 ///
-/// Implements RAII `Drop` to guarantee safe cleanup and prevent stuck-key faults on early returns or errors.
+/// The `Drop` impl releases nothing; see the comment on it.
+///
+/// ```compile_fail,E0599
+/// use maelstrom_core::capability_token::InputLeaseToken;
+/// let lease = InputLeaseToken::acquire(1, "owner", 0, 100);
+/// let _copy = lease.clone();
+/// ```
 #[derive(Debug)]
 pub struct InputLeaseToken {
     pub lease_id: u64,
@@ -209,7 +237,24 @@ impl InputLeaseToken {
             && (now_ms - self.acquired_at_ms) <= self.duration_ms
     }
 
-    /// Consumes the lease token to dispatch an action pulse (linear move semantics).
+    /// Consumes the lease and returns a receipt. It dispatches nothing: this module touches no input device, and
+    /// `success: true` only means the lease was still valid at `now_ms`.
+    ///
+    /// The lease is moved, so a second use is a compile error:
+    ///
+    /// ```
+    /// use maelstrom_core::capability_token::InputLeaseToken;
+    /// let lease = InputLeaseToken::acquire(1, "owner", 0, 100);
+    /// let receipt = lease.consume_action('W', 10, 5).unwrap();
+    /// assert!(receipt.success);
+    /// ```
+    ///
+    /// ```compile_fail,E0382
+    /// use maelstrom_core::capability_token::InputLeaseToken;
+    /// let lease = InputLeaseToken::acquire(1, "owner", 0, 100);
+    /// let _first = lease.consume_action('W', 10, 5);
+    /// let _second = lease.consume_action('W', 10, 6);
+    /// ```
     pub fn consume_action(
         mut self,
         key: char,
@@ -235,7 +280,8 @@ impl InputLeaseToken {
 
 impl Drop for InputLeaseToken {
     fn drop(&mut self) {
-        // Enforce cleanup on drop (releasing keys and returning Idle state)
+        // Intended: release held keys and return to Idle. Today it only clears a private flag that nothing can
+        // read after the drop, and this module touches no input device, so nothing is released or restored.
         self.active = false;
     }
 }
@@ -250,6 +296,9 @@ pub struct TurnCommitReceipt {
 }
 
 /// Single-use combat turn intent. Cannot be cloned; consumed upon commitment.
+///
+/// Moving stops the same intent value being committed twice; it does not stop a second intent being committed
+/// for the same round (`round_number` and `now_ms` are caller-supplied and nothing records them).
 #[derive(Debug)]
 pub struct SingleUseTurnIntent {
     pub spell_name: String,
@@ -266,7 +315,21 @@ impl SingleUseTurnIntent {
         }
     }
 
-    /// Consumes the turn intent, returning a receipt. Guarantees this action cannot be re-executed.
+    /// Consumes the turn intent and returns a receipt. This intent value cannot be committed again:
+    ///
+    /// ```
+    /// use maelstrom_core::capability_token::SingleUseTurnIntent;
+    /// let intent = SingleUseTurnIntent::new("Meteor Strike", 1, 0);
+    /// let receipt = intent.commit(1, 10);
+    /// assert_eq!(receipt.round_number, 1);
+    /// ```
+    ///
+    /// ```compile_fail,E0382
+    /// use maelstrom_core::capability_token::SingleUseTurnIntent;
+    /// let intent = SingleUseTurnIntent::new("Meteor Strike", 1, 0);
+    /// let _first = intent.commit(1, 10);
+    /// let _second = intent.commit(1, 11);
+    /// ```
     pub fn commit(self, round_number: u32, now_ms: u64) -> TurnCommitReceipt {
         TurnCommitReceipt {
             round_number,
